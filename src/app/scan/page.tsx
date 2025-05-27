@@ -123,7 +123,10 @@ export default function ScanPage() {
       <div className="p-4">
         <Button
           variant="outline"
-          onClick={() => setManualEntry(!manualEntry)}
+          onClick={() => {
+            setManualEntry(!manualEntry)
+            setIsScanning(!manualEntry)
+          }}
           className="w-full text-white border-white hover:bg-white hover:text-primary-800 transition-all duration-300"
         >
           {manualEntry ? "Use Camera" : "Enter Manually"}

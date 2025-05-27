@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 
-export default function ProductPage({ params }: { params: { id: string } }) {
+export default function ProductPage({ params: { id: _id } }: { params: { id: string } }) {
   const [editingPrice, setEditingPrice] = useState(false)
   const [currentPrice, setCurrentPrice] = useState("1.20")
   const [tempPrice, setTempPrice] = useState(currentPrice)
