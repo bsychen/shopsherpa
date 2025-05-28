@@ -1,0 +1,105 @@
+name: Development
+
+on:
+  push:
+    branches:
+      - main
+      - 'feat/**'
+      - 'fix/**'
+      - 'chore/**'
+  pull_request:
+    branches:
+      - main
+      - 'feat/**'
+      - 'fix/**'
+      - 'chore/**'
+
+env:
+  NODE_VERSION: 20.x
+
+jobs:
+  frontend-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js & pnpm
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Lint
+        run: pnpm lint
+        
+      - name: Build
+        run: pnpm build
+        
+      - name: Debug directory contents
+        run: ls -la .next
+        
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: |
+            .next/**/*
+            public
+
+  backend-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js & pnpm
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Backend
+        run: echo "PLACEHOLDER - no backend to build yet"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backend-placeholder
+          path: /dev/null
+
+  package:
+    needs: [frontend-build, backend-build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: package
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: backend-placeholder
+          path: package
+
+      - name: Create Release Package
+        run: zip -r shopsmart-package.zip package
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shopsmart-release
+          path: shopsmart-package.zip
