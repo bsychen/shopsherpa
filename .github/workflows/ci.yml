@@ -15,8 +15,8 @@ on:
       - 'chore/**'
 
 env:
-  NODE_VERSION: 20.x
   PNPM_VERSION: 8.x
+  NODE_VERSION: 20.x
 
 jobs:
   frontend-build:
@@ -26,11 +26,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
       - name: Setup Node.js & pnpm
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
+          cache: 'pnpm'
 
       - name: Install, Lint & Build
         run: |
@@ -51,11 +55,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
       - name: Setup Node.js & pnpm
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -76,6 +84,7 @@ jobs:
         with:
           name: frontend-dist
           path: package
+
       - uses: actions/download-artifact@v4
         with:
           name: backend-placeholder
