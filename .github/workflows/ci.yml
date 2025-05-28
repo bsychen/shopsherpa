@@ -52,7 +52,6 @@ jobs:
           name: frontend-dist
           path: |
             .next
-            public
 
   backend-build:
     runs-on: ubuntu-latest
