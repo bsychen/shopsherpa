@@ -8,8 +8,8 @@ const MOCK_PRODUCTS = [
   { id: 3, name: "Brown Bread", dbPrice: 1.05 }
 ]
 
-export default function ProductPage({ params }: { params: { _id: string } }) {
-  const product = MOCK_PRODUCTS.find(p => p.id === parseInt(params._id))
+export default function ProductPage({ params }: { params: { id: string } }) {
+  const product = MOCK_PRODUCTS.find(p => p.id === parseInt(params.id))
 
   if (!product) {
     return (
