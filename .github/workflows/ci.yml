@@ -15,7 +15,6 @@ on:
       - 'chore/**'
 
 env:
-  PNPM_VERSION: 8.x
   NODE_VERSION: 20.x
 
 jobs:
@@ -28,7 +27,7 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: ${{ env.PNPM_VERSION }}
+          run_install: false
 
       - name: Setup Node.js & pnpm
         uses: actions/setup-node@v4
@@ -65,7 +64,7 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: ${{ env.PNPM_VERSION }}
+          run_install: false
 
       - name: Setup Node.js & pnpm
         uses: actions/setup-node@v4
