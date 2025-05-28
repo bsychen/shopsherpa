@@ -8,7 +8,6 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "ShopSmart UK - Smart Shopping for Students",
   description: "Compare supermarket prices, scan products, and manage grocery budgets in the UK",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({
