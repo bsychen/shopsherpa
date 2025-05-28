@@ -50,9 +50,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: frontend-dist
-          path:
-            - .next
-            - public
+          path: |
+            .next
+            public
 
   backend-build:
     runs-on: ubuntu-latest
