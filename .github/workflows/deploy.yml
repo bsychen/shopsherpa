@@ -21,35 +21,6 @@ jobs:
       cancel-in-progress: true
 
     steps:
-      - name: Echo triggering run ID
-        run: |
-          echo "Deployment workflow starting."
-          # This is the run-id you're using for download-artifact
-          echo "Triggered by workflow_run.run_id = ${{ github.event.workflow_run.run_id }}"
-          echo "Triggered by workflow_run.id     = ${{ github.event.workflow_run.id }}"
-      
-      - name: Dump workflow_run payload
-        run: echo "${{ toJson(github.event.workflow_run) }}"
-
-      - name: List available artifacts (via REST API)
-        run: |
-          curl -s \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.run_id }}/artifacts \
-          | jq .
-      
-      - name: Download Release Package
-        uses: actions/download-artifact@v4
-        with:
-          name: shopsmart-release
-          path: ./release
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Unzip Release
-        run: unzip ./release/shopsmart-package.zip -d ./release
-
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
@@ -62,5 +33,5 @@ jobs:
           github-token:      ${{ secrets.GITHUB_TOKEN }}
           vercel-org-id:     ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args:       ${{ github.event.workflow_run.head_branch == 'main' && '--prebuilt --prod' || '--prebuilt' }}
+          vercel-args:       ${{ github.event.workflow_run.head_branch == 'main' && '--prod' || }}
           github-comment:    ${{ github.event.workflow_run.head_branch != 'main' }}
