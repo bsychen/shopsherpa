@@ -15,7 +15,7 @@ export default function ProductSearch() {
   const [query, setQuery] = useState('');
 
   const handleSearch = async () => {
-    const products = await searchProducts(query);
+    const products = await searchProducts(query.toLowerCase());
     setResults(products);
   };
 

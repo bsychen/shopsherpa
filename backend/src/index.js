@@ -45,7 +45,7 @@ app.get("/api/products", async (req, res) => {
 app.get("/api/products/name/:name", async (req, res) => {
   try {
     const productsSnapshot = await db.collection("products")
-      .where("ProductName", "==", req.params.name)
+      .where("ProductNameLower", "==", req.params.name)
       .get();
 
     const products = [];
@@ -73,8 +73,8 @@ app.get("/api/products/search", async (req, res) => {
   try {
     const { name } = req.query;
     const productsSnapshot = await db.collection("products")
-      .where("ProductName", ">=", name)
-      .where("ProductName", "<=", name + "\uf8ff")
+      .where("ProductNameLower", ">=", name)
+      .where("ProductNameLower", "<=", name + "\uf8ff")
       .get();
 
     const products = [];
