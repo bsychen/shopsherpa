@@ -1,11 +1,10 @@
 // we need express to expose the API to the frontend
 const express = require("express");
+const cors = require("cors");
 const admin = require("firebase-admin");
 const serviceAccount = require("../key.json");
-
 const app = express();
-// in the youtube tutorial he uses this definition of PORT (for public deployment?)
-const PORT = process.env.PORT || 3000;
+const PORT = 3001; //process.env.PORT ||
 
 // Initialize the Firebase Admin SDK
 admin.initializeApp({
@@ -14,6 +13,11 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
+app.use(cors({
+  origin: 'http://localhost:3000', // Frontend URL to allow CORS requests from
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+  allowedHeaders: ['Content-Type', 'Authorization'] // Allowed headers
+}));
 // some JSON middleware he included in the tutorial
 // parses JSON bodies and URL-encoded data
 app.use(express.json());

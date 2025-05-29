@@ -3,18 +3,23 @@
 import { useState } from "react"
 import Link from "next/link"
 
-const MOCK_PRODUCTS = [
-  { id: 1, name: "Organic Bananas" },
-  { id: 2, name: "Whole Milk" },
-  { id: 3, name: "Brown Bread" }
-]
+const API_BASE = 'http://localhost:3001'; //backend API base URL
 
-export default function Home() {
-  const [search, setSearch] = useState("")
-  
-  const filteredProducts = MOCK_PRODUCTS.filter(product =>
-    product.name.toLowerCase().includes(search.toLowerCase())
-  )
+export async function searchProducts(query) {
+  const res = await fetch(`${API_BASE}/api/products/search?name=${encodeURIComponent(query)}`);
+  return await res.json();
+}
+
+export default function ProductSearch() {
+  const [results, setResults] = useState([]);
+  const [query, setQuery] = useState('');
+
+  const handleSearch = async () => {
+    const products = await searchProducts(query);
+    setResults(products);
+  };
+
+  console.log("Results:", results);
 
   return (
     <main style={{ padding: "20px" }}>
@@ -23,14 +28,16 @@ export default function Home() {
           <input
             type="text"
             placeholder="Search for products..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
+            value={query}
             style={{ width: "100%", padding: "8px" }}
           />
         </div>
 
+        <button onClick={handleSearch}>Search</button>
+
         <div>
-          {filteredProducts.map((product) => (
+          {results.map((product) => (
             <Link 
               key={product.id} 
               href={`/product/${product.id}`}
@@ -49,5 +56,5 @@ export default function Home() {
         </div>
       </div>
     </main>
-  )
+  );
 }
