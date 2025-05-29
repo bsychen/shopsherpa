@@ -19,6 +19,7 @@ env:
 
 jobs:
   frontend-build:
+    name: Frontend Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -56,6 +57,7 @@ jobs:
             public
 
   backend-build:
+    name: Backend Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -84,6 +86,7 @@ jobs:
           path: /dev/null
 
   package:
+    name: Package App
     needs: [frontend-build, backend-build]
     runs-on: ubuntu-latest
     steps:
