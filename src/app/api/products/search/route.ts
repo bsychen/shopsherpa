@@ -1,13 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import admin from 'firebase-admin';
-import serviceAccount from '../../key.json';
-
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount as any),
-  });
-}
-const db = admin.firestore();
+import { db } from "@/lib/firebaseAdmin";
 
 export async function GET(req: NextRequest) {
   try {

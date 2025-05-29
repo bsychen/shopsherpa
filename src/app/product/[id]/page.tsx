@@ -29,7 +29,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     );
   }
 
-  else if (!product) {
+  if (!product) {
     return (
       <div style={{ padding: "20px" }}>
         <div>Product not found</div>
@@ -38,16 +38,14 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     )
   }
 
-  else {
-    return (
-      <div style={{ padding: "20px" }}>
-        <Link href="/" style={{ color: "blue", display: "block", marginBottom: "20px" }}>
-          Back to search
-        </Link>
-        
-        <h1 style={{ fontSize: "24px", marginBottom: "20px" }}>{product.name}</h1>
-        <div>What you should be paying: £{product.dbPrice.toFixed(2)}</div>
-      </div>
-    )
-}
+  return (
+    <div style={{ padding: "20px" }}>
+      <Link href="/" style={{ color: "blue", display: "block", marginBottom: "20px" }}>
+        Back to search
+      </Link>
+      
+      <h1 style={{ fontSize: "24px", marginBottom: "20px" }}>{product.name}</h1>
+      <div>What you should be paying: £{product.dbPrice.toFixed(2)}</div>
+    </div>
+  )
 }
