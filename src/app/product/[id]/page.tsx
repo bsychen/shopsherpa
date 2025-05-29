@@ -1,25 +1,23 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import Link from "next/link"
+import { Product } from "@/types/product"
+import { getProduct } from "@/lib/api"
 
-export async function getProduct(id) {
-  const res = await fetch(`/api/products/${id}`);
-  if (!res.ok) return null;
-  return await res.json();
-}
-
-export default function ProductPage({ params }: { params: { id: string } }) {
-  const [product, setProduct] = useState<any | null>(null);
+export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
+  
+  const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    getProduct(params.id).then((data) => {
-      setProduct(data);
-      setLoading(false);
-    });
-  }, [params.id]);
+    setLoading(true)
+    getProduct(id).then((data) => {
+      setProduct(data)
+      setLoading(false)
+    })
+  }, [id])
 
   if (loading) {
     return (

@@ -3,10 +3,12 @@ import { db } from "@/lib/firebaseAdmin";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+  
   try {
-    const doc = await db.collection("products").doc(params.id).get();
+    const doc = await db.collection("products").doc(id).get();
     if (!doc.exists) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
@@ -15,7 +17,7 @@ export async function GET(
       name: doc.data().ProductName,
       dbPrice: doc.data().ExpectedPrice,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
   }
 }
