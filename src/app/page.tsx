@@ -2,19 +2,18 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { searchProducts } from "@/lib/api"
 
-const MOCK_PRODUCTS = [
-  { id: 1, name: "Organic Bananas" },
-  { id: 2, name: "Whole Milk" },
-  { id: 3, name: "Brown Bread" }
-]
+export default function ProductSearch() {
+  const [results, setResults] = useState([]);
+  const [query, setQuery] = useState('');
 
-export default function Home() {
-  const [search, setSearch] = useState("")
-  
-  const filteredProducts = MOCK_PRODUCTS.filter(product =>
-    product.name.toLowerCase().includes(search.toLowerCase())
-  )
+  const handleSearch = async () => {
+    const products = await searchProducts(query.toLowerCase());
+    setResults(products);
+  };
+
+  console.log("Results:", results);
 
   return (
     <main style={{ padding: "20px" }}>
@@ -23,14 +22,16 @@ export default function Home() {
           <input
             type="text"
             placeholder="Search for products..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
+            value={query}
             style={{ width: "100%", padding: "8px" }}
           />
         </div>
 
+        <button onClick={handleSearch}>Search</button>
+
         <div>
-          {filteredProducts.map((product) => (
+          {results.map((product) => (
             <Link 
               key={product.id} 
               href={`/product/${product.id}`}
@@ -49,5 +50,5 @@ export default function Home() {
         </div>
       </div>
     </main>
-  )
+  );
 }

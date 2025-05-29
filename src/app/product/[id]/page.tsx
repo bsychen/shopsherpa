@@ -1,15 +1,31 @@
 "use client"
 
+import { useState, useEffect, use } from "react"
 import Link from "next/link"
+import { Product } from "@/types/product"
+import { getProduct } from "@/lib/api"
 
-const MOCK_PRODUCTS = [
-  { id: 1, name: "Organic Bananas", dbPrice: 1.15 },
-  { id: 2, name: "Whole Milk", dbPrice: 1.40 },
-  { id: 3, name: "Brown Bread", dbPrice: 1.05 }
-]
+export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
+  
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
 
-export default function ProductPage({ params }: { params: { id: string } }) {
-  const product = MOCK_PRODUCTS.find(p => p.id === parseInt(params.id))
+  useEffect(() => {
+    setLoading(true)
+    getProduct(id).then((data) => {
+      setProduct(data)
+      setLoading(false)
+    })
+  }, [id])
+
+  if (loading) {
+    return (
+      <div style={{ padding: "20px" }}>
+        <div>Loading...</div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (

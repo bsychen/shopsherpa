@@ -18,8 +18,8 @@ env:
   NODE_VERSION: 20.x
 
 jobs:
-  frontend-build:
-    name: Frontend Build
+  build:
+    name: Build and Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -42,32 +42,14 @@ jobs:
       - name: Lint
         run: pnpm lint
         
+      - name: Type Check
+        run: pnpm type-check
+        
       - name: Build
         run: pnpm build
-        
-      - name: Debug directory contents
-        run: ls -la .next
-
-  backend-build:
-    name: Backend Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-
-      - name: Setup Node.js & pnpm
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build Backend
-        run: echo "PLACEHOLDER - no backend to build yet"
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_PRIVATE_KEY_ID: ${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
+          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+          FIREBASE_CLIENT_ID: ${{ secrets.FIREBASE_CLIENT_ID }}
