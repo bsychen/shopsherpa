@@ -42,4 +42,27 @@ jobs:
         run: vercel build --prod --token="$VERCEL_TOKEN"
 
       - name: Deploy Project Artifacts to Vercel
-        run: vercel deploy --prod --token="$VERCEL_TOKEN"
+        id: vercel
+        run: |
+          echo "URL=$(vercel deploy --prod --confirm --token=${{ secrets.VERCEL_TOKEN }} --cwd .)" >> $GITHUB_OUTPUT
+
+      - name: Link GitHub Deployment to URL
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const deploy = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha,
+              environment: 'production',
+              required_contexts: []
+            });
+
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: deploy.data.id,
+              state: 'success',
+              environment_url: process.env.URL
+            });
