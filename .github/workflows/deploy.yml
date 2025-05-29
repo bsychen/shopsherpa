@@ -3,6 +3,8 @@ name: Deployment
 permissions:
   actions: read
   contents: read
+  issues: write
+  deployments: write
 
 on:
   workflow_run:
@@ -28,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
 
     concurrency:
-      group: deploy-${{ github.event.workflow_run.head_branch }}
+      group: deploy-${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.head_ref }}
       cancel-in-progress: true
 
     steps:
@@ -44,5 +46,5 @@ jobs:
           github-token:      ${{ secrets.GITHUB_TOKEN }}
           vercel-org-id:     ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args:       ${{ github.event_name == 'workflow_run' && '--prod --confirm' || '--confirm' }}
+          vercel-args: ${{ github.event_name == 'pull_request' && '--confirm' || '--prod --confirm' }}
           github-comment:    ${{ github.event_name == 'pull_request' }}
