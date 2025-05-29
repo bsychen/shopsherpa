@@ -27,6 +27,7 @@ jobs:
           name: shopsmart-release
           path: ./release
           run-id: ${{ github.event.workflow_run.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Unzip Release
         run: unzip ./release/shopsmart-package.zip -d ./release
