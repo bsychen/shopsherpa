@@ -21,6 +21,13 @@ jobs:
       cancel-in-progress: true
 
     steps:
+      - name: Echo triggering run ID
+        run: |
+          echo "Deployment workflow starting."
+          # This is the run-id you're using for download-artifact
+          echo "Triggered by workflow_run.run_id = ${{ github.event.workflow_run.run_id }}"
+          echo "Triggered by workflow_run.id     = ${{ github.event.workflow_run.id }}"
+      
       - name: Dump workflow_run payload
         run: echo "${{ toJson(github.event.workflow_run) }}"
 
