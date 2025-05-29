@@ -21,6 +21,17 @@ jobs:
       cancel-in-progress: true
 
     steps:
+      - name: Dump workflow_run payload
+        run: echo "${{ toJson(github.event.workflow_run) }}"
+
+      - name: List available artifacts (via REST API)
+        run: |
+          curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.run_id }}/artifacts \
+          | jq .
+      
       - name: Download Release Package
         uses: actions/download-artifact@v4
         with:
