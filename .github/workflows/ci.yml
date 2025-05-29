@@ -89,6 +89,9 @@ jobs:
     name: Package App
     needs: [frontend-build, backend-build]
     runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main')
     steps:
       - uses: actions/download-artifact@v4
         with:
