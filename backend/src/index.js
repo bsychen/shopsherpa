@@ -37,6 +37,58 @@ app.get("/api/products", async (req, res) => {
   }
 });
 
+// READ API endpoint for a specific product by name
+app.get("/api/products/name/:name", async (req, res) => {
+  try {
+    const productsSnapshot = await db.collection("products")
+      .where("ProductName", "==", req.params.name)
+      .get();
+
+    const products = [];
+    productsSnapshot.forEach(doc => {
+      products.push({
+        id: doc.id,
+        name: doc.data().ProductName,
+        dbPrice: doc.data().ExpectedPrice
+      });
+    });
+
+    res.json(products);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ error: "Failed to fetch products" });
+  }
+});
+
+/**
+ * Search API endpoint with which allows for search queries (with a partial match):
+ * $ curl http://localhost:3000/api/products/search/?name=Ban
+ * TODO: firebase filds are always case-sensitive, so we need to add a 'lowercase' field for this to work better
+ */
+app.get("/api/products/search", async (req, res) => {
+  try {
+    const { name } = req.query;
+    const productsSnapshot = await db.collection("products")
+      .where("ProductName", ">=", name)
+      .where("ProductName", "<=", name + "\uf8ff")
+      .get();
+
+    const products = [];
+      productsSnapshot.forEach(doc => {
+        products.push({
+          id: doc.id,
+          name: doc.data().ProductName,
+          dbPrice: doc.data().ExpectedPrice
+        });
+      });
+
+      res.json(products);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ error: "Failed to fetch products" });
+  }
+});
+
 // Can include endpoints for the rest of CRUD if needed
 
 // Start the server
