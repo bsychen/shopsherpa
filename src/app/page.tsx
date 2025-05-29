@@ -3,10 +3,9 @@
 import { useState } from "react"
 import Link from "next/link"
 
-const API_BASE = 'http://localhost:3001'; //backend API base URL
 
 export async function searchProducts(query) {
-  const res = await fetch(`${API_BASE}/api/products/search?name=${encodeURIComponent(query)}`);
+  const res = await fetch(`/api/products/search?name=${encodeURIComponent(query)}`);
   return await res.json();
 }
 
