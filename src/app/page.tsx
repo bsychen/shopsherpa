@@ -2,12 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-
-
-export async function searchProducts(query) {
-  const res = await fetch(`/api/products/search?name=${encodeURIComponent(query)}`);
-  return await res.json();
-}
+import { searchProducts } from "@/lib/api"
 
 export default function ProductSearch() {
   const [results, setResults] = useState([]);
