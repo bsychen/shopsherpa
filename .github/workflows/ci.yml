@@ -44,9 +44,6 @@ jobs:
         
       - name: Build
         run: pnpm build
-        
-      - name: Debug directory contents
-        run: ls -la .next
 
   backend-build:
     name: Backend Build
