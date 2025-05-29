@@ -9,11 +9,22 @@ on:
     workflows: ["Development"]
     types:
       - completed
+  
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 jobs:
   deploy:
     name: Deploy to Vercel
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: >
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
 
     concurrency:
@@ -33,5 +44,22 @@ jobs:
           github-token:      ${{ secrets.GITHUB_TOKEN }}
           vercel-org-id:     ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args:       ${{ github.event.workflow_run.head_branch == 'main' && '--prod' || '' }}
-          github-comment:    ${{ github.event.workflow_run.head_branch != 'main' }}
+          vercel-args:       ${{ github.event_name == 'workflow_run' && '--prod --confirm' || '--confirm' }}
+          github-comment:    ${{ github.event_name == 'pull_request' }}
+
+      - name: Create GitHub Deployment
+        id: create_deploy
+        uses: actions/create-deployment@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          environment: ${{ github.event_name == 'push' && 'production' || 'preview' }}
+          transient_environment: ${{ github.event_name == 'pull_request' }}
+          auto_merge: false
+  
+      - name: Mark Deployment Status
+        uses: actions/create-deployment-status@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          deployment_id: ${{ steps.create_deploy.outputs.deployment_id }}
+          state: ${{ job.status }}
+          environment_url: ${{ steps.vercel.outputs.url }}
