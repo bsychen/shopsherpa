@@ -47,14 +47,6 @@ jobs:
         
       - name: Debug directory contents
         run: ls -la .next
-        
-      - uses: actions/upload-artifact@v4
-        with:
-          name: frontend-dist
-          include-hidden-files: true
-          path: |
-            .next/**
-            public
 
   backend-build:
     name: Backend Build
@@ -79,38 +71,3 @@ jobs:
 
       - name: Build Backend
         run: echo "PLACEHOLDER - no backend to build yet"
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: backend-placeholder
-          path: /dev/null
-
-  package:
-    name: Package App
-    needs: [frontend-build, backend-build]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: frontend-dist
-          path: package
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: backend-placeholder
-          path: package
-
-      - name: Create Release Package
-        run: zip -r shopsmart-package.zip package
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: shopsmart-release
-          path: shopsmart-package.zip
-
-      - name: Echo Development run ID
-        run: |
-          echo "Development workflow completed."
-          echo "GITHUB_RUN_ID = $GITHUB_RUN_ID"
-          # Also print the run number
-          echo "GITHUB_RUN_NUMBER = $GITHUB_RUN_NUMBER"
