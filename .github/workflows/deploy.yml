@@ -46,20 +46,3 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args:       ${{ github.event_name == 'workflow_run' && '--prod --confirm' || '--confirm' }}
           github-comment:    ${{ github.event_name == 'pull_request' }}
-
-      - name: Create GitHub Deployment
-        id: create_deploy
-        uses: actions/create-deployment@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          environment: ${{ github.event_name == 'push' && 'production' || 'preview' }}
-          transient_environment: ${{ github.event_name == 'pull_request' }}
-          auto_merge: false
-  
-      - name: Mark Deployment Status
-        uses: actions/create-deployment-status@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          deployment_id: ${{ steps.create_deploy.outputs.deployment_id }}
-          state: ${{ job.status }}
-          environment_url: ${{ steps.vercel.outputs.url }}
