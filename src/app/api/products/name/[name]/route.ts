@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/firebaseAdmin";
+import { Product } from "@/types/product";
 
 export async function GET(
   req: NextRequest,
@@ -11,7 +12,7 @@ export async function GET(
       .where("ProductNameLower", "==", params.name.toLowerCase())
       .get();
 
-    const products: any[] = [];
+    const products: Product[] = [];
     productsSnapshot.forEach(doc => {
       products.push({
         id: doc.id,
@@ -21,7 +22,7 @@ export async function GET(
     });
 
     return NextResponse.json(products);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
   }
 }
