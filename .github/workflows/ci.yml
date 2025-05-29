@@ -107,3 +107,10 @@ jobs:
         with:
           name: shopsmart-release
           path: shopsmart-package.zip
+
+      - name: Echo Development run ID
+        run: |
+          echo "Development workflow completed."
+          echo "GITHUB_RUN_ID = $GITHUB_RUN_ID"
+          # Also print the run number
+          echo "GITHUB_RUN_NUMBER = $GITHUB_RUN_NUMBER"
