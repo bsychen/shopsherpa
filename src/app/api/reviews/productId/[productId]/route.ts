@@ -3,9 +3,9 @@ import { db } from "@/lib/firebaseAdmin";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { productId: string } }
+  { params }: { params: Promise<{ productId: string }> }
 ) {
-  const { productId } = params; // No need for Promise here
+  const { productId } = await params;
   try {
     // Correct way to create a reference
     const productRef = db.doc(`products/${productId}`);
