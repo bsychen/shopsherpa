@@ -21,14 +21,14 @@ export default function ProductSearch() {
         <div style={{ marginBottom: "20px" }}>
           <input
             type="text"
-            placeholder="Hello Jamie Willis"
+            placeholder="Search for a product..."
             onChange={(e) => setQuery(e.target.value)}
             value={query}
             style={{ width: "100%", padding: "8px" }}
           />
         </div>
 
-        <button onClick={handleSearch}>Jamie Willis</button>
+        <button onClick={handleSearch}>Search</button>
 
         <div>
           {results.map((product) => (
