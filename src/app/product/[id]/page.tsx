@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, use } from "react"
-import Link from "next/link"
 import { Product } from "@/types/product"
 import { getProduct } from "@/lib/api"
 
@@ -21,29 +20,27 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   if (loading) {
     return (
-      <div style={{ padding: "20px" }}>
-        <div>Loading...</div>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 bg-zinc-50 dark:bg-zinc-100">
+        <div className="text-lg text-zinc-700">Loading...</div>
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div style={{ padding: "20px" }}>
-        <div>Product not found</div>
-        <Link href="/" style={{ color: "blue" }}>Back to search</Link>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 bg-zinc-50 dark:bg-zinc-100">
+        <div className="text-lg text-red-600 mb-4">Product not found</div>
       </div>
-    )
+    );
   }
 
   return (
-    <div style={{ padding: "20px" }}>
-      <Link href="/" style={{ color: "blue", display: "block", marginBottom: "20px" }}>
-        Back to search
-      </Link>
-      
-      <h1 style={{ fontSize: "24px", marginBottom: "20px" }}>{product.name}</h1>
-      <div>What you should be paying: £{product.dbPrice.toFixed(2)}</div>
+    <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 bg-zinc-50 dark:bg-zinc-100">
+      <div className="w-full max-w-xl bg-white rounded-lg shadow p-6 flex flex-col items-center border border-zinc-200">
+        <h1 className="text-2xl font-bold mb-4 text-center text-zinc-800">{product.name}</h1>
+        <div className="text-lg text-zinc-700 mb-2">What you should be paying:</div>
+        <div className="text-3xl font-semibold text-green-600 mb-2">£{product.dbPrice.toFixed(2)}</div>
+      </div>
     </div>
   )
 }

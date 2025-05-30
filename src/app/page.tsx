@@ -1,52 +1,23 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
-import { searchProducts } from "@/lib/api"
 
-export default function ProductSearch() {
-  const [results, setResults] = useState([]);
-  const [query, setQuery] = useState('');
-
-  const handleSearch = async () => {
-    const products = await searchProducts(query.toLowerCase());
-    setResults(products);
-  };
-
-  console.log("Results:", results);
-
+export default function Home() {
   return (
-    <main style={{ padding: "20px" }}>
-      <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-        <div style={{ marginBottom: "20px" }}>
-          <input
-            type="text"
-            placeholder="Search for a product..."
-            onChange={(e) => setQuery(e.target.value)}
-            value={query}
-            style={{ width: "100%", padding: "8px" }}
-          />
-        </div>
-
-        <button onClick={handleSearch}>Search</button>
-
-        <div>
-          {results.map((product) => (
-            <Link 
-              key={product.id} 
-              href={`/product/${product.id}`}
-              style={{ 
-                display: "block", 
-                padding: "10px",
-                marginBottom: "10px",
-                border: "1px solid #ccc",
-                textDecoration: "none",
-                color: "black"
-              }}
-            >
-              <div>{product.name}</div>
-            </Link>
-          ))}
+    <main className="flex flex-col items-center justify-center min-h-[60vh] p-4">
+      <div className="max-w-md w-full flex flex-col gap-6 items-center">
+        <h1 className="text-2xl font-bold mb-2">Welcome to ShopSmart</h1>
+        <div className="flex flex-col gap-4 w-full">
+          <Link href="/search">
+            <button className="w-full px-6 py-4 bg-blue-600 text-white rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors shadow">
+              Search for a Product
+            </button>
+          </Link>
+          <Link href="/scan">
+            <button className="w-full px-6 py-4 bg-green-600 text-white rounded-lg text-lg font-semibold hover:bg-green-700 transition-colors shadow">
+              Scan a Barcode
+            </button>
+          </Link>
         </div>
       </div>
     </main>
