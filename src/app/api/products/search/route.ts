@@ -7,10 +7,6 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const name = searchParams.get('name');
 
-    if (!name) {
-      return NextResponse.json({ error: "Name parameter is required" }, { status: 400 });
-    }
-
     const productsSnapshot = await db
       .collection("products")
       .where("ProductNameLower", ">=", name.toLowerCase())

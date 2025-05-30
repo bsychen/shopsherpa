@@ -1,4 +1,4 @@
-import { getApps, initializeApp, cert, ServiceAccount } from 'firebase-admin/app';
+import { getApps, getApp, initializeApp, cert, ServiceAccount } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
 const serviceAccount = {
@@ -10,7 +10,7 @@ const serviceAccount = {
   client_id: process.env.FIREBASE_CLIENT_ID,
 };
 
-const app = !getApps().length ? initializeApp({ credential: cert(serviceAccount as ServiceAccount) }) : getApps()[0];
+const app = !getApps().length ? initializeApp({ credential: cert(serviceAccount as ServiceAccount) }) : getApp();
 const db = getFirestore(app);
 
 export { db };
