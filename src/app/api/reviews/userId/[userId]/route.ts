@@ -18,7 +18,8 @@ export async function GET(
       reviews.push({
         id: doc.id,
         productId: doc.data().ProductId,
-        userId: doc.data().UserId
+        userId: doc.data().UserId,
+        reviewText: doc.data().ReviewText,
       });
     });
     

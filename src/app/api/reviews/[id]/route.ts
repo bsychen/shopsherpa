@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/firebaseAdmin";
+import { Review } from '@/types/reviews';
 
 export async function GET(
   req: NextRequest,
@@ -11,10 +12,14 @@ export async function GET(
     if (!doc.exists) {
       return NextResponse.json({ error: "Review not found" }, { status: 404 });
     }
+    
     return NextResponse.json({
       id: doc.id,
-      ...doc.data(),
-    });
+      productId: doc.data().ProductId,
+      userId: doc.data().UserId,
+      reviewText: doc.data().ReviewText,
+    }) as NextResponse<Review>;
+    
   } catch {
     return NextResponse.json({ error: "Failed to fetch review" }, { status: 500 });
   }

@@ -19,9 +19,10 @@ export async function GET(
         id: doc.id,
         productId: doc.data().ProductId,
         userId: doc.data().UserId,
+        reviewText: doc.data().ReviewText,
       });
     });
-    
+
     return NextResponse.json(reviews);
   } catch (error) {
     console.error("Error fetching reviews:", error);
