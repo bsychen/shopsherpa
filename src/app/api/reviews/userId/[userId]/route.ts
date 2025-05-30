@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/firebaseAdmin";
+import { Review } from "@/types/reviews";
 
 export async function GET(
   req: NextRequest,
@@ -12,12 +13,19 @@ export async function GET(
       .where("UserId", "==", userId)
       .get();
 
-    const reviews = reviewsSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+    const reviews: Review[] = [];
+    reviewsSnapshot.forEach(doc => {
+      reviews.push({
+        id: doc.id,
+        productId: doc.data().ProductId,
+        userId: doc.data().UserId
+      });
+    });
+    
     return NextResponse.json(reviews);
   } catch {
-    return NextResponse.json({ error: "Failed to fetch reviews" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch reviews" }, 
+      { status: 500 });
   }
 }
