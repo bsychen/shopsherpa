@@ -1,5 +1,8 @@
 import type React from "react"
 import type { Metadata } from "next"
+import TopBar from "@/components/topBar"
+
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "ShopSmart",
@@ -13,7 +16,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <TopBar />
+        {children}
+      </body>
     </html>
   )
 }
