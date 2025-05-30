@@ -3,13 +3,13 @@ import { db } from "@/lib/firebaseAdmin";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ productId: string }> }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
-  const { productId } = await params;
+  const { userId } = await params;
   try {
     const reviewsSnapshot = await db
       .collection("reviews")
-      .where("ProductId", "==", productId.trim())
+      .where("UserId", "==", userId)
       .get();
 
     const reviews = reviewsSnapshot.docs.map(doc => ({
@@ -17,11 +17,7 @@ export async function GET(
       ...doc.data()
     }));
     return NextResponse.json(reviews);
-  } catch (error) {
-    console.error("Error fetching reviews:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch reviews" },
-      { status: 500 }
-    );
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch reviews" }, { status: 500 });
   }
 }
