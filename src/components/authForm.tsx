@@ -24,7 +24,7 @@ export default function AuthForm({
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
-      router.push('/');
+      // Remove router.push('/') here to allow the parent page to handle redirect
     } catch (err) {
       console.error(err);
       alert('Error: ' + (err as Error).message);

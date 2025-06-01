@@ -24,11 +24,13 @@ export default function ReviewPage() {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       if (!firebaseUser) {
+        // Save intended path for post-auth redirect
+        localStorage.setItem("postAuthRedirect", `/review/create/${id}`);
         router.push("/auth");
       }
     });
     return () => unsub();
-  }, [router]);
+  }, [router, id]);
 
   useEffect(() => {
     if (!id) return;
