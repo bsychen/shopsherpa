@@ -15,8 +15,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         console.log("Review Data:", reviewData);
 
         // Add timestamp and user/shop id if needed
-        reviewData.createdAt = new Date();
-        reviewData.productId = id;
+        reviewData.CreatedAt = new Date();
+        reviewData.ProductId = id;
 
         // Create review document
         const docRef = await db.collection('reviews').add(reviewData);

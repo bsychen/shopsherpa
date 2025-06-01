@@ -5,7 +5,7 @@ import { onAuthStateChanged, User, signOut } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import { useRouter, useParams } from "next/navigation";
 import { Review } from "@/types/reviews";
-import { getReview, getProduct } from "@/lib/api";
+import { getReview, getProduct, createReview } from "@/lib/api";
 
 export default function ReviewPage() {
   const params = useParams();
@@ -55,16 +55,9 @@ export default function ReviewPage() {
     setSubmitError("");
     setSubmitSuccess(false);
     try {
-      const res = await fetch("/api/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          productId: id,
-          userId: user?.uid,
-          reviewText,
-        }),
-      });
-      if (!res.ok) throw new Error("Failed to submit review");
+      if (!user?.uid) throw new Error("User not authenticated");
+      console.log("Submitting review:", id, user.uid, reviewText);
+      await createReview(id, user.uid, reviewText);
       setSubmitSuccess(true);
       setReviewText("");
     } catch (err: any) {
@@ -100,26 +93,37 @@ export default function ReviewPage() {
           </div>
         )}
         <h1 className="text-2xl font-bold mb-4 text-gray-800">Write a Review</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <textarea
-              className="w-full min-h-[100px] border border-zinc-300 rounded p-2 bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={reviewText}
-              onChange={e => setReviewText(e.target.value)}
-              required
-              maxLength={1000}
-            />
-          </div>
-          {submitError && <div className="text-red-500 text-sm">{submitError}</div>}
-          {submitSuccess && <div className="text-green-600 text-sm">Review submitted!</div>}
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition disabled:opacity-60"
-            disabled={submitting}
-          >
-            {submitting ? "Submitting..." : "Submit Review"}
-          </button>
-        </form>
+        {submitSuccess ? (
+          <>
+            <div className="text-green-600 text-lg mb-4">Review submitted!</div>
+            <button
+              className="w-full bg-zinc-200 hover:bg-zinc-300 text-zinc-800 font-semibold py-2 px-4 rounded transition"
+              onClick={() => router.push(`/product/${id}`)}
+            >
+              Back to Product
+            </button>
+          </>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <textarea
+                className="w-full min-h-[100px] border border-zinc-300 rounded p-2 bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={reviewText}
+                onChange={e => setReviewText(e.target.value)}
+                required
+                maxLength={1000}
+              />
+            </div>
+            {submitError && <div className="text-red-500 text-sm">{submitError}</div>}
+            <button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition disabled:opacity-60"
+              disabled={submitting}
+            >
+              {submitting ? "Submitting..." : "Submit Review"}
+            </button>
+          </form>
+        )}
       </div>
     );
   }
