@@ -23,3 +23,9 @@ export async function getUserReviews(userId: string): Promise<Review[] | null> {
   if (!res.ok) return [];
   return await res.json();
 }
+
+export async function getReview(id: string): Promise<Review | null> {
+  const res = await fetch(`/api/reviews/${id}`);
+  if (!res.ok) return null;
+  return await res.json();
+}
