@@ -5,6 +5,9 @@ import { Product } from "@/types/product"
 import { Review } from "@/types/reviews"
 import { getProduct, getProductReviews } from "@/lib/api"
 import Link from "next/link"
+import { onAuthStateChanged, User } from "firebase/auth"
+import { auth } from "@/lib/firebaseClient"
+import { useRouter } from "next/navigation"
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -12,6 +15,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     setLoading(true)
@@ -20,9 +25,23 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       setLoading(false)
     })
     getProductReviews(id).then((data) => setReviews(data || []));
+    // Auth state listener for showing the create review button
+    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+    });
+    return () => unsub();
   }, [id])
 
-
+  const handleWriteReview = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (user) {
+      router.push(`/review/create/${id}`);
+    } else {
+      // Save intended path and redirect to auth
+      localStorage.setItem("postAuthRedirect", `/review/create/${id}`);
+      router.push("/auth");
+    }
+  };
 
   if (loading) {
     return (
@@ -63,6 +82,14 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               ))}
             </ul>
           )}
+          <div className="mt-6 flex justify-center">
+            <button
+              onClick={handleWriteReview}
+              className="inline-flex items-center bg-zinc-200 hover:bg-zinc-300 text-zinc-800 font-semibold py-2 px-4 rounded transition mb-2"
+            >
+              <span className="mr-2 text-xl font-bold">+</span> Write a Review
+            </button>
+          </div>
         </div>
       </div>
     </div>
