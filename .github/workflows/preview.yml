@@ -23,8 +23,6 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: refs/pull/${{ github.event.workflow_run.pull_requests[0].number }}/merge
 
       - name: Install pnpm
         run: npm install --global pnpm@latest
