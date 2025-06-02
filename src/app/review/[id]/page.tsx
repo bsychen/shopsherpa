@@ -29,7 +29,18 @@ export default function ReviewPage() {
     if (!id) return;
     setLoading(true);
     getReview(id).then((data) => {
-      setReview(data);
+      // Normalize review fields to match the updated Review type
+      if (data) {
+        setReview({
+          Id: data.Id ?? id, // fallback to URL id if not present
+          CreatedAt: data.CreatedAt ? new Date(data.CreatedAt) : new Date(),
+          ProductId: data.ProductId,
+          UserId: data.UserId,
+          ReviewText: data.ReviewText || undefined,
+        });
+      } else {
+        setReview(null);
+      }
       setLoading(false);
     });
   }, [id]);
@@ -68,19 +79,19 @@ export default function ReviewPage() {
       <h1 className="text-2xl font-bold mb-4 text-gray-800">Review</h1>
       <div className="mb-2">
         <span className="font-semibold text-gray-700">Review ID:</span>
-        <span className="ml-2 text-gray-900">{review.id}</span>
+        <span className="ml-2 text-gray-900">{review.Id}</span>
       </div>
       <div className="mb-2">
         <span className="font-semibold text-gray-700">Product ID:</span>
-        <span className="ml-2 text-gray-900">{review.productId}</span>
+        <span className="ml-2 text-gray-900">{review.ProductId}</span>
       </div>
       <div className="mb-2">
         <span className="font-semibold text-gray-700">User ID:</span>
-        <span className="ml-2 text-gray-900">{review.userId}</span>
+        <span className="ml-2 text-gray-900">{review.UserId}</span>
       </div>
       <div className="mb-2">
         <div className="ml-2 text-gray-900 bg-zinc-100 rounded p-3 border border-zinc-200 mt-1">
-          {review.reviewText || (review as any)["Review-Text"] || "(No review text)"}
+          {review.ReviewText || "(No review text)"}
         </div>
       </div>
     </div>

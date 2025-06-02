@@ -32,6 +32,7 @@ export async function getReview(id: string): Promise<Review | null> {
 
 export async function createReview(ProductId: string, UserId: string, ReviewText: string) {
   const params = new URLSearchParams({ UserId, ReviewText });
+  console.log(`Creating review for ProductId: ${ProductId}, UserId: ${UserId}, ReviewText: ${ReviewText}`);
   const res = await fetch(`/api/reviews/create/${encodeURIComponent(ProductId)}?${params.toString()}`, {
     method: 'POST',
   });

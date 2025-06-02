@@ -16,10 +16,11 @@ export async function GET(
     const reviews: Review[] = [];
     reviewsSnapshot.forEach(doc => {
       reviews.push({
-        id: doc.id,
-        productId: doc.data().ProductId,
-        userId: doc.data().UserId,
-        reviewText: doc.data().ReviewText,
+        Id: doc.id,
+        CreatedAt: doc.data().CreatedAt,
+        ProductId: doc.data().ProductId,
+        ReviewText: doc.data().ReviewText,
+        UserId: doc.data().UserId,
       });
     });
 

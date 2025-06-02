@@ -73,10 +73,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           ) : (
             <ul className="space-y-4">
               {reviews.map((review) => (
-                <li key={review.id}>
-                  <Link href={`/review/${review.id}`} className="block bg-white rounded-lg border border-zinc-200 shadow-sm p-4 hover:bg-zinc-50 transition cursor-pointer">
-                    <div className="font-bold text-zinc-700">User: {review.userId}</div>
-                    <div className="text-zinc-700 truncate">{review.reviewText || (review as any)["Review-Text"] || "(No review text)"}</div>
+                <li key={review.Id}>
+                  <Link href={`/review/${review.Id}`} className="block bg-white rounded-lg border border-zinc-200 shadow-sm p-4 hover:bg-zinc-50 transition cursor-pointer">
+                    <div className="font-bold text-zinc-700">User: {review.UserId}</div>
+                    <div className="text-zinc-700 truncate">{review.ReviewText || "(No review text)"}</div>
                   </Link>
                 </li>
               ))}
