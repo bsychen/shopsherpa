@@ -1,11 +1,8 @@
 name: Preview Deployment
 
 on:
-  workflow_run:
-    workflows:
-      - Development
-    types:
-      - completed
+  pull_request:
+    branches: [ main ]
 
 permissions:
   contents: read
@@ -17,15 +14,8 @@ env:
   VERCEL_TOKEN:      ${{ secrets.VERCEL_TOKEN }}
 
 jobs:
-  deploy-production:
+  deploy-preview:
     name: Deploy Preview
-    if: >
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.pull_requests != '' &&
-      contains(
-        github.event.workflow_run.pull_requests.*.base.ref,
-        'main'
-      )
     runs-on: ubuntu-latest
 
     environment:
