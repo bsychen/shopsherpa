@@ -48,10 +48,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const pr = github.event.workflow_run.pull_requests[0];
-            github.issues.createComment({
+            github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: pr.number,
+              issue_number: context.issue.number,
               body: `Preview is live: ${{ steps.vercel-deploy.outputs.preview_url }}`
             })
