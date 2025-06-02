@@ -38,25 +38,17 @@ jobs:
       - name: Build Project Artifacts
         run: vercel build --token="$VERCEL_TOKEN"
 
-      - name: Deploy to Vercel Preview (with debug)
+      - name: Deploy Project Artifacts to Vercel
         id: vercel-deploy
         run: |
           VERCEL_LOG=$(
             vercel deploy --yes --token="$VERCEL_TOKEN" 2>&1
           )
-            
-          echo "--------------------- Vercel CLI raw output ---------------------"
-          echo "$VERCEL_LOG"
-          echo "------------------------------------------------------------------"
-      
           PREVIEW_URL=$(
             echo "$VERCEL_LOG" \
               | grep -E '^[[:space:]]*Preview:' \
               | awk '{print $2}'
           )
-      
-          echo ">>> Parsed PREVIEW_URL = '$PREVIEW_URL'"
-      
           echo "preview_url=$PREVIEW_URL" >> $GITHUB_OUTPUT
 
       - name: Comment PR with Preview URL
