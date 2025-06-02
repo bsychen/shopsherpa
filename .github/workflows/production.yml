@@ -1,11 +1,8 @@
 name: Production Deployment
 
 on:
-  workflow_run:
-    workflows:
-      - Development
-    types:
-      - completed
+  push:
+    branches: [ main ]
 
 permissions:
   contents: read
@@ -19,9 +16,6 @@ env:
 jobs:
   deploy-production:
     name: Deploy Production
-    if: >
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
 
     environment:
