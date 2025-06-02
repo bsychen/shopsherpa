@@ -35,8 +35,10 @@ export default function ReviewPage() {
           Id: data.Id ?? id, // fallback to URL id if not present
           CreatedAt: data.CreatedAt ? new Date(data.CreatedAt) : new Date(),
           ProductId: data.ProductId,
-          UserId: data.UserId,
           ReviewText: data.ReviewText || undefined,
+          Rating: data.Rating,
+          UserId: data.UserId,
+
         });
       } else {
         setReview(null);
@@ -83,6 +85,14 @@ export default function ReviewPage() {
       <div className="mb-2">
         <span className="font-semibold text-gray-700">User ID:</span>
         <span className="ml-2 text-gray-900">{review.UserId}</span>
+      </div>
+      <div className="mb-2">
+        <span className="font-semibold text-gray-700">Rating:</span>
+        <span className="ml-2">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <span key={star} className={`text-2xl ${review.Rating >= star ? 'text-yellow-400' : 'text-zinc-300'}`}>★</span>
+          ))}
+        </span>
       </div>
       <div className="mb-2">
         <div className="ml-2 text-gray-900 bg-zinc-100 rounded p-3 border border-zinc-200 mt-1">

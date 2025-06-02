@@ -18,6 +18,7 @@ export async function GET(
       CreatedAt: doc.data().CreatedAt,
       ProductId: doc.data().ProductId,
       ReviewText: doc.data().ReviewText,
+      Rating: doc.data().Rating,
       UserId: doc.data().UserId,
     }) as NextResponse<Review>;
 

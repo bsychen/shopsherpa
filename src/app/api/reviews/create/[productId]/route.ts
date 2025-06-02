@@ -9,6 +9,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pro
 
         const userId = searchParams.get('UserId');
         const reviewText = searchParams.get('ReviewText') || undefined;
+        const rating = parseInt(searchParams.get('Rating'));
         
         if (!userId) {
             return NextResponse.json({ success: false, error: 'Missing UserId' }, { status: 400 });
@@ -17,6 +18,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pro
             CreatedAt: new Date(),
             ProductId: productId,
             ReviewText: reviewText,
+            Rating: rating,
             UserId: userId,
         };
 

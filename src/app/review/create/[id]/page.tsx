@@ -14,6 +14,7 @@ export default function ReviewPage() {
   const [product, setProduct] = useState<Product>(null);
   const [loading, setLoading] = useState(true);
   const [reviewText, setReviewText] = useState("");
+  const [rating, setRating] = useState<number>(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -47,12 +48,13 @@ export default function ReviewPage() {
     setSubmitSuccess(false);
     try {
       if (!user?.uid) throw new Error("User not authenticated");
-      console.log("Submitting review:", id, user.uid, reviewText);
-      await createReview(id, user.uid, reviewText);
+      if (!rating) throw new Error("Please select a rating");
+      await createReview(id, user.uid, reviewText, rating);
       setSubmitSuccess(true);
       setReviewText("");
+      setRating(0);
     } catch (err) {
-      setSubmitError(err.message || "Unknown error");
+      setSubmitError((err as Error).message || "Unknown error");
     } finally {
       setSubmitting(false);
     }
@@ -96,6 +98,20 @@ export default function ReviewPage() {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
+            <div className="mb-2 font-semibold text-zinc-700">Your Rating:</div>
+            <div className="flex space-x-2 mb-4">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  type="button"
+                  key={star}
+                  className={`text-2xl transition-colors ${rating >= star ? 'text-yellow-400' : 'text-zinc-300'}`}
+                  onClick={() => setRating(star)}
+                  aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
             <textarea
               className="w-full min-h-[100px] border border-zinc-300 rounded p-2 bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
               value={reviewText}
