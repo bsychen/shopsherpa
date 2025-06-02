@@ -7,6 +7,8 @@ on:
 permissions:
   contents: read
   deployments: write
+  pull-requests: write
+  issues: write
 
 env:
   VERCEL_ORG_ID:     ${{ secrets.VERCEL_ORG_ID }}
@@ -31,16 +33,22 @@ jobs:
         run: npm install --global vercel@latest
 
       - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+        run: vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
 
       - name: Build Project Artifacts
         run: vercel build --token="$VERCEL_TOKEN"
 
-      - name: Deploy to Vercel Preview
+      - name: Deploy Project Artifacts to Vercel
         id: vercel-deploy
         run: |
-          PREVIEW_URL=$(vercel deploy --confirm --token=$VERCEL_TOKEN \
-            | grep '^Preview:' | awk '{print $2}')
+          VERCEL_LOG=$(
+            vercel deploy --yes --token="$VERCEL_TOKEN" 2>&1
+          )
+          PREVIEW_URL=$(
+            echo "$VERCEL_LOG" \
+              | grep -E '^[[:space:]]*Preview:' \
+              | awk '{print $2}'
+          )
           echo "preview_url=$PREVIEW_URL" >> $GITHUB_OUTPUT
 
       - name: Comment PR with Preview URL
@@ -48,10 +56,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const pr = github.event.workflow_run.pull_requests[0];
-            github.issues.createComment({
+            github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: pr.number,
+              issue_number: context.issue.number,
               body: `Preview is live: ${{ steps.vercel-deploy.outputs.preview_url }}`
             })
