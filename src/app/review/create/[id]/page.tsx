@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { onAuthStateChanged, User, signOut } from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import { useRouter, useParams } from "next/navigation";
 import { getProduct, createReview } from "@/lib/api";
+import { Product } from "@/types/product";
 
 export default function ReviewPage() {
   const params = useParams();
   const id = params?.id as string;
   const [user, setUser] = useState<User | null>(null);
-  const [product, setProduct] = useState<any>(null);
+  const [product, setProduct] = useState<Product>(null);
   const [loading, setLoading] = useState(true);
   const [reviewText, setReviewText] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -39,11 +40,6 @@ export default function ReviewPage() {
     });
   }, [id]);
 
-  const handleLogout = async () => {
-    await signOut(auth);
-    router.push("/auth");
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -55,7 +51,7 @@ export default function ReviewPage() {
       await createReview(id, user.uid, reviewText);
       setSubmitSuccess(true);
       setReviewText("");
-    } catch (err: any) {
+    } catch (err) {
       setSubmitError(err.message || "Unknown error");
     } finally {
       setSubmitting(false);

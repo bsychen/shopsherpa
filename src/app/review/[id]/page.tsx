@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { onAuthStateChanged, User, signOut } from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import { useRouter, useParams } from "next/navigation";
 import { Review } from "@/types/reviews";
@@ -44,11 +44,6 @@ export default function ReviewPage() {
       setLoading(false);
     });
   }, [id]);
-
-  const handleLogout = async () => {
-    await signOut(auth);
-    router.push("/auth");
-  };
 
   if (loading) {
     return (
