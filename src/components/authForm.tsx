@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebaseClient';
 
@@ -14,7 +13,6 @@ export default function AuthForm({
 }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +22,7 @@ export default function AuthForm({
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
-      router.push('/');
+      // router.push('/') has been moved to the auth state change listener
     } catch (err) {
       console.error(err);
       alert('Error: ' + (err as Error).message);
