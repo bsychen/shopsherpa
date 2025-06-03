@@ -41,7 +41,7 @@ export default function BarcodeScanner() {
     e.preventDefault();
     const code = manualInput.trim();
     if (code) {
-      router.push(`/${code}`);
+      router.push(`/product/${code}`);
     }
   };
 
