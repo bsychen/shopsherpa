@@ -7,5 +7,6 @@ export interface Review {
   ProductId: string; 
   ReviewText?: string;
   Rating: number;
-  UserId: string;  
+  UserId: string;
+  Username: string;
 }

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import { useRouter, useParams } from "next/navigation";
-import { getProduct, createReview } from "@/lib/api";
+import { getProduct, createReview, getUserById } from "@/lib/api";
 import { Product } from "@/types/product";
 
 export default function ReviewPage() {
@@ -49,7 +49,10 @@ export default function ReviewPage() {
     try {
       if (!user?.uid) throw new Error("User not authenticated");
       if (!rating) throw new Error("Please select a rating");
-      await createReview(id, user.uid, reviewText, rating);
+
+      const userDoc = await getUserById(user.uid);
+      const username = userDoc.username;
+      await createReview(id, user.uid, reviewText, rating, username);
       setSubmitSuccess(true);
       setReviewText("");
       setRating(0);

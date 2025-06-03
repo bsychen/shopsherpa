@@ -29,16 +29,15 @@ export default function ReviewPage() {
     if (!id) return;
     setLoading(true);
     getReview(id).then((data) => {
-      // Normalize review fields to match the updated Review type
       if (data) {
         setReview({
-          Id: data.Id ?? id, // fallback to URL id if not present
+          Id: data.Id ?? id,
           CreatedAt: data.CreatedAt ? new Date(data.CreatedAt) : new Date(),
           ProductId: data.ProductId,
           ReviewText: data.ReviewText || undefined,
           Rating: data.Rating,
           UserId: data.UserId,
-
+          Username: data.Username,
         });
       } else {
         setReview(null);
@@ -83,8 +82,8 @@ export default function ReviewPage() {
         <span className="ml-2 text-gray-900">{review.ProductId}</span>
       </div>
       <div className="mb-2">
-        <span className="font-semibold text-gray-700">User ID:</span>
-        <span className="ml-2 text-gray-900">{review.UserId}</span>
+        <span className="font-semibold text-gray-700">User:</span>
+        <span className="ml-2 text-gray-900">{review.Username}</span>
       </div>
       <div className="mb-2">
         <span className="font-semibold text-gray-700">Rating:</span>

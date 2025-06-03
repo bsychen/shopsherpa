@@ -22,6 +22,7 @@ export async function GET(
         ReviewText: doc.data().ReviewText,
         Rating: doc.data().Rating,
         UserId: doc.data().UserId,
+        Username: doc.data().Username,
       });
     });
     
