@@ -18,6 +18,11 @@ export default function Home() {
               Scan a Barcode
             </button>
           </Link>
+          <Link href="/chats">
+            <button className="w-full px-6 py-4 bg-purple-600 text-white rounded-lg text-lg font-semibold hover:bg-purple-700 transition-colors shadow">
+              Ask Our Users
+            </button>
+          </Link>
         </div>
       </div>
     </main>
