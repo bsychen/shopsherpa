@@ -75,7 +75,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               {reviews.map((review) => (
                 <li key={review.Id}>
                   <Link href={`/review/${review.Id}`} className="block bg-white rounded-lg border border-zinc-200 shadow-sm p-4 hover:bg-zinc-50 transition cursor-pointer">
-                    <div className="font-bold text-zinc-700">User: {review.UserId}</div>
+                    <div className="font-bold text-zinc-700">User: {review.Username}</div>
                     <div className="flex items-center mb-1">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <span key={star} className={`text-xl ${review.Rating >= star ? 'text-yellow-400' : 'text-zinc-300'}`}>★</span>

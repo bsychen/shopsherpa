@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebaseClient';
+import { createUserInFirestore } from '@/lib/api';
 
 export default function AuthForm({
   mode = 'login',
@@ -13,12 +14,14 @@ export default function AuthForm({
 }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       if (mode === 'signup') {
-        await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await createUserInFirestore(userCredential.user.uid, email, username);
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
@@ -37,6 +40,22 @@ export default function AuthForm({
       <h2 className="text-2xl font-bold text-center mb-4 text-gray-800">
         {mode === 'signup' ? 'Create an Account' : 'Welcome Back'}
       </h2>
+      {mode === 'signup' && (
+        <div>
+          <label className="block text-gray-700 mb-1" htmlFor="username">
+            Username
+          </label>
+          <input
+            id="username"
+            type="text"
+            placeholder="Choose a username"
+            className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            autoComplete="username"
+          />
+        </div>
+      )}
       <div>
         <label className="block text-gray-700 mb-1" htmlFor="email">
           Email

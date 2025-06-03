@@ -30,11 +30,27 @@ export async function getReview(id: string): Promise<Review | null> {
   return await res.json();
 }
 
-export async function createReview(ProductId: string, UserId: string, ReviewText: string, Rating: number) {
-  const params = new URLSearchParams({ UserId, ReviewText, Rating: Rating.toString() });
+export async function createReview(ProductId: string, UserId: string, ReviewText: string, Rating: number, Username: string) {
+  const params = new URLSearchParams({ UserId, ReviewText, Rating: Rating.toString(), Username });
   const res = await fetch(`/api/reviews/create/${encodeURIComponent(ProductId)}?${params.toString()}`, {
     method: 'POST',
   });
   if (!res.ok) throw new Error('Failed to create review');
+  return await res.json();
+}
+
+export async function createUserInFirestore(uid: string, email: string, username: string) {
+  const res = await fetch('/api/auth/createUser', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ uid, email, username }),
+  });
+  if (!res.ok) throw new Error('Failed to create user in Firestore');
+  return await res.json();
+}
+
+export async function getUserById(userId: string): Promise<{ username: string } | null> {
+  const res = await fetch(`/api/auth/getUser/${encodeURIComponent(userId)}`);
+  if (!res.ok) return null;
   return await res.json();
 }
