@@ -60,3 +60,26 @@ export async function getUserById(userId: string): Promise<UserProfile | null> {
   if (!res.ok) return null;
   return await res.json();
 }
+
+export async function updateReview(
+  id: string,
+  valueRating?: number,
+  qualityRating?: number,
+  reviewText?: string
+): Promise<{ success: boolean; error?: string }> {
+  const params = new URLSearchParams();
+  if (typeof valueRating === 'number') params.append('valueRating', valueRating.toString());
+  if (typeof qualityRating === 'number') params.append('qualityRating', qualityRating.toString());
+  if (typeof reviewText === 'string') params.append('reviewText', reviewText);
+  const res = await fetch(`/api/reviews/update/${encodeURIComponent(id)}?${params.toString()}`, {
+    method: 'PATCH',
+  });
+  return await res.json();
+}
+
+export async function deleteReview(id: string): Promise<{ success: boolean; error?: string }> {
+  const res = await fetch(`/api/reviews/delete/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  });
+  return await res.json();
+}
