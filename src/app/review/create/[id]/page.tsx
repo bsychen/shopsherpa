@@ -84,6 +84,12 @@ export default function ReviewPage() {
 
   return (
     <div className="max-w-md mx-auto mt-10 bg-white rounded-xl shadow p-8">
+      <div className="flex items-center mb-4">
+        <a href={`/product/${id}`} className="flex items-center text-blue-600 hover:underline">
+          <span className="mr-2 text-2xl">&#8592;</span>
+          <span className="font-semibold">Go back to {product?.name || 'product'}</span>
+        </a>
+      </div>
       {product && (
         <div className="mb-4">
           <div className="text-lg font-semibold text-zinc-800 mb-1">{product.name}</div>
@@ -98,7 +104,7 @@ export default function ReviewPage() {
             className="w-full bg-zinc-200 hover:bg-zinc-300 text-zinc-800 font-semibold py-2 px-4 rounded transition"
             onClick={() => router.push(`/product/${id}`)}
           >
-            Back to Product
+            Back to {product?.name || 'Product'}
           </button>
         </>
       ) : (
