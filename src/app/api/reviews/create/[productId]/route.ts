@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/firebaseAdmin";
-import { Review } from '@/types/reviews';
+import { Review } from '@/types/review';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ productId: string }> }) {
     try {

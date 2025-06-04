@@ -1,5 +1,5 @@
 import { Product } from "@/types/product";
-import { Review } from "@/types/reviews";
+import { Review } from "@/types/review";
 
 export async function searchProducts(query: string) {
   const res = await fetch(`/api/products/search?name=${encodeURIComponent(query)}`);

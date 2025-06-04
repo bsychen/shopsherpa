@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from "react"
 import { Product } from "@/types/product"
-import { Review } from "@/types/reviews"
+import { Review } from "@/types/review"
 import { getProduct, getProductReviews } from "@/lib/api"
 import Link from "next/link"
 import { onAuthStateChanged, User } from "firebase/auth"

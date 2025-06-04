@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import { useRouter, useParams } from "next/navigation";
-import { Review } from "@/types/reviews";
+import { Review } from "@/types/review";
 import { getReview, getProduct } from "@/lib/api";
 
 export default function ReviewPage() {
