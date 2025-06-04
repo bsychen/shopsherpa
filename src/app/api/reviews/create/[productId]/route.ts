@@ -15,13 +15,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pro
         if (!userId || !username) {
             return NextResponse.json({ success: false, error: 'Missing UserId or Username' }, { status: 400 });
         }
-        const review: Omit<Review, 'Id'> & { CreatedAt: Date, ProductId: string } = {
-            CreatedAt: new Date(),
-            ProductId: productId,
-            ReviewText: reviewText,
-            Rating: rating,
-            UserId: userId,
-            Username: username,
+        const review: Omit<Review, 'id'> & { createdAt: Date, productId: string } = {
+            createdAt: new Date(),
+            productId: productId,
+            reviewText: reviewText,
+            rating: rating,
+            userId: userId,
+            username: username,
         };
 
         // Create review document

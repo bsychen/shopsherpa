@@ -10,19 +10,19 @@ export async function GET(
   try {
     const reviewsSnapshot = await db
       .collection("reviews")
-      .where("ProductId", "==", productId.trim())
+      .where("productId", "==", productId.trim())
       .get();
 
     const reviews: Review[] = [];
     reviewsSnapshot.forEach(doc => {
       reviews.push({
-        Id: doc.id,
-        CreatedAt: doc.data().CreatedAt,
-        ProductId: doc.data().ProductId,
-        ReviewText: doc.data().ReviewText,
-        Rating: doc.data().Rating,
-        UserId: doc.data().UserId,
-        Username: doc.data().Username,
+        id: doc.id,
+        createdAt: doc.data().createdAt,
+        productId: doc.data().productId,
+        reviewText: doc.data().reviewText,
+        rating: doc.data().rating,
+        userId: doc.data().userId,
+        username: doc.data().username,
       });
     });
 

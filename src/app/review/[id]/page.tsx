@@ -31,13 +31,13 @@ export default function ReviewPage() {
     getReview(id).then((data) => {
       if (data) {
         setReview({
-          Id: data.Id ?? id,
-          CreatedAt: data.CreatedAt ? new Date(data.CreatedAt) : new Date(),
-          ProductId: data.ProductId,
-          ReviewText: data.ReviewText || undefined,
-          Rating: data.Rating,
-          UserId: data.UserId,
-          Username: data.Username,
+          id: data.id ?? id,
+          createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+          productId: data.productId,
+          reviewText: data.reviewText || undefined,
+          rating: data.rating,
+          userId: data.userId,
+          username: data.username,
         });
       } else {
         setReview(null);
@@ -75,27 +75,27 @@ export default function ReviewPage() {
       <h1 className="text-2xl font-bold mb-4 text-gray-800">Review</h1>
       <div className="mb-2">
         <span className="font-semibold text-gray-700">Review ID:</span>
-        <span className="ml-2 text-gray-900">{review.Id}</span>
+        <span className="ml-2 text-gray-900">{review.id}</span>
       </div>
       <div className="mb-2">
         <span className="font-semibold text-gray-700">Product ID:</span>
-        <span className="ml-2 text-gray-900">{review.ProductId}</span>
+        <span className="ml-2 text-gray-900">{review.productId}</span>
       </div>
       <div className="mb-2">
         <span className="font-semibold text-gray-700">User:</span>
-        <span className="ml-2 text-gray-900">{review.Username}</span>
+        <span className="ml-2 text-gray-900">{review.username}</span>
       </div>
       <div className="mb-2">
         <span className="font-semibold text-gray-700">Rating:</span>
         <span className="ml-2">
           {[1, 2, 3, 4, 5].map((star) => (
-            <span key={star} className={`text-2xl ${review.Rating >= star ? 'text-yellow-400' : 'text-zinc-300'}`}>★</span>
+            <span key={star} className={`text-2xl ${review.rating >= star ? 'text-yellow-400' : 'text-zinc-300'}`}>★</span>
           ))}
         </span>
       </div>
       <div className="mb-2">
         <div className="ml-2 text-gray-900 bg-zinc-100 rounded p-3 border border-zinc-200 mt-1">
-          {review.ReviewText || "(No review text)"}
+          {review.reviewText || "(No review text)"}
         </div>
       </div>
     </div>
