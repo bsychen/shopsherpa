@@ -7,10 +7,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pro
         const { productId } = await params;
         const { searchParams } = new URL(req.url);
 
-        const userId = searchParams.get('UserId');
-        const username = searchParams.get('Username');
-        const reviewText = searchParams.get('ReviewText') || undefined;
-        const rating = parseInt(searchParams.get('Rating'));
+        const userId = searchParams.get('userId');
+        const username = searchParams.get('username');
+        const reviewText = searchParams.get('reviewText') || undefined;
+        const valueRating = parseInt(searchParams.get('valueRating'));
+        const qualityRating = parseInt(searchParams.get('qualityRating'));
         
         if (!userId || !username) {
             return NextResponse.json({ success: false, error: 'Missing UserId or Username' }, { status: 400 });
@@ -19,7 +20,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pro
             createdAt: new Date(),
             productId: productId,
             reviewText: reviewText,
-            rating: rating,
+            valueRating: valueRating,
+            qualityRating: qualityRating,
             userId: userId,
             username: username,
         };

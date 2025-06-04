@@ -6,7 +6,8 @@ export interface Review {
   createdAt: Date;
   productId: string; 
   reviewText?: string;
-  rating: number;
+  valueRating: number;
+  qualityRating: number;
   userId: string;
   username: string;
 }

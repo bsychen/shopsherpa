@@ -10,7 +10,7 @@ export async function GET(
   try {
     const reviewsSnapshot = await db
       .collection("reviews")
-      .where("UserId", "==", userId)
+      .where("userId", "==", userId)
       .get();
 
     const reviews: Review[] = [];
@@ -20,7 +20,8 @@ export async function GET(
         createdAt: doc.data().createdAt,
         productId: doc.data().productId,
         reviewText: doc.data().reviewText,
-        rating: doc.data().rating,
+        valueRating: doc.data().valueRating,
+        qualityRating: doc.data().qualityRating,
         userId: doc.data().userId,
         username: doc.data().username,
       });

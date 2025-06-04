@@ -18,7 +18,8 @@ export async function GET(
       createdAt: doc.data().createdAt,
       productId: doc.data().croductId,
       reviewText: doc.data().reviewText,
-      rating: doc.data().rating,
+      valueRating: doc.data().valueRating,
+      qualityRating: doc.data().qualityRating,
       userId: doc.data().userId,
       username: doc.data().username,
     }) as NextResponse<Review>;

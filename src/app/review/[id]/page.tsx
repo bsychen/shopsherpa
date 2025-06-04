@@ -35,7 +35,8 @@ export default function ReviewPage() {
           createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
           productId: data.productId,
           reviewText: data.reviewText || undefined,
-          rating: data.rating,
+          valueRating: data.valueRating,
+          qualityRating: data.qualityRating,
           userId: data.userId,
           username: data.username,
         });
@@ -86,10 +87,18 @@ export default function ReviewPage() {
         <span className="ml-2 text-gray-900">{review.username}</span>
       </div>
       <div className="mb-2">
-        <span className="font-semibold text-gray-700">Rating:</span>
+        <span className="font-semibold text-gray-700">Value Rating:</span>
         <span className="ml-2">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <span key={star} className={`text-2xl ${review.rating >= star ? 'text-yellow-400' : 'text-zinc-300'}`}>★</span>
+          {[1, 2, 3, 4, 5].map((bag) => (
+            <span key={bag} className={`text-2xl ${review.valueRating >= bag ? '' : 'opacity-30'}`} role="img" aria-label="money-bag">💰</span>
+          ))}
+        </span>
+      </div>
+      <div className="mb-2">
+        <span className="font-semibold text-gray-700">Quality Rating:</span>
+        <span className="ml-2">
+          {[1, 2, 3, 4, 5].map((apple) => (
+            <span key={apple} className={`text-2xl ${review.qualityRating >= apple ? '' : 'opacity-30'}`} role="img" aria-label="apple">🍎</span>
           ))}
         </span>
       </div>

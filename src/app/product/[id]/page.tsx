@@ -75,11 +75,32 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               {reviews.map((review) => (
                 <li key={review.id}>
                   <Link href={`/review/${review.id}`} className="block bg-white rounded-lg border border-zinc-200 shadow-sm p-4 hover:bg-zinc-50 transition cursor-pointer">
-                    <div className="font-bold text-zinc-700">{review.username}</div>
-                    <div className="flex items-center mb-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <span key={star} className={`text-xl ${review.rating >= star ? 'text-yellow-400' : 'text-zinc-300'}`}>★</span>
-                      ))}
+                    <div className="font-bold text-zinc-700 mb-1">{review.username}</div>
+                    <div className="flex flex-row items-center gap-4 mb-1">
+                      <span className="flex items-center">
+                        {[1, 2, 3, 4, 5].map((bag) => (
+                          <span
+                            key={bag}
+                            className={`text-xl ${review.valueRating >= bag ? '' : 'opacity-30'}`}
+                            role="img"
+                            aria-label="money-bag"
+                          >
+                            💰
+                          </span>
+                        ))}
+                      </span>
+                      <span className="flex items-center">
+                        {[1, 2, 3, 4, 5].map((apple) => (
+                          <span
+                            key={apple}
+                            className={`text-xl ${review.qualityRating >= apple ? '' : 'opacity-30'}`}
+                            role="img"
+                            aria-label="apple"
+                          >
+                            🍎
+                          </span>
+                        ))}
+                      </span>
                     </div>
                     <div className="text-zinc-700 truncate">{review.reviewText || "(No review text)"}</div>
                   </Link>

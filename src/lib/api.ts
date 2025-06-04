@@ -30,9 +30,15 @@ export async function getReview(id: string): Promise<Review | null> {
   return await res.json();
 }
 
-export async function createReview(ProductId: string, UserId: string, ReviewText: string, Rating: number, Username: string) {
-  const params = new URLSearchParams({ UserId, ReviewText, Rating: Rating.toString(), Username });
-  const res = await fetch(`/api/reviews/create/${encodeURIComponent(ProductId)}?${params.toString()}`, {
+export async function createReview(productId: string, userId: string, reviewText: string, username: string, valueRating: number, qualityRating: number) {
+  const params = new URLSearchParams({
+    userId,
+    reviewText,
+    username,
+    valueRating: valueRating.toString(),
+    qualityRating: qualityRating.toString()
+  });
+  const res = await fetch(`/api/reviews/create/${encodeURIComponent(productId)}?${params.toString()}`, {
     method: 'POST',
   });
   if (!res.ok) throw new Error('Failed to create review');
