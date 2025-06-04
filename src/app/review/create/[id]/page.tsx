@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import { useRouter, useParams } from "next/navigation";
-import { getProduct, createReview, getUserById } from "@/lib/api";
+import { getProduct, createReview } from "@/lib/api";
 import { Product } from "@/types/product";
 
 export default function ReviewPage() {
@@ -52,7 +52,6 @@ export default function ReviewPage() {
       if (!valueRating) throw new Error("Please select a value rating");
       if (!qualityRating) throw new Error("Please select a quality rating");
 
-      const userDoc = await getUserById(user.uid);
       await createReview(id, user.uid, reviewText, valueRating, qualityRating);
       setSubmitSuccess(true);
       setReviewText("");
