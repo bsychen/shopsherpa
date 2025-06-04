@@ -41,18 +41,20 @@ export default function UserReviewsList({ userId }: UserReviewsListProps) {
   return (
     <ul className="space-y-3">
       {reviews.map((review) => (
-        <li key={review.id} className="bg-zinc-50 rounded p-3 border border-zinc-200">
-          <div className="flex items-center justify-between">
-            <Link href={`/product/${review.productId}`} className="font-semibold text-blue-600 hover:underline">
-              {productNames[review.productId] || "View Product"}
-            </Link>
-            <span className="text-xs text-gray-400">{new Date(review.createdAt).toLocaleDateString()}</span>
-          </div>
-          <div className="mt-1 text-sm text-gray-700">{review.reviewText}</div>
-          <div className="mt-2 flex gap-4 text-sm">
-            <span title="Value Rating">💰 {review.valueRating}</span>
-            <span title="Quality Rating">🍎 {review.qualityRating}</span>
-          </div>
+        <li key={review.id} className="bg-zinc-50 rounded p-3 border border-zinc-200 hover:bg-zinc-100 transition cursor-pointer">
+          <Link href={`/review/${review.id}`} className="block w-full h-full">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-blue-600 hover:underline">
+                {productNames[review.productId] || "View Product"}
+              </span>
+              <span className="text-xs text-gray-400">{new Date(review.createdAt).toLocaleDateString()}</span>
+            </div>
+            <div className="mt-1 text-sm text-gray-700">{review.reviewText}</div>
+            <div className="mt-2 flex gap-4 text-sm">
+              <span title="Value Rating">💰 {review.valueRating}</span>
+              <span title="Quality Rating">🍎 {review.qualityRating}</span>
+            </div>
+          </Link>
         </li>
       ))}
     </ul>

@@ -16,6 +16,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
+  const [usernames, setUsernames] = useState<Record<string, string>>({});
   const router = useRouter();
 
   useEffect(() => {
@@ -31,6 +32,23 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     });
     return () => unsub();
   }, [id])
+
+  // Fetch usernames for all unique userIds in reviews
+  useEffect(() => {
+    async function fetchUsernames() {
+      const ids = Array.from(new Set(reviews.map(r => r.userId)));
+      const names: Record<string, string> = {};
+      await Promise.all(ids.map(async (uid) => {
+        if (!uid) return;
+        try {
+          const user = await import("@/lib/api").then(m => m.getUserById(uid));
+          if (user && typeof user.username === "string") names[uid] = user.username;
+        } catch {}
+      }));
+      setUsernames(names);
+    }
+    if (reviews.length) fetchUsernames();
+  }, [reviews])
 
   const handleWriteReview = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -81,7 +99,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               {reviews.map((review) => (
                 <li key={review.id}>
                   <Link href={`/review/${review.id}`} className="block bg-white rounded-lg border border-zinc-200 shadow-sm p-4 hover:bg-zinc-50 transition cursor-pointer">
-                    <div className="font-bold text-zinc-700 mb-1">{review.username}</div>
+                    <div className="font-bold text-zinc-700 mb-1">{usernames[review.userId] || "User"}</div>
                     <div className="flex flex-row items-center gap-4 mb-1">
                       <span className="flex items-center">
                         {[1, 2, 3, 4, 5].map((bag) => (

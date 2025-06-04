@@ -23,7 +23,6 @@ export async function GET(
         valueRating: doc.data().valueRating,
         qualityRating: doc.data().qualityRating,
         userId: doc.data().userId,
-        username: doc.data().username,
       });
     });
 

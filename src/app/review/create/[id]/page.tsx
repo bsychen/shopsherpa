@@ -54,7 +54,7 @@ export default function ReviewPage() {
 
       const userDoc = await getUserById(user.uid);
       const username = userDoc.username;
-      await createReview(id, user.uid, reviewText, username, valueRating, qualityRating);
+      await createReview(id, user.uid, reviewText, valueRating, qualityRating);
       setSubmitSuccess(true);
       setReviewText("");
       setValueRating(0);

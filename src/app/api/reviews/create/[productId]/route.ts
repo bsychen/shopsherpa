@@ -23,7 +23,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pro
             valueRating: valueRating,
             qualityRating: qualityRating,
             userId: userId,
-            username: username,
         };
 
         // Create review document

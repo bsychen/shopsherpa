@@ -9,5 +9,4 @@ export interface Review {
   valueRating: number;
   qualityRating: number;
   userId: string;
-  username: string;
 }

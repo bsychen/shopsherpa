@@ -1,5 +1,6 @@
 import { Product } from "@/types/product";
 import { Review } from "@/types/review";
+import { UserProfile } from "firebase/auth";
 
 export async function searchProducts(query: string) {
   const res = await fetch(`/api/products/search?name=${encodeURIComponent(query)}`);
@@ -30,11 +31,10 @@ export async function getReview(id: string): Promise<Review | null> {
   return await res.json();
 }
 
-export async function createReview(productId: string, userId: string, reviewText: string, username: string, valueRating: number, qualityRating: number) {
+export async function createReview(productId: string, userId: string, reviewText: string, valueRating: number, qualityRating: number) {
   const params = new URLSearchParams({
     userId,
     reviewText,
-    username,
     valueRating: valueRating.toString(),
     qualityRating: qualityRating.toString()
   });
@@ -55,7 +55,7 @@ export async function createUserInFirestore(uid: string, email: string, username
   return await res.json();
 }
 
-export async function getUserById(userId: string): Promise<{ username: string } | null> {
+export async function getUserById(userId: string): Promise<UserProfile | null> {
   const res = await fetch(`/api/auth/getUser/${encodeURIComponent(userId)}`);
   if (!res.ok) return null;
   return await res.json();

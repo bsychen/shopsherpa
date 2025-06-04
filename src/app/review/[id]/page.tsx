@@ -5,7 +5,7 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import { useRouter, useParams } from "next/navigation";
 import { Review } from "@/types/review";
-import { getReview, getProduct } from "@/lib/api";
+import { getReview, getProduct, getUserById } from "@/lib/api";
 
 export default function ReviewPage() {
   const params = useParams();
@@ -13,6 +13,7 @@ export default function ReviewPage() {
   const [user, setUser] = useState<User | null>(null);
   const [review, setReview] = useState<Review | null>(null);
   const [productName, setProductName] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -39,7 +40,6 @@ export default function ReviewPage() {
           valueRating: data.valueRating,
           qualityRating: data.qualityRating,
           userId: data.userId,
-          username: data.username,
         });
       } else {
         setReview(null);
@@ -53,6 +53,13 @@ export default function ReviewPage() {
     getProduct(review.productId).then((product) => {
       setProductName(product?.name || "");
     });
+    // Fetch username from userId
+    if (review.userId) {
+      getUserById(review.userId).then((user) => {
+        if (user && typeof user.username === "string") setUsername(user.username);
+        else setUsername("");
+      });
+    }
   }, [review, id]);
 
   if (loading) {
@@ -94,7 +101,7 @@ export default function ReviewPage() {
       </div>
       <div className="mb-2 flex items-center">
         <span className="font-bold text-zinc-800 text-2xl min-w-[110px]">
-          {review.username} says...
+          {username ? `${username} says...` : "User says..."}
         </span>
       </div>
       <div className="mb-2 flex items-center">

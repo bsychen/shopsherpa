@@ -31,10 +31,10 @@ export default function ProfilePage() {
       .then((userData) => {
         // Defensive: ensure all required fields are present
         setUser({
-          userId: userData?.userId || firebaseUser.uid,
-          username: userData?.username || '',
-          email: userData?.email || firebaseUser.email || '',
-          pfp: userData?.pfp || '',
+          userId: typeof userData?.userId === "string" ? userData.userId : firebaseUser.uid,
+          username: typeof userData?.username === "string" ? userData.username : '',
+          email: typeof userData?.email === "string" ? userData.email : firebaseUser.email || '',
+          pfp: typeof userData?.pfp === "string" ? userData.pfp : '',
         });
       })
       .finally(() => setLoading(false));
@@ -81,7 +81,6 @@ export default function ProfilePage() {
       {user && user.userId && (
         <div className="mb-6">
           <h2 className="text-lg font-semibold mb-2 text-gray-700">Your Reviews</h2>
-          {/* UserReviewsList will fetch and display the user's reviews */}
           <UserReviewsList userId={user.userId} />
         </div>
       )}
