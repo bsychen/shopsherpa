@@ -20,12 +20,10 @@ export default function ReviewPage() {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
-      if (!firebaseUser) {
-        router.push("/auth");
-      }
+      // No redirect for unauthenticated users
     });
     return () => unsub();
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -63,14 +61,6 @@ export default function ReviewPage() {
   }, [review, id]);
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-40">
-        <span className="text-gray-500">Loading...</span>
-      </div>
-    );
-  }
-
-  if (!user) {
     return (
       <div className="flex justify-center items-center h-40">
         <span className="text-gray-500">Loading...</span>

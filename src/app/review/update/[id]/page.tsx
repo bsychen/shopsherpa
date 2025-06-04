@@ -49,6 +49,15 @@ export default function UpdateReviewPage() {
 
   return (
     <div className="max-w-md mx-auto mt-10 bg-white rounded-xl shadow p-8 flex flex-col min-h-[400px]">
+      <div className="flex items-center mb-4">
+        <a
+          href={review ? `/review/${review.id}` : "#"}
+          className="flex items-center text-blue-600 hover:underline"
+        >
+          <span className="mr-2 text-2xl">&#8592;</span>
+          <span className="font-semibold">Back to Review</span>
+        </a>
+      </div>
       <h1 className="text-2xl font-bold mb-4 text-gray-800">Update Your Review</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
