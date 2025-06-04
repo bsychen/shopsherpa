@@ -147,6 +147,32 @@ export default function ReviewPage() {
           {review.reviewText || "(No review text)"}
         </div>
       </div>
+      {/* Action buttons for review owner */}
+      {user && user.uid === review.userId && (
+        <div className="flex gap-2 mt-3">
+          <button
+            onClick={async () => {
+              if (confirm("Are you sure you want to delete this review?")) {
+                const res = await import("@/lib/api").then(m => m.deleteReview(review.id));
+                if (res.success) {
+                  router.push(`/product/${review.productId}`);
+                } else {
+                  alert(res.error || "Failed to delete review");
+                }
+              }
+            }}
+            className="bg-red-100 hover:bg-red-200 text-red-700 font-medium py-1 px-3 rounded text-xs border border-red-200 transition"
+          >
+            Delete
+          </button>
+          <button
+            onClick={() => router.push(`/review/update/${review.id}`)}
+            className="bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium py-1 px-3 rounded text-xs border border-blue-200 transition"
+          >
+            Edit
+          </button>
+        </div>
+      )}
       <div className="mt-6 text-xs text-gray-400 text-left">
         <div>Review ID: {review.id}</div>
         <div>Product ID: {review.productId}</div>
