@@ -16,7 +16,7 @@ export async function GET(
     return NextResponse.json({
       id: doc.id,
       createdAt: doc.data().createdAt,
-      productId: doc.data().croductId,
+      productId: doc.data().productId,
       reviewText: doc.data().reviewText,
       valueRating: doc.data().valueRating,
       qualityRating: doc.data().qualityRating,

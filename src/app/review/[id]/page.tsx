@@ -5,13 +5,14 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import { useRouter, useParams } from "next/navigation";
 import { Review } from "@/types/reviews";
-import { getReview } from "@/lib/api";
+import { getReview, getProduct } from "@/lib/api";
 
 export default function ReviewPage() {
   const params = useParams();
   const id = params?.id as string;
   const [user, setUser] = useState<User | null>(null);
   const [review, setReview] = useState<Review | null>(null);
+  const [productName, setProductName] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -47,6 +48,13 @@ export default function ReviewPage() {
     });
   }, [id]);
 
+  useEffect(() => {
+    if (!id || !review) return;
+    getProduct(review.productId).then((product) => {
+      setProductName(product?.name || "");
+    });
+  }, [review, id]);
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-40">
@@ -73,39 +81,68 @@ export default function ReviewPage() {
 
   return (
     <div className="max-w-md mx-auto mt-10 bg-white rounded-xl shadow p-8">
-      <h1 className="text-2xl font-bold mb-4 text-gray-800">Review</h1>
-      <div className="mb-2">
-        <span className="font-semibold text-gray-700">Review ID:</span>
-        <span className="ml-2 text-gray-900">{review.id}</span>
+      <div className="flex items-center mb-4">
+        <a
+          href={productName ? `/product/${review.productId}` : "#"}
+          className="flex items-center text-blue-600 hover:underline"
+        >
+          <span className="mr-2 text-2xl">&#8592;</span>
+          <span className="font-semibold">
+            Go back to {productName || "..."}
+          </span>
+        </a>
       </div>
-      <div className="mb-2">
-        <span className="font-semibold text-gray-700">Product ID:</span>
-        <span className="ml-2 text-gray-900">{review.productId}</span>
+      <div className="mb-2 flex items-center">
+        <span className="font-bold text-zinc-800 text-2xl min-w-[110px]">
+          {review.username} says...
+        </span>
       </div>
-      <div className="mb-2">
-        <span className="font-semibold text-gray-700">User:</span>
-        <span className="ml-2 text-gray-900">{review.username}</span>
-      </div>
-      <div className="mb-2">
-        <span className="font-semibold text-gray-700">Value Rating:</span>
-        <span className="ml-2">
+      <div className="mb-2 flex items-center">
+        <span className="font-semibold text-gray-700 min-w-[110px] text-sm">
+          Value Rating:
+        </span>
+        <span className="ml-4">
           {[1, 2, 3, 4, 5].map((bag) => (
-            <span key={bag} className={`text-2xl ${review.valueRating >= bag ? '' : 'opacity-30'}`} role="img" aria-label="money-bag">💰</span>
+            <span
+              key={bag}
+              className={`text-2xl ${
+                review.valueRating >= bag ? "" : "opacity-30"
+              }`}
+              role="img"
+              aria-label="money-bag"
+            >
+              💰
+            </span>
           ))}
         </span>
       </div>
-      <div className="mb-2">
-        <span className="font-semibold text-gray-700">Quality Rating:</span>
-        <span className="ml-2">
+      <div className="mb-2 flex items-center">
+        <span className="font-semibold text-gray-700 min-w-[110px] text-sm">
+          Quality Rating:
+        </span>
+        <span className="ml-4">
           {[1, 2, 3, 4, 5].map((apple) => (
-            <span key={apple} className={`text-2xl ${review.qualityRating >= apple ? '' : 'opacity-30'}`} role="img" aria-label="apple">🍎</span>
+            <span
+              key={apple}
+              className={`text-2xl ${
+                review.qualityRating >= apple ? "" : "opacity-30"
+              }`}
+              role="img"
+              aria-label="apple"
+            >
+              🍎
+            </span>
           ))}
         </span>
       </div>
-      <div className="mb-2">
-        <div className="ml-2 text-gray-900 bg-zinc-100 rounded p-3 border border-zinc-200 mt-1">
+      <div className="mb-2 flex">
+        <div className="ml-2 text-gray-900 bg-zinc-100 rounded p-3 border border-zinc-200 mt-1 w-full">
           {review.reviewText || "(No review text)"}
         </div>
+      </div>
+      <div className="mt-6 text-xs text-gray-400 text-left">
+        <div>Review ID: {review.id}</div>
+        <div>Product ID: {review.productId}</div>
       </div>
     </div>
   );
