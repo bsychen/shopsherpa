@@ -53,7 +53,6 @@ export default function ReviewPage() {
       if (!qualityRating) throw new Error("Please select a quality rating");
 
       const userDoc = await getUserById(user.uid);
-      const username = userDoc.username;
       await createReview(id, user.uid, reviewText, valueRating, qualityRating);
       setSubmitSuccess(true);
       setReviewText("");

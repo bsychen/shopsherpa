@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { getUserById } from "@/lib/api";
 import type { UserProfile } from "@/types/user";
 import UserReviewsList from "@/components/UserReviewsList";
+import Image from "next/image";
 
 export default function ProfilePage() {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
@@ -72,7 +73,7 @@ export default function ProfilePage() {
         <span className="font-semibold text-gray-700">Profile Picture:</span>
         <span className="ml-2 text-gray-900">
           {user.pfp ? (
-            <img src={user.pfp} alt="Profile" className="inline-block w-16 h-16 rounded-full border border-zinc-300" />
+            <Image src={user.pfp} alt="Profile" width={64} height={64} className="inline-block w-16 h-16 rounded-full border border-zinc-300" />
           ) : (
             <span className="italic text-gray-400">No profile picture</span>
           )}

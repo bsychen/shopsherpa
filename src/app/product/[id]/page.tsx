@@ -81,10 +81,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 bg-zinc-50 dark:bg-zinc-100">
       <div className="w-full max-w-xl bg-white rounded-lg shadow p-6 flex flex-col items-center border border-zinc-200 relative">
         <div className="absolute left-6 top-6">
-          <a href="/" className="flex items-center text-blue-600 hover:underline">
+          <Link href="/" className="flex items-center text-blue-600 hover:underline">
             <span className="mr-2 text-2xl">&#8592;</span>
             <span className="font-semibold">Go back home</span>
-          </a>
+          </Link>
         </div>
         <h1 className="text-2xl font-bold mb-4 text-center text-zinc-800 mt-10">{product.name}</h1>
         <div className="text-lg text-zinc-700 mb-2">What you should be paying:</div>
