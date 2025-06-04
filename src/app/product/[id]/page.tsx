@@ -33,7 +33,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     return () => unsub();
   }, [id])
 
-  // Fetch usernames for all unique userIds in reviews
+  // Fetch usernames for all unique userId in reviews
   useEffect(() => {
     async function fetchUsernames() {
       const ids = Array.from(new Set(reviews.map(r => r.userId)));
@@ -86,7 +86,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             <span className="font-semibold">Go back home</span>
           </a>
         </div>
-        <h1 className="text-2xl font-bold mb-4 text-center text-zinc-800 mt-2">{product.name}</h1>
+        <h1 className="text-2xl font-bold mb-4 text-center text-zinc-800 mt-10">{product.name}</h1>
         <div className="text-lg text-zinc-700 mb-2">What you should be paying:</div>
         <div className="text-3xl font-semibold text-green-600 mb-2">£{product.dbPrice.toFixed(2)}</div>
         {/* Reviews Section */}
