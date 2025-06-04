@@ -8,13 +8,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pro
         const { searchParams } = new URL(req.url);
 
         const userId = searchParams.get('userId');
-        const username = searchParams.get('username');
         const reviewText = searchParams.get('reviewText') || undefined;
         const valueRating = parseInt(searchParams.get('valueRating'));
         const qualityRating = parseInt(searchParams.get('qualityRating'));
         
-        if (!userId || !username) {
-            return NextResponse.json({ success: false, error: 'Missing UserId or Username' }, { status: 400 });
+        if (!userId) {
+            return NextResponse.json({ success: false, error: 'Missing UserId' }, { status: 400 });
         }
         const review: Omit<Review, 'id'> & { createdAt: Date, productId: string } = {
             createdAt: new Date(),
