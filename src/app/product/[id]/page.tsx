@@ -326,11 +326,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 </div>
                 <button
                   onClick={handleWriteReview}
-                  className="inline-flex items-center justify-center bg-zinc-200 hover:bg-zinc-300 text-zinc-800 font-bold text-2xl px-4 h-10 rounded-lg transition ml-2 mb-0"
+                  className="inline-flex items-center justify-center bg-zinc-200 hover:bg-zinc-300 text-zinc-800 font-bold text-xl px-4 h-10 rounded-lg transition ml-2 mb-0"
                   aria-label="Write a Review"
                 >
                   <span className="w-full flex items-center justify-center" style={{lineHeight: 1}}>
-                    <span className="text-4xl leading-none">+</span>
+                    <span className="text-xl leading-none flex items-center justify-center">+</span>
                   </span>
                 </button>
               </div>
