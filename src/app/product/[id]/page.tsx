@@ -22,6 +22,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [animatedQuality, setAnimatedQuality] = useState(0);
   const [visibleReviews, setVisibleReviews] = useState(3);
   const [seeMoreClicked, setSeeMoreClicked] = useState(false);
+  const [filter, setFilter] = useState<{ type: 'value' | 'quality' | null, score: number | null }>({ type: null, score: null });
+  const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -74,6 +76,20 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       router.push("/auth");
     }
   };
+
+  // Filtered reviews based on bar click
+  const filteredReviews = filter.type && filter.score !== null
+    ? reviews.filter(r => (filter.type === 'value' ? r.valueRating : r.qualityRating) === filter.score)
+    : reviews;
+
+  // Animate reviews section on filter change
+  useEffect(() => {
+    if (filter.type !== null) {
+      setRefreshing(true);
+      const timeout = setTimeout(() => setRefreshing(false), 350);
+      return () => clearTimeout(timeout);
+    }
+  }, [filter]);
 
   if (loading) {
     return (
@@ -152,15 +168,20 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                     <div className="font-semibold mb-1 text-xs md:text-base">Value for Money</div>
                     <div className="flex flex-col gap-1 h-auto w-full">
                       {[5,4,3,2,1].map(star => (
-                        <div key={star} className="flex items-center mb-0.5">
+                        <button
+                          key={star}
+                          className={`flex items-center mb-0.5 w-full group focus:outline-none ${filter.type === 'value' && filter.score === star ? 'ring-2 ring-yellow-400' : ''}`}
+                          onClick={() => setFilter(filter.type === 'value' && filter.score === star ? { type: null, score: null } : { type: 'value', score: star })}
+                          title={`Show reviews with value score ${star}`}
+                          type="button"
+                        >
                           <span className="text-[10px] w-5 text-right mr-1">{star}★</span>
                           <div
-                            className="bg-yellow-400 rounded h-3 transition-all duration-700 animate-bar-grow"
+                            className="bg-yellow-400 rounded h-3 transition-all duration-700 animate-bar-grow group-hover:bg-yellow-500"
                             style={{ width: `${Math.max(6, Number(reviewSummary.valueDistribution[star] || 0) * 12)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
-                            title={`${reviewSummary.valueDistribution[star] || 0} review(s) with ${star} star(s)`}
                           ></div>
                           <span className="text-[10px] text-gray-500 ml-1">{String(reviewSummary.valueDistribution[star] || 0)}</span>
-                        </div>
+                        </button>
                     ))}
                     </div>
                   </div>
@@ -207,15 +228,20 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                     <div className="font-semibold mb-1 text-xs md:text-base">Quality</div>
                     <div className="flex flex-col gap-1 h-auto w-full">
                       {[5,4,3,2,1].map(star => (
-                        <div key={star} className="flex items-center mb-0.5">
+                        <button
+                          key={star}
+                          className={`flex items-center mb-0.5 w-full group focus:outline-none ${filter.type === 'quality' && filter.score === star ? 'ring-2 ring-red-400' : ''}`}
+                          onClick={() => setFilter(filter.type === 'quality' && filter.score === star ? { type: null, score: null } : { type: 'quality', score: star })}
+                          title={`Show reviews with quality score ${star}`}
+                          type="button"
+                        >
                           <span className="text-[10px] w-5 text-right mr-1">{star}★</span>
                           <div
-                            className="bg-red-400 rounded h-3 transition-all duration-700 animate-bar-grow"
+                            className="bg-red-400 rounded h-3 transition-all duration-700 animate-bar-grow group-hover:bg-red-500"
                             style={{ width: `${Math.max(6, Number(reviewSummary.qualityDistribution[star] || 0) * 12)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
-                            title={`${reviewSummary.qualityDistribution[star] || 0} review(s) with ${star} star(s)`}
                           ></div>
                           <span className="text-[10px] text-gray-500 ml-1">{String(reviewSummary.qualityDistribution[star] || 0)}</span>
-                        </div>
+                        </button>
                     ))}
                     </div>
                   </div>
@@ -223,7 +249,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               </div>
             </div>
           )}
-          <div className="w-full mt-6 bg-zinc-50 border border-zinc-200 rounded-xl p-4">
+          <div className={`w-full mt-6 bg-zinc-50 border border-zinc-200 rounded-xl p-4 transition-all duration-300 ${refreshing ? 'opacity-40 blur-[2px]' : 'opacity-100 blur-0'}`}>
             <div className="flex items-center justify-between w-full mb-2">
               <h2 className="text-xl font-semibold text-zinc-800">Reviews</h2>
               <button
@@ -233,14 +259,14 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 <span className="mr-2 text-xl font-bold">+</span> Write a Review
               </button>
             </div>
-            {reviews.length === 0 ? (
-              <div className="text-zinc-500">No reviews yet.</div>
+            {filteredReviews.length === 0 ? (
+              <div className="text-zinc-500">No reviews{filter.type ? ` with ${filter.type} score ${filter.score}` : ''}.</div>
             ) : (
               <>
                 <ul className="space-y-4">
-                  {reviews.slice(0, visibleReviews).map((review, idx) => {
+                  {filteredReviews.slice(0, visibleReviews).map((review, idx) => {
                     let opacity = 1;
-                    if (!seeMoreClicked && visibleReviews === 3) {
+                    if (!seeMoreClicked && visibleReviews === 3 && !filter.type) {
                       // Fade out: 1st review = 1, 2nd = 0.7, 3rd = 0.4
                       opacity = 1 - idx * 0.3;
                     }
@@ -280,16 +306,26 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                     );
                   })}
                 </ul>
-                {visibleReviews < reviews.length && (
+                {visibleReviews < filteredReviews.length && (
                   <div className="flex justify-center mt-4">
                     <button
                       onClick={() => {
-                        setVisibleReviews(reviews.length);
+                        setVisibleReviews(filteredReviews.length);
                         setSeeMoreClicked(true);
                       }}
                       className="px-4 py-2 bg-zinc-200 hover:bg-zinc-300 text-zinc-800 rounded font-semibold transition"
                     >
                       See more
+                    </button>
+                  </div>
+                )}
+                {filter.type && (
+                  <div className="flex justify-center mt-2">
+                    <button
+                      onClick={() => setFilter({ type: null, score: null })}
+                      className="px-3 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded text-sm border border-zinc-200"
+                    >
+                      Clear filter
                     </button>
                   </div>
                 )}
