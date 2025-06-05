@@ -335,7 +335,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 </button>
               </div>
             </div>
-            {filteredReviews.length === 0 ? (
+            {sortedReviews.length === 0 ? (
               <div className="text-zinc-500">No reviews{filter.type ? ` with ${filter.type} score ${filter.score}` : ''}.</div>
             ) : (
               <>
@@ -382,11 +382,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                     );
                   })}
                 </ul>
-                {visibleReviews < filteredReviews.length && (
+                {visibleReviews < sortedReviews.length && (
                   <div className="flex justify-center mt-4">
                     <button
                       onClick={() => {
-                        setVisibleReviews(filteredReviews.length);
+                        setVisibleReviews(sortedReviews.length);
                         setSeeMoreClicked(true);
                       }}
                       className="px-4 py-2 bg-zinc-200 hover:bg-zinc-300 text-zinc-800 rounded font-semibold transition"
