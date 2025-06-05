@@ -20,6 +20,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [reviewSummary, setReviewSummary] = useState(null);
   const [animatedValue, setAnimatedValue] = useState(0);
   const [animatedQuality, setAnimatedQuality] = useState(0);
+  const [visibleReviews, setVisibleReviews] = useState(3);
+  const [seeMoreClicked, setSeeMoreClicked] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -107,9 +109,9 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           <h2 className="text-xl font-semibold mb-2 text-zinc-800">Community Score:</h2>
           {reviewSummary && (
             <div className="mb-6">
-              <div className="flex flex-row gap-4 md:gap-8">
+              <div className="flex flex-row justify-between gap-4 md:gap-8">
                 {/* Value Box */}
-                <div className="w-1/2 max-w-[220px] flex-shrink-0 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex flex-col items-center">
+                <div className="w-[48%] max-w-[220px] flex-shrink-0 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex flex-col items-center">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="relative inline-block w-12 h-12 align-middle">
                       <svg width="48" height="48" viewBox="0 0 48 48" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
@@ -164,7 +166,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   </div>
                 </div>
                 {/* Quality Box */}
-                <div className="w-1/2 max-w-[220px] flex-shrink-0 bg-red-50 border border-red-200 rounded-lg p-3 flex flex-col items-center">
+                <div className="w-[48%] max-w-[220px] flex-shrink-0 bg-red-50 border border-red-200 rounded-lg p-3 flex flex-col items-center">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="relative inline-block w-12 h-12 align-middle">
                       <svg width="48" height="48" viewBox="0 0 48 48" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
@@ -221,54 +223,78 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               </div>
             </div>
           )}
-          <h2 className="text-xl font-semibold mb-2 text-zinc-800">Reviews</h2>
-          {reviews.length === 0 ? (
-            <div className="text-zinc-500">No reviews yet.</div>
-          ) : (
-            <ul className="space-y-4">
-              {reviews.map((review) => (
-                <li key={review.id}>
-                  <Link href={`/review/${review.id}`} className="block bg-white rounded-lg border border-zinc-200 shadow-sm p-4 hover:bg-zinc-50 transition cursor-pointer">
-                    <div className="font-bold text-zinc-700 mb-1">{usernames[review.userId] || "User"}</div>
-                    <div className="flex flex-row items-center gap-4 mb-1">
-                      <span className="flex items-center">
-                        {[1, 2, 3, 4, 5].map((bag) => (
-                          <span
-                            key={bag}
-                            className={`text-xl ${review.valueRating >= bag ? '' : 'opacity-30'}`}
-                            role="img"
-                            aria-label="money-bag"
-                          >
-                            💰
-                          </span>
-                        ))}
-                      </span>
-                      <span className="flex items-center">
-                        {[1, 2, 3, 4, 5].map((apple) => (
-                          <span
-                            key={apple}
-                            className={`text-xl ${review.qualityRating >= apple ? '' : 'opacity-30'}`}
-                            role="img"
-                            aria-label="apple"
-                          >
-                            🍎
-                          </span>
-                        ))}
-                      </span>
-                    </div>
-                    <div className="text-zinc-700 truncate">{review.reviewText || "(No review text)"}</div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-          <div className="mt-6 flex justify-center">
-            <button
-              onClick={handleWriteReview}
-              className="inline-flex items-center bg-zinc-200 hover:bg-zinc-300 text-zinc-800 font-semibold py-2 px-4 rounded transition mb-2"
-            >
-              <span className="mr-2 text-xl font-bold">+</span> Write a Review
-            </button>
+          <div className="w-full mt-6 bg-zinc-50 border border-zinc-200 rounded-xl p-4">
+            <div className="flex items-center justify-between w-full mb-2">
+              <h2 className="text-xl font-semibold text-zinc-800">Reviews</h2>
+              <button
+                onClick={handleWriteReview}
+                className="inline-flex items-center bg-zinc-200 hover:bg-zinc-300 text-zinc-800 font-semibold py-2 px-4 rounded transition ml-4 mb-0"
+              >
+                <span className="mr-2 text-xl font-bold">+</span> Write a Review
+              </button>
+            </div>
+            {reviews.length === 0 ? (
+              <div className="text-zinc-500">No reviews yet.</div>
+            ) : (
+              <>
+                <ul className="space-y-4">
+                  {reviews.slice(0, visibleReviews).map((review, idx) => {
+                    let opacity = 1;
+                    if (!seeMoreClicked && visibleReviews === 3) {
+                      // Fade out: 1st review = 1, 2nd = 0.7, 3rd = 0.4
+                      opacity = 1 - idx * 0.3;
+                    }
+                    return (
+                      <li key={review.id} style={{ opacity }}>
+                        <Link href={`/review/${review.id}`} className="block bg-white rounded-lg border border-zinc-200 shadow-sm p-4 hover:bg-zinc-50 transition cursor-pointer">
+                          <div className="font-bold text-zinc-700 mb-1">{usernames[review.userId] || "User"}</div>
+                          <div className="flex flex-row items-center gap-4 mb-1">
+                            <span className="flex items-center">
+                              {[1, 2, 3, 4, 5].map((bag) => (
+                                <span
+                                  key={bag}
+                                  className={`text-xl ${review.valueRating >= bag ? '' : 'opacity-30'}`}
+                                  role="img"
+                                  aria-label="money-bag"
+                                >
+                                  💰
+                                </span>
+                              ))}
+                            </span>
+                            <span className="flex items-center">
+                              {[1, 2, 3, 4, 5].map((apple) => (
+                                <span
+                                  key={apple}
+                                  className={`text-xl ${review.qualityRating >= apple ? '' : 'opacity-30'}`}
+                                  role="img"
+                                  aria-label="apple"
+                                >
+                                  🍎
+                                </span>
+                              ))}
+                            </span>
+                          </div>
+                          <div className="text-zinc-700 truncate">{review.reviewText || "(No review text)"}</div>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+                {visibleReviews < reviews.length && (
+                  <div className="flex justify-center mt-4">
+                    <button
+                      onClick={() => {
+                        setVisibleReviews(reviews.length);
+                        setSeeMoreClicked(true);
+                      }}
+                      className="px-4 py-2 bg-zinc-200 hover:bg-zinc-300 text-zinc-800 rounded font-semibold transition"
+                    >
+                      See more
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
