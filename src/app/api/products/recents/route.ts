@@ -27,10 +27,19 @@ export async function GET(req: Request) {
             .limit(3)
             .get();
 
-        const recentProducts = recentsSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...(doc.data() as Record<string, unknown>),
-        }));
+        const recentProducts = await Promise.all(
+            recentsSnapshot.docs.map(async (doc) => {
+                const productId = doc.id;
+                const productDoc = await db.collection('products').doc(productId).get();
+
+                const productData = productDoc.data();
+                return {
+                    id: productId,
+                    name: productData.ProductName,
+                    ...(doc.data() as Record<string, unknown>),
+                };
+            })
+        );
 
         console.log(`Number of recently viewed products: ${recentProducts.length}`);
         return NextResponse.json(recentProducts);
