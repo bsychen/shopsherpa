@@ -4,9 +4,9 @@ import type { ReviewSummary } from '@/types/reviewSummary';
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { productId: string } }
+    { params }: { params: Promise<{ productId: string }> }
 ) {
-    const { productId } = params;
+    const { productId } = await params;
 
     if (!productId) {
         return NextResponse.json({ error: 'Missing productId' }, { status: 400 });
