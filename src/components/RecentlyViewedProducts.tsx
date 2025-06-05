@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 
 const RecentlyViewedProducts = ({ userId }: { userId: string }) => {
     const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [showAll, setShowAll] = useState(false);
 
     useEffect(() => {
         const fetchRecentlyViewedProducts = async () => {
@@ -16,26 +18,51 @@ const RecentlyViewedProducts = ({ userId }: { userId: string }) => {
                 }
             } catch (error) {
                 console.error("Error fetching products:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchRecentlyViewedProducts();
     }, [userId]);
 
+    // Remove loading spinner and always render the list, but apply blur/opacity when loading
+    if (!products.length && !loading) return <div className="text-gray-400">No recently viewed products.</div>;
+
+    const sortedProducts = [...products];
+    const visibleProducts = showAll ? sortedProducts : sortedProducts.slice(0, 3);
+
     return (
-        <div>
-            {products.length > 0 ? (
-                products.map((product) => (
-                    <Link
+        <div className={`transition-all duration-300 ${loading ? 'opacity-40 blur-[2px] pointer-events-none select-none' : 'opacity-100 blur-0'}`}>
+            <ul className="space-y-3">
+                {visibleProducts.map((product) => (
+                    <li
                         key={product.id}
-                        href={`/product/${product.id}`}
-                        className="block p-4 mb-3 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-sm bg-white dark:bg-zinc-900 hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors text-zinc-900 dark:text-zinc-100 no-underline"
+                        className="bg-zinc-50 rounded p-3 border border-zinc-200 hover:bg-zinc-100 transition cursor-pointer"
                     >
-                        <div className="font-medium text-lg">{product.name}</div>
-                    </Link>
-                ))
-            ) : (
-                <div className="text-gray-400">No recently viewed products.</div>
+                        <Link
+                            href={`/product/${product.id}`}
+                            className="block w-full h-full"
+                        >
+                            <div className="font-semibold text-blue-600 hover:underline text-lg mb-1">
+                                {product.name}
+                            </div>
+                            <div className="text-xs text-gray-400">
+                                Product ID: {product.id}
+                            </div>
+                        </Link>
+                    </li>
+                ))}
+            </ul>
+            {!showAll && products.length > 3 && (
+                <div className="flex justify-center mt-3">
+                    <button
+                        className="px-4 py-2 rounded bg-zinc-200 hover:bg-zinc-300 text-sm text-zinc-700 transition"
+                        onClick={() => setShowAll(true)}
+                    >
+                        See more
+                    </button>
+                </div>
             )}
         </div>
     );
