@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '@/lib/firebaseClient';
 import { createUserInFirestore } from '@/lib/api';
 
@@ -21,6 +21,8 @@ export default function AuthForm({
     try {
       if (mode === 'signup') {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // Set displayName to the entered username
+        await updateProfile(userCredential.user, { displayName: username });
         await createUserInFirestore(userCredential.user.uid, email, username);
       } else {
         await signInWithEmailAndPassword(auth, email, password);

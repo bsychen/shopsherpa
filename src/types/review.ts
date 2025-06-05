@@ -8,6 +8,5 @@ export interface Review {
   reviewText?: string;
   valueRating: number;
   qualityRating: number;
-  averageRating?: number;
   userId: string;
 }
