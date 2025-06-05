@@ -409,6 +409,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             )}
           </div>
         </div>
+        <div className="mt-8 pt-4 w-full text-xs text-gray-400 text-left"> Product ID: {product.id}</div>
       </div>
     </div>
   )
