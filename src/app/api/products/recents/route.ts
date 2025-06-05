@@ -43,7 +43,7 @@ export async function GET(req: Request) {
 
         console.log(`Number of recently viewed products: ${recentProducts.length}`);
         return NextResponse.json(recentProducts);
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: 'Failed to fetch recent products' }, { status: 500 });
     }
 }
@@ -81,7 +81,7 @@ export async function POST(req: Request) {
         }
 
         return NextResponse.json({ success: true });
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: 'Failed to add product to recently viewed' }, { status: 500 });
     }
 }

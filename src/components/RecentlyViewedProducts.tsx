@@ -1,13 +1,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const exampleProducts = [
-    { id: "v7rlFWpviexqgBRveUYJ", name: "Oats" },
-    { id: "653341360601", name: "Gum" },
-];
-
 const RecentlyViewedProducts = ({ userId }: { userId: string }) => {
-    const [products, setProducts] = useState<typeof exampleProducts>([]);
+    const [products, setProducts] = useState([]);
 
     useEffect(() => {
         const fetchRecentlyViewedProducts = async () => {
