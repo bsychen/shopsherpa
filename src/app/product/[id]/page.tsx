@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from "react"
 import { Product } from "@/types/product"
 import { Review } from "@/types/review"
-import { getProduct, getProductReviews } from "@/lib/api"
+import { getProduct, getProductReviews, getReviewSummary } from "@/lib/api"
 import Link from "next/link"
 import { onAuthStateChanged, User } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
@@ -17,6 +17,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [usernames, setUsernames] = useState<Record<string, string>>({});
+  const [reviewSummary, setReviewSummary] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -26,6 +27,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       setLoading(false)
     })
     getProductReviews(id).then((data) => setReviews(data || []));
+    getReviewSummary(id).then((summary) => setReviewSummary(summary));
     // Auth state listener for showing the create review button
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
@@ -92,6 +94,56 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         {/* Reviews Section */}
         <div className="w-full mt-6">
           <h2 className="text-xl font-semibold mb-2 text-zinc-800">Reviews</h2>
+          {reviewSummary && (
+            <div className="mb-6">
+              <div className="flex flex-col md:flex-row md:items-center md:gap-8 mb-2">
+                <div className="flex items-center gap-2 text-lg">
+                  <span className="font-semibold">Avg Value:</span>
+                  <span className="text-2xl">💰</span>
+                  <span className="font-bold">{reviewSummary.averageValueRating.toFixed(2)}</span>
+                </div>
+                <div className="flex items-center gap-2 text-lg mt-2 md:mt-0">
+                  <span className="font-semibold">Avg Quality:</span>
+                  <span className="text-2xl">🍎</span>
+                  <span className="font-bold">{reviewSummary.averageQualityRating.toFixed(2)}</span>
+                </div>
+              </div>
+              <div className="flex flex-col md:flex-row gap-8">
+                <div>
+                  <div className="font-semibold mb-1">Value Rating Distribution</div>
+                  <div className="flex items-end gap-2 h-16">
+                    {Object.entries(reviewSummary.valueDistribution).map(([star, count]) => (
+                      <div key={star} className="flex flex-col items-center">
+                        <div
+                          className="bg-blue-400 rounded-t w-6"
+                          style={{ height: `${Math.max(6, Number(count) * 12)}px` }}
+                          title={`${count} review(s) with ${star} star(s)`}
+                        ></div>
+                        <span className="text-xs mt-1">{star}★</span>
+                        <span className="text-xs text-gray-500">{String(count)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="font-semibold mb-1">Quality Rating Distribution</div>
+                  <div className="flex items-end gap-2 h-16">
+                    {Object.entries(reviewSummary.qualityDistribution).map(([star, count]) => (
+                      <div key={star} className="flex flex-col items-center">
+                        <div
+                          className="bg-green-400 rounded-t w-6"
+                          style={{ height: `${Math.max(6, Number(count) * 12)}px` }}
+                          title={`${count} review(s) with ${star} star(s)`}
+                        ></div>
+                        <span className="text-xs mt-1">{star}★</span>
+                        <span className="text-xs text-gray-500">{String(count)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           {reviews.length === 0 ? (
             <div className="text-zinc-500">No reviews yet.</div>
           ) : (
