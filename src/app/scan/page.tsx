@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { BrowserMultiFormatReader } from "@zxing/browser";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function BarcodeScanner() {
   const [manualInput, setManualInput] = React.useState("");
@@ -30,7 +31,7 @@ export default function BarcodeScanner() {
           }
         );
       }
-    });
+    })();
 
     return () => {
       active = false;
@@ -76,7 +77,7 @@ export default function BarcodeScanner() {
             className="flex-shrink-0 px-4 py-2 sm:px-6 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-bold text-base sm:text-lg shadow-md focus:outline-none focus:ring-4 focus:ring-blue-200 flex items-center justify-center"
             aria-label="Barcode"
           >
-            <img src="/barcode-2.svg" alt="Barcode" className="h-8 w-8 invert" />
+            <Image src="/barcode-2.svg" alt="Barcode" width={32} height={32} className="h-8 w-8 invert" />
           </button>
         </div>
       </form>
