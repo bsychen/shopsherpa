@@ -8,6 +8,7 @@ import { getUserById } from "@/lib/api";
 import type { UserProfile } from "@/types/user";
 import UserReviewsList from "@/components/UserReviewsList";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function ProfilePage() {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
@@ -62,6 +63,11 @@ export default function ProfilePage() {
     );
   }
 
+  const exampleProducts = [
+    { id: "v7rlFWpviexqgBRveUYJ", name: "Oats" },
+    { id: "653341360601", name: "Gum" },
+  ];
+
   return (
     <div className="max-w-md mx-auto mt-10 bg-white rounded-xl shadow p-8 flex flex-col min-h-[400px]">
       <h1 className="text-2xl font-bold mb-4 text-gray-800">{user.username || user.email || "Profile"}</h1>
@@ -85,6 +91,18 @@ export default function ProfilePage() {
           <UserReviewsList userId={user.userId} />
         </div>
       )}
+      <div className="w-full">
+        <h2 className="text-lg font-semibold mb-4 text-gray-700">Recently Viewed Products</h2>
+        {exampleProducts.map((product) => (
+          <Link
+        key={product.id}
+        href={`/product/${product.id}`}
+        className="block p-4 mb-3 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-sm bg-white dark:bg-zinc-900 hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors text-zinc-900 dark:text-zinc-100 no-underline"
+          >
+        <div className="font-medium text-lg">{product.name}</div>
+          </Link>
+        ))}
+      </div>
       <button
         onClick={handleLogout}
         className="mt-6 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded transition"
