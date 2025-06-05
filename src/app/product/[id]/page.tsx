@@ -18,6 +18,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [user, setUser] = useState<User | null>(null);
   const [usernames, setUsernames] = useState<Record<string, string>>({});
   const [reviewSummary, setReviewSummary] = useState(null);
+  const [animatedValue, setAnimatedValue] = useState(0);
+  const [animatedQuality, setAnimatedQuality] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -34,6 +36,14 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     });
     return () => unsub();
   }, [id])
+
+  // Animate the average score ring after reviewSummary loads
+  useEffect(() => {
+    if (reviewSummary) {
+      setTimeout(() => setAnimatedValue(reviewSummary.averageValueRating), 50);
+      setTimeout(() => setAnimatedQuality(reviewSummary.averageQualityRating), 50);
+    }
+  }, [reviewSummary]);
 
   // Fetch usernames for all unique userId in reviews
   useEffect(() => {
@@ -109,7 +119,21 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                           stroke="#fde047"
                           strokeWidth="5"
                           strokeDasharray={Math.PI * 2 * 20}
-                          strokeDashoffset={Math.PI * 2 * 20 * (1 - reviewSummary.averageValueRating / 5)}
+                          strokeDashoffset={Math.PI * 2 * 20}
+                          strokeLinecap="round"
+                          style={{
+                            transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
+                            transform: 'rotate(-90deg)',
+                            transformOrigin: 'center center',
+                          }}
+                        />
+                        <circle
+                          cx="24" cy="24" r="20"
+                          fill="none"
+                          stroke="#fde047"
+                          strokeWidth="5"
+                          strokeDasharray={Math.PI * 2 * 20}
+                          strokeDashoffset={Math.PI * 2 * 20 * (1 - (animatedValue / 5))}
                           strokeLinecap="round"
                           style={{
                             transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
@@ -123,7 +147,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                     <span className="ml-1 text-xs text-zinc-500">Avg Score: {reviewSummary.averageValueRating.toFixed(2)}</span>
                   </div>
                   <div className="w-full">
-                    <div className="font-semibold mb-1 text-xs md:text-base">Value</div>
+                    <div className="font-semibold mb-1 text-xs md:text-base">Value for Money</div>
                     <div className="flex flex-col-reverse gap-1 h-auto w-full">
                       {Object.entries(reviewSummary.valueDistribution)
                         .sort((a, b) => Number(b[0]) - Number(a[0]))
@@ -149,10 +173,24 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                         <circle
                           cx="24" cy="24" r="20"
                           fill="none"
+                          stroke="#fca5a5"
+                          strokeWidth="5"
+                          strokeDasharray={Math.PI * 2 * 20}
+                          strokeDashoffset={Math.PI * 2 * 20}
+                          strokeLinecap="round"
+                          style={{
+                            transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
+                            transform: 'rotate(-90deg)',
+                            transformOrigin: 'center center',
+                          }}
+                        />
+                        <circle
+                          cx="24" cy="24" r="20"
+                          fill="none"
                           stroke="#f87171"
                           strokeWidth="5"
                           strokeDasharray={Math.PI * 2 * 20}
-                          strokeDashoffset={Math.PI * 2 * 20 * (1 - reviewSummary.averageQualityRating / 5)}
+                          strokeDashoffset={Math.PI * 2 * 20 * (1 - (animatedQuality / 5))}
                           strokeLinecap="round"
                           style={{
                             transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
