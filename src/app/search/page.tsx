@@ -37,9 +37,20 @@ export default function ProductSearch() {
           />
           <button
             onClick={handleSearch}
-            className="flex-shrink-0 px-4 py-2 sm:px-6 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-bold text-base sm:text-lg shadow-md focus:outline-none focus:ring-4 focus:ring-blue-200"
+            className="flex-shrink-0 px-4 py-2 sm:px-6 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-bold text-base sm:text-lg shadow-md focus:outline-none focus:ring-4 focus:ring-blue-200 flex items-center justify-center"
+            aria-label="Search"
           >
-            Search
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
           </button>
         </div>
       </div>
