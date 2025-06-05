@@ -10,11 +10,18 @@ const RecentlyViewedProducts = ({ userId }: { userId: string }) => {
     const [products, setProducts] = useState<typeof exampleProducts>([]);
 
     useEffect(() => {
-        // Simulate fetching recently viewed products for the given userId
         const fetchRecentlyViewedProducts = async () => {
-            // Replace this with your actual API call
-            const fetchedProducts = exampleProducts
-            setProducts(fetchedProducts.slice(0, 3));
+            try {
+                const response = await fetch(`/api/products/recents?userId=${userId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setProducts(data);
+                } else {
+                    console.error("Failed to fetch products:", await response.json());
+                }
+            } catch (error) {
+                console.error("Error fetching products:", error);
+            }
         };
 
         fetchRecentlyViewedProducts();
