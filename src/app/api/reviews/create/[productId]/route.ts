@@ -1,27 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/firebaseAdmin";
-import { Review } from '@/types/reviews';
+import { Review } from '@/types/review';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ productId: string }> }) {
     try {
         const { productId } = await params;
         const { searchParams } = new URL(req.url);
 
-        const userId = searchParams.get('UserId');
-        const username = searchParams.get('Username');
-        const reviewText = searchParams.get('ReviewText') || undefined;
-        const rating = parseInt(searchParams.get('Rating'));
+        const userId = searchParams.get('userId');
+        const reviewText = searchParams.get('reviewText') || undefined;
+        const valueRating = parseInt(searchParams.get('valueRating'));
+        const qualityRating = parseInt(searchParams.get('qualityRating'));
         
-        if (!userId || !username) {
-            return NextResponse.json({ success: false, error: 'Missing UserId or Username' }, { status: 400 });
+        if (!userId) {
+            return NextResponse.json({ success: false, error: 'Missing UserId' }, { status: 400 });
         }
-        const review: Omit<Review, 'Id'> & { CreatedAt: Date, ProductId: string } = {
-            CreatedAt: new Date(),
-            ProductId: productId,
-            ReviewText: reviewText,
-            Rating: rating,
-            UserId: userId,
-            Username: username,
+        const review: Omit<Review, 'id'> & { createdAt: Date, productId: string } = {
+            createdAt: new Date(),
+            productId: productId,
+            reviewText: reviewText,
+            valueRating: valueRating,
+            qualityRating: qualityRating,
+            userId: userId,
         };
 
         // Create review document

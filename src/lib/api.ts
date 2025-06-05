@@ -1,5 +1,6 @@
 import { Product } from "@/types/product";
-import { Review } from "@/types/reviews";
+import { Review } from "@/types/review";
+import { UserProfile } from "firebase/auth";
 
 export async function searchProducts(query: string) {
   const res = await fetch(`/api/products/search?name=${encodeURIComponent(query)}`);
@@ -30,9 +31,14 @@ export async function getReview(id: string): Promise<Review | null> {
   return await res.json();
 }
 
-export async function createReview(ProductId: string, UserId: string, ReviewText: string, Rating: number, Username: string) {
-  const params = new URLSearchParams({ UserId, ReviewText, Rating: Rating.toString(), Username });
-  const res = await fetch(`/api/reviews/create/${encodeURIComponent(ProductId)}?${params.toString()}`, {
+export async function createReview(productId: string, userId: string, reviewText: string, valueRating: number, qualityRating: number) {
+  const params = new URLSearchParams({
+    userId,
+    reviewText,
+    valueRating: valueRating.toString(),
+    qualityRating: qualityRating.toString()
+  });
+  const res = await fetch(`/api/reviews/create/${encodeURIComponent(productId)}?${params.toString()}`, {
     method: 'POST',
   });
   if (!res.ok) throw new Error('Failed to create review');
@@ -49,8 +55,31 @@ export async function createUserInFirestore(uid: string, email: string, username
   return await res.json();
 }
 
-export async function getUserById(userId: string): Promise<{ username: string } | null> {
+export async function getUserById(userId: string): Promise<UserProfile | null> {
   const res = await fetch(`/api/auth/getUser/${encodeURIComponent(userId)}`);
   if (!res.ok) return null;
+  return await res.json();
+}
+
+export async function updateReview(
+  id: string,
+  valueRating?: number,
+  qualityRating?: number,
+  reviewText?: string
+): Promise<{ success: boolean; error?: string }> {
+  const params = new URLSearchParams();
+  if (typeof valueRating === 'number') params.append('valueRating', valueRating.toString());
+  if (typeof qualityRating === 'number') params.append('qualityRating', qualityRating.toString());
+  if (typeof reviewText === 'string') params.append('reviewText', reviewText);
+  const res = await fetch(`/api/reviews/update/${encodeURIComponent(id)}?${params.toString()}`, {
+    method: 'PATCH',
+  });
+  return await res.json();
+}
+
+export async function deleteReview(id: string): Promise<{ success: boolean; error?: string }> {
+  const res = await fetch(`/api/reviews/delete/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  });
   return await res.json();
 }

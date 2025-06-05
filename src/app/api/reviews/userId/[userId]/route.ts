@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/firebaseAdmin";
-import { Review } from "@/types/reviews";
+import { Review } from "@/types/review";
 
 export async function GET(
   req: NextRequest,
@@ -10,19 +10,19 @@ export async function GET(
   try {
     const reviewsSnapshot = await db
       .collection("reviews")
-      .where("UserId", "==", userId)
+      .where("userId", "==", userId)
       .get();
 
     const reviews: Review[] = [];
     reviewsSnapshot.forEach(doc => {
       reviews.push({
-        Id: doc.id,
-        CreatedAt: doc.data().CreatedAt,
-        ProductId: doc.data().ProductId,
-        ReviewText: doc.data().ReviewText,
-        Rating: doc.data().Rating,
-        UserId: doc.data().UserId,
-        Username: doc.data().Username,
+        id: doc.id,
+        createdAt: doc.data().createdAt,
+        productId: doc.data().productId,
+        reviewText: doc.data().reviewText,
+        valueRating: doc.data().valueRating,
+        qualityRating: doc.data().qualityRating,
+        userId: doc.data().userId,
       });
     });
     
