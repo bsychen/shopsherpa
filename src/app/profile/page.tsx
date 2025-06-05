@@ -14,6 +14,8 @@ export default function ProfilePage() {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showRecents, setShowRecents] = useState(false);
+  const [showReviews, setShowReviews] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -82,20 +84,30 @@ export default function ProfilePage() {
       </div>
       {user && user.userId && (
         <div>
-          <div className="mb-6 bg-zinc-50 border border-zinc-200 rounded-xl p-4">
-            <h2 className="text-lg font-semibold mb-2 text-gray-700">Recently Viewed Products</h2>
-            <RecentlyViewedProducts userId={user.userId} />
+          <div className="mb-6 bg-zinc-50 border border-zinc-200 rounded-xl p-3">
+            <button
+              className="w-full flex items-center justify-between text-lg font-semibold text-gray-700 mb-2 focus:outline-none"
+              onClick={() => setShowRecents((v) => !v)}
+              aria-expanded={showRecents}
+            >
+              <span>Recently Viewed Products</span>
+            </button>
+            {showRecents && (
+              <RecentlyViewedProducts userId={user.userId} />
+            )}
           </div>
-          <div className="mb-6 bg-zinc-50 border border-zinc-200 rounded-xl p-4">
-            <h2 className="text-lg font-semibold mb-2 text-gray-700">Your Reviews</h2>
-            <UserReviewsList userId={user.userId} />
+          <div className="mb-6 bg-zinc-50 border border-zinc-200 rounded-xl p-3">
+            <button
+              className="w-full flex items-center justify-between text-lg font-semibold text-gray-700 mb-2 focus:outline-none"
+              onClick={() => setShowReviews((v) => !v)}
+              aria-expanded={showReviews}
+            >
+              <span>Your Reviews</span>
+            </button>
+            {showReviews && (
+              <UserReviewsList userId={user.userId} />
+            )}
           </div>
-        </div>
-      )}
-      {user && user.userId && (
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-2 text-gray-700">Recently Viewed Products</h2>
-          <RecentlyViewedProducts userId={user.userId} />
         </div>
       )}
       <button

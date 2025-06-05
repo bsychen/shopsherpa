@@ -132,7 +132,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       const timeout = setTimeout(() => setRefreshing(false), 350);
       return () => clearTimeout(timeout);
     }
-  }, [filter, sortBy]);
+  }, [filter, sortBy, sortOpen]);
 
   if (loading) {
     return (

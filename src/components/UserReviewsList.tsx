@@ -36,8 +36,8 @@ export default function UserReviewsList({ userId }: UserReviewsListProps) {
     if (reviews.length) fetchProductNames();
   }, [reviews]);
 
-  if (loading) return <div className="text-gray-400">Loading reviews...</div>;
-  if (!reviews.length) return <div className="text-gray-400">No reviews yet.</div>;
+  // Remove loading spinner and always render the list, but apply blur/opacity when loading
+  if (!reviews.length && !loading) return <div className="text-gray-400">No reviews yet.</div>;
 
   // Sort reviews by createdAt descending
   const sortedReviews = [...reviews].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
@@ -45,7 +45,7 @@ export default function UserReviewsList({ userId }: UserReviewsListProps) {
   const fadeOpacities = [1, 0.7, 0.4];
 
   return (
-    <div>
+    <div className={`transition-all duration-300 ${loading ? 'opacity-40 blur-[2px] pointer-events-none select-none' : 'opacity-100 blur-0'}`}>
       <ul className="space-y-3">
         {visibleReviews.map((review, idx) => (
           <li
