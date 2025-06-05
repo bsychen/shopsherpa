@@ -148,20 +148,18 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   </div>
                   <div className="w-full">
                     <div className="font-semibold mb-1 text-xs md:text-base">Value for Money</div>
-                    <div className="flex flex-col-reverse gap-1 h-auto w-full">
-                      {Object.entries(reviewSummary.valueDistribution)
-                        .sort((a, b) => Number(b[0]) - Number(a[0]))
-                        .map(([star, count]) => (
-                          <div key={star} className="flex items-center mb-0.5">
-                            <span className="text-[10px] w-5 text-right mr-1">{star}★</span>
-                            <div
-                              className="bg-yellow-400 rounded h-3 transition-all duration-700 animate-bar-grow"
-                              style={{ width: `${Math.max(6, Number(count) * 12)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
-                              title={`${count} review(s) with ${star} star(s)`}
-                            ></div>
-                            <span className="text-[10px] text-gray-500 ml-1">{String(count)}</span>
-                          </div>
-                      ))}
+                    <div className="flex flex-col gap-1 h-auto w-full">
+                      {[5,4,3,2,1].map(star => (
+                        <div key={star} className="flex items-center mb-0.5">
+                          <span className="text-[10px] w-5 text-right mr-1">{star}★</span>
+                          <div
+                            className="bg-yellow-400 rounded h-3 transition-all duration-700 animate-bar-grow"
+                            style={{ width: `${Math.max(6, Number(reviewSummary.valueDistribution[star] || 0) * 12)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
+                            title={`${reviewSummary.valueDistribution[star] || 0} review(s) with ${star} star(s)`}
+                          ></div>
+                          <span className="text-[10px] text-gray-500 ml-1">{String(reviewSummary.valueDistribution[star] || 0)}</span>
+                        </div>
+                    ))}
                     </div>
                   </div>
                 </div>
@@ -205,20 +203,18 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   </div>
                   <div className="w-full">
                     <div className="font-semibold mb-1 text-xs md:text-base">Quality</div>
-                    <div className="flex flex-col-reverse gap-1 h-auto w-full">
-                      {Object.entries(reviewSummary.qualityDistribution)
-                        .sort((a, b) => Number(b[0]) - Number(a[0]))
-                        .map(([star, count]) => (
-                          <div key={star} className="flex items-center mb-0.5">
-                            <span className="text-[10px] w-5 text-right mr-1">{star}★</span>
-                            <div
-                              className="bg-red-400 rounded h-3 transition-all duration-700 animate-bar-grow"
-                              style={{ width: `${Math.max(6, Number(count) * 12)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
-                              title={`${count} review(s) with ${star} star(s)`}
-                            ></div>
-                            <span className="text-[10px] text-gray-500 ml-1">{String(count)}</span>
-                          </div>
-                      ))}
+                    <div className="flex flex-col gap-1 h-auto w-full">
+                      {[5,4,3,2,1].map(star => (
+                        <div key={star} className="flex items-center mb-0.5">
+                          <span className="text-[10px] w-5 text-right mr-1">{star}★</span>
+                          <div
+                            className="bg-red-400 rounded h-3 transition-all duration-700 animate-bar-grow"
+                            style={{ width: `${Math.max(6, Number(reviewSummary.qualityDistribution[star] || 0) * 12)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
+                            title={`${reviewSummary.qualityDistribution[star] || 0} review(s) with ${star} star(s)`}
+                          ></div>
+                          <span className="text-[10px] text-gray-500 ml-1">{String(reviewSummary.qualityDistribution[star] || 0)}</span>
+                        </div>
+                    ))}
                     </div>
                   </div>
                 </div>
