@@ -9,18 +9,21 @@ export default function Home() {
         <h1 className="text-2xl font-bold mb-2">Welcome to ShopSmart</h1>
         <div className="flex flex-col gap-4 w-full">
           <Link href="/search">
-            <button className="w-full px-6 py-4 bg-blue-600 text-white rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors shadow">
-              Search for a Product
+            <button className="w-full px-6 py-4 bg-blue-600 text-white rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors shadow flex items-center justify-between group">
+              <span className="text-left w-full">Search for a Product</span>
+              <img src="/search.svg" alt="Search" className="h-7 w-7 ml-4 filter invert group-hover:invert-0" />
             </button>
           </Link>
           <Link href="/scan">
-            <button className="w-full px-6 py-4 bg-green-600 text-white rounded-lg text-lg font-semibold hover:bg-green-700 transition-colors shadow">
-              Scan a Barcode
+            <button className="w-full px-6 py-4 bg-green-600 text-white rounded-lg text-lg font-semibold hover:bg-green-700 transition-colors shadow flex items-center justify-between group">
+              <span className="text-left w-full">Scan a Barcode</span>
+              <img src="/barcode-2.svg" alt="Scan Barcode" className="h-7 w-7 ml-4 filter invert group-hover:invert-0" />
             </button>
           </Link>
           <Link href="/chats">
-            <button className="w-full px-6 py-4 bg-purple-600 text-white rounded-lg text-lg font-semibold hover:bg-purple-700 transition-colors shadow">
-              Ask Our Users
+            <button className="w-full px-6 py-4 bg-purple-600 text-white rounded-lg text-lg font-semibold hover:bg-purple-700 transition-colors shadow flex items-center justify-between group">
+              <span className="text-left w-full">Ask Our Users</span>
+              <img src="/message-square.svg" alt="Ask Users" className="h-7 w-7 ml-4 filter invert group-hover:invert-0" />
             </button>
           </Link>
         </div>
