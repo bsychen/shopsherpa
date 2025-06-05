@@ -92,62 +92,102 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         <div className="text-lg text-zinc-700 mb-2">What you should be paying:</div>
         <div className="text-3xl font-semibold text-green-600 mb-2">£{product.dbPrice.toFixed(2)}</div>
         {/* Reviews Section */}
+        
         <div className="w-full mt-6">
-          <h2 className="text-xl font-semibold mb-2 text-zinc-800">Reviews</h2>
+          <h2 className="text-xl font-semibold mb-2 text-zinc-800">Community Score:</h2>
           {reviewSummary && (
             <div className="mb-6">
-              <div className="flex flex-col md:flex-row md:items-center md:gap-8 mb-2">
-                <div className="flex items-center gap-2 text-lg">
-                  <span className="font-semibold">Avg Value:</span>
-                  <span className="text-2xl">💰</span>
-                  <span className="font-bold">{reviewSummary.averageValueRating.toFixed(2)}</span>
-                </div>
-                <div className="flex items-center gap-2 text-lg mt-2 md:mt-0">
-                  <span className="font-semibold">Avg Quality:</span>
-                  <span className="text-2xl">🍎</span>
-                  <span className="font-bold">{reviewSummary.averageQualityRating.toFixed(2)}</span>
-                </div>
-              </div>
-              <div className="flex flex-col md:flex-row gap-8">
-                <div className="w-full md:w-1/2">
-                  <div className="font-semibold mb-1">Value</div>
-                  <div className="flex flex-col-reverse gap-2 h-auto w-full">
-                    {Object.entries(reviewSummary.valueDistribution)
-                      .sort((a, b) => Number(b[0]) - Number(a[0]))
-                      .map(([star, count]) => (
-                        <div key={star} className="flex items-center mb-1">
-                          <span className="text-xs w-6 text-right mr-2">{star}★</span>
-                          <div
-                            className="bg-yellow-400 rounded h-4 transition-all duration-700 animate-bar-grow"
-                            style={{ width: `${Math.max(8, Number(count) * 18)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
-                            title={`${count} review(s) with ${star} star(s)`}
-                          ></div>
-                          <span className="text-xs text-gray-500 ml-2">{String(count)}</span>
-                        </div>
-                    ))}
+              <div className="flex flex-row gap-4 md:gap-8">
+                {/* Value Box */}
+                <div className="w-1/2 max-w-[220px] flex-shrink-0 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex flex-col items-center">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="relative inline-block w-12 h-12 align-middle">
+                      <svg width="48" height="48" viewBox="0 0 48 48" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
+                        <circle
+                          cx="24" cy="24" r="20"
+                          fill="none"
+                          stroke="#fde047"
+                          strokeWidth="5"
+                          strokeDasharray={Math.PI * 2 * 20}
+                          strokeDashoffset={Math.PI * 2 * 20 * (1 - reviewSummary.averageValueRating / 5)}
+                          strokeLinecap="round"
+                          style={{
+                            transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
+                            transform: 'rotate(-90deg)',
+                            transformOrigin: 'center center',
+                          }}
+                        />
+                      </svg>
+                      <span className="relative z-10 flex items-center justify-center w-12 h-12 text-3xl">💰</span>
+                    </span>
+                    <span className="ml-1 text-xs text-zinc-500">Avg Score: {reviewSummary.averageValueRating.toFixed(2)}</span>
+                  </div>
+                  <div className="w-full">
+                    <div className="font-semibold mb-1 text-xs md:text-base">Value</div>
+                    <div className="flex flex-col-reverse gap-1 h-auto w-full">
+                      {Object.entries(reviewSummary.valueDistribution)
+                        .sort((a, b) => Number(b[0]) - Number(a[0]))
+                        .map(([star, count]) => (
+                          <div key={star} className="flex items-center mb-0.5">
+                            <span className="text-[10px] w-5 text-right mr-1">{star}★</span>
+                            <div
+                              className="bg-yellow-400 rounded h-3 transition-all duration-700 animate-bar-grow"
+                              style={{ width: `${Math.max(6, Number(count) * 12)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
+                              title={`${count} review(s) with ${star} star(s)`}
+                            ></div>
+                            <span className="text-[10px] text-gray-500 ml-1">{String(count)}</span>
+                          </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-                <div className="w-full md:w-1/2">
-                  <div className="font-semibold mb-1">Quality</div>
-                  <div className="flex flex-col-reverse gap-2 h-auto w-full">
-                    {Object.entries(reviewSummary.qualityDistribution)
-                      .sort((a, b) => Number(b[0]) - Number(a[0]))
-                      .map(([star, count]) => (
-                        <div key={star} className="flex items-center mb-1">
-                          <span className="text-xs w-6 text-right mr-2">{star}★</span>
-                          <div
-                            className="bg-red-400 rounded h-4 transition-all duration-700 animate-bar-grow"
-                            style={{ width: `${Math.max(8, Number(count) * 18)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
-                            title={`${count} review(s) with ${star} star(s)`}
-                          ></div>
-                          <span className="text-xs text-gray-500 ml-2">{String(count)}</span>
-                        </div>
-                    ))}
+                {/* Quality Box */}
+                <div className="w-1/2 max-w-[220px] flex-shrink-0 bg-red-50 border border-red-200 rounded-lg p-3 flex flex-col items-center">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="relative inline-block w-12 h-12 align-middle">
+                      <svg width="48" height="48" viewBox="0 0 48 48" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
+                        <circle
+                          cx="24" cy="24" r="20"
+                          fill="none"
+                          stroke="#f87171"
+                          strokeWidth="5"
+                          strokeDasharray={Math.PI * 2 * 20}
+                          strokeDashoffset={Math.PI * 2 * 20 * (1 - reviewSummary.averageQualityRating / 5)}
+                          strokeLinecap="round"
+                          style={{
+                            transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
+                            transform: 'rotate(-90deg)',
+                            transformOrigin: 'center center',
+                          }}
+                        />
+                      </svg>
+                      <span className="relative z-10 flex items-center justify-center w-12 h-12 text-3xl">🍎</span>
+                    </span>
+                    <span className="ml-1 text-xs text-zinc-500">Avg Score: {reviewSummary.averageQualityRating.toFixed(2)}</span>
+                  </div>
+                  <div className="w-full">
+                    <div className="font-semibold mb-1 text-xs md:text-base">Quality</div>
+                    <div className="flex flex-col-reverse gap-1 h-auto w-full">
+                      {Object.entries(reviewSummary.qualityDistribution)
+                        .sort((a, b) => Number(b[0]) - Number(a[0]))
+                        .map(([star, count]) => (
+                          <div key={star} className="flex items-center mb-0.5">
+                            <span className="text-[10px] w-5 text-right mr-1">{star}★</span>
+                            <div
+                              className="bg-red-400 rounded h-3 transition-all duration-700 animate-bar-grow"
+                              style={{ width: `${Math.max(6, Number(count) * 12)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
+                              title={`${count} review(s) with ${star} star(s)`}
+                            ></div>
+                            <span className="text-[10px] text-gray-500 ml-1">{String(count)}</span>
+                          </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           )}
+          <h2 className="text-xl font-semibold mb-2 text-zinc-800">Reviews</h2>
           {reviews.length === 0 ? (
             <div className="text-zinc-500">No reviews yet.</div>
           ) : (
