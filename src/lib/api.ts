@@ -1,5 +1,6 @@
 import { Product } from "@/types/product";
 import { Review } from "@/types/review";
+import { ReviewSummary } from "@/types/reviewSummary";
 import { UserProfile } from "firebase/auth";
 
 export async function searchProducts(query: string) {
@@ -81,5 +82,11 @@ export async function deleteReview(id: string): Promise<{ success: boolean; erro
   const res = await fetch(`/api/reviews/delete/${encodeURIComponent(id)}`, {
     method: 'DELETE',
   });
+  return await res.json();
+}
+
+export async function getReviewSummary(productId: string): Promise<ReviewSummary | null> {
+  const res = await fetch(`/api/reviews/info/${encodeURIComponent(productId)}`);
+  if (!res.ok) return null;
   return await res.json();
 }

@@ -81,9 +81,15 @@ export default function ProfilePage() {
         </span>
       </div>
       {user && user.userId && (
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-2 text-gray-700">Your Reviews</h2>
-          <UserReviewsList userId={user.userId} />
+        <div>
+          <div className="mb-6 bg-zinc-50 border border-zinc-200 rounded-xl p-4">
+            <h2 className="text-lg font-semibold mb-2 text-gray-700">Recently Viewed Products</h2>
+            <RecentlyViewedProducts userId={user.userId} />
+          </div>
+          <div className="mb-6 bg-zinc-50 border border-zinc-200 rounded-xl p-4">
+            <h2 className="text-lg font-semibold mb-2 text-gray-700">Your Reviews</h2>
+            <UserReviewsList userId={user.userId} />
+          </div>
         </div>
       )}
       {user && user.userId && (
