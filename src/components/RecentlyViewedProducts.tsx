@@ -24,15 +24,19 @@ const RecentlyViewedProducts = ({ userId }: { userId: string }) => {
 
     return (
         <div>
-            {products.map((product) => (
-                <Link
-                    key={product.id}
-                    href={`/product/${product.id}`}
-                    className="block p-4 mb-3 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-sm bg-white dark:bg-zinc-900 hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors text-zinc-900 dark:text-zinc-100 no-underline"
-                >
-                    <div className="font-medium text-lg">{product.name}</div>
-                </Link>
-            ))}
+            {products.length > 0 ? (
+                products.map((product) => (
+                    <Link
+                        key={product.id}
+                        href={`/product/${product.id}`}
+                        className="block p-4 mb-3 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-sm bg-white dark:bg-zinc-900 hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors text-zinc-900 dark:text-zinc-100 no-underline"
+                    >
+                        <div className="font-medium text-lg">{product.name}</div>
+                    </Link>
+                ))
+            ) : (
+                <div className="text-gray-400">No recently viewed products.</div>
+            )}
         </div>
     );
 };
