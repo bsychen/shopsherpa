@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes bar-grow {
+  from { width: 0; }
+  to { width: var(0, --bar-width); }
+}
+.animate-bar-grow {
+  animation: bar-grow 0.7s cubic-bezier(0.4,0,0.2,1) forwards;
+}

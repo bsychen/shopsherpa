@@ -109,35 +109,39 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 </div>
               </div>
               <div className="flex flex-col md:flex-row gap-8">
-                <div>
-                  <div className="font-semibold mb-1">Value Rating Distribution</div>
-                  <div className="flex items-end gap-2 h-16">
-                    {Object.entries(reviewSummary.valueDistribution).map(([star, count]) => (
-                      <div key={star} className="flex flex-col items-center">
-                        <div
-                          className="bg-blue-400 rounded-t w-6"
-                          style={{ height: `${Math.max(6, Number(count) * 12)}px` }}
-                          title={`${count} review(s) with ${star} star(s)`}
-                        ></div>
-                        <span className="text-xs mt-1">{star}★</span>
-                        <span className="text-xs text-gray-500">{String(count)}</span>
-                      </div>
+                <div className="w-full md:w-1/2">
+                  <div className="font-semibold mb-1">Value</div>
+                  <div className="flex flex-col-reverse gap-2 h-auto w-full">
+                    {Object.entries(reviewSummary.valueDistribution)
+                      .sort((a, b) => Number(b[0]) - Number(a[0]))
+                      .map(([star, count]) => (
+                        <div key={star} className="flex items-center mb-1">
+                          <span className="text-xs w-6 text-right mr-2">{star}★</span>
+                          <div
+                            className="bg-yellow-400 rounded h-4 transition-all duration-700 animate-bar-grow"
+                            style={{ width: `${Math.max(8, Number(count) * 18)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
+                            title={`${count} review(s) with ${star} star(s)`}
+                          ></div>
+                          <span className="text-xs text-gray-500 ml-2">{String(count)}</span>
+                        </div>
                     ))}
                   </div>
                 </div>
-                <div>
-                  <div className="font-semibold mb-1">Quality Rating Distribution</div>
-                  <div className="flex items-end gap-2 h-16">
-                    {Object.entries(reviewSummary.qualityDistribution).map(([star, count]) => (
-                      <div key={star} className="flex flex-col items-center">
-                        <div
-                          className="bg-green-400 rounded-t w-6"
-                          style={{ height: `${Math.max(6, Number(count) * 12)}px` }}
-                          title={`${count} review(s) with ${star} star(s)`}
-                        ></div>
-                        <span className="text-xs mt-1">{star}★</span>
-                        <span className="text-xs text-gray-500">{String(count)}</span>
-                      </div>
+                <div className="w-full md:w-1/2">
+                  <div className="font-semibold mb-1">Quality</div>
+                  <div className="flex flex-col-reverse gap-2 h-auto w-full">
+                    {Object.entries(reviewSummary.qualityDistribution)
+                      .sort((a, b) => Number(b[0]) - Number(a[0]))
+                      .map(([star, count]) => (
+                        <div key={star} className="flex items-center mb-1">
+                          <span className="text-xs w-6 text-right mr-2">{star}★</span>
+                          <div
+                            className="bg-red-400 rounded h-4 transition-all duration-700 animate-bar-grow"
+                            style={{ width: `${Math.max(8, Number(count) * 18)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
+                            title={`${count} review(s) with ${star} star(s)`}
+                          ></div>
+                          <span className="text-xs text-gray-500 ml-2">{String(count)}</span>
+                        </div>
                     ))}
                   </div>
                 </div>
@@ -197,3 +201,15 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     </div>
   )
 }
+
+// Add this to your global CSS (e.g., globals.css or in a <style jsx global>)
+/*
+.animate-bar-grow {
+  width: 0;
+  animation: bar-grow 0.7s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+@keyframes bar-grow {
+  from { width: 0; }
+  to { width: var(--bar-width, 100px); }
+}
+*/
