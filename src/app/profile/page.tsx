@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { getUserById } from "@/lib/api";
 import type { UserProfile } from "@/types/user";
 import UserReviewsList from "@/components/UserReviewsList";
+import RecentlyViewedProducts from "@/components/RecentlyViewedProducts";
 import Image from "next/image";
 
 export default function ProfilePage() {
@@ -83,6 +84,12 @@ export default function ProfilePage() {
         <div className="mb-6">
           <h2 className="text-lg font-semibold mb-2 text-gray-700">Your Reviews</h2>
           <UserReviewsList userId={user.userId} />
+        </div>
+      )}
+      {user && user.userId && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold mb-2 text-gray-700">Recently Viewed Products</h2>
+          <RecentlyViewedProducts userId={user.userId} />
         </div>
       )}
       <button

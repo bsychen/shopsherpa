@@ -50,6 +50,25 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     if (reviews.length) fetchUsernames();
   }, [reviews])
 
+  // Call POST API in recents to record the visit (for recently viewed products)
+  useEffect(() => {
+    async function recordVisit() {
+      if (!user) return; // Ensure user is logged in
+      try {
+        await fetch("/api/products/recents", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId: user.uid, productId: id }),
+        });
+      } catch (error) {
+        console.error("Failed to record visit:", error);
+      }
+    }
+    recordVisit();
+  }, [id, user]);
+
   const handleWriteReview = (e: React.MouseEvent) => {
     e.preventDefault();
     if (user) {
