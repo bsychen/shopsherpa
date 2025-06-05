@@ -24,6 +24,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [seeMoreClicked, setSeeMoreClicked] = useState(false);
   const [filter, setFilter] = useState<{ type: 'value' | 'quality' | null, score: number | null }>({ type: null, score: null });
   const [refreshing, setRefreshing] = useState(false);
+  const [sortBy, setSortBy] = useState<'recent' | 'critical' | 'favourable'>('recent');
+  const [sortOpen, setSortOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -82,14 +84,36 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     ? reviews.filter(r => (filter.type === 'value' ? r.valueRating : r.qualityRating) === filter.score)
     : reviews;
 
-  // Animate reviews section on filter change
+  // Sort reviews based on sortBy
+  const sortedReviews = [...filteredReviews].sort((a, b) => {
+    const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    if (sortBy === 'recent') {
+      return bDate - aDate;
+    } else if (sortBy === 'critical') {
+      // Sort by lowest value+quality sum, then most recent
+      const aScore = (a.valueRating || 0) + (a.qualityRating || 0);
+      const bScore = (b.valueRating || 0) + (b.qualityRating || 0);
+      if (aScore !== bScore) return aScore - bScore;
+      return bDate - aDate;
+    } else if (sortBy === 'favourable') {
+      // Sort by highest value+quality sum, then most recent
+      const aScore = (a.valueRating || 0) + (a.qualityRating || 0);
+      const bScore = (b.valueRating || 0) + (b.qualityRating || 0);
+      if (aScore !== bScore) return bScore - aScore;
+      return bDate - aDate;
+    }
+    return 0;
+  });
+
+  // Animate reviews section on filter or sort change
   useEffect(() => {
-    if (filter.type !== null) {
+    if (filter.type !== null || sortOpen === false) {
       setRefreshing(true);
       const timeout = setTimeout(() => setRefreshing(false), 350);
       return () => clearTimeout(timeout);
     }
-  }, [filter]);
+  }, [filter, sortBy]);
 
   if (loading) {
     return (
@@ -252,19 +276,71 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           <div className={`w-full mt-6 bg-zinc-50 border border-zinc-200 rounded-xl p-4 transition-all duration-300 ${refreshing ? 'opacity-40 blur-[2px]' : 'opacity-100 blur-0'}`}>
             <div className="flex items-center justify-between w-full mb-2">
               <h2 className="text-xl font-semibold text-zinc-800">Reviews</h2>
-              <button
-                onClick={handleWriteReview}
-                className="inline-flex items-center bg-zinc-200 hover:bg-zinc-300 text-zinc-800 font-semibold py-2 px-4 rounded transition ml-4 mb-0"
-              >
-                <span className="mr-2 text-xl font-bold">+</span> Write a Review
-              </button>
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      setSortOpen((v) => !v);
+                    }}
+                    className="inline-flex items-center bg-zinc-200 hover:bg-zinc-300 text-zinc-800 font-semibold px-3 h-10 rounded-lg transition text-sm"
+                    aria-haspopup="listbox"
+                    aria-expanded={sortOpen}
+                  >
+                    Sort by
+                    <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                  </button>
+                  {sortOpen && (
+                    <ul className="absolute right-0 mt-1 w-44 bg-white border border-zinc-200 rounded-lg shadow-lg z-20" role="listbox">
+                      <li>
+                        <button
+                          className={`w-full text-left px-4 py-2 hover:bg-zinc-100 transition-all duration-200 rounded ${sortBy === 'recent' ? 'bg-blue-100 text-blue-700 shadow ring-2 ring-blue-300 scale-[1.04]' : ''}`}
+                          onClick={() => { setSortBy('recent'); setSortOpen(false); setRefreshing(true); setTimeout(() => setRefreshing(false), 350); }}
+                          role="option"
+                          aria-selected={sortBy === 'recent'}
+                        >
+                          Most Recent
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className={`w-full text-left px-4 py-2 hover:bg-zinc-100 transition-all duration-200 rounded ${sortBy === 'critical' ? 'bg-blue-100 text-blue-700 shadow ring-2 ring-blue-300 scale-[1.04]' : ''}`}
+                          onClick={() => { setSortBy('critical'); setSortOpen(false); setRefreshing(true); setTimeout(() => setRefreshing(false), 350); }}
+                          role="option"
+                          aria-selected={sortBy === 'critical'}
+                        >
+                          Most Critical
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className={`w-full text-left px-4 py-2 hover:bg-zinc-100 transition-all duration-200 rounded ${sortBy === 'favourable' ? 'bg-blue-100 text-blue-700 shadow ring-2 ring-blue-300 scale-[1.04]' : ''}`}
+                          onClick={() => { setSortBy('favourable'); setSortOpen(false); setRefreshing(true); setTimeout(() => setRefreshing(false), 350); }}
+                          role="option"
+                          aria-selected={sortBy === 'favourable'}
+                        >
+                          Most Favourable
+                        </button>
+                      </li>
+                    </ul>
+                  )}
+                </div>
+                <button
+                  onClick={handleWriteReview}
+                  className="inline-flex items-center justify-center bg-zinc-200 hover:bg-zinc-300 text-zinc-800 font-bold text-2xl px-4 h-10 rounded-lg transition ml-2 mb-0"
+                  aria-label="Write a Review"
+                >
+                  <span className="w-full flex items-center justify-center" style={{lineHeight: 1}}>
+                    <span className="text-4xl leading-none">+</span>
+                  </span>
+                </button>
+              </div>
             </div>
             {filteredReviews.length === 0 ? (
               <div className="text-zinc-500">No reviews{filter.type ? ` with ${filter.type} score ${filter.score}` : ''}.</div>
             ) : (
               <>
                 <ul className="space-y-4">
-                  {filteredReviews.slice(0, visibleReviews).map((review, idx) => {
+                  {sortedReviews.slice(0, visibleReviews).map((review, idx) => {
                     let opacity = 1;
                     if (!seeMoreClicked && visibleReviews === 3 && !filter.type) {
                       // Fade out: 1st review = 1, 2nd = 0.7, 3rd = 0.4
