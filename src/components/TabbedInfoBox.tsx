@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const TAB_ICONS: Record<string, React.ReactNode> = {
   Price: <img src="/pound-svgrepo-com.svg" alt="Price" className="w-6 h-6" />,
@@ -28,6 +28,14 @@ export default function TabbedInfoBox({ activeTab, setActiveTab, product, review
   const [animatedBrand, setAnimatedBrand] = useState(0);
   const [animatedSustainability, setAnimatedSustainability] = useState(0);
 
+  // --- Sliding Bar State ---
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [barStyle, setBarStyle] = useState<{ left: number; width: number }>({ left: 0, width: 0 });
+
+  // --- Animated Height State ---
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [boxHeight, setBoxHeight] = useState<number | undefined>(undefined);
+
   // Animation trigger function
   const triggerAnimation = (tab: string) => {
     if (tab === "Price") {
@@ -48,33 +56,77 @@ export default function TabbedInfoBox({ activeTab, setActiveTab, product, review
     }
   };
 
+  // Update sliding bar position/width on tab change or window resize
+  useEffect(() => {
+    const updateBar = () => {
+      const idx = tabs.indexOf(activeTab);
+      const btn = tabRefs.current[idx];
+      if (btn) {
+        const rect = btn.getBoundingClientRect();
+        const parentRect = btn.parentElement!.getBoundingClientRect();
+        setBarStyle({
+          left: rect.left - parentRect.left,
+          width: rect.width,
+        });
+      }
+    };
+    updateBar();
+    window.addEventListener("resize", updateBar);
+    return () => window.removeEventListener("resize", updateBar);
+  }, [activeTab]);
+
+  // Update box height on content change
+  useEffect(() => {
+    if (contentRef.current) {
+      setBoxHeight(contentRef.current.offsetHeight);
+    }
+  }, [activeTab, product, reviewSummary]);
+
   useEffect(() => {
     triggerAnimation(activeTab);
     // eslint-disable-next-line
   }, [activeTab, reviewSummary]);
 
   return (
-    <div className={`w-full max-w-xl mt-4 border border-zinc-200 rounded-xl shadow p-4 transition-colors duration-300 ${TAB_BG_COLORS[activeTab]}`}>
+    <div
+      className={`w-full max-w-xl mt-4 border border-zinc-200 rounded-xl shadow p-4 transition-colors duration-300 ${TAB_BG_COLORS[activeTab]}`}
+      style={{
+        height: boxHeight ? boxHeight + 80 : undefined, // 32 = padding (p-4)
+        minHeight: 200, // <-- Add this line (adjust value as needed)
+        transition: "height 0.4s cubic-bezier(0.4,0,0.2,1), background 0.3s",
+        overflow: "hidden",
+      }}
+    >
       {/* Tab Headers */}
-      <div className="flex mb-4 border-b border-zinc-100 justify-center gap-2">
-        {tabs.map(tab => (
+      <div className="flex mb-4 border-b border-zinc-100 justify-center gap-2 relative">
+        {/* Sliding Grey Bar */}
+        <div
+          className="absolute bottom-0 h-1 bg-zinc-300 rounded transition-all duration-300"
+          style={{
+            left: barStyle.left,
+            width: barStyle.width,
+            transition: "left 0.35s cubic-bezier(0.4,0,0.2,1), width 0.35s cubic-bezier(0.4,0,0.2,1)",
+          }}
+        />
+        {tabs.map((tab, i) => (
           <button
             key={tab}
+            ref={el => { tabRefs.current[i] = el; }}
             className={`flex flex-col items-center px-2 py-1 font-semibold transition border-b-2
-              ${activeTab === tab ? "border-blue-500 text-blue-700" : "border-transparent text-zinc-500 hover:text-zinc-700"}`}
+              ${activeTab === tab ? "border-transparent text-blue-700" : "border-transparent text-zinc-500 hover:text-zinc-700"}`}
             onClick={() => {
               setActiveTab(tab);
               triggerAnimation(tab);
             }}
-            style={{ minWidth: 44 }}
+            style={{ minWidth: 44, background: "none" }}
             aria-label={tab}
           >
             {TAB_ICONS[tab]}
           </button>
         ))}
       </div>
-      {/* Tab Content */}
-      <div>
+      {/* Tab Content (measured for height) */}
+      <div ref={contentRef}>
         {activeTab === "Price" && reviewSummary && (
           <div className="w-full flex flex-col items-center">
             <h2 className="text-lg font-bold mb-2 self-start">Price</h2>

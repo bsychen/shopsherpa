@@ -28,17 +28,17 @@ const BUTTON_CONFIG: Record<string, { color: string; border: string; svg: string
   },
   Nutrition: {
     color: "bg-blue-100",
-    border: "border-green-200",
+    border: "border-blue-200",
     svg: "/meal-svgrepo-com.svg",
   },
   Sustainability: {
     color: "bg-lime-100",
-    border: "border-lime-200",
+    border: "border-green-200",
     svg: "/leaf-svgrepo-com.svg",
   },
   Brand: {
     color: "bg-purple-100",
-    border: "border-blue-200",
+    border: "border-purple-200",
     svg: "/prices-svgrepo-com.svg",
   },
 };
@@ -149,7 +149,10 @@ export default function ProductRadarChart({
           <button
             key={label}
             type="button"
-            className={`absolute flex items-center justify-center rounded-xl shadow border ${config.color} ${config.border} ${activeTab === label ? "ring-4 ring-blue-400" : ""}`}
+            className={`absolute flex items-center justify-center rounded-xl shadow border
+              ${config.color} ${config.border}
+              ${activeTab === label ? "ring-2 ring-zinc-200 scale-110" : ""}
+            `}
             style={{
               left: x,
               top: y,
@@ -159,8 +162,10 @@ export default function ProductRadarChart({
               pointerEvents: "auto",
               padding: 0,
               opacity: showButtons ? 1 : 0,
-              transform: showButtons ? "scale(1)" : "scale(0.5)",
-              transition,
+              transform: showButtons
+                ? `${activeTab === label ? "scale(1.10)" : "scale(1)"}`
+                : "scale(0.5)",
+              transition: "transform 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.45s cubic-bezier(0.4,0,0.2,1)",
               transitionDelay: delay,
             }}
             tabIndex={-1}
