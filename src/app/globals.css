@@ -9,3 +9,34 @@
 .animate-bar-grow {
   animation: bar-grow 0.7s cubic-bezier(0.4,0,0.2,1) forwards;
 }
+
+/* Hide scrollbar but maintain functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari and Opera */
+}
+
+/* Similar Products scroll snap and fade effect */
+.scroll-snap-x {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll-snap-center {
+  scroll-snap-align: center;
+}
+
+/* Center item emphasis */
+.similar-products-container:hover > * {
+  opacity: 0.6;
+  transform: scale(0.95);
+  transition: all 0.3s ease;
+}
+
+.similar-products-container > *:hover {
+  opacity: 1;
+  transform: scale(1);
+}

@@ -215,7 +215,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           </div>
         </div>
         {/* Spider Web Diagram Box */}
-        <div className="w-full max-w-xl flex flex-col items-center mb-6">
+        <div className="w-full max-w-xl flex flex-col items-center mb-4">
           <div className="flex items-center justify-center w-full" style={{ minHeight: 220, minWidth: 0 }}>
             <ProductRadarChart
               data={[4, 3, 5, 2, 4]}
@@ -234,9 +234,51 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             reviewSummary={reviewSummary}
           />
         </div>
+        {/* Similar Products Section */}
+        <div className="w-full max-w-xl flex flex-col items-start mb-4">
+          <div className="w-full bg-zinc-100 rounded-xl p-4 border border-zinc-200">
+            <h2 className="text-lg font-semibold text-zinc-800 mb-3 px-1">Similar Products</h2>
+            <div className="w-full overflow-x-auto pb-4 hide-scrollbar scroll-smooth">
+              <div 
+                className="flex space-x-4 px-1 scroll-pl-6" 
+                style={{ 
+                  width: 'max-content',
+                  scrollSnapType: 'x mandatory',
+                  scrollPaddingLeft: '50%',
+                  WebkitOverflowScrolling: 'touch'
+                }}
+              >
+                {[1,2,3,4,5,6,7,8].map(i => (
+                  <div 
+                    key={i} 
+                    className="flex flex-col items-center bg-white border border-zinc-200 rounded-lg p-2 shadow-sm transition-all duration-300 hover:shadow-md"
+                    style={{ 
+                      width: '100px', 
+                      flex: '0 0 auto',
+                      scrollSnapAlign: 'center',
+                      opacity: 0.6,
+                      transform: 'scale(0.95)',
+                    }}
+                  >
+                    <img
+                      src="/placeholder.jpg"
+                      alt="Similar Product"
+                      className="w-12 h-12 object-contain rounded mb-2 border border-zinc-200 bg-white"
+                    />
+                    <div className="font-medium text-xs text-zinc-700 text-center mb-1 line-clamp-2 w-full">
+                      Product Name {i}
+                    </div>
+                    <div className="text-[10px] text-zinc-500 mb-1">Brand {i}</div>
+                    <button className="text-[10px] text-blue-600 hover:underline">View</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
         {/* Reviews Section */}
-        <div className="w-full mt-4">
-          <div className={`w-full mt-6 bg-zinc-50 border border-zinc-200 rounded-xl p-4 transition-all duration-300 ${refreshing ? 'opacity-40 blur-[2px]' : 'opacity-100 blur-0'}`}>
+        <div className="w-full">
+          <div className={`w-full bg-zinc-50 border border-zinc-200 rounded-xl p-4 transition-all duration-300 ${refreshing ? 'opacity-40 blur-[2px]' : 'opacity-100 blur-0'}`}>
             <div className="flex items-center justify-between w-full mb-2">
               <h2 className="text-xl font-semibold text-zinc-800">Reviews</h2>
               <div className="flex items-center gap-2">
