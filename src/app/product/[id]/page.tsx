@@ -9,16 +9,57 @@ import { onAuthStateChanged, User } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
 import { useRouter } from "next/navigation"
 import ProductRadarChart from "@/components/ProductRadarChart";
+import { useRef } from "react";
+
+function AnimatedMatchPercent({ percent }: { percent: number }) {
+  const [displayed, setDisplayed] = useState(0);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    let start: number | null = null;
+    const duration = 900;
+    function animate(ts: number) {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      setDisplayed(Math.round(percent * progress));
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(animate);
+      } else {
+        setDisplayed(percent);
+      }
+    }
+    rafRef.current = requestAnimationFrame(animate);
+    return () => rafRef.current && cancelAnimationFrame(rafRef.current);
+  }, [percent]);
+
+  // Color logic
+  const color = displayed >= 70
+    ? { text: "#166534" }
+    : displayed >= 50
+    ? { text: "#a16207" }
+    : { text: "#b91c1c" };
+
+  return (
+    <span className="relative flex flex-col items-center justify-center ml-2" style={{ minWidth: 64, minHeight: 64 }}>
+      <span
+        className="font-bold text-xl"
+        style={{ color: color.text, pointerEvents: 'none', userSelect: 'none' }}
+      >
+        {displayed}%
+      </span>
+      <span className="block text-xs font-medium mt-1 text-zinc-500 text-center">match</span>
+    </span>
+  );
+}
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
-  
+  const { id } = use(params);
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [usernames, setUsernames] = useState<Record<string, string>>({});
-  const [reviewSummary, setReviewSummary] = useState(null);
+  const [reviewSummary, setReviewSummary] = useState<any>(null);
   const [animatedValue, setAnimatedValue] = useState(0);
   const [animatedQuality, setAnimatedQuality] = useState(0);
   const [visibleReviews, setVisibleReviews] = useState(3);
@@ -30,21 +71,14 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const router = useRouter();
 
   useEffect(() => {
-    setLoading(true)
-    getProduct(id).then((data) => {
-      setProduct(data)
-      setLoading(false)
-    })
-    getProductReviews(id).then((data) => setReviews(data || []));
-    getReviewSummary(id).then((summary) => setReviewSummary(summary));
-    // Auth state listener for showing the create review button
-    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
-    });
+    setLoading(true);
+    getProduct(id).then(setProduct).finally(() => setLoading(false));
+    getProductReviews(id).then(data => setReviews(data || []));
+    getReviewSummary(id).then(setReviewSummary);
+    const unsub = onAuthStateChanged(auth, setUser);
     return () => unsub();
-  }, [id])
+  }, [id]);
 
-  // Animate the average score ring after reviewSummary loads
   useEffect(() => {
     if (reviewSummary) {
       setTimeout(() => setAnimatedValue(reviewSummary.averageValueRating), 50);
@@ -52,7 +86,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     }
   }, [reviewSummary]);
 
-  // Fetch usernames for all unique userId in reviews
   useEffect(() => {
     async function fetchUsernames() {
       const ids = Array.from(new Set(reviews.map(r => r.userId)));
@@ -67,18 +100,15 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       setUsernames(names);
     }
     if (reviews.length) fetchUsernames();
-  }, [reviews])
+  }, [reviews]);
 
-  // Call POST API in recents to record the visit (for recently viewed products)
   useEffect(() => {
     async function recordVisit() {
-      if (!user) return; // Ensure user is logged in
+      if (!user) return;
       try {
         await fetch("/api/products/recents", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: user.uid, productId: id }),
         });
       } catch (error) {
@@ -93,40 +123,26 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     if (user) {
       router.push(`/review/create/${id}`);
     } else {
-      // Save intended path and redirect to auth
       localStorage.setItem("postAuthRedirect", `/review/create/${id}`);
       router.push("/auth");
     }
   };
 
-  // Filtered reviews based on bar click
   const filteredReviews = filter.type && filter.score !== null
     ? reviews.filter(r => (filter.type === 'value' ? r.valueRating : r.qualityRating) === filter.score)
     : reviews;
 
-  // Sort reviews based on sortBy
   const sortedReviews = [...filteredReviews].sort((a, b) => {
     const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
     const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-    if (sortBy === 'recent') {
-      return bDate - aDate;
-    } else if (sortBy === 'critical') {
-      // Sort by lowest value+quality sum, then most recent
-      const aScore = (a.valueRating || 0) + (a.qualityRating || 0);
-      const bScore = (b.valueRating || 0) + (b.qualityRating || 0);
-      if (aScore !== bScore) return aScore - bScore;
-      return bDate - aDate;
-    } else if (sortBy === 'favourable') {
-      // Sort by highest value+quality sum, then most recent
-      const aScore = (a.valueRating || 0) + (a.qualityRating || 0);
-      const bScore = (b.valueRating || 0) + (b.qualityRating || 0);
-      if (aScore !== bScore) return bScore - aScore;
-      return bDate - aDate;
-    }
+    if (sortBy === 'recent') return bDate - aDate;
+    const aScore = (a.valueRating || 0) + (a.qualityRating || 0);
+    const bScore = (b.valueRating || 0) + (b.qualityRating || 0);
+    if (sortBy === 'critical') return aScore !== bScore ? aScore - bScore : bDate - aDate;
+    if (sortBy === 'favourable') return aScore !== bScore ? bScore - aScore : bDate - aDate;
     return 0;
   });
 
-  // Animate reviews section on filter or sort change
   useEffect(() => {
     if (filter.type !== null || sortOpen === false) {
       setRefreshing(true);
@@ -160,9 +176,16 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             <span className="font-semibold">Go back home</span>
           </Link>
         </div>
-        <h1 className="text-2xl font-bold mb-4 text-center text-zinc-800 mt-10">{product.name}</h1>
-        {/* <div className="text-lg text-zinc-700 mb-2">What you should be paying</div>
-        <div className="text-3xl font-semibold text-green-600 mb-2">£{product.dbPrice.toFixed(2)}</div> */}
+        {/* Product Title and % Match Row */}
+        <div className="w-full flex flex-row items-center justify-between mt-10 mb-4">
+          <div className="flex flex-col items-start gap-1">
+            <h1 className="text-2xl font-bold text-zinc-800 text-left m-0 p-0 leading-tight">{product.name}</h1>
+            <span className="text-xs text-gray-400 mt-0.5">Product ID: {product.id}</span>
+          </div>
+          <div className="flex flex-col items-end justify-center min-w-[64px]">
+            <AnimatedMatchPercent percent={92} />
+          </div>
+        </div>
         {/* Spider Web Diagram Box */}
         <div className="w-full max-w-xl flex flex-col items-center mb-6">
           <div className="flex items-center justify-center w-full" style={{ minHeight: 220, minWidth: 0 }}>
@@ -233,10 +256,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                             <div
                               className="bg-yellow-400 rounded h-3 transition-all duration-700 animate-bar-grow group-hover:bg-yellow-500"
                               style={{ width: `${Math.max(6, Number(reviewSummary.valueDistribution[star] || 0) * 12)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
-                            ></div>
+                            />
                             <span className="text-[10px] text-gray-500 ml-1">{String(reviewSummary.valueDistribution[star] || 0)}</span>
                           </button>
-                      ))}
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -293,10 +316,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                             <div
                               className="bg-red-400 rounded h-3 transition-all duration-700 animate-bar-grow group-hover:bg-red-500"
                               style={{ width: `${Math.max(6, Number(reviewSummary.qualityDistribution[star] || 0) * 12)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
-                            ></div>
+                            />
                             <span className="text-[10px] text-gray-500 ml-1">{String(reviewSummary.qualityDistribution[star] || 0)}</span>
                           </button>
-                      ))}
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -313,9 +336,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               <div className="flex items-center gap-2">
                 <div className="relative">
                   <button
-                    onClick={() => {
-                      setSortOpen((v) => !v);
-                    }}
+                    onClick={() => setSortOpen(v => !v)}
                     className="inline-flex items-center bg-zinc-200 hover:bg-zinc-300 text-zinc-800 font-semibold px-3 h-10 rounded-lg transition text-sm"
                     aria-haspopup="listbox"
                     aria-expanded={sortOpen}
@@ -325,36 +346,18 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   </button>
                   {sortOpen && (
                     <ul className="absolute right-0 mt-1 w-44 bg-white border border-zinc-200 rounded-lg shadow-lg z-20" role="listbox">
-                      <li>
-                        <button
-                          className={`w-full text-left px-4 py-2 hover:bg-zinc-100 transition-all duration-200 rounded ${sortBy === 'recent' ? 'bg-blue-100 text-blue-700 shadow ring-2 ring-blue-300 scale-[1.04]' : ''}`}
-                          onClick={() => { setSortBy('recent'); setSortOpen(false); setRefreshing(true); setTimeout(() => setRefreshing(false), 350); }}
-                          role="option"
-                          aria-selected={sortBy === 'recent'}
-                        >
-                          Most Recent
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          className={`w-full text-left px-4 py-2 hover:bg-zinc-100 transition-all duration-200 rounded ${sortBy === 'critical' ? 'bg-blue-100 text-blue-700 shadow ring-2 ring-blue-300 scale-[1.04]' : ''}`}
-                          onClick={() => { setSortBy('critical'); setSortOpen(false); setRefreshing(true); setTimeout(() => setRefreshing(false), 350); }}
-                          role="option"
-                          aria-selected={sortBy === 'critical'}
-                        >
-                          Most Critical
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          className={`w-full text-left px-4 py-2 hover:bg-zinc-100 transition-all duration-200 rounded ${sortBy === 'favourable' ? 'bg-blue-100 text-blue-700 shadow ring-2 ring-blue-300 scale-[1.04]' : ''}`}
-                          onClick={() => { setSortBy('favourable'); setSortOpen(false); setRefreshing(true); setTimeout(() => setRefreshing(false), 350); }}
-                          role="option"
-                          aria-selected={sortBy === 'favourable'}
-                        >
-                          Most Favourable
-                        </button>
-                      </li>
+                      {['recent', 'critical', 'favourable'].map(option => (
+                        <li key={option}>
+                          <button
+                            className={`w-full text-left px-4 py-2 hover:bg-zinc-100 transition-all duration-200 rounded ${sortBy === option ? 'bg-blue-100 text-blue-700 shadow ring-2 ring-blue-300 scale-[1.04]' : ''}`}
+                            onClick={() => { setSortBy(option as typeof sortBy); setSortOpen(false); setRefreshing(true); setTimeout(() => setRefreshing(false), 350); }}
+                            role="option"
+                            aria-selected={sortBy === option}
+                          >
+                            {option === 'recent' ? 'Most Recent' : option === 'critical' ? 'Most Critical' : 'Most Favourable'}
+                          </button>
+                        </li>
+                      ))}
                     </ul>
                   )}
                 </div>
@@ -377,7 +380,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   {sortedReviews.slice(0, visibleReviews).map((review, idx) => {
                     let opacity = 1;
                     if (!seeMoreClicked && visibleReviews === 3 && !filter.type) {
-                      // Fade out: 1st review = 1, 2nd = 0.7, 3rd = 0.4
                       opacity = 1 - idx * 0.3;
                     }
                     return (
@@ -419,10 +421,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 {visibleReviews < sortedReviews.length && (
                   <div className="flex justify-center mt-4">
                     <button
-                      onClick={() => {
-                        setVisibleReviews(sortedReviews.length);
-                        setSeeMoreClicked(true);
-                      }}
+                      onClick={() => { setVisibleReviews(sortedReviews.length); setSeeMoreClicked(true); }}
                       className="px-4 py-2 bg-zinc-200 hover:bg-zinc-300 text-zinc-800 rounded font-semibold transition"
                     >
                       See more
@@ -443,8 +442,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             )}
           </div>
         </div>
-        <div className="mt-8 pt-4 w-full text-xs text-gray-400 text-left"> Product ID: {product.id}</div>
       </div>
     </div>
-  )
+  );
 }
