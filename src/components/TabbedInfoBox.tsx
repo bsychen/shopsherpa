@@ -16,41 +16,30 @@ const TAB_BG_COLORS: Record<string, string> = {
   Brand: "bg-purple-50",
 };
 
-export default function TabbedInfoBox({ activeTab, setActiveTab, product, reviewSummary }: {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-  product: any;
-  reviewSummary: any;
-}) {
+export default function TabbedInfoBox({ activeTab, setActiveTab, product, reviewSummary }) {
   const tabs = ["Price", "Quality", "Nutrition", "Sustainability", "Brand"];
   const [animatedValue, setAnimatedValue] = useState(0);
   const [animatedQuality, setAnimatedQuality] = useState(0);
   const [animatedBrand, setAnimatedBrand] = useState(0);
   const [animatedSustainability, setAnimatedSustainability] = useState(0);
 
-  // --- Sliding Bar State ---
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const [barStyle, setBarStyle] = useState<{ left: number; width: number }>({ left: 0, width: 0 });
-
-  // --- Animated Height State ---
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [boxHeight, setBoxHeight] = useState<number | undefined>(undefined);
+  const tabRefs = useRef([]);
+  const [barStyle, setBarStyle] = useState({ left: 0, width: 0 });
+  const contentRef = useRef(null);
+  const [boxHeight, setBoxHeight] = useState();
 
   // Animation trigger function
-  const triggerAnimation = (tab: string) => {
+  const triggerAnimation = (tab) => {
     if (tab === "Price") {
       setAnimatedValue(0);
       setTimeout(() => setAnimatedValue(reviewSummary?.averageValueRating || 0), 50);
-    }
-    if (tab === "Quality") {
+    } else if (tab === "Quality") {
       setAnimatedQuality(0);
       setTimeout(() => setAnimatedQuality(reviewSummary?.averageQualityRating || 0), 50);
-    }
-    if (tab === "Brand") {
+    } else if (tab === "Brand") {
       setAnimatedBrand(0);
       setTimeout(() => setAnimatedBrand(75), 50); // Replace with real data if available
-    }
-    if (tab === "Sustainability") {
+    } else if (tab === "Sustainability") {
       setAnimatedSustainability(0);
       setTimeout(() => setAnimatedSustainability(85), 50); // Replace with real data if available
     }
@@ -63,7 +52,7 @@ export default function TabbedInfoBox({ activeTab, setActiveTab, product, review
       const btn = tabRefs.current[idx];
       if (btn) {
         const rect = btn.getBoundingClientRect();
-        const parentRect = btn.parentElement!.getBoundingClientRect();
+        const parentRect = btn.parentElement.getBoundingClientRect();
         setBarStyle({
           left: rect.left - parentRect.left,
           width: rect.width,
@@ -77,9 +66,7 @@ export default function TabbedInfoBox({ activeTab, setActiveTab, product, review
 
   // Update box height on content change
   useEffect(() => {
-    if (contentRef.current) {
-      setBoxHeight(contentRef.current.offsetHeight);
-    }
+    if (contentRef.current) setBoxHeight(contentRef.current.offsetHeight);
   }, [activeTab, product, reviewSummary]);
 
   useEffect(() => {
@@ -91,8 +78,8 @@ export default function TabbedInfoBox({ activeTab, setActiveTab, product, review
     <div
       className={`w-full max-w-xl mt-4 border border-zinc-200 rounded-xl shadow p-4 transition-colors duration-300 ${TAB_BG_COLORS[activeTab]}`}
       style={{
-        height: boxHeight ? boxHeight + 80 : undefined, // 32 = padding (p-4)
-        minHeight: 200, // <-- Add this line (adjust value as needed)
+        height: boxHeight ? boxHeight + 80 : undefined,
+        minHeight: 200,
         transition: "height 0.4s cubic-bezier(0.4,0,0.2,1), background 0.3s",
         overflow: "hidden",
       }}
@@ -112,8 +99,7 @@ export default function TabbedInfoBox({ activeTab, setActiveTab, product, review
           <button
             key={tab}
             ref={el => { tabRefs.current[i] = el; }}
-            className={`flex flex-col items-center px-2 py-1 font-semibold transition border-b-2
-              ${activeTab === tab ? "border-transparent text-blue-700" : "border-transparent text-zinc-500 hover:text-zinc-700"}`}
+            className={`flex flex-col items-center px-2 py-1 font-semibold transition border-b-2 ${activeTab === tab ? "border-transparent text-blue-700" : "border-transparent text-zinc-500 hover:text-zinc-700"}`}
             onClick={() => {
               setActiveTab(tab);
               triggerAnimation(tab);
