@@ -1,5 +1,6 @@
 "use client";
 import { Radar } from "react-chartjs-2";
+import Image from "next/image";
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -11,6 +12,8 @@ import {
   ChartOptions,
 } from "chart.js";
 import { useState, useEffect } from "react";
+import { Product } from "@/types/product";
+import { ReviewSummary } from "@/types/reviewSummary";
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
@@ -49,15 +52,15 @@ const DEFAULT_BTN_SVG = "/placeholder-logo.png";
 export default function ProductRadarChart({
   data = [4, 3, 5, 2, 4],
   labels = ["Price", "Quality", "Nutrition", "Sustainability", "Brand"],
-  product,
+  _product,
   reviewSummary,
   activeTab,
   setActiveTab,
 }: {
   data?: number[];
   labels?: string[];
-  product?: any;
-  reviewSummary?: any;
+  _product?: Product;
+  reviewSummary?: ReviewSummary;
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }) {
@@ -104,31 +107,34 @@ export default function ProductRadarChart({
   const verticalShift = 14;
 
   // Animation state
-  const [openPopup, setOpenPopup] = useState<string | null>(null);
+  const [openPopup] = useState<string | null>(null);
   const [showButtons, setShowButtons] = useState(false);
-  const [animatedValue, setAnimatedValue] = useState(0);
-  const [animatedQuality, setAnimatedQuality] = useState(0);
-  const [animatedBrand, setAnimatedBrand] = useState(0);
-  const [animatedSustainability, setAnimatedSustainability] = useState(0);
+  const [_animatedState, setAnimatedState] = useState<Record<string, number>>({
+    value: 0,
+    quality: 0,
+    brand: 0,
+    sustainability: 0
+  });
 
   useEffect(() => { setShowButtons(true); }, []);
 
   useEffect(() => {
-    const animate = (setter: React.Dispatch<React.SetStateAction<number>>, value: number) => {
-      setter(0);
-      setTimeout(() => setter(value), 50);
+    const animateValue = (key: string, value: number) => {
+      setAnimatedState(prev => ({ ...prev, [key]: 0 }));
+      setTimeout(() => setAnimatedState(prev => ({ ...prev, [key]: value })), 50);
     };
+
     if (openPopup === "Value" || openPopup === "Price") {
-      animate(setAnimatedValue, reviewSummary?.averageValueRating || 0);
+      animateValue('value', reviewSummary?.averageValueRating || 0);
     }
     if (openPopup === "Quality") {
-      animate(setAnimatedQuality, reviewSummary?.averageQualityRating || 0);
+      animateValue('quality', reviewSummary?.averageQualityRating || 0);
     }
     if (openPopup === "Brand") {
-      animate(setAnimatedBrand, 75);
+      animateValue('brand', 75);
     }
     if (openPopup === "Sustainability") {
-      animate(setAnimatedSustainability, 85);
+      animateValue('sustainability', 85);
     }
   }, [openPopup, reviewSummary]);
 
@@ -168,9 +174,11 @@ export default function ProductRadarChart({
             aria-label={label}
             onClick={() => setActiveTab(label)}
           >
-            <img
+            <Image
               src={config.svg}
               alt={label}
+              width={20}
+              height={20}
               className="w-5 h-5 filter grayscale brightness-0 invert-0"
               style={{ filter: "grayscale(1) brightness(0.6)" }}
             />

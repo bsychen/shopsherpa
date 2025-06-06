@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/firebaseAdmin";
-import { Product, ProductSearchResult } from "@/types/product";
+import { ProductSearchResult } from "@/types/product";
 import Fuse from "fuse.js";
 
 const FUZZY_THRESHOLD = 0.3;

@@ -3,8 +3,10 @@
 import { useState, useEffect, use } from "react"
 import { Product } from "@/types/product"
 import { Review } from "@/types/review"
+import { ReviewSummary } from "@/types/reviewSummary"
 import { getProduct, getProductReviews, getReviewSummary } from "@/lib/api"
 import Link from "next/link"
+import Image from "next/image"
 import { onAuthStateChanged, User } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
 import { useRouter } from "next/navigation"
@@ -62,9 +64,9 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [usernames, setUsernames] = useState<Record<string, string>>({});
-  const [reviewSummary, setReviewSummary] = useState<any>(null);
-  const [animatedValue, setAnimatedValue] = useState(0);
-  const [animatedQuality, setAnimatedQuality] = useState(0);
+  const [reviewSummary, setReviewSummary] = useState<ReviewSummary | null>(null);
+  const [_animatedValue, setAnimatedValue] = useState(0);
+  const [_animatedQuality, setAnimatedQuality] = useState(0);
   const [visibleReviews, setVisibleReviews] = useState(3);
   const [seeMoreClicked, setSeeMoreClicked] = useState(false);
   const [filter, setFilter] = useState<{ type: 'value' | 'quality' | null, score: number | null }>({ type: null, score: null });
@@ -200,9 +202,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               </button>
               {imageDropdownOpen && product.imageUrl && (
                 <div id="product-image-dropdown" className="mt-3 w-full flex justify-center">
-                  <img
+                  <Image
                     src={product.imageUrl}
                     alt={product.productName}
+                    width={128}
+                    height={128}
                     className="object-contain rounded border border-zinc-200 bg-zinc-100 h-24 w-24 md:h-32 md:w-32 shadow"
                     style={{ boxShadow: '0 1px 8px rgba(0,0,0,0.08)' }}
                   />
@@ -260,9 +264,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                       transform: 'scale(0.95)',
                     }}
                   >
-                    <img
+                    <Image
                       src="/placeholder.jpg"
                       alt="Similar Product"
+                      width={48}
+                      height={48}
                       className="w-12 h-12 object-contain rounded mb-2 border border-zinc-200 bg-white"
                     />
                     <div className="font-medium text-xs text-zinc-700 text-center mb-1 line-clamp-2 w-full">

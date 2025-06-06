@@ -5,7 +5,7 @@ export interface Product{
   productType: string | null;
   brandName: string | null;
   brandTags: string[] | null;
-  categoriesProperties: Record<string, any> | null;
+  categoriesProperties: Record<string, unknown> | null;
   categoriesPropertiesTags: string[] | null;
   categoriesFr: string | null;
   genericName: string | null;

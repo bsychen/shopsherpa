@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
+import Image from "next/image";
 
 const TAB_ICONS: Record<string, React.ReactNode> = {
-  Price: <img src="/pound-svgrepo-com.svg" alt="Price" className="w-6 h-6" />,
-  Quality: <img src="/quality-supervision-svgrepo-com.svg" alt="Quality" className="w-6 h-6" />,
-  Nutrition: <img src="/meal-svgrepo-com.svg" alt="Nutrition" className="w-6 h-6" />,
-  Sustainability: <img src="/leaf-svgrepo-com.svg" alt="Sustainability" className="w-6 h-6" />,
-  Brand: <img src="/prices-svgrepo-com.svg" alt="Brand" className="w-6 h-6" />,
+  Price: <Image src="/pound-svgrepo-com.svg" alt="Price" width={24} height={24} className="w-6 h-6" />,
+  Quality: <Image src="/quality-supervision-svgrepo-com.svg" alt="Quality" width={24} height={24} className="w-6 h-6" />,
+  Nutrition: <Image src="/meal-svgrepo-com.svg" alt="Nutrition" width={24} height={24} className="w-6 h-6" />,
+  Sustainability: <Image src="/leaf-svgrepo-com.svg" alt="Sustainability" width={24} height={24} className="w-6 h-6" />,
+  Brand: <Image src="/prices-svgrepo-com.svg" alt="Brand" width={24} height={24} className="w-6 h-6" />,
 };
 
 const TAB_BG_COLORS: Record<string, string> = {
@@ -17,7 +18,7 @@ const TAB_BG_COLORS: Record<string, string> = {
 };
 
 export default function TabbedInfoBox({ activeTab, setActiveTab, product, reviewSummary }) {
-  const tabs = ["Price", "Quality", "Nutrition", "Sustainability", "Brand"];
+  const tabs = useMemo(() => ["Price", "Quality", "Nutrition", "Sustainability", "Brand"], []);
   const [animatedValue, setAnimatedValue] = useState(0);
   const [animatedQuality, setAnimatedQuality] = useState(0);
   const [animatedBrand, setAnimatedBrand] = useState(0);
@@ -62,7 +63,7 @@ export default function TabbedInfoBox({ activeTab, setActiveTab, product, review
     updateBar();
     window.addEventListener("resize", updateBar);
     return () => window.removeEventListener("resize", updateBar);
-  }, [activeTab]);
+  }, [activeTab, tabs]);
 
   // Update box height on content change
   useEffect(() => {
