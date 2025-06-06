@@ -8,6 +8,7 @@ import Link from "next/link"
 import { onAuthStateChanged, User } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
 import { useRouter } from "next/navigation"
+import ProductRadarChart from "@/components/ProductRadarChart";
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -160,138 +161,157 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           </Link>
         </div>
         <h1 className="text-2xl font-bold mb-4 text-center text-zinc-800 mt-10">{product.name}</h1>
-        <div className="text-lg text-zinc-700 mb-2">What you should be paying:</div>
+        <div className="text-lg text-zinc-700 mb-2">What you should be paying</div>
         <div className="text-3xl font-semibold text-green-600 mb-2">£{product.dbPrice.toFixed(2)}</div>
-        {/* Reviews Section */}
-        
-        <div className="w-full mt-6">
-          <h2 className="text-xl font-semibold mb-2 text-zinc-800">Community Score:</h2>
-          {reviewSummary && (
-            <div className="mb-6">
-              <div className="flex flex-row justify-between gap-4 md:gap-8">
-                {/* Value Box */}
-                <div className="w-[48%] max-w-[220px] flex-shrink-0 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex flex-col items-center">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="relative inline-block w-12 h-12 align-middle">
-                      <svg width="48" height="48" viewBox="0 0 48 48" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
-                        <circle
-                          cx="24" cy="24" r="20"
-                          fill="none"
-                          stroke="#fde047"
-                          strokeWidth="5"
-                          strokeDasharray={Math.PI * 2 * 20}
-                          strokeDashoffset={Math.PI * 2 * 20}
-                          strokeLinecap="round"
-                          style={{
-                            transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
-                            transform: 'rotate(-90deg)',
-                            transformOrigin: 'center center',
-                          }}
-                        />
-                        <circle
-                          cx="24" cy="24" r="20"
-                          fill="none"
-                          stroke="#fde047"
-                          strokeWidth="5"
-                          strokeDasharray={Math.PI * 2 * 20}
-                          strokeDashoffset={Math.PI * 2 * 20 * (1 - (animatedValue / 5))}
-                          strokeLinecap="round"
-                          style={{
-                            transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
-                            transform: 'rotate(-90deg)',
-                            transformOrigin: 'center center',
-                          }}
-                        />
-                      </svg>
-                      <span className="relative z-10 flex items-center justify-center w-12 h-12 text-3xl">💰</span>
-                    </span>
-                    <span className="ml-1 text-xs text-zinc-500">Avg Score: {reviewSummary.averageValueRating.toFixed(2)}</span>
-                  </div>
-                  <div className="w-full">
-                    <div className="font-semibold mb-1 text-xs md:text-base">Value for Money</div>
-                    <div className="flex flex-col gap-1 h-auto w-full">
-                      {[5,4,3,2,1].map(star => (
-                        <button
-                          key={star}
-                          className={`flex items-center mb-0.5 w-full group focus:outline-none ${filter.type === 'value' && filter.score === star ? 'ring-2 ring-yellow-400' : ''}`}
-                          onClick={() => setFilter(filter.type === 'value' && filter.score === star ? { type: null, score: null } : { type: 'value', score: star })}
-                          title={`Show reviews with value score ${star}`}
-                          type="button"
-                        >
-                          <span className="text-[10px] w-5 text-right mr-1">{star}★</span>
-                          <div
-                            className="bg-yellow-400 rounded h-3 transition-all duration-700 animate-bar-grow group-hover:bg-yellow-500"
-                            style={{ width: `${Math.max(6, Number(reviewSummary.valueDistribution[star] || 0) * 12)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
-                          ></div>
-                          <span className="text-[10px] text-gray-500 ml-1">{String(reviewSummary.valueDistribution[star] || 0)}</span>
-                        </button>
-                    ))}
+        {/* Spider Web Diagram Box */}
+        <div className="w-full max-w-xl flex flex-col items-center mb-6">
+          <div className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-4 flex flex-col items-center relative">
+            <h2 className="text-xl font-semibold mb-2 text-zinc-800 absolute top-4 left-4 m-0">Product Radar</h2>
+            <div className="w-full flex flex-col items-center mt-8" style={{ minHeight: 240, minWidth: 0 }}>
+              <div className="flex items-center justify-center w-full" style={{ minHeight: 220, minWidth: 0 }}>
+                <ProductRadarChart
+                  data={[4, 3, 5, 2, 4]} // Replace with real data if available
+                  labels={["Price", "Quality", "Nutrition", "Sustainability", "Brand"]}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Community Score Section in matching grey box */}
+        <div className="w-full max-w-xl flex flex-col items-center mb-2">
+          <div className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-4 flex flex-col items-center relative">
+            <h2 className="text-xl font-semibold mb-2 text-zinc-800 absolute top-4 left-4 m-0">Community Score</h2>
+            <div className="h-8 w-full" />
+            {reviewSummary && (
+              <div className="mb-6 w-full">
+                <div className="flex flex-row justify-between gap-4 md:gap-8">
+                  {/* Value Box */}
+                  <div className="w-[48%] max-w-[220px] flex-shrink-0 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex flex-col items-center">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="relative inline-block w-12 h-12 align-middle">
+                        <svg width="48" height="48" viewBox="0 0 48 48" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
+                          <circle
+                            cx="24" cy="24" r="20"
+                            fill="none"
+                            stroke="#fde047"
+                            strokeWidth="5"
+                            strokeDasharray={Math.PI * 2 * 20}
+                            strokeDashoffset={Math.PI * 2 * 20}
+                            strokeLinecap="round"
+                            style={{
+                              transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
+                              transform: 'rotate(-90deg)',
+                              transformOrigin: 'center center',
+                            }}
+                          />
+                          <circle
+                            cx="24" cy="24" r="20"
+                            fill="none"
+                            stroke="#fde047"
+                            strokeWidth="5"
+                            strokeDasharray={Math.PI * 2 * 20}
+                            strokeDashoffset={Math.PI * 2 * 20 * (1 - (animatedValue / 5))}
+                            strokeLinecap="round"
+                            style={{
+                              transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
+                              transform: 'rotate(-90deg)',
+                              transformOrigin: 'center center',
+                            }}
+                          />
+                        </svg>
+                        <span className="relative z-10 flex items-center justify-center w-12 h-12 text-3xl">💰</span>
+                      </span>
+                      <span className="ml-1 text-xs text-zinc-500">Avg Score: {reviewSummary.averageValueRating.toFixed(2)}</span>
+                    </div>
+                    <div className="w-full">
+                      <div className="font-semibold mb-1 text-xs md:text-base">Value for Money</div>
+                      <div className="flex flex-col gap-1 h-auto w-full">
+                        {[5,4,3,2,1].map(star => (
+                          <button
+                            key={star}
+                            className={`flex items-center mb-0.5 w-full group focus:outline-none ${filter.type === 'value' && filter.score === star ? 'ring-2 ring-yellow-400' : ''}`}
+                            onClick={() => setFilter(filter.type === 'value' && filter.score === star ? { type: null, score: null } : { type: 'value', score: star })}
+                            title={`Show reviews with value score ${star}`}
+                            type="button"
+                          >
+                            <span className="text-[10px] w-5 text-right mr-1">{star}★</span>
+                            <div
+                              className="bg-yellow-400 rounded h-3 transition-all duration-700 animate-bar-grow group-hover:bg-yellow-500"
+                              style={{ width: `${Math.max(6, Number(reviewSummary.valueDistribution[star] || 0) * 12)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
+                            ></div>
+                            <span className="text-[10px] text-gray-500 ml-1">{String(reviewSummary.valueDistribution[star] || 0)}</span>
+                          </button>
+                      ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-                {/* Quality Box */}
-                <div className="w-[48%] max-w-[220px] flex-shrink-0 bg-red-50 border border-red-200 rounded-lg p-3 flex flex-col items-center">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="relative inline-block w-12 h-12 align-middle">
-                      <svg width="48" height="48" viewBox="0 0 48 48" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
-                        <circle
-                          cx="24" cy="24" r="20"
-                          fill="none"
-                          stroke="#fca5a5"
-                          strokeWidth="5"
-                          strokeDasharray={Math.PI * 2 * 20}
-                          strokeDashoffset={Math.PI * 2 * 20}
-                          strokeLinecap="round"
-                          style={{
-                            transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
-                            transform: 'rotate(-90deg)',
-                            transformOrigin: 'center center',
-                          }}
-                        />
-                        <circle
-                          cx="24" cy="24" r="20"
-                          fill="none"
-                          stroke="#f87171"
-                          strokeWidth="5"
-                          strokeDasharray={Math.PI * 2 * 20}
-                          strokeDashoffset={Math.PI * 2 * 20 * (1 - (animatedQuality / 5))}
-                          strokeLinecap="round"
-                          style={{
-                            transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
-                            transform: 'rotate(-90deg)',
-                            transformOrigin: 'center center',
-                          }}
-                        />
-                      </svg>
-                      <span className="relative z-10 flex items-center justify-center w-12 h-12 text-3xl">🍎</span>
-                    </span>
-                    <span className="ml-1 text-xs text-zinc-500">Avg Score: {reviewSummary.averageQualityRating.toFixed(2)}</span>
-                  </div>
-                  <div className="w-full">
-                    <div className="font-semibold mb-1 text-xs md:text-base">Quality</div>
-                    <div className="flex flex-col gap-1 h-auto w-full">
-                      {[5,4,3,2,1].map(star => (
-                        <button
-                          key={star}
-                          className={`flex items-center mb-0.5 w-full group focus:outline-none ${filter.type === 'quality' && filter.score === star ? 'ring-2 ring-red-400' : ''}`}
-                          onClick={() => setFilter(filter.type === 'quality' && filter.score === star ? { type: null, score: null } : { type: 'quality', score: star })}
-                          title={`Show reviews with quality score ${star}`}
-                          type="button"
-                        >
-                          <span className="text-[10px] w-5 text-right mr-1">{star}★</span>
-                          <div
-                            className="bg-red-400 rounded h-3 transition-all duration-700 animate-bar-grow group-hover:bg-red-500"
-                            style={{ width: `${Math.max(6, Number(reviewSummary.qualityDistribution[star] || 0) * 12)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
-                          ></div>
-                          <span className="text-[10px] text-gray-500 ml-1">{String(reviewSummary.qualityDistribution[star] || 0)}</span>
-                        </button>
-                    ))}
+                  {/* Quality Box */}
+                  <div className="w-[48%] max-w-[220px] flex-shrink-0 bg-red-50 border border-red-200 rounded-lg p-3 flex flex-col items-center">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="relative inline-block w-12 h-12 align-middle">
+                        <svg width="48" height="48" viewBox="0 0 48 48" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
+                          <circle
+                            cx="24" cy="24" r="20"
+                            fill="none"
+                            stroke="#fca5a5"
+                            strokeWidth="5"
+                            strokeDasharray={Math.PI * 2 * 20}
+                            strokeDashoffset={Math.PI * 2 * 20}
+                            strokeLinecap="round"
+                            style={{
+                              transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
+                              transform: 'rotate(-90deg)',
+                              transformOrigin: 'center center',
+                            }}
+                          />
+                          <circle
+                            cx="24" cy="24" r="20"
+                            fill="none"
+                            stroke="#f87171"
+                            strokeWidth="5"
+                            strokeDasharray={Math.PI * 2 * 20}
+                            strokeDashoffset={Math.PI * 2 * 20 * (1 - (animatedQuality / 5))}
+                            strokeLinecap="round"
+                            style={{
+                              transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
+                              transform: 'rotate(-90deg)',
+                              transformOrigin: 'center center',
+                            }}
+                          />
+                        </svg>
+                        <span className="relative z-10 flex items-center justify-center w-12 h-12 text-3xl">🍎</span>
+                      </span>
+                      <span className="ml-1 text-xs text-zinc-500">Avg Score: {reviewSummary.averageQualityRating.toFixed(2)}</span>
+                    </div>
+                    <div className="w-full">
+                      <div className="font-semibold mb-1 text-xs md:text-base">Quality</div>
+                      <div className="flex flex-col gap-1 h-auto w-full">
+                        {[5,4,3,2,1].map(star => (
+                          <button
+                            key={star}
+                            className={`flex items-center mb-0.5 w-full group focus:outline-none ${filter.type === 'quality' && filter.score === star ? 'ring-2 ring-red-400' : ''}`}
+                            onClick={() => setFilter(filter.type === 'quality' && filter.score === star ? { type: null, score: null } : { type: 'quality', score: star })}
+                            title={`Show reviews with quality score ${star}`}
+                            type="button"
+                          >
+                            <span className="text-[10px] w-5 text-right mr-1">{star}★</span>
+                            <div
+                              className="bg-red-400 rounded h-3 transition-all duration-700 animate-bar-grow group-hover:bg-red-500"
+                              style={{ width: `${Math.max(6, Number(reviewSummary.qualityDistribution[star] || 0) * 12)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
+                            ></div>
+                            <span className="text-[10px] text-gray-500 ml-1">{String(reviewSummary.qualityDistribution[star] || 0)}</span>
+                          </button>
+                      ))}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+        </div>
+        {/* Reviews Section */}
+        <div className="w-full mt-4">
           <div className={`w-full mt-6 bg-zinc-50 border border-zinc-200 rounded-xl p-4 transition-all duration-300 ${refreshing ? 'opacity-40 blur-[2px]' : 'opacity-100 blur-0'}`}>
             <div className="flex items-center justify-between w-full mb-2">
               <h2 className="text-xl font-semibold text-zinc-800">Reviews</h2>
