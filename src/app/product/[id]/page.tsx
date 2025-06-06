@@ -165,16 +165,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         <div className="text-3xl font-semibold text-green-600 mb-2">£{product.dbPrice.toFixed(2)}</div>
         {/* Spider Web Diagram Box */}
         <div className="w-full max-w-xl flex flex-col items-center mb-6">
-          <div className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-4 flex flex-col items-center relative">
-            <h2 className="text-xl font-semibold mb-2 text-zinc-800 absolute top-4 left-4 m-0">Product Radar</h2>
-            <div className="w-full flex flex-col items-center mt-8" style={{ minHeight: 240, minWidth: 0 }}>
-              <div className="flex items-center justify-center w-full" style={{ minHeight: 220, minWidth: 0 }}>
-                <ProductRadarChart
-                  data={[4, 3, 5, 2, 4]} // Replace with real data if available
-                  labels={["Price", "Quality", "Nutrition", "Sustainability", "Brand"]}
-                />
-              </div>
-            </div>
+          <div className="flex items-center justify-center w-full" style={{ minHeight: 220, minWidth: 0 }}>
+            <ProductRadarChart
+              data={[4, 3, 5, 2, 4]} // Replace with real data if available
+              labels={["Price", "Quality", "Nutrition", "Sustainability", "Brand"]}
+            />
           </div>
         </div>
         {/* Community Score Section in matching grey box */}
