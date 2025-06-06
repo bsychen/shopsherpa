@@ -161,8 +161,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           </Link>
         </div>
         <h1 className="text-2xl font-bold mb-4 text-center text-zinc-800 mt-10">{product.name}</h1>
-        <div className="text-lg text-zinc-700 mb-2">What you should be paying</div>
-        <div className="text-3xl font-semibold text-green-600 mb-2">£{product.dbPrice.toFixed(2)}</div>
+        {/* <div className="text-lg text-zinc-700 mb-2">What you should be paying</div>
+        <div className="text-3xl font-semibold text-green-600 mb-2">£{product.dbPrice.toFixed(2)}</div> */}
         {/* Spider Web Diagram Box */}
         <div className="w-full max-w-xl flex flex-col items-center mb-6">
           <div className="flex items-center justify-center w-full" style={{ minHeight: 220, minWidth: 0 }}>
@@ -448,15 +448,3 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     </div>
   )
 }
-
-// Add this to your global CSS (e.g., globals.css or in a <style jsx global>)
-/*
-.animate-bar-grow {
-  width: 0;
-  animation: bar-grow 0.7s cubic-bezier(0.4,0,0.2,1) forwards;
-}
-@keyframes bar-grow {
-  from { width: 0; }
-  to { width: var(--bar-width, 100px); }
-}
-*/
