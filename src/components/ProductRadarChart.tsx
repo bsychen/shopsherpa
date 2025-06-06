@@ -21,18 +21,13 @@ const BUTTON_CONFIG: Record<string, { color: string; border: string; svg: string
     border: "border-yellow-200",
     svg: "/pound-svgrepo-com.svg",
   },
-  Value: {
-    color: "bg-yellow-100",
-    border: "border-yellow-200",
-    svg: "/pound-svgrepo-com.svg",
-  },
   Quality: {
     color: "bg-red-100",
     border: "border-red-200",
     svg: "/quality-supervision-svgrepo-com.svg",
   },
   Nutrition: {
-    color: "bg-green-100",
+    color: "bg-blue-100",
     border: "border-green-200",
     svg: "/meal-svgrepo-com.svg",
   },
@@ -42,7 +37,7 @@ const BUTTON_CONFIG: Record<string, { color: string; border: string; svg: string
     svg: "/leaf-svgrepo-com.svg",
   },
   Brand: {
-    color: "bg-blue-100",
+    color: "bg-purple-100",
     border: "border-blue-200",
     svg: "/prices-svgrepo-com.svg",
   },
@@ -56,11 +51,15 @@ export default function ProductRadarChart({
   labels = ["Price", "Quality", "Nutrition", "Sustainability", "Brand"],
   product,
   reviewSummary,
+  activeTab,
+  setActiveTab,
 }: {
   data?: number[];
   labels?: string[];
   product?: any;
   reviewSummary?: any;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
 }) {
   // Chart.js config
   const chartData = {
@@ -138,7 +137,7 @@ export default function ProductRadarChart({
       <div className="absolute left-0 top-0 w-full h-full flex items-center justify-center pointer-events-none">
         <Radar data={chartData} options={options} style={{ maxHeight: 240, maxWidth: 240 }} />
       </div>
-      {/* Category Buttons */}
+      {/* Radar Buttons */}
       {labels.map((label, i) => {
         const angle = -Math.PI / 2 + i * angleStep;
         const x = center + buttonRadius * Math.cos(angle) * offset - btnBase / 2;
@@ -150,7 +149,7 @@ export default function ProductRadarChart({
           <button
             key={label}
             type="button"
-            className={`absolute flex items-center justify-center rounded-xl shadow border ${config.color} ${config.border}`}
+            className={`absolute flex items-center justify-center rounded-xl shadow border ${config.color} ${config.border} ${activeTab === label ? "ring-4 ring-blue-400" : ""}`}
             style={{
               left: x,
               top: y,
@@ -166,7 +165,7 @@ export default function ProductRadarChart({
             }}
             tabIndex={-1}
             aria-label={label}
-            onClick={() => setOpenPopup(label)}
+            onClick={() => setActiveTab(label)}
           >
             <img
               src={config.svg}

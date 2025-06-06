@@ -10,6 +10,7 @@ import { auth } from "@/lib/firebaseClient"
 import { useRouter } from "next/navigation"
 import ProductRadarChart from "@/components/ProductRadarChart";
 import { useRef } from "react";
+import TabbedInfoBox from "@/components/TabbedInfoBox"
 
 function AnimatedMatchPercent({ percent, small }: { percent: number, small?: boolean }) {
   const [displayed, setDisplayed] = useState(0);
@@ -71,6 +72,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [sortBy, setSortBy] = useState<'recent' | 'critical' | 'favourable'>('recent');
   const [sortOpen, setSortOpen] = useState(false);
   const [imageDropdownOpen, setImageDropdownOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("Price");
   const router = useRouter();
 
   useEffect(() => {
@@ -216,12 +218,21 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         <div className="w-full max-w-xl flex flex-col items-center mb-6">
           <div className="flex items-center justify-center w-full" style={{ minHeight: 220, minWidth: 0 }}>
             <ProductRadarChart
-              data={[4, 3, 5, 2, 4]} // Replace with real data if available
+              data={[4, 3, 5, 2, 4]}
               labels={["Price", "Quality", "Nutrition", "Sustainability", "Brand"]}
               product={product}
               reviewSummary={reviewSummary}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
             />
           </div>
+          {/* Tabbed Info Box */}
+          <TabbedInfoBox
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            product={product}
+            reviewSummary={reviewSummary}
+          />
         </div>
         {/* Reviews Section */}
         <div className="w-full mt-4">
