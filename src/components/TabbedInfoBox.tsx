@@ -11,7 +11,7 @@ const TAB_ICONS: Record<string, React.ReactNode> = {
 const TAB_BG_COLORS: Record<string, string> = {
   Price: "bg-yellow-50",
   Quality: "bg-red-50",
-  Nutrition: "bg-blue-50",         // Changed to match Brand
+  Nutrition: "bg-blue-50",
   Sustainability: "bg-lime-50",
   Brand: "bg-purple-50",
 };
@@ -28,23 +28,29 @@ export default function TabbedInfoBox({ activeTab, setActiveTab, product, review
   const [animatedBrand, setAnimatedBrand] = useState(0);
   const [animatedSustainability, setAnimatedSustainability] = useState(0);
 
-  useEffect(() => {
-    if (activeTab === "Price") {
+  // Animation trigger function
+  const triggerAnimation = (tab: string) => {
+    if (tab === "Price") {
       setAnimatedValue(0);
       setTimeout(() => setAnimatedValue(reviewSummary?.averageValueRating || 0), 50);
     }
-    if (activeTab === "Quality") {
+    if (tab === "Quality") {
       setAnimatedQuality(0);
       setTimeout(() => setAnimatedQuality(reviewSummary?.averageQualityRating || 0), 50);
     }
-    if (activeTab === "Brand") {
+    if (tab === "Brand") {
       setAnimatedBrand(0);
       setTimeout(() => setAnimatedBrand(75), 50); // Replace with real data if available
     }
-    if (activeTab === "Sustainability") {
+    if (tab === "Sustainability") {
       setAnimatedSustainability(0);
       setTimeout(() => setAnimatedSustainability(85), 50); // Replace with real data if available
     }
+  };
+
+  useEffect(() => {
+    triggerAnimation(activeTab);
+    // eslint-disable-next-line
   }, [activeTab, reviewSummary]);
 
   return (
@@ -56,7 +62,10 @@ export default function TabbedInfoBox({ activeTab, setActiveTab, product, review
             key={tab}
             className={`flex flex-col items-center px-2 py-1 font-semibold transition border-b-2
               ${activeTab === tab ? "border-blue-500 text-blue-700" : "border-transparent text-zinc-500 hover:text-zinc-700"}`}
-            onClick={() => setActiveTab(tab)}
+            onClick={() => {
+              setActiveTab(tab);
+              triggerAnimation(tab);
+            }}
             style={{ minWidth: 44 }}
             aria-label={tab}
           >
