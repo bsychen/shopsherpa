@@ -45,7 +45,7 @@ const RecentlyViewedProducts = ({ userId }: { userId: string }) => {
                             className="block w-full h-full"
                         >
                             <div className="font-semibold text-blue-600 hover:underline text-lg mb-1">
-                                {product.name}
+                                {product.productName}
                             </div>
                             <div className="text-xs text-gray-400">
                                 Product ID: {product.id}

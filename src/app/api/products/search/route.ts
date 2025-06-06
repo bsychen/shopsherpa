@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/firebaseAdmin";
-import { Product } from "@/types/product";
+import { Product, ProductSearchResult } from "@/types/product";
 import Fuse from "fuse.js";
 
 const FUZZY_THRESHOLD = 0.3;
@@ -14,17 +14,18 @@ export async function GET(req: NextRequest) {
       .collection("products")
       .get();
 
-    const products: Product[] = [];
+    const products: ProductSearchResult[] = [];
     productsSnapshot.forEach(doc => {
       products.push({
         id: doc.id,
-        name: doc.data().ProductName,
-        dbPrice: doc.data().ExpectedPrice,
+        productName: doc.data().productName,
+        brandName: doc.data().brandName || null,
+        imageUrl: doc.data().imageUrl || null,
       });
     });
 
     const fuse = new Fuse(products, {
-      keys: ['name'],
+      keys: ['productName'],
       threshold: FUZZY_THRESHOLD, 
     });
 

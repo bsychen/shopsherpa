@@ -179,7 +179,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         {/* Product Title and % Match Row */}
         <div className="w-full flex flex-row items-center justify-between mt-10 mb-4">
           <div className="flex flex-col items-start gap-1">
-            <h1 className="text-2xl font-bold text-zinc-800 text-left m-0 p-0 leading-tight">{product.name}</h1>
+            <h1 className="text-2xl font-bold text-zinc-800 text-left m-0 p-0 leading-tight">{product.productName}</h1>
             <span className="text-xs text-gray-400 mt-0.5">Product ID: {product.id}</span>
           </div>
           <div className="flex flex-col items-end justify-center min-w-[64px]">
