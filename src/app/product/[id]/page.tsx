@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation"
 import ProductRadarChart from "@/components/ProductRadarChart";
 import { useRef } from "react";
 
-function AnimatedMatchPercent({ percent }: { percent: number }) {
+function AnimatedMatchPercent({ percent, small }: { percent: number, small?: boolean }) {
   const [displayed, setDisplayed] = useState(0);
   const rafRef = useRef<number | null>(null);
 
@@ -40,14 +40,16 @@ function AnimatedMatchPercent({ percent }: { percent: number }) {
     : { text: "#b91c1c" };
 
   return (
-    <span className="relative flex flex-col items-center justify-center ml-2" style={{ minWidth: 64, minHeight: 64 }}>
+    <span
+      className={`relative flex flex-col items-center justify-center ml-2 ${small ? 'min-w-[40px] min-h-[40px]' : 'min-w-[64px] min-h-[64px]'}`}
+    >
       <span
-        className="font-bold text-xl"
+        className={`font-bold ${small ? 'text-base' : 'text-xl'}`}
         style={{ color: color.text, pointerEvents: 'none', userSelect: 'none' }}
       >
         {displayed}%
       </span>
-      <span className="block text-xs font-medium mt-1 text-zinc-500 text-center">match</span>
+      <span className={`block font-medium mt-1 text-zinc-500 text-center ${small ? 'text-[10px]' : 'text-xs'}`}>match</span>
     </span>
   );
 }
@@ -68,6 +70,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [refreshing, setRefreshing] = useState(false);
   const [sortBy, setSortBy] = useState<'recent' | 'critical' | 'favourable'>('recent');
   const [sortOpen, setSortOpen] = useState(false);
+  const [imageDropdownOpen, setImageDropdownOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -176,14 +179,37 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             <span className="font-semibold">Go back home</span>
           </Link>
         </div>
-        {/* Product Title and % Match Row */}
-        <div className="w-full flex flex-row items-center justify-between mt-10 mb-4">
-          <div className="flex flex-col items-start gap-1">
-            <h1 className="text-2xl font-bold text-zinc-800 text-left m-0 p-0 leading-tight">{product.productName}</h1>
-            <span className="text-xs text-gray-400 mt-0.5">Product ID: {product.id}</span>
-          </div>
-          <div className="flex flex-col items-end justify-center min-w-[64px]">
-            <AnimatedMatchPercent percent={92} />
+        {/* Product Info Card */}
+        <div className="w-full flex flex-row items-center justify-between mt-10 mb-4 bg-zinc-100 border border-zinc-200 rounded-lg p-4 shadow-sm">
+          <div className="flex flex-row items-center gap-4 w-full">
+            <div className="flex flex-col items-start gap-1 flex-1 min-w-0">
+              <button
+                className="w-full text-left focus:outline-none"
+                onClick={() => setImageDropdownOpen((v) => !v)}
+                aria-expanded={imageDropdownOpen}
+                aria-controls="product-image-dropdown"
+                style={{ background: 'none', border: 'none', padding: 0 }}
+              >
+                <h1 className="text-2xl font-bold text-zinc-800 text-left m-0 p-0 leading-tight truncate max-w-[320px] md:max-w-[520px]">
+                  {product.productName}
+                  <span className="ml-2 align-middle inline-block text-base text-zinc-400">{imageDropdownOpen ? '▲' : '▼'}</span>
+                </h1>
+                <span className="text-xs text-gray-400 mt-0.5 truncate max-w-[260px] md:max-w-[420px]">Product ID: {product.id}</span>
+              </button>
+              {imageDropdownOpen && product.imageUrl && (
+                <div id="product-image-dropdown" className="mt-3 w-full flex justify-center">
+                  <img
+                    src={product.imageUrl}
+                    alt={product.productName}
+                    className="object-contain rounded border border-zinc-200 bg-zinc-100 h-24 w-24 md:h-32 md:w-32 shadow"
+                    style={{ boxShadow: '0 1px 8px rgba(0,0,0,0.08)' }}
+                  />
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col items-end justify-center min-w-[48px] md:min-w-[64px] flex-shrink-0">
+              <AnimatedMatchPercent percent={92} small />
+            </div>
           </div>
         </div>
         {/* Spider Web Diagram Box */}
@@ -192,6 +218,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             <ProductRadarChart
               data={[4, 3, 5, 2, 4]} // Replace with real data if available
               labels={["Price", "Quality", "Nutrition", "Sustainability", "Brand"]}
+              product={product}
             />
           </div>
         </div>
@@ -432,7 +459,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   <div className="flex justify-center mt-2">
                     <button
                       onClick={() => setFilter({ type: null, score: null })}
-                      className="px-3 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded text-sm border border-zinc-200"
+                      className="px-3 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded font-semibold transition"
                     >
                       Clear filter
                     </button>

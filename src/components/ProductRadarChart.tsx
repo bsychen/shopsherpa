@@ -54,9 +54,11 @@ const DEFAULT_BTN_SVG = "/placeholder-logo.png";
 export default function ProductRadarChart({
   data = [4, 3, 5, 2, 4],
   labels = ["Price", "Quality", "Nutrition", "Sustainability", "Brand"],
+  product,
 }: {
   data?: number[];
   labels?: string[];
+  product?: any;
 }) {
   // Chart.js config
   const chartData = {
@@ -169,10 +171,46 @@ export default function ProductRadarChart({
                 ×
               </button>
               <div className="text-2xl font-bold mb-2 capitalize text-zinc-800">{openPopup}</div>
+              {/* Nutrition Info Listing */}
+              {openPopup === "Nutrition" && product && (
+                <div className="w-full text-left text-sm text-zinc-700 space-y-1 mt-2">
+                  {product.nutritionGrade && <div><b>Nutrition Grade:</b> {product.nutritionGrade}</div>}
+                  {product.nutritionGrades && <div><b>Nutrition Grades:</b> {product.nutritionGrades}</div>}
+                  {product.nutritionGradesTags && <div><b>Nutrition Grades Tags:</b> {product.nutritionGradesTags.join(", ")}</div>}
+                  {product.nutritionGradeFr && <div><b>Nutrition Grade (FR):</b> {product.nutritionGradeFr}</div>}
+                  {product.nutritionScoreBeverage && <div><b>Nutrition Score (Beverage):</b> {product.nutritionScoreBeverage}</div>}
+                  {product.nutriments && (
+                    <div className="mt-2">
+                      <b>Nutriments:</b>
+                      <ul className="ml-4 list-disc">
+                        {Object.entries(product.nutriments).map(([key, value]) => (
+                          <li key={key}><b>{key}:</b> {String(value)}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {product.ingredientsText && <div><b>Ingredients:</b> {product.ingredientsText}</div>}
+                  {product.allergens && <div><b>Allergens:</b> {product.allergens}</div>}
+                  {product.tracesTags && product.tracesTags.length > 0 && <div><b>Traces:</b> {product.tracesTags.join(", ")}</div>}
+                  {product.labels && <div><b>Labels:</b> {product.labels}</div>}
+                  {product.labelsTags && product.labelsTags.length > 0 && <div><b>Labels Tags:</b> {product.labelsTags.join(", ")}</div>}
+                </div>
+              )}
+              {/* Brand Info Listing */}
+              {openPopup === "Brand" && product && (
+                <div className="w-full text-left text-sm text-zinc-700 space-y-2 mt-2 flex flex-col items-center">
+                  <div><b>Brand:</b> {product.brandName || 'Unknown'}</div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="font-semibold text-lg text-blue-700">Brand Score:</span>
+                    <span className="inline-block px-3 py-1 rounded-full bg-blue-100 text-blue-800 font-bold text-lg shadow">{Math.floor(70 + Math.random() * 30)}</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         );
       })()}
+      {/* End Popup Modal */}
     </div>
   );
 }
