@@ -4,7 +4,6 @@ import { db } from "@/lib/firebaseAdmin";
 async function fetchProductData(id: string) {
   const fields = [
     "product_name",
-    "product_type",
     "brands",
     "brands_tags",
     "categories_properties",
@@ -14,6 +13,13 @@ async function fetchProductData(id: string) {
     "generic_name_en",
     "countries_tags",
     "allergens",
+    "allergens_tags",
+    "allergens_from_ingredients",
+    "allergens_from_user",
+    "allergens_hierarchy",
+    "traces",
+    "traces_tags",
+    "traces_hierarchy",
     "price",
     "price_per_unit",
     "unit_of_measure",
@@ -38,32 +44,45 @@ async function fetchProductData(id: string) {
   return {
     productName: data.product.product_name,
     productNameLower: data.product.product_name.toLowerCase(),
-    productType: data.product.product_type || null,
-    brandName: data.product.brands || null,
-    brandTags: data.product.brands_tags || null,
-    categoriesProperties: data.product.categories_properties || null,
-    categoriesPropertiesTags: data.product.categories_properties_tags || null,
-    categoriesFr: data.product.categories_fr || null,
-    genericName: data.product.generic_name || null,
-    genericNameEn: data.product.generic_name_en || null,
-    countryOfOriginCode: Array.isArray(data.product.countries_tags) ? data.product.countries_tags[0] : null,
-    allergenInformation: data.product.allergens || null,
+    brandName: data.product.brands || 
+      (data.product.brands_tags && data.product.brands_tags.length > 0 ? data.product.brands_tags[0] : '') || '',
+    combinedCategory: [...new Set([
+      ...(data.product.categories_fr ? [data.product.categories_fr] : []),
+      ...(data.product.categories_properties_tags || []),
+      ...(data.product.categories_properties ? Object.keys(data.product.categories_properties) : []),
+      ...(data.product.main_category ? [data.product.main_category] : []),
+      ...(data.product.main_category_fr ? [data.product.main_category_fr] : [])
+    ])],//.join(', '),
+    genericNameLower: (data.product.generic_name || data.product.generic_name_en)
+      ? (data.product.generic_name || data.product.generic_name_en).toLowerCase()
+      : '',
+    countryOfOriginCode: Array.isArray(data.product.countries_tags) ? data.product.countries_tags[0] : '',
+    alergenInformation: [...new Set([
+      ...(data.product.allergens ? [data.product.allergens] : []),
+      ...(data.product.allergens_tags || []),
+      ...(data.product.allergens_from_ingredients ? [data.product.allergens_from_ingredients] : []),
+      ...(data.product.allergens_from_user ? [data.product.allergens_from_user] : []),
+      ...(data.product.allergens_hierarchy || [])
+    ])],//.join(', '),
+    tracesInformation: [...new Set([
+      ...(data.product.traces ? [data.product.traces] : []),
+      ...(data.product.traces_tags || []),
+      ...(data.product.traces_hierarchy || [])
+    ])],//.join(', '),
     price: data.product.price || 0,
-    pricePerUnit: data.product.price_per_unit || null,
-    unitOfMeasure: data.product.unit_of_measure || null,
-    sustainabilityCertificationCode: Array.isArray(data.product.sustainability_labels_tags) ? data.product.sustainability_labels_tags[0] : null,
-    imageUrl: data.product.image_url || null,
-    nutritionGrade: data.product.nutrition_grade_en || null,
-    nutritionGradeFr: data.product.nutrition_grade_fr || null,
-    nutritionGrades: data.product.nutrition_grades || null,
-    nutritionGradesTags: data.product.nutrition_grades_tags || null,
-    nutritionScoreBeverage: data.product.nutrition_score_beverage || null,
+    pricePerUnit: data.product.price_per_unit || 0,
+    unitOfMeasure: data.product.unit_of_measure || '',
+    sustainabilityCertificationCode: Array.isArray(data.product.sustainability_labels_tags) ? data.product.sustainability_labels_tags[0] : '',
+    imageUrl: data.product.image_url || '',
+    combinedNutritionGrade: data.product.nutrition_grade_en || 
+      data.product.nutrition_grade_fr || 
+      data.product.nutrition_grades || 
+      (data.product.nutrition_grades_tags && data.product.nutrition_grades_tags.length > 0 ? data.product.nutrition_grades_tags[0] : '') || '',
     expectedPrice: 0,
-    mainCategory: data.product.main_category || null,
-    mainCategoryFr: data.product.main_category_fr || null,
-    tracesTags: data.product.traces_tags || null,
-    labels: data.product.labels || null,
-    labelsTags: data.product.labels_tags || null,
+    labels: [...new Set([
+      ...(data.product.labels ? [data.product.labels] : []),
+      ...(data.product.labels_tags || [])
+    ])],
   };
 }
 
@@ -79,34 +98,7 @@ export async function GET(
       const data = doc.data();
       return NextResponse.json({
         id: doc.id,
-        productName: data.productName,
-        productNameLower: data.productNameLower,
-        productType: data.productType,
-        brandName: data.brandName,
-        brandTags: data.brandTags,
-        categoriesProperties: data.categoriesProperties,
-        categoriesPropertiesTags: data.categoriesPropertiesTags,
-        categoriesFr: data.categoriesFr,
-        genericName: data.genericName,
-        genericNameEn: data.genericNameEn,
-        countryOfOriginCode: data.countryOfOriginCode,
-        allergenInformation: data.allergenInformation,
-        price: data.price,
-        pricePerUnit: data.pricePerUnit,
-        unitOfMeasure: data.unitOfMeasure,
-        sustainabilityCertificationCode: data.sustainabilityCertificationCode,
-        imageUrl: data.imageUrl,
-        nutritionGrade: data.nutritionGrade,
-        nutritionGradeFr: data.nutritionGradeFr,
-        nutritionGrades: data.nutritionGrades,
-        nutritionGradesTags: data.nutritionGradesTags,
-        nutritionScoreBeverage: data.nutritionScoreBeverage,
-        expectedPrice: data.expectedPrice,
-        mainCategory: data.mainCategory,
-        mainCategoryFr: data.mainCategoryFr,
-        tracesTags: data.tracesTags,
-        labels: data.labels,
-        labelsTags: data.labelsTags,
+        ...data,
       });
     }
 
@@ -118,37 +110,7 @@ export async function GET(
     // Add to Firestore
     console.log("Adding product to Firestore:", productData);
     await db.collection("products").doc(id).set(productData);
-    return NextResponse.json({
-      id,
-      productName: productData.productName,
-      productNameLower: productData.productNameLower,
-      productType: productData.productType,
-      brandName: productData.brandName,
-      brandTags: productData.brandTags,
-      categoriesProperties: productData.categoriesProperties,
-      categoriesPropertiesTags: productData.categoriesPropertiesTags,
-      categoriesFr: productData.categoriesFr,
-      genericName: productData.genericName,
-      genericNameEn: productData.genericNameEn,
-      countryOfOriginCode: productData.countryOfOriginCode,
-      allergenInformation: productData.allergenInformation,
-      price: productData.price,
-      pricePerUnit: productData.pricePerUnit,
-      unitOfMeasure: productData.unitOfMeasure,
-      sustainabilityCertificationCode: productData.sustainabilityCertificationCode,
-      imageUrl: productData.imageUrl,
-      nutritionGrade: productData.nutritionGrade,
-      nutritionGradeFr: productData.nutritionGradeFr,
-      nutritionGrades: productData.nutritionGrades,
-      nutritionGradesTags: productData.nutritionGradesTags,
-      nutritionScoreBeverage: productData.nutritionScoreBeverage,
-      expectedPrice: productData.expectedPrice,
-      mainCategory: productData.mainCategory,
-      mainCategoryFr: productData.mainCategoryFr,
-      tracesTags: productData.tracesTags,
-      labels: productData.labels,
-      labelsTags: productData.labelsTags,
-    });
+    return NextResponse.json(productData);
   } catch {
     return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
   }
