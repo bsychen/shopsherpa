@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/firebaseAdmin";
+import { Product } from '@/types/product';
 
-async function fetchProductData(id: string) {
+async function fetchProductData(id: string){
   const fields = [
     "product_name",
     "brands",
@@ -99,7 +100,7 @@ export async function GET(
       return NextResponse.json({
         id: doc.id,
         ...data,
-      });
+      }) as NextResponse<Product>;
     }
 
     const productData = await fetchProductData(id);
@@ -110,7 +111,7 @@ export async function GET(
     // Add to Firestore
     console.log("Adding product to Firestore:", productData);
     await db.collection("products").doc(id).set(productData);
-    return NextResponse.json(productData);
+    return NextResponse.json(productData) as NextResponse<Product>;
   } catch {
     return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
   }
