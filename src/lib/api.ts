@@ -1,3 +1,4 @@
+import { Brand } from "@/types/brand";
 import { Product } from "@/types/product";
 import { Review } from "@/types/review";
 import { ReviewSummary } from "@/types/reviewSummary";
@@ -87,6 +88,18 @@ export async function deleteReview(id: string): Promise<{ success: boolean; erro
 
 export async function getReviewSummary(productId: string): Promise<ReviewSummary | null> {
   const res = await fetch(`/api/reviews/info/${encodeURIComponent(productId)}`);
+  if (!res.ok) return null;
+  return await res.json();
+}
+
+export async function getBrands(): Promise<{ id: string; name: string }[]> {
+  const res = await fetch('/api/brands');
+  if (!res.ok) return [];
+  return await res.json();
+}
+
+export async function getBrandById(id: string): Promise<Brand | null> {
+  const res = await fetch(`/api/brands/${encodeURIComponent(id)}`);
   if (!res.ok) return null;
   return await res.json();
 }

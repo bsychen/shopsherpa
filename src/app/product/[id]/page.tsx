@@ -222,9 +222,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         <div className="w-full max-w-xl flex flex-col items-center mb-4">
           <div className="flex items-center justify-center w-full" style={{ minHeight: 220, minWidth: 0 }}>
             <ProductRadarChart
-              data={[4, 3, 5, 2, 4]}
-              labels={["Price", "Quality", "Nutrition", "Sustainability", "Brand"]}
-              _product={product}
+              product={product}
               reviewSummary={reviewSummary}
               activeTab={activeTab}
               setActiveTab={setActiveTab}

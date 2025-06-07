@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/firebaseAdmin";
+import { Brand } from '@/types/brand';
 
 export async function GET(
   req: NextRequest,
@@ -16,7 +17,7 @@ export async function GET(
     return NextResponse.json({
       id: doc.id,
       ...doc.data()
-    });
+    }) as NextResponse<Brand>;
 
   } catch (error) {
     console.error("Error fetching brand:", error);

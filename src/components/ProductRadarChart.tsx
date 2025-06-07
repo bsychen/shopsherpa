@@ -14,6 +14,7 @@ import {
 import { useState, useEffect } from "react";
 import { Product } from "@/types/product";
 import { ReviewSummary } from "@/types/reviewSummary";
+import { getBrandById } from "@/lib/api";
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
@@ -50,27 +51,44 @@ const DEFAULT_BTN_BORDER = "border-zinc-200";
 const DEFAULT_BTN_SVG = "/placeholder-logo.png";
 
 export default function ProductRadarChart({
-  data = [4, 3, 5, 2, 4],
-  labels = ["Price", "Quality", "Nutrition", "Sustainability", "Brand"],
-  _product,
+  product,
   reviewSummary,
   activeTab,
   setActiveTab,
 }: {
-  data?: number[];
-  labels?: string[];
-  _product?: Product;
+  product?: Product;
   reviewSummary?: ReviewSummary;
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }) {
+  const [brandScore, setBrandScore] = useState<number>(3); // Default score
+
+  // Fetch brand score when product changes
+  useEffect(() => {
+    if (product?.brandId) {
+      getBrandById(product.brandId).then(brand => {
+        if (brand?.brandRating) {
+          setBrandScore(brand.brandRating);
+        }
+      });
+    }
+  }, [product?.brandId]);
+
+  const radarData = [
+    reviewSummary?.averageValueRating || 3, // Price score from average value rating
+    reviewSummary?.averageQualityRating || 3, // Quality score from average quality rating
+    getNutritionScore(product?.combinedNutritionGrade || ''), // Nutrition score from grade
+    product?.sustainbilityScore || 3, // Sustainability score from product data
+    brandScore, // Brand score from brand data
+  ];
+
   // Chart.js config
   const chartData = {
-    labels: labels.map(() => ""),
+    labels: ["Price", "Quality", "Nutrition", "Sustainability", "Brand"].map(() => ""),
     datasets: [
       {
         label: "Product Attributes",
-        data,
+        data: radarData,
         backgroundColor: "rgba(96, 165, 250, 0.5)",
         borderColor: "#2563eb",
         borderWidth: 2,
@@ -94,6 +112,7 @@ export default function ProductRadarChart({
   };
 
   // Layout constants
+  // Layout constants
   const containerSize = 260;
   const btnBase = 40;
   const margin = 8;
@@ -102,10 +121,10 @@ export default function ProductRadarChart({
   const minRadius = (containerSize / 2) - radarPadding;
   const buttonRadius = Math.max(minRadius, Math.min(maxRadius, 160));
   const center = containerSize / 2;
-  const angleStep = (2 * Math.PI) / labels.length;
+  const LABELS = ["Price", "Quality", "Nutrition", "Sustainability", "Brand"];
+  const angleStep = (2 * Math.PI) / LABELS.length;
   const offset = 1.2;
   const verticalShift = 14;
-
   // Animation state
   const [openPopup] = useState<string | null>(null);
   const [showButtons, setShowButtons] = useState(false);
@@ -138,6 +157,18 @@ export default function ProductRadarChart({
     }
   }, [openPopup, reviewSummary]);
 
+  // Convert nutrition grade to score (A=5, B=4, C=3, D=2, E=1, unknown=2)
+  function getNutritionScore(grade: string): number {
+    const scores: Record<string, number> = {
+      'a': 5,
+      'b': 4,
+      'c': 3,
+      'd': 2,
+      'e': 1
+    };
+    return scores[grade.toLowerCase()] || 2;
+  }
+
   // --- Render ---
   return (
     <div className="relative flex items-center justify-center" style={{ width: containerSize, height: containerSize }}>
@@ -146,7 +177,7 @@ export default function ProductRadarChart({
         <Radar data={chartData} options={options} style={{ maxHeight: 240, maxWidth: 240 }} />
       </div>
       {/* Radar Buttons */}
-      {labels.map((label, i) => {
+      {LABELS.map((label, i) => {
         const angle = -Math.PI / 2 + i * angleStep;
         const x = center + buttonRadius * Math.cos(angle) * offset - btnBase / 2;
         const y = center + buttonRadius * Math.sin(angle) * offset - btnBase / 2 + verticalShift;
