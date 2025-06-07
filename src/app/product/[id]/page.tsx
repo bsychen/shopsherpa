@@ -224,7 +224,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             <ProductRadarChart
               data={[4, 3, 5, 2, 4]}
               labels={["Price", "Quality", "Nutrition", "Sustainability", "Brand"]}
-              product={product}
+              _product={product}
               reviewSummary={reviewSummary}
               activeTab={activeTab}
               setActiveTab={setActiveTab}
