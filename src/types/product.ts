@@ -3,6 +3,7 @@ export interface Product{
   productName: string;
   productNameLower: string;
   brandName: string;
+  brandId: string;
   combinedCategory: string[];
   genericNameLower: string;
   countryOfOriginCode: string;
@@ -12,6 +13,7 @@ export interface Product{
   pricePerUnit: number;
   unitOfMeasure: string;
   sustainabilityCertificationCode: string;
+  sustainbilityScore: number;
   imageUrl: string;
   combinedNutritionGrade: string;
   expectedPrice: number;

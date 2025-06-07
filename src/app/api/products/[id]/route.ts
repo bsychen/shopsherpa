@@ -40,13 +40,25 @@ async function fetchProductData(id: string){
   if (!res.ok) return null;
   const data = await res.json();
   console.log("Fetched product data:", data);
-  if (!data.product || !data.product.product_name) return null;
+  if (!data.product || !data.product.product_name) return null;    // Get or create brandId for this product
+    const brandName = data.product.brands || 
+      (data.product.brands_tags && data.product.brands_tags.length > 0 ? data.product.brands_tags[0] : '') || '';
+    
+    // Only fetch brandId if we have a brand name
+    let brandId = '';
+    if (brandName) {
+      const brandRes = await fetch(`http://localhost:3000/api/brands/name?name=${encodeURIComponent(brandName)}`);
+      if (brandRes.ok) {
+        const brandData = await brandRes.json();
+        brandId = brandData.brandId;
+      }
+    }
 
-  return {
+    return {
     productName: data.product.product_name,
     productNameLower: data.product.product_name.toLowerCase(),
-    brandName: data.product.brands || 
-      (data.product.brands_tags && data.product.brands_tags.length > 0 ? data.product.brands_tags[0] : '') || '',
+    brandName: brandName,
+    brandId: brandId,
     combinedCategory: [...new Set([
       ...(data.product.categories_fr ? [data.product.categories_fr] : []),
       ...(data.product.categories_properties_tags || []),
