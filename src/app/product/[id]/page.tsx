@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react"
 import { Product } from "@/types/product"
 import { Review } from "@/types/review"
 import { ReviewSummary } from "@/types/reviewSummary"
-import { getProduct, getProductReviews, getReviewSummary } from "@/lib/api"
+import { getProduct, getProductReviews, getReviewSummary, getBrandById } from "@/lib/api"
 import Link from "next/link"
 import Image from "next/image"
 import { onAuthStateChanged, User } from "firebase/auth"
@@ -75,11 +75,19 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [sortOpen, setSortOpen] = useState(false);
   const [imageDropdownOpen, setImageDropdownOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("Price");
+  const [brandRating, setBrandRating] = useState<number>(3);
   const router = useRouter();
 
   useEffect(() => {
     setLoading(true);
-    getProduct(id).then(setProduct).finally(() => setLoading(false));
+    getProduct(id).then(async (productData) => {
+      setProduct(productData);
+      if (productData?.brandId) {
+        const brandData = await getBrandById(productData.brandId);
+        setBrandRating(brandData?.brandRating || 3);
+      }
+      setLoading(false);
+    });
     getProductReviews(id).then(data => setReviews(data || []));
     getReviewSummary(id).then(setReviewSummary);
     const unsub = onAuthStateChanged(auth, setUser);
@@ -234,6 +242,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             setActiveTab={setActiveTab}
             product={product}
             reviewSummary={reviewSummary}
+            brandRating={brandRating}
           />
         </div>
         {/* Similar Products Section */}

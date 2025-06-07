@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import Image from "next/image";
+import { getBrandById } from "@/lib/api";
 
 const TAB_ICONS: Record<string, React.ReactNode> = {
   Price: <Image src="/pound-svgrepo-com.svg" alt="Price" width={24} height={24} className="w-6 h-6" />,
@@ -17,17 +18,42 @@ const TAB_BG_COLORS: Record<string, string> = {
   Brand: "bg-purple-50",
 };
 
-export default function TabbedInfoBox({ activeTab, setActiveTab, product, reviewSummary }) {
+export default function TabbedInfoBox({ 
+  activeTab, 
+  setActiveTab, 
+  product, 
+  reviewSummary,
+  brandRating = 3 // Default to 3 if not provided
+}: {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  product: any;
+  reviewSummary: any;
+  brandRating?: number;
+}) {
   const tabs = useMemo(() => ["Price", "Quality", "Nutrition", "Sustainability", "Brand"], []);
   const [animatedValue, setAnimatedValue] = useState(0);
   const [animatedQuality, setAnimatedQuality] = useState(0);
   const [animatedBrand, setAnimatedBrand] = useState(0);
   const [animatedSustainability, setAnimatedSustainability] = useState(0);
+  const [animatedNutrition, setAnimatedNutrition] = useState(0);
 
   const tabRefs = useRef([]);
   const [barStyle, setBarStyle] = useState({ left: 0, width: 0 });
   const contentRef = useRef(null);
   const [boxHeight, setBoxHeight] = useState();
+
+  // Convert nutrition grade to score (A=5, B=4, C=3, D=2, E=1, unknown=2)
+  function getNutritionScore(grade: string): number {
+    const scores: Record<string, number> = {
+      'a': 5,
+      'b': 4,
+      'c': 3,
+      'd': 2,
+      'e': 1
+    };
+    return scores[grade.toLowerCase()] || 2;
+  }
 
   // Animation trigger function
   const triggerAnimation = (tab) => {
@@ -39,10 +65,13 @@ export default function TabbedInfoBox({ activeTab, setActiveTab, product, review
       setTimeout(() => setAnimatedQuality(reviewSummary?.averageQualityRating || 0), 50);
     } else if (tab === "Brand") {
       setAnimatedBrand(0);
-      setTimeout(() => setAnimatedBrand(75), 50); // Replace with real data if available
+      setTimeout(() => setAnimatedBrand(brandRating), 50);
     } else if (tab === "Sustainability") {
       setAnimatedSustainability(0);
-      setTimeout(() => setAnimatedSustainability(85), 50); // Replace with real data if available
+      setTimeout(() => setAnimatedSustainability(product?.sustainbilityScore || 3), 50);
+    } else if (tab === "Nutrition") {
+      setAnimatedNutrition(0);
+      setTimeout(() => setAnimatedNutrition(getNutritionScore(product?.combinedNutritionGrade || '')), 50);
     }
   };
 
@@ -219,28 +248,71 @@ export default function TabbedInfoBox({ activeTab, setActiveTab, product, review
           </div>
         )}
         {activeTab === "Nutrition" && product && (
-          <div className="w-full text-left text-sm text-zinc-700 space-y-1 mt-2">
-            <h2 className="text-lg font-bold mb-2">Nutrition</h2>
-            {product.nutritionGrade && <div><b>Nutrition Grade:</b> {product.nutritionGrade}</div>}
-            {product.nutritionGrades && <div><b>Nutrition Grades:</b> {product.nutritionGrades}</div>}
-            {product.nutritionGradesTags && <div><b>Nutrition Grades Tags:</b> {product.nutritionGradesTags.join(", ")}</div>}
-            {product.nutritionGradeFr && <div><b>Nutrition Grade (FR):</b> {product.nutritionGradeFr}</div>}
-            {product.nutritionScoreBeverage && <div><b>Nutrition Score (Beverage):</b> {product.nutritionScoreBeverage}</div>}
-            {product.nutriments && (
-              <div className="mt-2">
-                <b>Nutriments:</b>
-                <ul className="ml-4 list-disc">
-                  {Object.entries(product.nutriments).map(([key, value]) => (
-                    <li key={key}><b>{key}:</b> {String(value)}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {product.ingredientsText && <div><b>Ingredients:</b> {product.ingredientsText}</div>}
-            {product.allergens && <div><b>Allergens:</b> {product.allergens}</div>}
-            {product.tracesTags && product.tracesTags.length > 0 && <div><b>Traces:</b> {product.tracesTags.join(", ")}</div>}
-            {product.labels && <div><b>Labels:</b> {product.labels}</div>}
-            {product.labelsTags && product.labelsTags.length > 0 && <div><b>Labels Tags:</b> {product.labelsTags.join(", ")}</div>}
+          <div className="w-full flex flex-col items-center">
+            <h2 className="text-lg font-bold mb-2 self-start">Nutrition</h2>
+            <div className="flex flex-col items-center justify-center gap-2">
+              <span className="relative inline-block w-24 h-24 align-middle">
+                <svg width="96" height="96" viewBox="0 0 96 96" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
+                  <circle
+                    cx="48" cy="48" r="40"
+                    fill="none"
+                    stroke={(() => {
+                      const score = animatedNutrition;
+                      if (score <= 2) return '#ef4444'; // red-500
+                      if (score <= 3) return '#f59e0b'; // amber-500
+                      return '#22c55e'; // green-500
+                    })()}
+                    strokeWidth="8"
+                    strokeDasharray={Math.PI * 2 * 40}
+                    strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedNutrition / 5))}
+                    strokeLinecap="round"
+                    style={{
+                      transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1), stroke 0.7s cubic-bezier(0.4,0,0.2,1)',
+                      transform: 'rotate(-90deg)',
+                      transformOrigin: 'center center',
+                    }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span 
+                    className="text-4xl font-bold"
+                    style={{
+                      color: (() => {
+                        const grade = product.combinedNutritionGrade?.toLowerCase() || '';
+                        const score = animatedNutrition;
+                        if (score <= 2) return '#ef4444'; // red-500
+                        if (score <= 3) return '#f59e0b'; // amber-500
+                        return '#22c55e'; // green-500
+                      })()
+                    }}
+                  >
+                    {product.combinedNutritionGrade?.toUpperCase() || '?'}
+                  </span>
+                </div>
+              </span>
+              <span className="text-sm text-zinc-600 font-medium">Nutrition Grade</span>
+            </div>
+            <div className="w-full mt-4 text-left text-sm text-zinc-700 space-y-1">
+              {product.nutritionGrades && <div><b>Additional Grades:</b> {product.nutritionGrades}</div>}
+              {product.nutritionGradesTags && <div><b>Grade Tags:</b> {product.nutritionGradesTags.join(", ")}</div>}
+              {product.nutritionGradeFr && <div><b>French Grade:</b> {product.nutritionGradeFr}</div>}
+              {product.nutritionScoreBeverage && <div><b>Beverage Score:</b> {product.nutritionScoreBeverage}</div>}
+              {product.nutriments && (
+                <div className="mt-2">
+                  <b>Nutriments:</b>
+                  <ul className="ml-4 list-disc">
+                    {Object.entries(product.nutriments).map(([key, value]) => (
+                      <li key={key}><b>{key}:</b> {String(value)}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {product.ingredientsText && <div><b>Ingredients:</b> {product.ingredientsText}</div>}
+              {product.allergens && <div><b>Allergens:</b> {product.allergens}</div>}
+              {product.tracesTags && product.tracesTags.length > 0 && <div><b>Traces:</b> {product.tracesTags.join(", ")}</div>}
+              {product.labels && <div><b>Labels:</b> {product.labels}</div>}
+              {product.labelsTags && product.labelsTags.length > 0 && <div><b>Labels Tags:</b> {product.labelsTags.join(", ")}</div>}
+            </div>
           </div>
         )}
         {activeTab === "Brand" && product && (
@@ -255,7 +327,7 @@ export default function TabbedInfoBox({ activeTab, setActiveTab, product, review
                     stroke="#3b82f6"
                     strokeWidth="8"
                     strokeDasharray={Math.PI * 2 * 40}
-                    strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedBrand / 100))}
+                    strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedBrand / 5))}
                     strokeLinecap="round"
                     style={{
                       transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
@@ -299,7 +371,7 @@ export default function TabbedInfoBox({ activeTab, setActiveTab, product, review
                     stroke="#22c55e"
                     strokeWidth="8"
                     strokeDasharray={Math.PI * 2 * 40}
-                    strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedSustainability / 100))}
+                    strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedSustainability / 5))}
                     strokeLinecap="round"
                     style={{
                       transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
