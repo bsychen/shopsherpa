@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import Image from "next/image";
-import { getBrandById } from "@/lib/api";
+import { Product } from "@/types/product";
+import { ReviewSummary } from "@/types/reviewSummary";
 
 const TAB_ICONS: Record<string, React.ReactNode> = {
   Price: <Image src="/pound-svgrepo-com.svg" alt="Price" width={24} height={24} className="w-6 h-6" />,
@@ -27,8 +28,8 @@ export default function TabbedInfoBox({
 }: {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  product: any;
-  reviewSummary: any;
+  product: Product;
+  reviewSummary: ReviewSummary;
   brandRating?: number;
 }) {
   const tabs = useMemo(() => ["Price", "Quality", "Nutrition", "Sustainability", "Brand"], []);
@@ -278,7 +279,6 @@ export default function TabbedInfoBox({
                     className="text-4xl font-bold"
                     style={{
                       color: (() => {
-                        const grade = product.combinedNutritionGrade?.toLowerCase() || '';
                         const score = animatedNutrition;
                         if (score <= 2) return '#ef4444'; // red-500
                         if (score <= 3) return '#f59e0b'; // amber-500
@@ -291,27 +291,6 @@ export default function TabbedInfoBox({
                 </div>
               </span>
               <span className="text-sm text-zinc-600 font-medium">Nutrition Grade</span>
-            </div>
-            <div className="w-full mt-4 text-left text-sm text-zinc-700 space-y-1">
-              {product.nutritionGrades && <div><b>Additional Grades:</b> {product.nutritionGrades}</div>}
-              {product.nutritionGradesTags && <div><b>Grade Tags:</b> {product.nutritionGradesTags.join(", ")}</div>}
-              {product.nutritionGradeFr && <div><b>French Grade:</b> {product.nutritionGradeFr}</div>}
-              {product.nutritionScoreBeverage && <div><b>Beverage Score:</b> {product.nutritionScoreBeverage}</div>}
-              {product.nutriments && (
-                <div className="mt-2">
-                  <b>Nutriments:</b>
-                  <ul className="ml-4 list-disc">
-                    {Object.entries(product.nutriments).map(([key, value]) => (
-                      <li key={key}><b>{key}:</b> {String(value)}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {product.ingredientsText && <div><b>Ingredients:</b> {product.ingredientsText}</div>}
-              {product.allergens && <div><b>Allergens:</b> {product.allergens}</div>}
-              {product.tracesTags && product.tracesTags.length > 0 && <div><b>Traces:</b> {product.tracesTags.join(", ")}</div>}
-              {product.labels && <div><b>Labels:</b> {product.labels}</div>}
-              {product.labelsTags && product.labelsTags.length > 0 && <div><b>Labels Tags:</b> {product.labelsTags.join(", ")}</div>}
             </div>
           </div>
         )}

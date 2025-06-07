@@ -4,10 +4,10 @@ import { Product } from "@/types/product";
 
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
-    const { id } = await context.params;
     const productsSnapshot = await db
       .collection("products")
       .where("brandId", "==", id)
@@ -24,6 +24,9 @@ export async function GET(
     return NextResponse.json(products);
   } catch (error) {
     console.error("Error fetching products by brand:", error);
-    return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch products" },
+      { status: 500 }
+    );
   }
 }
