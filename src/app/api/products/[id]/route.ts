@@ -74,6 +74,7 @@ async function fetchProductData(id: string){
     pricePerUnit: data.product.price_per_unit || 0,
     unitOfMeasure: data.product.unit_of_measure || '',
     sustainabilityCertificationCode: Array.isArray(data.product.sustainability_labels_tags) ? data.product.sustainability_labels_tags[0] : '',
+    sustainbilityScore: 3, // Default value, adjust as needed
     imageUrl: data.product.image_url || '',
     combinedNutritionGrade: data.product.nutrition_grade_en || 
       data.product.nutrition_grade_fr || 
