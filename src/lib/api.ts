@@ -103,3 +103,15 @@ export async function getBrandById(id: string): Promise<Brand | null> {
   if (!res.ok) return null;
   return await res.json();
 }
+
+export async function getProductsWithGenericName(genericName: string): Promise<Product[]> {
+  const res = await fetch(`/api/products/genericName?name=${encodeURIComponent(genericName)}`);
+  if (!res.ok) return [];
+  return await res.json();
+}
+
+export async function getProductsByBrand(brandId: string): Promise<Product[]> {
+  const res = await fetch(`/api/products/brand/${encodeURIComponent(brandId)}`);
+  if (!res.ok) return [];
+  return await res.json();
+}

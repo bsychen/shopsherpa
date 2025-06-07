@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react"
 import { Product } from "@/types/product"
 import { Review } from "@/types/review"
 import { ReviewSummary } from "@/types/reviewSummary"
-import { getProduct, getProductReviews, getReviewSummary, getBrandById } from "@/lib/api"
+import { getProduct, getProductReviews, getReviewSummary, getBrandById, getProductsWithGenericName } from "@/lib/api"
 import Link from "next/link"
 import Image from "next/image"
 import { onAuthStateChanged, User } from "firebase/auth"
@@ -76,15 +76,24 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [imageDropdownOpen, setImageDropdownOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("Price");
   const [brandRating, setBrandRating] = useState<number>(3);
+  const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const router = useRouter();
 
   useEffect(() => {
     setLoading(true);
     getProduct(id).then(async (productData) => {
       setProduct(productData);
-      if (productData?.brandId) {
-        const brandData = await getBrandById(productData.brandId);
-        setBrandRating(brandData?.brandRating || 3);
+      if (productData) {
+        if (productData.brandId) {
+          const brandData = await getBrandById(productData.brandId);
+          setBrandRating(brandData?.brandRating || 3);
+        }
+        // Fetch similar products based on genericName
+        if (productData.genericNameLower) {
+          const similar = await getProductsWithGenericName(productData.genericNameLower);
+          // Filter out the current product and limit to 8 products
+          setSimilarProducts(similar.filter(p => p.id !== id).slice(0, 8));
+        }
       }
       setLoading(false);
     });
@@ -247,7 +256,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         </div>
         {/* Similar Products Section */}
         <div className="w-full max-w-xl flex flex-col items-start mb-4">
-          <div className="w-full bg-zinc-100 rounded-xl p-4 border border-zinc-200">
+          <div className="w-full bg-zinc-50 rounded-xl p-4 border border-zinc-200">
             <h2 className="text-lg font-semibold text-zinc-800 mb-3 px-1">Similar Products</h2>
             <div className="w-full overflow-x-auto pb-4 hide-scrollbar scroll-smooth">
               <div 
@@ -259,32 +268,40 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   WebkitOverflowScrolling: 'touch'
                 }}
               >
-                {[1,2,3,4,5,6,7,8].map(i => (
+                {similarProducts.length > 0 ? similarProducts.map(prod => (
                   <div 
-                    key={i} 
-                    className="flex flex-col items-center bg-white border border-zinc-200 rounded-lg p-2 shadow-sm transition-all duration-300 hover:shadow-md"
+                    key={prod.id} 
+                    className="flex flex-col items-center bg-white border border-zinc-200 rounded-lg p-2 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-105 hover:opacity-100"
                     style={{ 
                       width: '100px', 
                       flex: '0 0 auto',
                       scrollSnapAlign: 'center',
-                      opacity: 0.6,
-                      transform: 'scale(0.95)',
+                      opacity: 0.85,
                     }}
                   >
                     <Image
-                      src="/placeholder.jpg"
-                      alt="Similar Product"
+                      src={prod.imageUrl || "/placeholder.jpg"}
+                      alt={prod.productName}
                       width={48}
                       height={48}
                       className="w-12 h-12 object-contain rounded mb-2 border border-zinc-200 bg-white"
                     />
                     <div className="font-medium text-xs text-zinc-700 text-center mb-1 line-clamp-2 w-full">
-                      Product Name {i}
+                      {prod.productName}
                     </div>
-                    <div className="text-[10px] text-zinc-500 mb-1">Brand {i}</div>
-                    <button className="text-[10px] text-blue-600 hover:underline">View</button>
+                    <div className="text-[10px] text-zinc-500 mb-1">{prod.brandName || 'Unknown Brand'}</div>
+                    <button 
+                      onClick={() => router.push(`/product/${prod.id}`)}
+                      className="text-[10px] text-blue-600 hover:underline"
+                    >
+                      View
+                    </button>
                   </div>
-                ))}
+                )) : (
+                  <div className="w-full text-center text-zinc-500 text-sm py-4">
+                    No similar products found
+                  </div>
+                )}
               </div>
             </div>
           </div>
