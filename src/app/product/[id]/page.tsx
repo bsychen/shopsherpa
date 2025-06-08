@@ -97,6 +97,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         // Fetch similar products based on genericName
         if (productData.genericNameLower) {
           const similar = await getProductsWithGenericName(productData.genericNameLower);
+          console.log('Similar products:', similar);
           // Filter out the current product and limit to 8 products
           setSimilarProducts(similar.filter(p => p.id !== id).slice(0, 8));
         }
@@ -258,6 +259,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             product={product}
             reviewSummary={reviewSummary}
             brandRating={brandRating}
+            similarProducts={similarProducts}
           />
         </div>
         {/* Similar Products Section */}

@@ -39,7 +39,11 @@ async function fetchProductData(id: string){
   const res = await fetch(`https://world.openfoodfacts.net/api/v2/product/${id}?fields=${encodeURIComponent(fieldsParam)}`);
   if (!res.ok) return null;
   const data = await res.json();
-  console.log("Fetched product data:", data);
+  console.log("OpenFoodFacts product data:", {
+    price: data.product.price,
+    pricePerUnit: data.product.price_per_unit,
+    unitOfMeasure: data.product.unit_of_measure,
+  });
   if (!data.product || !data.product.product_name) return null;    // Get or create brandId for this product
     const brandName = data.product.brands || 
       (data.product.brands_tags && data.product.brands_tags.length > 0 ? data.product.brands_tags[0] : '') || '';
