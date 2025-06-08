@@ -104,6 +104,12 @@ export async function getBrandById(id: string): Promise<Brand | null> {
   return await res.json();
 }
 
+export async function getBrandByName(name: string): Promise<{ brandId: string } | null> {
+  const res = await fetch(`/api/brands/name?name=${encodeURIComponent(name)}`);
+  if (!res.ok) return null;
+  return await res.json();
+}
+
 export async function getProductsWithGenericName(genericName: string): Promise<Product[]> {
   const res = await fetch(`/api/products/genericName?name=${encodeURIComponent(genericName)}`);
   if (!res.ok) return [];

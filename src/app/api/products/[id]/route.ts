@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/firebaseAdmin";
 import { Product } from '@/types/product';
+import { getBrandByName } from '@/lib/api';
 
 async function fetchProductData(id: string){
   const fields = [
@@ -51,10 +52,13 @@ async function fetchProductData(id: string){
     // Only fetch brandId if we have a brand name
     let brandId = '';
     if (brandName) {
-      const brandRes = await fetch(`/api/brands/name?name=${encodeURIComponent(brandName)}`);
-      if (brandRes.ok) {
-        const brandData = await brandRes.json();
-        brandId = brandData.brandId;
+      try {
+        const brandData = await getBrandByName(brandName);
+        if (brandData) {
+          brandId = brandData.brandId;
+        }
+      } catch (error) {
+        console.error('Error fetching brand:', error);
       }
     }
 
