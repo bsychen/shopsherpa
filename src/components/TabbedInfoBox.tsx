@@ -26,7 +26,15 @@ interface TabbedInfoBoxProps {
   product: Product;
   reviewSummary: ReviewSummary;
   brandRating?: number;
-  similarProducts?: Product[];
+  priceStats?: {
+        min: number;
+        max: number;
+        q1: number;
+        median: number;
+        q3: number;
+  };
+  maxPriceProduct?: Product | null;
+  minPriceProduct?: Product | null;
 }
 
 const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
@@ -35,7 +43,9 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   product,
   reviewSummary,
   brandRating = 3,
-  similarProducts = [],
+  priceStats = { min: 0, max: 0, q1: 0, median: 0, q3: 0 },
+  maxPriceProduct = null,
+  minPriceProduct = null,
 }) => {
   const tabs = useMemo(() => ["Price", "Quality", "Nutrition", "Sustainability", "Brand"], []);
   const [animatedQuality, setAnimatedQuality] = useState(0);
@@ -116,10 +126,8 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
     // eslint-disable-next-line
   }, [activeTab, reviewSummary]);
 
-  const minPriceProduct = similarProducts.reduce((min, p) => p.price < min.price ? p : min, similarProducts[0]);
-  const maxPriceProduct = similarProducts.reduce((max, p) => p.price > max.price ? p : max, similarProducts[0]);
-  const min = minPriceProduct ? minPriceProduct.price : 0;
-  const max = maxPriceProduct ? maxPriceProduct.price : 0;
+  const min = priceStats.min;
+  const max = priceStats.max;
 
   return (
     <div
@@ -170,11 +178,11 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
         {activeTab === "Price" && reviewSummary && (
           <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
             <h2 className="text-lg font-bold mb-2 self-start">Price Range</h2>
-            {similarProducts.length > 0 && (
+            {(
               <div className="w-full opacity-0 animate-slide-in-bottom" style={{ animationDelay: '0.15s' }}>
                 <PriceSpectrum 
                   product={product} 
-                  similarProducts={similarProducts} 
+                  priceStats={priceStats}
                   onMinClick={() => {
                     if (showMinProduct) {
                       setShowMinProduct(false);
@@ -191,8 +199,6 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
                       setShowMinProduct(false);
                     }
                   }}
-                  min={min}
-                  max={max}
                 />
               </div>
             )}

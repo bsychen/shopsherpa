@@ -57,6 +57,28 @@ function AnimatedMatchPercent({ percent, small }: { percent: number, small?: boo
   );
 }
 
+// Helper function to calculate quartiles
+const calculateQuartile = (arr: number[], q: number) => {
+  const sorted = [...arr].sort((a, b) => a - b);
+  const pos = (sorted.length - 1) * q;
+  const base = Math.floor(pos);
+  const rest = pos - base;
+  
+  if (sorted[base + 1] !== undefined) {
+    return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
+  } else {
+    return sorted[base];
+  }
+};
+
+function getQuartileScore(price: number, q1: number, q3: number): number {
+  console.log("Calculating quartile score for price:", price, "Q1:", q1, "Q3:", q3);
+  if (!price || q1 === q3) return 3; // Default score for invalid data
+  if (price <= q1) return 5;
+  if (price >= q3) return 1;
+  return 3;
+}
+
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [product, setProduct] = useState<Product | null>(null);
@@ -78,6 +100,13 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [brandRating, setBrandRating] = useState<number>(3);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [brandProducts, setBrandProducts] = useState<Product[]>([]);
+  const [priceStats, setPriceStats] = useState<{
+    min: number;
+    max: number;
+    q1: number;
+    median: number;
+    q3: number;
+  }>({ min: 0, max: 0, q1: 0, median: 0, q3: 0 });
   const router = useRouter();
 
   useEffect(() => {
@@ -182,6 +211,24 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     }
   }, [filter, sortBy, sortOpen]);
 
+  // Calculate price statistics when similar products change
+  useEffect(() => {
+    if (!product || !similarProducts.length) return;
+    
+    const getPrice = (p: Product) => p.price || p.expectedPrice || 0;
+    const prices = [...similarProducts.map(getPrice), getPrice(product)].filter(p => p > 0);
+    
+    if (prices.length) {
+      setPriceStats({
+        min: Math.min(...prices),
+        max: Math.max(...prices),
+        q1: calculateQuartile(prices, 0.25),
+        median: calculateQuartile(prices, 0.5),
+        q3: calculateQuartile(prices, 0.75)
+      });
+    }
+  }, [similarProducts, product]);
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 bg-zinc-50 dark:bg-zinc-100">
@@ -250,6 +297,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               reviewSummary={reviewSummary}
               activeTab={activeTab}
               setActiveTab={setActiveTab}
+              priceScore={getQuartileScore(product.price || 0, priceStats.q1, priceStats.q3)}
             />
           </div>
           {/* Tabbed Info Box */}
@@ -259,7 +307,9 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             product={product}
             reviewSummary={reviewSummary}
             brandRating={brandRating}
-            similarProducts={similarProducts}
+            priceStats={priceStats}
+            maxPriceProduct={similarProducts.reduce((max, p) => (!max || (p.price || 0) > (max.price || 0)) ? p : max, null)}
+            minPriceProduct={similarProducts.reduce((min, p) => (!min || (p.price || 0) < (min.price || 0)) ? p : min, null)}
           />
         </div>
         {/* Similar Products Section */}

@@ -55,11 +55,13 @@ export default function ProductRadarChart({
   reviewSummary,
   activeTab,
   setActiveTab,
+  priceScore = 3,
 }: {
   product?: Product;
   reviewSummary?: ReviewSummary;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  priceScore?: number;
 }) {
   const [brandScore, setBrandScore] = useState<number>(3); // Default score
 
@@ -74,8 +76,23 @@ export default function ProductRadarChart({
     }
   }, [product?.brandId]);
 
+  // Convert nutrition grade to score (A=5, B=4, C=3, D=2, E=1, unknown=2)
+  function getNutritionScore(grade: string): number {
+    const scores: Record<string, number> = {
+      'a': 5,
+      'b': 4,
+      'c': 3,
+      'd': 2,
+      'e': 1
+    };
+    return scores[grade.toLowerCase()] || 2;
+  }
+
+  // Calculate price score based on quartile position (5 if in lower quartile, 1 if in upper quartile, 3 otherwise)
+
+
   const radarData = [
-    reviewSummary?.averageValueRating || 3, // Price score from average value rating
+    priceScore, // Price score based on quartile position
     reviewSummary?.averageQualityRating || 3, // Quality score from average quality rating
     getNutritionScore(product?.combinedNutritionGrade || ''), // Nutrition score from grade
     product?.sustainbilityScore || 3, // Sustainability score from product data
@@ -156,18 +173,6 @@ export default function ProductRadarChart({
       animateValue('sustainability', 85);
     }
   }, [openPopup, reviewSummary]);
-
-  // Convert nutrition grade to score (A=5, B=4, C=3, D=2, E=1, unknown=2)
-  function getNutritionScore(grade: string): number {
-    const scores: Record<string, number> = {
-      'a': 5,
-      'b': 4,
-      'c': 3,
-      'd': 2,
-      'e': 1
-    };
-    return scores[grade.toLowerCase()] || 2;
-  }
 
   // --- Render ---
   return (
