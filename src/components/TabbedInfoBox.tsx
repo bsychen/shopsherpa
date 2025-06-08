@@ -172,37 +172,37 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
         }}
       >
         {activeTab === "Price" && reviewSummary && (
-          <div className="w-full flex flex-col items-center">
+          <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
             <h2 className="text-lg font-bold mb-2 self-start">Price Range</h2>
             {similarProducts.length > 0 && (
-              <PriceSpectrum 
-                product={product} 
-                similarProducts={similarProducts} 
-                onMinClick={() => {
-                  // Toggle min product view and ensure max is hidden when min is shown
-                  if (showMinProduct) {
-                    setShowMinProduct(false);
-                  } else {
-                    setShowMinProduct(true);
-                    setShowMaxProduct(false);
-                  }
-                }}
-                onMaxClick={() => {
-                  // Toggle max product view and ensure min is hidden when max is shown
-                  if (showMaxProduct) {
-                    setShowMaxProduct(false);
-                  } else {
-                    setShowMaxProduct(true);
-                    setShowMinProduct(false);
-                  }
-                }}
-                min={min}
-                max={max}
-              />
+              <div className="w-full opacity-0 animate-slide-in-bottom" style={{ animationDelay: '0.15s' }}>
+                <PriceSpectrum 
+                  product={product} 
+                  similarProducts={similarProducts} 
+                  onMinClick={() => {
+                    if (showMinProduct) {
+                      setShowMinProduct(false);
+                    } else {
+                      setShowMinProduct(true);
+                      setShowMaxProduct(false);
+                    }
+                  }}
+                  onMaxClick={() => {
+                    if (showMaxProduct) {
+                      setShowMaxProduct(false);
+                    } else {
+                      setShowMaxProduct(true);
+                      setShowMinProduct(false);
+                    }
+                  }}
+                  min={min}
+                  max={max}
+                />
+              </div>
             )}
             {/* Product Details Section */}
             {(showMinProduct || showMaxProduct) && (
-              <div className="w-full mt-12 p-4 rounded-lg bg-white/60 transition-all duration-300">
+              <div className="w-full mt-12 p-4 rounded-lg bg-white/60 opacity-0 animate-slide-in-bottom" style={{ animationDelay: '0.25s' }}>
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0 w-16 h-16 bg-white rounded-md shadow-sm border border-zinc-200 flex items-center justify-center">
                     <span className="text-2xl">{showMinProduct ? '💰' : '💎'}</span>
