@@ -51,7 +51,7 @@ async function fetchProductData(id: string){
     // Only fetch brandId if we have a brand name
     let brandId = '';
     if (brandName) {
-      const brandRes = await fetch(`http://localhost:3000/api/brands/name?name=${encodeURIComponent(brandName)}`);
+      const brandRes = await fetch(`/api/brands/name?name=${encodeURIComponent(brandName)}`);
       if (brandRes.ok) {
         const brandData = await brandRes.json();
         brandId = brandData.brandId;
