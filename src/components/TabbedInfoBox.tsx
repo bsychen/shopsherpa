@@ -38,7 +38,6 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   similarProducts = [],
 }) => {
   const tabs = useMemo(() => ["Price", "Quality", "Nutrition", "Sustainability", "Brand"], []);
-  const [animatedValue, setAnimatedValue] = useState(0);
   const [animatedQuality, setAnimatedQuality] = useState(0);
   const [animatedBrand, setAnimatedBrand] = useState(0);
   const [animatedSustainability, setAnimatedSustainability] = useState(0);
@@ -65,10 +64,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
 
   // Animation trigger function
   const triggerAnimation = (tab) => {
-    if (tab === "Price") {
-      setAnimatedValue(0);
-      setTimeout(() => setAnimatedValue(reviewSummary?.averageValueRating || 0), 50);
-    } else if (tab === "Quality") {
+    if (tab === "Quality") {
       setAnimatedQuality(0);
       setTimeout(() => setAnimatedQuality(reviewSummary?.averageQualityRating || 0), 50);
     } else if (tab === "Brand") {
