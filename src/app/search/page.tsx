@@ -66,7 +66,7 @@ export default function ProductSearch() {
               style={{ opacity }}
             >
               <div className="font-semibold text-zinc-800 text-lg mb-1">
-                {product.name}
+                {product.productName}
               </div>
               <div className="text-xs text-gray-400">
                 Product ID: {product.id}

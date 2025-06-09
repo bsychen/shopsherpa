@@ -49,7 +49,7 @@ export default function ReviewPage() {
   useEffect(() => {
     if (!id || !review) return;
     getProduct(review.productId).then((product) => {
-      setProductName(product?.name || "");
+      setProductName(product?.productName || "");
     });
     // Fetch username from userId
     if (review.userId) {

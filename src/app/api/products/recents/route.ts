@@ -35,7 +35,7 @@ export async function GET(req: Request) {
                 const productData = productDoc.data();
                 return {
                     id: productId,
-                    name: productData.ProductName,
+                    productName: productData.ProductName,
                     ...(doc.data() as Record<string, unknown>),
                 };
             })

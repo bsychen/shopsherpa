@@ -29,7 +29,7 @@ export default function UserReviewsList({ userId }: UserReviewsListProps) {
       const names: Record<string, string> = {};
       await Promise.all(ids.map(async (id) => {
         const product = await getProduct(id);
-        if (product && product.name) names[id] = product.name;
+        if (product && product.productName) names[id] = product.productName;
       }));
       setProductNames(names);
     }
