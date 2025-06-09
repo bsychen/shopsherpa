@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/firebaseAdmin";
 import { Product } from '@/types/product';
 import { getBrandByName } from '@/lib/api';
+import { getBrand } from '../../brands/name/route';
 
 async function fetchProductData(id: string){
   const fields = [
@@ -53,9 +54,12 @@ async function fetchProductData(id: string){
     let brandId = '';
     if (brandName) {
       try {
-        const brandData = await getBrandByName(brandName);
+        const brandData = await getBrand(brandName);
         if (brandData) {
           brandId = brandData.brandId;
+          console.log("Brand data:", {
+            brandId: brandData ? brandData.brandId : 'Not found'
+        });
         }
       } catch (error) {
         console.error('Error fetching brand:', error);
