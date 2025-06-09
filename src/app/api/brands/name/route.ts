@@ -24,7 +24,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function getBrand(brandName: String) {
+export async function getBrand(brandName: string) {
     // Query Firestore for the brand
     const brandQuery = await db
       .collection("brands")

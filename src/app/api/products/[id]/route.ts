@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/firebaseAdmin";
 import { Product } from '@/types/product';
-import { getBrandByName } from '@/lib/api';
 import { getBrand } from '../../brands/name/route';
 
 async function fetchProductData(id: string){
