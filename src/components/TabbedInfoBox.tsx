@@ -233,7 +233,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
           
         )}
         {activeTab === "Quality" && reviewSummary && (
-          <div className="w-full flex flex-col items-center">
+          <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
             <h2 className="text-lg font-bold mb-2 self-start">Quality</h2>
             <div className="flex items-center gap-2 mb-2">
               <span className="relative inline-block w-12 h-12 align-middle">
@@ -278,7 +278,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
           </div>
         )}
         {activeTab === "Nutrition" && product && (
-          <div className="w-full flex flex-col items-center">
+          <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
             <h2 className="text-lg font-bold mb-2 self-start">Nutrition</h2>
             <div className="flex flex-col items-center justify-center gap-2">
               <span className="relative inline-block w-24 h-24 align-middle">
@@ -324,7 +324,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
           </div>
         )}
         {activeTab === "Brand" && product && (
-          <div className="w-full flex flex-col items-center">
+          <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
             <h2 className="text-lg font-bold mb-2 self-start">Brand</h2>
             <div className="flex flex-col items-center justify-center gap-2">
               <span className="relative inline-block w-24 h-24 align-middle">
@@ -354,7 +354,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
           </div>
         )}
         {activeTab === "Sustainability" && product && (
-          <div className="w-full flex flex-col items-center">
+          <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
             <h2 className="text-lg font-bold mb-2 self-start">Sustainability</h2>
             <div className="flex flex-col items-center justify-center gap-2">
               <span className="relative inline-block w-24 h-24 align-middle">
