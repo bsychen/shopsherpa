@@ -76,7 +76,7 @@ async function fetchProductData(id: string){
       ...(data.product.categories_properties ? Object.keys(data.product.categories_properties) : []),
       ...(data.product.main_category ? [data.product.main_category] : []),
       ...(data.product.main_category_fr ? [data.product.main_category_fr] : [])
-    ])],//.join(', '),
+    ])],
     genericNameLower: (data.product.generic_name || data.product.generic_name_en)
       ? (data.product.generic_name || data.product.generic_name_en).toLowerCase()
       : '',
@@ -84,15 +84,15 @@ async function fetchProductData(id: string){
     alergenInformation: [...new Set([
       ...(data.product.allergens ? [data.product.allergens] : []),
       ...(data.product.allergens_tags || []),
-      ...(data.product.allergens_from_ingredients ? [data.product.allergens_from_ingredients] : []),
-      ...(data.product.allergens_from_user ? [data.product.allergens_from_user] : []),
-      ...(data.product.allergens_hierarchy || [])
-    ])],//.join(', '),
+      //...(data.product.allergens_from_ingredients ? [data.product.allergens_from_ingredients] : []),
+      //...(data.product.allergens_from_user ? [data.product.allergens_from_user] : []),
+      //...(data.product.allergens_hierarchy || [])
+    ])],
     tracesInformation: [...new Set([
       ...(data.product.traces ? [data.product.traces] : []),
       ...(data.product.traces_tags || []),
       ...(data.product.traces_hierarchy || [])
-    ])],//.join(', '),
+    ])],
     price: data.product.price || 0,
     pricePerUnit: data.product.price_per_unit || 0,
     unitOfMeasure: data.product.unit_of_measure || '',
