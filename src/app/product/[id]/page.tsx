@@ -79,6 +79,8 @@ function getQuartileScore(price: number, q1: number, q3: number): number {
   return 3;
 }
 
+
+
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [product, setProduct] = useState<Product | null>(null);
@@ -311,7 +313,29 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             maxPriceProduct={similarProducts.reduce((max, p) => (!max || (p.price || 0) > (max.price || 0)) ? p : max, null)}
             minPriceProduct={similarProducts.reduce((min, p) => (!min || (p.price || 0) < (min.price || 0)) ? p : min, null)}
           />
+          {product.alergenInformation && product.alergenInformation.length > 0 && (
+            <div className="w-full">
+              <div className="text-xs text-zinc-500 font-semibold mt-2 mb-1 ml-1">Allergens:</div>
+              <div className="flex flex-wrap gap-2 mb-2 justify-start">
+                {product.alergenInformation.map((allergen, idx) => {
+                  const key = allergen.trim().toLowerCase();
+                  const map = ALLERGEN_MAP[key];
+                  if (!map) return null;
+                  return (
+                    <span
+                      key={idx}
+                      className="inline-block bg-orange-100 border border-orange-300 text-orange-700 text-sm px-3 py-1.5 rounded-full font-semibold shadow-sm hover:bg-orange-200 hover:text-orange-900 transition"
+                      style={{ whiteSpace: 'nowrap' }}
+                    >
+                      {`${map.emoji} ${map.title}`}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
+        
         {/* Similar Products Section */}
         <div className="w-full max-w-xl flex flex-col items-start mb-4">
           <div className="w-full bg-zinc-50 rounded-xl p-4 border border-zinc-200">
@@ -534,3 +558,22 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     </div>
   );
 }
+
+// Allergen mapping: maps Open Food Facts allergen codes to display name and emoji
+const ALLERGEN_MAP: Record<string, { title: string; emoji: string }> = {
+  'en:gluten': { title: 'Gluten', emoji: '🌾' },
+  'en:peanuts': { title: 'Peanuts', emoji: '🥜' },
+  'en:milk': { title: 'Milk', emoji: '🥛' },
+  'en:soybeans': { title: 'Soy', emoji: '🌱' },
+  'en:eggs': { title: 'Eggs', emoji: '🥚' },
+  'en:tree-nuts': { title: 'Tree Nuts', emoji: '🌰' },
+  'en:sesame-seeds': { title: 'Sesame', emoji: '⚪️' },
+  'en:fish': { title: 'Fish', emoji: '🐟' },
+  'en:crustaceans': { title: 'Crustaceans', emoji: '🦐' },
+  'en:mustard': { title: 'Mustard', emoji: '🌭' },
+  'en:celery': { title: 'Celery', emoji: '🥬' },
+  'en:lupin': { title: 'Lupin', emoji: '🌸' },
+  'en:molluscs': { title: 'Molluscs', emoji: '🦪' },
+  'en:sulphur-dioxide-and-sulphites': { title: 'Sulphites', emoji: '🧪' },
+  // Add more as needed
+};
