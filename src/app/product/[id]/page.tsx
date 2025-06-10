@@ -313,18 +313,34 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             maxPriceProduct={similarProducts.reduce((max, p) => (!max || (p.price || 0) > (max.price || 0)) ? p : max, null)}
             minPriceProduct={similarProducts.reduce((min, p) => (!min || (p.price || 0) < (min.price || 0)) ? p : min, null)}
           />
-          {product.alergenInformation && product.alergenInformation.length > 0 && (
+          {(product.alergenInformation && product.alergenInformation.length > 0 || product.labels && product.labels.length > 0) && (
             <div className="w-full">
-              <div className="text-xs text-zinc-500 font-semibold mt-2 mb-1 ml-1">Allergens:</div>
+              <div className="text-xs text-zinc-500 font-semibold mt-2 mb-1 ml-1">Allergens & Labels:</div>
               <div className="flex flex-wrap gap-2 mb-2 justify-start">
-                {product.alergenInformation.map((allergen, idx) => {
+                {/* Allergen tags (orange) */}
+                {product.alergenInformation && product.alergenInformation.map((allergen, idx) => {
                   const key = allergen.trim().toLowerCase();
                   const map = ALLERGEN_MAP[key];
                   if (!map) return null;
                   return (
                     <span
-                      key={idx}
+                      key={`allergen-${idx}`}
                       className="inline-block bg-orange-100 border border-orange-300 text-orange-700 text-sm px-3 py-1.5 rounded-full font-semibold shadow-sm hover:bg-orange-200 hover:text-orange-900 transition"
+                      style={{ whiteSpace: 'nowrap' }}
+                    >
+                      {`${map.emoji} ${map.title}`}
+                    </span>
+                  );
+                })}
+                {/* Label tags (grey) */}
+                {product.labels && product.labels.map((label, idx) => {
+                  const key = label.trim().toLowerCase();
+                  const map = LABEL_MAP[key];
+                  if (!map) return null;
+                  return (
+                    <span
+                      key={`label-${idx}`}
+                      className="inline-block bg-zinc-100 border border-zinc-300 text-zinc-700 text-sm px-3 py-1.5 rounded-full font-semibold shadow-sm hover:bg-zinc-200 hover:text-zinc-900 transition"
                       style={{ whiteSpace: 'nowrap' }}
                     >
                       {`${map.emoji} ${map.title}`}
@@ -575,5 +591,18 @@ const ALLERGEN_MAP: Record<string, { title: string; emoji: string }> = {
   'en:lupin': { title: 'Lupin', emoji: '🌸' },
   'en:molluscs': { title: 'Molluscs', emoji: '🦪' },
   'en:sulphur-dioxide-and-sulphites': { title: 'Sulphites', emoji: '🧪' },
+  // Add more as needed
+};
+
+// Label mapping: maps Open Food Facts label codes to display name and emoji
+const LABEL_MAP: Record<string, { title: string; emoji: string }> = {
+  'en:vegetarian': { title: 'Vegetarian', emoji: '🥦' },
+  'en:vegan': { title: 'Vegan', emoji: '🌱' },
+  'en:organic': { title: 'Organic', emoji: '🍃' },
+  'en:halal': { title: 'Halal', emoji: '🕌' },
+  'en:kosher': { title: 'Kosher', emoji: '✡️' },
+  'en:palm-oil-free': { title: 'Palm Oil Free', emoji: '🌴🚫' },
+  'en:fair-trade': { title: 'Fair Trade', emoji: '🤝' },
+  'en:lactose-free': { title: 'Lactose-Free', emoji: '🥛🚫' },
   // Add more as needed
 };
