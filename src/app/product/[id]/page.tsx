@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation"
 import ProductRadarChart from "@/components/ProductRadarChart";
 import { useRef } from "react";
 import TabbedInfoBox from "@/components/TabbedInfoBox"
+import LoadingAnimation from "@/components/LoadingSpinner";
 
 function AnimatedMatchPercent({ percent, small }: { percent: number, small?: boolean }) {
   const [displayed, setDisplayed] = useState(0);
@@ -232,11 +233,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   }, [similarProducts, product]);
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 bg-zinc-50 dark:bg-zinc-100">
-        <div className="text-lg text-zinc-700">Loading...</div>
-      </div>
-    );
+    return <LoadingAnimation />;
   }
 
   if (!product) {
