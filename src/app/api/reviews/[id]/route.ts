@@ -18,9 +18,9 @@ export async function GET(
       createdAt: doc.data().createdAt,
       productId: doc.data().productId,
       reviewText: doc.data().reviewText,
-      valueRating: doc.data().valueRating,
-      qualityRating: doc.data().qualityRating,
+      rating: doc.data().rating,
       userId: doc.data().userId,
+      isAnonymous: doc.data().isAnonymous || false,
       username: doc.data().username,
     }) as NextResponse<Review>;
 

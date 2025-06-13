@@ -35,9 +35,9 @@ export default function ReviewPage() {
           createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
           productId: data.productId,
           reviewText: data.reviewText || undefined,
-          valueRating: data.valueRating,
-          qualityRating: data.qualityRating,
+          rating: data.rating,
           userId: data.userId,
+          isAnonymous: data.isAnonymous || false,
         });
       } else {
         setReview(null);
@@ -51,12 +51,14 @@ export default function ReviewPage() {
     getProduct(review.productId).then((product) => {
       setProductName(product?.productName || "");
     });
-    // Fetch username from userId
-    if (review.userId) {
+    // Fetch username from userId (unless anonymous)
+    if (review.userId && !review.isAnonymous) {
       getUserById(review.userId).then((user) => {
         if (user && typeof user.username === "string") setUsername(user.username);
         else setUsername("");
       });
+    } else if (review.isAnonymous) {
+      setUsername("anon");
     }
   }, [review, id]);
 
@@ -96,38 +98,19 @@ export default function ReviewPage() {
       </div>
       <div className="mb-2 flex items-center">
         <span className="font-semibold text-gray-700 min-w-[110px] text-sm">
-          Value Rating:
+          Rating:
         </span>
         <span className="ml-4">
-          {[1, 2, 3, 4, 5].map((bag) => (
+          {[1, 2, 3, 4, 5].map((star) => (
             <span
-              key={bag}
+              key={star}
               className={`text-2xl ${
-                review.valueRating >= bag ? "" : "opacity-30"
+                review.rating >= star ? "" : "opacity-30"
               }`}
               role="img"
-              aria-label="money-bag"
+              aria-label="star"
             >
-              💰
-            </span>
-          ))}
-        </span>
-      </div>
-      <div className="mb-2 flex items-center">
-        <span className="font-semibold text-gray-700 min-w-[110px] text-sm">
-          Quality Rating:
-        </span>
-        <span className="ml-4">
-          {[1, 2, 3, 4, 5].map((apple) => (
-            <span
-              key={apple}
-              className={`text-2xl ${
-                review.qualityRating >= apple ? "" : "opacity-30"
-              }`}
-              role="img"
-              aria-label="apple"
-            >
-              🍎
+              ⭐
             </span>
           ))}
         </span>

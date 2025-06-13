@@ -10,8 +10,7 @@ export default function UpdateReviewPage() {
   const id = params?.id as string;
   const router = useRouter();
   const [review, setReview] = useState<Review | null>(null);
-  const [valueRating, setValueRating] = useState(0);
-  const [qualityRating, setQualityRating] = useState(0);
+  const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,8 +22,7 @@ export default function UpdateReviewPage() {
     getReview(id).then((data) => {
       if (data) {
         setReview(data);
-        setValueRating(data.valueRating || 0);
-        setQualityRating(data.qualityRating || 0);
+        setRating(data.rating || 0);
         setReviewText(data.reviewText || "");
       }
       setLoading(false);
@@ -35,7 +33,7 @@ export default function UpdateReviewPage() {
     e.preventDefault();
     setError(null);
     setSuccess(false);
-    const result = await updateReview(id, valueRating, qualityRating, reviewText);
+    const result = await updateReview(id, rating, reviewText);
     if (result.success) {
       setSuccess(true);
       setTimeout(() => router.push(`/review/${id}`), 1200);
@@ -61,30 +59,16 @@ export default function UpdateReviewPage() {
       <h1 className="text-2xl font-bold mb-4 text-gray-800">Update Your Review</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
-          <label className="font-semibold text-gray-700">Value Rating:</label>
+          <label className="font-semibold text-gray-700">Rating:</label>
           <div className="flex gap-1 mt-1">
             {[1,2,3,4,5].map((val) => (
               <button
                 type="button"
                 key={val}
-                className={`text-2xl ${valueRating >= val ? '' : 'opacity-30'}`}
-                onClick={() => setValueRating(val)}
-                aria-label={`Set value rating to ${val}`}
-              >💰</button>
-            ))}
-          </div>
-        </div>
-        <div>
-          <label className="font-semibold text-gray-700">Quality Rating:</label>
-          <div className="flex gap-1 mt-1">
-            {[1,2,3,4,5].map((val) => (
-              <button
-                type="button"
-                key={val}
-                className={`text-2xl ${qualityRating >= val ? '' : 'opacity-30'}`}
-                onClick={() => setQualityRating(val)}
-                aria-label={`Set quality rating to ${val}`}
-              >🍎</button>
+                className={`text-2xl ${rating >= val ? '' : 'opacity-30'}`}
+                onClick={() => setRating(val)}
+                aria-label={`Set rating to ${val}`}
+              >⭐</button>
             ))}
           </div>
         </div>
