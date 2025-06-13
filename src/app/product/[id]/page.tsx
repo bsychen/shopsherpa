@@ -173,6 +173,16 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       }
     ) : null;
   
+  // Check for allergen matches
+  const allergenWarnings = userPreferences?.alergens && product?.alergenInformation ? 
+    userPreferences.alergens.filter(userAllergen => 
+      product.alergenInformation?.some(productAllergen => {
+        // Convert product allergen codes to lowercase format for comparison
+        const normalizedProductAllergen = productAllergen.trim().toLowerCase().replace(/^en:/, '');
+        return normalizedProductAllergen === userAllergen.toLowerCase();
+      })
+    ) : [];
+  
   const router = useRouter();
 
   useEffect(() => {
@@ -380,6 +390,24 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             </div>
           </div>
         </div>
+        
+        {/* Allergen Warning Banner */}
+        {allergenWarnings && allergenWarnings.length > 0 && (
+          <div className="w-full max-w-xl mb-4">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                <span className="text-red-500 text-xl">⚠️</span>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-red-800 font-semibold text-sm mb-1">Allergen Warning</h3>
+                <p className="text-red-700 text-sm">
+                  This product contains allergens that match your profile: {allergenWarnings.map(allergen => allergen.replace(/-/g, ' ')).join(', ')}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Spider Web Diagram Box */}
         <div className="w-full max-w-xl flex flex-col items-center mb-4">
           <div className="flex items-center justify-center w-full" style={{ minHeight: 220, minWidth: 0 }}>
