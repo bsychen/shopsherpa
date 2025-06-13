@@ -12,9 +12,6 @@ import {
   ChartOptions,
 } from "chart.js";
 import { useState, useEffect } from "react";
-import { Product } from "@/types/product";
-import { ReviewSummary } from "@/types/reviewSummary";
-import { getBrandById } from "@/lib/api";
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
@@ -51,52 +48,28 @@ const DEFAULT_BTN_BORDER = "border-zinc-200";
 const DEFAULT_BTN_SVG = "/placeholder-logo.png";
 
 export default function ProductRadarChart({
-  product,
-  reviewSummary,
   activeTab,
   setActiveTab,
   priceScore = 3,
+  qualityScore = 3,
+  nutritionScore = 2,
+  sustainabilityScore = 3,
+  brandScore = 3,
 }: {
-  product?: Product;
-  reviewSummary?: ReviewSummary;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   priceScore?: number;
+  qualityScore?: number;
+  nutritionScore?: number;
+  sustainabilityScore?: number;
+  brandScore?: number;
 }) {
-  const [brandScore, setBrandScore] = useState<number>(3); // Default score
-
-  // Fetch brand score when product changes
-  useEffect(() => {
-    if (product?.brandId) {
-      getBrandById(product.brandId).then(brand => {
-        if (brand?.brandRating) {
-          setBrandScore(brand.brandRating);
-        }
-      });
-    }
-  }, [product?.brandId]);
-
-  // Convert nutrition grade to score (A=5, B=4, C=3, D=2, E=1, unknown=2)
-  function getNutritionScore(grade: string): number {
-    const scores: Record<string, number> = {
-      'a': 5,
-      'b': 4,
-      'c': 3,
-      'd': 2,
-      'e': 1
-    };
-    return scores[grade.toLowerCase()] || 2;
-  }
-
-  // Calculate price score based on quartile position (5 if in lower quartile, 1 if in upper quartile, 3 otherwise)
-
-
   const radarData = [
-    priceScore, // Price score based on quartile position
-    reviewSummary?.averageRating || 3, // Quality score from average rating
-    getNutritionScore(product?.combinedNutritionGrade || ''), // Nutrition score from grade
-    product?.sustainbilityScore || 3, // Sustainability score from product data
-    brandScore, // Brand score from brand data
+    priceScore,
+    qualityScore,
+    nutritionScore,
+    sustainabilityScore,
+    brandScore,
   ];
 
   // Chart.js config
@@ -143,36 +116,9 @@ export default function ProductRadarChart({
   const offset = 1.2;
   const verticalShift = 14;
   // Animation state
-  const [openPopup] = useState<string | null>(null);
   const [showButtons, setShowButtons] = useState(false);
-  const [_animatedState, setAnimatedState] = useState<Record<string, number>>({
-    value: 0,
-    quality: 0,
-    brand: 0,
-    sustainability: 0
-  });
 
   useEffect(() => { setShowButtons(true); }, []);
-
-  useEffect(() => {
-    const animateValue = (key: string, value: number) => {
-      setAnimatedState(prev => ({ ...prev, [key]: 0 }));
-      setTimeout(() => setAnimatedState(prev => ({ ...prev, [key]: value })), 50);
-    };
-
-    if (openPopup === "Value" || openPopup === "Price") {
-      animateValue('value', reviewSummary?.averageRating || 0);
-    }
-    if (openPopup === "Quality") {
-      animateValue('quality', reviewSummary?.averageRating || 0);
-    }
-    if (openPopup === "Brand") {
-      animateValue('brand', 75);
-    }
-    if (openPopup === "Sustainability") {
-      animateValue('sustainability', 85);
-    }
-  }, [openPopup, reviewSummary]);
 
   // --- Render ---
   return (

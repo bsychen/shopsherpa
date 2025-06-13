@@ -80,6 +80,18 @@ function getQuartileScore(price: number, q1: number, q3: number): number {
   return 3;
 }
 
+// Convert nutrition grade to score (A=5, B=4, C=3, D=2, E=1, unknown=2)
+function getNutritionScore(grade: string): number {
+  const scores: Record<string, number> = {
+    'a': 5,
+    'b': 4,
+    'c': 3,
+    'd': 2,
+    'e': 1
+  };
+  return scores[grade.toLowerCase()] || 2;
+}
+
 
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
@@ -110,6 +122,14 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     median: number;
     q3: number;
   }>({ min: 0, max: 0, q1: 0, median: 0, q3: 0 });
+  
+  // Calculate all radar chart scores
+  const priceScore = product ? getQuartileScore(product.price || 0, priceStats.q1, priceStats.q3) : 3;
+  const qualityScore = reviewSummary?.averageRating || 3;
+  const nutritionScore = product ? getNutritionScore(product.combinedNutritionGrade || '') : 2;
+  const sustainabilityScore = product?.sustainbilityScore || 3;
+  const brandScore = brandRating;
+  
   const router = useRouter();
 
   useEffect(() => {
@@ -292,11 +312,13 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         <div className="w-full max-w-xl flex flex-col items-center mb-4">
           <div className="flex items-center justify-center w-full" style={{ minHeight: 220, minWidth: 0 }}>
             <ProductRadarChart
-              product={product}
-              reviewSummary={reviewSummary}
               activeTab={activeTab}
               setActiveTab={setActiveTab}
-              priceScore={getQuartileScore(product.price || 0, priceStats.q1, priceStats.q3)}
+              priceScore={priceScore}
+              qualityScore={qualityScore}
+              nutritionScore={nutritionScore}
+              sustainabilityScore={sustainabilityScore}
+              brandScore={brandScore}
             />
           </div>
           {/* Tabbed Info Box */}
