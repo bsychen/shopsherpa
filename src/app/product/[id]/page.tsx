@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react"
 import { Product } from "@/types/product"
 import { Review } from "@/types/review"
 import { ReviewSummary } from "@/types/reviewSummary"
-import { getProduct, getProductReviews, getReviewSummary, getBrandById, getProductsWithGenericName, getProductsByBrand } from "@/lib/api"
+import { getProduct, getProductReviews, getReviewSummary, getBrandById, getProductsWithGenericName, getProductsByBrand, getUserById } from "@/lib/api"
 import Link from "next/link"
 import Image from "next/image"
 import { onAuthStateChanged, User } from "firebase/auth"
@@ -14,6 +14,7 @@ import ProductRadarChart from "@/components/ProductRadarChart";
 import { useRef } from "react";
 import TabbedInfoBox from "@/components/TabbedInfoBox"
 import LoadingAnimation from "@/components/LoadingSpinner";
+import { UserProfile } from "@/types/user";
 
 function AnimatedMatchPercent({ percent, small }: { percent: number, small?: boolean }) {
   const [displayed, setDisplayed] = useState(0);
@@ -92,7 +93,35 @@ function getNutritionScore(grade: string): number {
   return scores[grade.toLowerCase()] || 2;
 }
 
-
+// Calculate weighted match percentage based on user preferences and product scores
+function calculateMatchPercentage(
+  scores: { price: number; quality: number; nutrition: number; sustainability: number; brand: number },
+  preferences: { pricePreference: number; qualityPreference: number; nutritionPreference: number; sustainabilityPreference: number; brandPreference: number }
+): number {
+  // Normalize preferences (ensure they sum to 1)
+  const totalPreference = preferences.pricePreference + preferences.qualityPreference + preferences.nutritionPreference + preferences.sustainabilityPreference + preferences.brandPreference;
+  
+  if (totalPreference === 0) return 0;
+  
+  const normalizedPreferences = {
+    price: preferences.pricePreference / totalPreference,
+    quality: preferences.qualityPreference / totalPreference,
+    nutrition: preferences.nutritionPreference / totalPreference,
+    sustainability: preferences.sustainabilityPreference / totalPreference,
+    brand: preferences.brandPreference / totalPreference,
+  };
+  
+  // Calculate weighted average (scores are 1-5, convert to percentage)
+  const weightedScore = 
+    (scores.price * normalizedPreferences.price) +
+    (scores.quality * normalizedPreferences.quality) +
+    (scores.nutrition * normalizedPreferences.nutrition) +
+    (scores.sustainability * normalizedPreferences.sustainability) +
+    (scores.brand * normalizedPreferences.brand);
+  
+  // Convert from 1-5 scale to 0-100 percentage
+  return Math.round(((weightedScore - 1) / 4) * 100);
+}
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -115,6 +144,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [brandRating, setBrandRating] = useState<number>(3);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [brandProducts, setBrandProducts] = useState<Product[]>([]);
+  const [userPreferences, setUserPreferences] = useState<UserProfile | null>(null);
   const [priceStats, setPriceStats] = useState<{
     min: number;
     max: number;
@@ -129,6 +159,19 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const nutritionScore = product ? getNutritionScore(product.combinedNutritionGrade || '') : 2;
   const sustainabilityScore = product?.sustainbilityScore || 3;
   const brandScore = brandRating;
+  
+  // Calculate match percentage based on user preferences
+  const matchPercentage = userPreferences && userPreferences.pricePreference !== undefined ? 
+    calculateMatchPercentage(
+      { price: priceScore, quality: qualityScore, nutrition: nutritionScore, sustainability: sustainabilityScore, brand: brandScore },
+      { 
+        pricePreference: userPreferences.pricePreference || 1,
+        qualityPreference: userPreferences.qualityPreference || 1,
+        nutritionPreference: userPreferences.nutritionPreference || 1,
+        sustainabilityPreference: userPreferences.sustainabilityPreference || 1,
+        brandPreference: userPreferences.brandPreference || 1
+      }
+    ) : null;
   
   const router = useRouter();
 
@@ -168,6 +211,28 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       setTimeout(() => setAnimatedQuality(reviewSummary.averageRating), 50);
     }
   }, [reviewSummary]);
+
+  // Fetch user preferences when user changes
+  useEffect(() => {
+    async function fetchUserPreferences() {
+      if (!user) {
+        setUserPreferences(null);
+        return;
+      }
+      try {
+        const userProfile = await getUserById(user.uid);
+        if (userProfile) {
+          setUserPreferences(userProfile as UserProfile);
+        } else {
+          setUserPreferences(null);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user preferences:", error);
+        setUserPreferences(null);
+      }
+    }
+    fetchUserPreferences();
+  }, [user]);
 
   useEffect(() => {
     async function fetchUsernames() {
@@ -304,7 +369,14 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               )}
             </div>
             <div className="flex flex-col items-end justify-center min-w-[48px] md:min-w-[64px] flex-shrink-0">
-              <AnimatedMatchPercent percent={92} small />
+              {matchPercentage !== null ? (
+                <AnimatedMatchPercent percent={matchPercentage} small />
+              ) : (
+                <span className="relative flex flex-col items-center justify-center ml-2 min-w-[40px] min-h-[40px]">
+                  <span className="font-bold text-base text-zinc-400">--</span>
+                  <span className="block font-medium mt-1 text-zinc-500 text-center text-[10px]">match</span>
+                </span>
+              )}
             </div>
           </div>
         </div>

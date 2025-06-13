@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
       nutritionPreference = 1,
       sustainabilityPreference = 1,
       brandPreference = 1,
-      alergens = [],
+      allergens = [],
     } = await req.json();
     if (!uid || !email || !username) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       nutritionPreference: Number(nutritionPreference),
       sustainabilityPreference: Number(sustainabilityPreference),
       brandPreference: Number(brandPreference),
-      alergens: Array.isArray(alergens) ? alergens : [],
+      alergens: Array.isArray(allergens) ? allergens : [],
     });
     return NextResponse.json({ success: true });
   } catch (err) {
