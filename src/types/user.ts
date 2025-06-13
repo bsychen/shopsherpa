@@ -3,4 +3,10 @@ export type UserProfile = {
     email: string;
     username: string;
     pfp: string; // profile picture URL
+    pricePreference?: number;
+    qualityPreference?: number;
+    nutritionPreference?: number;
+    sustainabilityPreference?: number;
+    brandPreference?: number;
+    allergens?: string[];
 };

@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react"
 import { Product } from "@/types/product"
 import { Review } from "@/types/review"
 import { ReviewSummary } from "@/types/reviewSummary"
-import { getProduct, getProductReviews, getReviewSummary, getBrandById, getProductsWithGenericName, getProductsByBrand } from "@/lib/api"
+import { getProduct, getProductReviews, getReviewSummary, getBrandById, getProductsWithGenericName, getProductsByBrand, getUserById } from "@/lib/api"
 import Link from "next/link"
 import Image from "next/image"
 import { onAuthStateChanged, User } from "firebase/auth"
@@ -14,6 +14,17 @@ import ProductRadarChart from "@/components/ProductRadarChart";
 import { useRef } from "react";
 import TabbedInfoBox from "@/components/TabbedInfoBox"
 import LoadingAnimation from "@/components/LoadingSpinner";
+import { UserProfile } from "@/types/user";
+import { 
+  getAllergenInfoFromCode, 
+  getAllergenTagClasses, 
+  formatAllergenDisplay 
+} from "@/utils/allergens";
+import {
+  getCountryInfoFromCode,
+  getCountryTagClasses,
+  formatCountryDisplay
+} from "@/utils/countries";
 
 function AnimatedMatchPercent({ percent, small }: { percent: number, small?: boolean }) {
   const [displayed, setDisplayed] = useState(0);
@@ -80,7 +91,47 @@ function getQuartileScore(price: number, q1: number, q3: number): number {
   return 3;
 }
 
+// Convert nutrition grade to score (A=5, B=4, C=3, D=2, E=1, unknown=2)
+function getNutritionScore(grade: string): number {
+  const scores: Record<string, number> = {
+    'a': 5,
+    'b': 4,
+    'c': 3,
+    'd': 2,
+    'e': 1
+  };
+  return scores[grade.toLowerCase()] || 2;
+}
 
+// Calculate weighted match percentage based on user preferences and product scores
+function calculateMatchPercentage(
+  scores: { price: number; quality: number; nutrition: number; sustainability: number; brand: number },
+  preferences: { pricePreference: number; qualityPreference: number; nutritionPreference: number; sustainabilityPreference: number; brandPreference: number }
+): number {
+  // Normalize preferences (ensure they sum to 1)
+  const totalPreference = preferences.pricePreference + preferences.qualityPreference + preferences.nutritionPreference + preferences.sustainabilityPreference + preferences.brandPreference;
+  
+  if (totalPreference === 0) return 0;
+  
+  const normalizedPreferences = {
+    price: preferences.pricePreference / totalPreference,
+    quality: preferences.qualityPreference / totalPreference,
+    nutrition: preferences.nutritionPreference / totalPreference,
+    sustainability: preferences.sustainabilityPreference / totalPreference,
+    brand: preferences.brandPreference / totalPreference,
+  };
+  
+  // Calculate weighted average (scores are 1-5, convert to percentage)
+  const weightedScore = 
+    (scores.price * normalizedPreferences.price) +
+    (scores.quality * normalizedPreferences.quality) +
+    (scores.nutrition * normalizedPreferences.nutrition) +
+    (scores.sustainability * normalizedPreferences.sustainability) +
+    (scores.brand * normalizedPreferences.brand);
+  
+  // Convert from 1-5 scale to 0-100 percentage
+  return Math.round(((weightedScore - 1) / 4) * 100);
+}
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -103,6 +154,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [brandRating, setBrandRating] = useState<number>(3);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [brandProducts, setBrandProducts] = useState<Product[]>([]);
+  const [userPreferences, setUserPreferences] = useState<UserProfile | null>(null);
   const [priceStats, setPriceStats] = useState<{
     min: number;
     max: number;
@@ -110,6 +162,37 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     median: number;
     q3: number;
   }>({ min: 0, max: 0, q1: 0, median: 0, q3: 0 });
+  
+  // Calculate all radar chart scores
+  const priceScore = product ? getQuartileScore(product.price || 0, priceStats.q1, priceStats.q3) : 3;
+  const qualityScore = reviewSummary?.averageRating || 3;
+  const nutritionScore = product ? getNutritionScore(product.combinedNutritionGrade || '') : 2;
+  const sustainabilityScore = product?.sustainbilityScore || 3;
+  const brandScore = brandRating;
+  
+  // Calculate match percentage based on user preferences
+  const matchPercentage = userPreferences && userPreferences.pricePreference !== undefined ? 
+    calculateMatchPercentage(
+      { price: priceScore, quality: qualityScore, nutrition: nutritionScore, sustainability: sustainabilityScore, brand: brandScore },
+      { 
+        pricePreference: userPreferences.pricePreference || 1,
+        qualityPreference: userPreferences.qualityPreference || 1,
+        nutritionPreference: userPreferences.nutritionPreference || 1,
+        sustainabilityPreference: userPreferences.sustainabilityPreference || 1,
+        brandPreference: userPreferences.brandPreference || 1
+      }
+    ) : null;
+  
+  // Check for allergen matches
+  const allergenWarnings = userPreferences?.allergens && product?.alergenInformation ? 
+    userPreferences.allergens.filter(userAllergen => 
+      product.alergenInformation?.some(productAllergen => {
+        // Convert product allergen codes to lowercase format for comparison
+        const normalizedProductAllergen = productAllergen.trim().toLowerCase().replace(/^en:/, '');
+        return normalizedProductAllergen === userAllergen.toLowerCase();
+      })
+    ) : [];
+  
   const router = useRouter();
 
   useEffect(() => {
@@ -148,6 +231,28 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       setTimeout(() => setAnimatedQuality(reviewSummary.averageRating), 50);
     }
   }, [reviewSummary]);
+
+  // Fetch user preferences when user changes
+  useEffect(() => {
+    async function fetchUserPreferences() {
+      if (!user) {
+        setUserPreferences(null);
+        return;
+      }
+      try {
+        const userProfile = await getUserById(user.uid);
+        if (userProfile) {
+          setUserPreferences(userProfile as UserProfile);
+        } else {
+          setUserPreferences(null);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user preferences:", error);
+        setUserPreferences(null);
+      }
+    }
+    fetchUserPreferences();
+  }, [user]);
 
   useEffect(() => {
     async function fetchUsernames() {
@@ -284,19 +389,46 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               )}
             </div>
             <div className="flex flex-col items-end justify-center min-w-[48px] md:min-w-[64px] flex-shrink-0">
-              <AnimatedMatchPercent percent={92} small />
+              {matchPercentage !== null ? (
+                <AnimatedMatchPercent percent={matchPercentage} small />
+              ) : (
+                <span className="relative flex flex-col items-center justify-center ml-2 min-w-[40px] min-h-[40px]">
+                  <span className="font-bold text-base text-zinc-400">--</span>
+                  <span className="block font-medium mt-1 text-zinc-500 text-center text-[10px]">match</span>
+                </span>
+              )}
             </div>
           </div>
         </div>
+        
+        {/* Allergen Warning Banner */}
+        {allergenWarnings && allergenWarnings.length > 0 && (
+          <div className="w-full max-w-xl mb-4">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                <span className="text-red-500 text-xl">⚠️</span>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-red-800 font-semibold text-sm mb-1">Allergen Warning</h3>
+                <p className="text-red-700 text-sm">
+                  This product contains allergens that match your profile: {allergenWarnings.map(allergen => allergen.replace(/-/g, ' ')).join(', ')}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Spider Web Diagram Box */}
         <div className="w-full max-w-xl flex flex-col items-center mb-4">
           <div className="flex items-center justify-center w-full" style={{ minHeight: 220, minWidth: 0 }}>
             <ProductRadarChart
-              product={product}
-              reviewSummary={reviewSummary}
               activeTab={activeTab}
               setActiveTab={setActiveTab}
-              priceScore={getQuartileScore(product.price || 0, priceStats.q1, priceStats.q3)}
+              priceScore={priceScore}
+              qualityScore={qualityScore}
+              nutritionScore={nutritionScore}
+              sustainabilityScore={sustainabilityScore}
+              brandScore={brandScore}
             />
           </div>
           {/* Tabbed Info Box */}
@@ -310,25 +442,38 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             maxPriceProduct={similarProducts.reduce((max, p) => (!max || (p.price || 0) > (max.price || 0)) ? p : max, null)}
             minPriceProduct={similarProducts.reduce((min, p) => (!min || (p.price || 0) < (min.price || 0)) ? p : min, null)}
           />
-          {(product.alergenInformation && product.alergenInformation.length > 0 || product.labels && product.labels.length > 0) && (
+          {(product.alergenInformation && product.alergenInformation.length > 0 || product.labels && product.labels.length > 0 || product.countryOfOriginCode) && (
             <div className="w-full">
               <div className="text-xs text-zinc-500 font-semibold mt-2 mb-1 ml-1">Allergens & Labels:</div>
               <div className="flex flex-wrap gap-2 mb-2 justify-start">
-                {/* Allergen tags (orange) */}
+                {/* Allergen tags (red) */}
                 {product.alergenInformation && product.alergenInformation.map((allergen, idx) => {
-                  const key = allergen.trim().toLowerCase();
-                  const map = ALLERGEN_MAP[key];
-                  if (!map) return null;
+                  const allergenInfo = getAllergenInfoFromCode(allergen);
+                  if (!allergenInfo) return null;
                   return (
                     <span
                       key={`allergen-${idx}`}
-                      className="inline-block bg-orange-100 border border-orange-300 text-orange-700 text-sm px-3 py-1.5 rounded-full font-semibold shadow-sm hover:bg-orange-200 hover:text-orange-900 transition"
+                      className={getAllergenTagClasses()}
                       style={{ whiteSpace: 'nowrap' }}
                     >
-                      {`${map.emoji} ${map.title}`}
+                      {formatAllergenDisplay(allergenInfo)}
                     </span>
                   );
                 })}
+                {/* Country of origin tag (blue) */}
+                {product.countryOfOriginCode && (() => {
+                  const countryInfo = getCountryInfoFromCode(product.countryOfOriginCode);
+                  if (!countryInfo) return null;
+                  return (
+                    <span
+                      key="country-origin"
+                      className={getCountryTagClasses()}
+                      style={{ whiteSpace: 'nowrap' }}
+                    >
+                      {formatCountryDisplay(countryInfo)}
+                    </span>
+                  );
+                })()}
                 {/* Label tags (grey) */}
                 {product.labels && product.labels.map((label, idx) => {
                   const key = label.trim().toLowerCase();
@@ -561,25 +706,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     </div>
   );
 }
-
-// Allergen mapping: maps Open Food Facts allergen codes to display name and emoji
-const ALLERGEN_MAP: Record<string, { title: string; emoji: string }> = {
-  'en:gluten': { title: 'Gluten', emoji: '🌾' },
-  'en:peanuts': { title: 'Peanuts', emoji: '🥜' },
-  'en:milk': { title: 'Milk', emoji: '🥛' },
-  'en:soybeans': { title: 'Soy', emoji: '🌱' },
-  'en:eggs': { title: 'Eggs', emoji: '🥚' },
-  'en:tree-nuts': { title: 'Tree Nuts', emoji: '🌰' },
-  'en:sesame-seeds': { title: 'Sesame', emoji: '⚪️' },
-  'en:fish': { title: 'Fish', emoji: '🐟' },
-  'en:crustaceans': { title: 'Crustaceans', emoji: '🦐' },
-  'en:mustard': { title: 'Mustard', emoji: '🌭' },
-  'en:celery': { title: 'Celery', emoji: '🥬' },
-  'en:lupin': { title: 'Lupin', emoji: '🌸' },
-  'en:molluscs': { title: 'Molluscs', emoji: '🦪' },
-  'en:sulphur-dioxide-and-sulphites': { title: 'Sulphites', emoji: '🧪' },
-  // Add more as needed
-};
 
 // Label mapping: maps Open Food Facts label codes to display name and emoji
 const LABEL_MAP: Record<string, { title: string; emoji: string }> = {

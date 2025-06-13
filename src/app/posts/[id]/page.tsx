@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, MessageCircle, Send, Link as LinkIcon, Search, X } from "lucide-react";
 import { Post, Comment } from "@/types/post";
 import { Product } from "@/types/product";
@@ -278,10 +279,12 @@ export default function PostPage() {
                   <div className="mt-2">
                     {selectedCommentProduct && (
                       <div className="flex items-center gap-2 p-2 bg-blue-50 rounded border border-blue-200 mb-2">
-                        <img
+                        <Image
                           src={selectedCommentProduct.imageUrl}
                           alt={selectedCommentProduct.productName}
-                          className="w-6 h-6 object-cover rounded"
+                          width={24}
+                          height={24}
+                          className="object-cover rounded"
                         />
                         <div className="flex-1">
                           <p className="text-xs font-medium text-blue-800">{selectedCommentProduct.productName}</p>
@@ -322,10 +325,12 @@ export default function PostPage() {
                                 }}
                                 className="w-full flex items-center gap-2 p-2 hover:bg-gray-50 text-left"
                               >
-                                <img
+                                <Image
                                   src={product.imageUrl}
                                   alt={product.productName}
-                                  className="w-6 h-6 object-cover rounded"
+                                  width={24}
+                                  height={24}
+                                  className="object-cover rounded"
                                 />
                                 <div>
                                   <p className="text-xs font-medium">{product.productName}</p>
