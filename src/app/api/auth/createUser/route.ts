@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       nutritionPreference: Number(nutritionPreference),
       sustainabilityPreference: Number(sustainabilityPreference),
       brandPreference: Number(brandPreference),
-      alergens: Array.isArray(allergens) ? allergens : [],
+      allergens: Array.isArray(allergens) ? allergens : [],
     });
     return NextResponse.json({ success: true });
   } catch (err) {

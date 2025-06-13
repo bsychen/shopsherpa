@@ -8,5 +8,5 @@ export type UserProfile = {
     nutritionPreference?: number;
     sustainabilityPreference?: number;
     brandPreference?: number;
-    alergens?: string[];
+    allergens?: string[];
 };

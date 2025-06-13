@@ -8,6 +8,7 @@ import { getUserById } from "@/lib/api";
 import type { UserProfile } from "@/types/user";
 import UserReviewsList from "@/components/UserReviewsList";
 import RecentlyViewedProducts from "@/components/RecentlyViewedProducts";
+import PreferencesBarGraph from "@/components/PreferencesBarGraph";
 import Image from "next/image";
 
 export default function ProfilePage() {
@@ -16,6 +17,8 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [showRecents, setShowRecents] = useState(false);
   const [showReviews, setShowReviews] = useState(false);
+  const [showPreferences, setShowPreferences] = useState(false);
+  const [isUpdatingPreferences, setIsUpdatingPreferences] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -39,6 +42,13 @@ export default function ProfilePage() {
           username: typeof userData?.username === "string" ? userData.username : '',
           email: typeof userData?.email === "string" ? userData.email : firebaseUser.email || '',
           pfp: typeof userData?.pfp === "string" ? userData.pfp : '',
+          // Include preference fields with defaults
+          pricePreference: typeof userData?.pricePreference === "number" ? userData.pricePreference : 1,
+          qualityPreference: typeof userData?.qualityPreference === "number" ? userData.qualityPreference : 1,
+          nutritionPreference: typeof userData?.nutritionPreference === "number" ? userData.nutritionPreference : 1,
+          sustainabilityPreference: typeof userData?.sustainabilityPreference === "number" ? userData.sustainabilityPreference : 1,
+          brandPreference: typeof userData?.brandPreference === "number" ? userData.brandPreference : 1,
+          allergens: Array.isArray(userData?.allergens) ? userData.allergens : [],
         });
       })
       .finally(() => setLoading(false));
@@ -47,6 +57,36 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     await signOut(auth);
     router.push("/auth");
+  };
+
+  const handlePreferencesUpdate = async (preferences: Partial<UserProfile>) => {
+    if (!firebaseUser) return;
+
+    setIsUpdatingPreferences(true);
+    try {
+      const idToken = await firebaseUser.getIdToken();
+      const response = await fetch('/api/auth/updatePreferences', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+        body: JSON.stringify(preferences),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update preferences');
+      }
+
+      // Update local user state with new preferences
+      setUser(prevUser => prevUser ? { ...prevUser, ...preferences } : null);
+    } catch (error) {
+      console.error('Error updating preferences:', error);
+      throw error; // Re-throw to let the component handle the error
+    } finally {
+      setIsUpdatingPreferences(false);
+    }
   };
 
   if (loading) {
@@ -66,59 +106,94 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-10 bg-white rounded-xl shadow p-8 flex flex-col min-h-[400px]">
-      <h1 className="text-2xl font-bold mb-4 text-gray-800">{user.username || user.email || "Profile"}</h1>
-      <div className="mb-2">
-        <span className="font-semibold text-gray-700">Email:</span>
-        <span className="ml-2 text-gray-900">{user.email}</span>
+    <div className="max-w-4xl mx-auto mt-10 p-6 space-y-6">
+      {/* User Profile Card */}
+      <div className="bg-white rounded-xl shadow p-8">
+        <h1 className="text-2xl font-bold mb-4 text-gray-800">{user.username || user.email || "Profile"}</h1>
+        <div className="mb-2">
+          <span className="font-semibold text-gray-700">Email:</span>
+          <span className="ml-2 text-gray-900">{user.email}</span>
+        </div>
+        <div className="mb-2">
+          <span className="font-semibold text-gray-700">Profile Picture:</span>
+          <span className="ml-2 text-gray-900">
+            {user.pfp ? (
+              <Image src={user.pfp} alt="Profile" width={64} height={64} className="inline-block w-16 h-16 rounded-full border border-zinc-300" />
+            ) : (
+              <span className="italic text-gray-400">No profile picture</span>
+            )}
+          </span>
+        </div>
+        
+        <button
+          onClick={handleLogout}
+          className="mt-6 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded transition"
+        >
+          Log out
+        </button>
+        <div className="mt-4 text-xs text-gray-400 text-left">
+          User ID: {user.userId}
+        </div>
       </div>
-      <div className="mb-2">
-        <span className="font-semibold text-gray-700">Profile Picture:</span>
-        <span className="ml-2 text-gray-900">
-          {user.pfp ? (
-            <Image src={user.pfp} alt="Profile" width={64} height={64} className="inline-block w-16 h-16 rounded-full border border-zinc-300" />
-          ) : (
-            <span className="italic text-gray-400">No profile picture</span>
-          )}
-        </span>
-      </div>
+
       {user && user.userId && (
-        <div>
-          <div className="mb-6 bg-zinc-50 border border-zinc-200 rounded-xl p-3">
+        <>
+          {/* Shopping Preferences Section */}
+          <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3">
+            <button
+              className="w-full flex items-center justify-between text-lg font-semibold text-gray-700 mb-2 focus:outline-none"
+              onClick={() => setShowPreferences((v) => !v)}
+              aria-expanded={showPreferences}
+            >
+              <span>Shopping Preferences</span>
+              <span className={`transform transition-transform ${showPreferences ? 'rotate-180' : ''}`}>
+                ▼
+              </span>
+            </button>
+            {showPreferences && (
+              <PreferencesBarGraph 
+                userProfile={user}
+                onPreferencesUpdate={handlePreferencesUpdate}
+                isUpdating={isUpdatingPreferences}
+              />
+            )}
+          </div>
+
+          {/* Recently Viewed Products Section */}
+          <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3">
             <button
               className="w-full flex items-center justify-between text-lg font-semibold text-gray-700 mb-2 focus:outline-none"
               onClick={() => setShowRecents((v) => !v)}
               aria-expanded={showRecents}
             >
               <span>Recently Viewed Products</span>
+              <span className={`transform transition-transform ${showRecents ? 'rotate-180' : ''}`}>
+                ▼
+              </span>
             </button>
             {showRecents && (
               <RecentlyViewedProducts userId={user.userId} />
             )}
           </div>
-          <div className="mb-6 bg-zinc-50 border border-zinc-200 rounded-xl p-3">
+
+          {/* User Reviews Section */}
+          <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3">
             <button
               className="w-full flex items-center justify-between text-lg font-semibold text-gray-700 mb-2 focus:outline-none"
               onClick={() => setShowReviews((v) => !v)}
               aria-expanded={showReviews}
             >
               <span>Your Reviews</span>
+              <span className={`transform transition-transform ${showReviews ? 'rotate-180' : ''}`}>
+                ▼
+              </span>
             </button>
             {showReviews && (
               <UserReviewsList userId={user.userId} />
             )}
           </div>
-        </div>
+        </>
       )}
-      <button
-        onClick={handleLogout}
-        className="mt-6 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded transition"
-      >
-        Log out
-      </button>
-      <div className="mt-auto pt-6 text-xs text-gray-400 text-left">
-        User ID: {user.userId}
-      </div>
     </div>
   );
 }

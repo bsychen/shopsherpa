@@ -174,8 +174,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     ) : null;
   
   // Check for allergen matches
-  const allergenWarnings = userPreferences?.alergens && product?.alergenInformation ? 
-    userPreferences.alergens.filter(userAllergen => 
+  const allergenWarnings = userPreferences?.allergens && product?.alergenInformation ? 
+    userPreferences.allergens.filter(userAllergen => 
       product.alergenInformation?.some(productAllergen => {
         // Convert product allergen codes to lowercase format for comparison
         const normalizedProductAllergen = productAllergen.trim().toLowerCase().replace(/^en:/, '');
