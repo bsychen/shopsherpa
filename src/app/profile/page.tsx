@@ -17,7 +17,6 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [showRecents, setShowRecents] = useState(false);
   const [showReviews, setShowReviews] = useState(false);
-  const [showPreferences, setShowPreferences] = useState(false);
   const [isUpdatingPreferences, setIsUpdatingPreferences] = useState(false);
   const router = useRouter();
 
@@ -109,22 +108,94 @@ export default function ProfilePage() {
     <div className="max-w-4xl mx-auto mt-10 p-6 space-y-6">
       {/* User Profile Card */}
       <div className="bg-white rounded-xl shadow p-8">
-        <h1 className="text-2xl font-bold mb-4 text-gray-800">{user.username || user.email || "Profile"}</h1>
-        <div className="mb-2">
-          <span className="font-semibold text-gray-700">Email:</span>
-          <span className="ml-2 text-gray-900">{user.email}</span>
+        <h1 className="text-2xl font-bold text-gray-800">{user.username || user.email || "Profile"}</h1>
+        <div className="text-xs text-gray-400 mb-4">{user.email}</div>
+        <div className="mb-2 flex justify-center">
+          {user.pfp ? (
+            <Image src={user.pfp} alt="Profile" width={64} height={64} className="w-16 h-16 rounded-full border border-zinc-300" />
+          ) : (
+            <span className="italic text-gray-400">No profile picture</span>
+          )}
         </div>
-        <div className="mb-2">
-          <span className="font-semibold text-gray-700">Profile Picture:</span>
-          <span className="ml-2 text-gray-900">
-            {user.pfp ? (
-              <Image src={user.pfp} alt="Profile" width={64} height={64} className="inline-block w-16 h-16 rounded-full border border-zinc-300" />
-            ) : (
-              <span className="italic text-gray-400">No profile picture</span>
-            )}
-          </span>
-        </div>
-        
+
+        {user && user.userId && (
+        <>
+          {/* Shopping Preferences Section - Always Visible */}
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">Shopping Preferences</h2>
+            <PreferencesBarGraph 
+              userProfile={user}
+              onPreferencesUpdate={handlePreferencesUpdate}
+              isUpdating={isUpdatingPreferences}
+            />
+          </div>
+
+          {/* Dropdown Sections with More Space */}
+          <div className="mt-12 space-y-4">
+            {/* Recently Viewed Products Section */}
+            <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3 transition-all duration-300">
+              <button
+                className="w-full flex items-center justify-between text-lg font-semibold text-gray-700 mb-2 focus:outline-none"
+                onClick={() => setShowRecents((v) => !v)}
+                aria-expanded={showRecents}
+              >
+                <span>Recently Viewed Products</span>
+                <Image 
+                  src="/down-arrow.svg" 
+                  alt="Toggle arrow" 
+                  width={16} 
+                  height={16} 
+                  className={`transform transition-transform duration-300 ease-in-out ${showRecents ? 'rotate-180' : ''}`}
+                />
+              </button>
+              <div 
+                className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                  showRecents ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                }`}
+              >
+                <div className={`transition-all duration-300 delay-150 ${
+                  showRecents ? 'transform translate-y-0 opacity-100' : 'transform -translate-y-2 opacity-0'
+                }`}>
+                  <div className={`${showRecents ? 'animate-fade-in' : ''}`} style={{ animationDelay: '200ms' }}>
+                    <RecentlyViewedProducts userId={user.userId} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* User Reviews Section */}
+            <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3 transition-all duration-300">
+              <button
+                className="w-full flex items-center justify-between text-lg font-semibold text-gray-700 mb-2 focus:outline-none"
+                onClick={() => setShowReviews((v) => !v)}
+                aria-expanded={showReviews}
+              >
+                <span>Your Reviews</span>
+                <Image 
+                  src="/down-arrow.svg" 
+                  alt="Toggle arrow" 
+                  width={16} 
+                  height={16} 
+                  className={`transform transition-transform duration-300 ease-in-out ${showReviews ? 'rotate-180' : ''}`}
+                />
+              </button>
+              <div 
+                className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                  showReviews ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                }`}
+              >
+                <div className={`transition-all duration-300 delay-150 ${
+                  showReviews ? 'transform translate-y-0 opacity-100' : 'transform -translate-y-2 opacity-0'
+                }`}>
+                  <div className={`${showReviews ? 'animate-fade-in' : ''}`} style={{ animationDelay: '200ms' }}>
+                    <UserReviewsList userId={user.userId} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
         <button
           onClick={handleLogout}
           className="mt-6 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded transition"
@@ -135,65 +206,6 @@ export default function ProfilePage() {
           User ID: {user.userId}
         </div>
       </div>
-
-      {user && user.userId && (
-        <>
-          {/* Shopping Preferences Section */}
-          <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3">
-            <button
-              className="w-full flex items-center justify-between text-lg font-semibold text-gray-700 mb-2 focus:outline-none"
-              onClick={() => setShowPreferences((v) => !v)}
-              aria-expanded={showPreferences}
-            >
-              <span>Shopping Preferences</span>
-              <span className={`transform transition-transform ${showPreferences ? 'rotate-180' : ''}`}>
-                ▼
-              </span>
-            </button>
-            {showPreferences && (
-              <PreferencesBarGraph 
-                userProfile={user}
-                onPreferencesUpdate={handlePreferencesUpdate}
-                isUpdating={isUpdatingPreferences}
-              />
-            )}
-          </div>
-
-          {/* Recently Viewed Products Section */}
-          <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3">
-            <button
-              className="w-full flex items-center justify-between text-lg font-semibold text-gray-700 mb-2 focus:outline-none"
-              onClick={() => setShowRecents((v) => !v)}
-              aria-expanded={showRecents}
-            >
-              <span>Recently Viewed Products</span>
-              <span className={`transform transition-transform ${showRecents ? 'rotate-180' : ''}`}>
-                ▼
-              </span>
-            </button>
-            {showRecents && (
-              <RecentlyViewedProducts userId={user.userId} />
-            )}
-          </div>
-
-          {/* User Reviews Section */}
-          <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3">
-            <button
-              className="w-full flex items-center justify-between text-lg font-semibold text-gray-700 mb-2 focus:outline-none"
-              onClick={() => setShowReviews((v) => !v)}
-              aria-expanded={showReviews}
-            >
-              <span>Your Reviews</span>
-              <span className={`transform transition-transform ${showReviews ? 'rotate-180' : ''}`}>
-                ▼
-              </span>
-            </button>
-            {showReviews && (
-              <UserReviewsList userId={user.userId} />
-            )}
-          </div>
-        </>
-      )}
     </div>
   );
 }

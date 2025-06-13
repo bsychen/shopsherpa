@@ -38,7 +38,16 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
   const [isDragging, setIsDragging] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const [showTip, setShowTip] = useState(true);
+  const [isAnimated, setIsAnimated] = useState(false);
   const containerRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Trigger animation on mount
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsAnimated(true);
+    }, 100); // Small delay to ensure component is mounted
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleMouseDown = useCallback((prefKey: string) => (e: React.MouseEvent) => {
     e.preventDefault();
@@ -139,13 +148,8 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">Shopping Preferences</h3>
-      </div>
-
       <div className="space-y-4">
-        {preferences.map((pref) => {
+        {preferences.map((pref, index) => {
           const value = localPreferences[pref.key];
           const percentage = ((value - 1) / 4) * 100; // Convert 1-5 to 0-100%
           
@@ -174,10 +178,20 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
                 onMouseDown={handleMouseDown(pref.key)}
               >
                 <div 
-                  className={`h-full ${pref.color} rounded-lg transition-all duration-150 flex items-center justify-end pr-2`}
-                  style={{ width: `${percentage}%` }}
+                  className={`h-full ${pref.color} rounded-lg flex items-center justify-end pr-2 transition-all duration-1000 ease-out ${
+                    isAnimated ? 'opacity-100' : 'opacity-0'
+                  }`}
+                  style={{ 
+                    width: isAnimated ? `${percentage}%` : '0%',
+                    transitionDelay: `${index * 150}ms` // Stagger the animations
+                  }}
                 >
-                  <div className={`w-3 h-3 bg-white rounded-full shadow-sm border-2 ${pref.circleColor}`} />
+                  <div className={`w-3 h-3 bg-white rounded-full shadow-sm border-2 ${pref.circleColor} transition-all duration-300 ${
+                    isAnimated ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+                  }`} 
+                  style={{ 
+                    transitionDelay: `${index * 150 + 800}ms` // Circle appears after bar fills
+                  }} />
                 </div>
               </div>
               
@@ -188,7 +202,6 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
             </div>
           );
         })}
-      </div>
 
       {showTip && (
         <div className="mt-4 p-3 bg-gray-50 rounded-lg relative">
