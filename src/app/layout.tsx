@@ -16,6 +16,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://firebasestorage.googleapis.com" />
+        <link rel="preconnect" href="https://images.openfoodfacts.org" />
+        <link rel="preconnect" href="https://images.openfoodfacts.net" />
+        <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
+      </head>
       <body>
         <TopBar />
         {children}

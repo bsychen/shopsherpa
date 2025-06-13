@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, use } from "react"
+import { useState, useEffect, use, Suspense, lazy } from "react"
 import { Product } from "@/types/product"
 import { Review } from "@/types/review"
 import { ReviewSummary } from "@/types/reviewSummary"
@@ -9,7 +9,6 @@ import Link from "next/link"
 import Image from "next/image"
 import { onAuthStateChanged, User } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
-import ProductRadarChart from "@/components/ProductRadarChart";
 import { useRef } from "react";
 import TabbedInfoBox from "@/components/TabbedInfoBox"
 import LoadingAnimation from "@/components/LoadingSpinner";
@@ -28,6 +27,9 @@ import {
   getCountryTagClasses,
   formatCountryDisplay
 } from "@/utils/countries";
+
+// Lazy load heavy components
+const ProductRadarChart = lazy(() => import("@/components/ProductRadarChart"));
 
 function AnimatedMatchPercent({ percent, small }: { percent: number, small?: boolean }) {
   const [displayed, setDisplayed] = useState(0);
@@ -473,15 +475,19 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         {/* Spider Web Diagram Box */}
         <div className="w-full max-w-xl flex flex-col items-center mb-4">
           <div className="flex items-center justify-center w-full" style={{ minHeight: 220, minWidth: 0 }}>
-            <ProductRadarChart
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              priceScore={priceScore}
-              qualityScore={qualityScore}
-              nutritionScore={nutritionScore}
-              sustainabilityScore={sustainabilityScore}
-              brandScore={brandScore}
-            />
+            <Suspense fallback={<div className="flex items-center justify-center w-full h-52">
+              <LoadingAnimation />
+            </div>}>
+              <ProductRadarChart
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                priceScore={priceScore}
+                qualityScore={qualityScore}
+                nutritionScore={nutritionScore}
+                sustainabilityScore={sustainabilityScore}
+                brandScore={brandScore}
+              />
+            </Suspense>
           </div>
           {/* Tabbed Info Box */}
           <TabbedInfoBox

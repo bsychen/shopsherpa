@@ -1,18 +1,60 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { searchProducts } from "@/lib/api";
 import { colours } from "@/styles/colours";
+
+// Debounce hook
+function useDebounce(value: string, delay: number) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 
 export default function ProductSearch() {
   const [results, setResults] = useState([]);
   const [query, setQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const debouncedQuery = useDebounce(query, 300);
 
-  const handleSearch = async () => {
-    const products = await searchProducts(query.toLowerCase());
-    setResults(products);
+  const handleSearch = useCallback(async (searchQuery: string) => {
+    if (!searchQuery.trim()) {
+      setResults([]);
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const products = await searchProducts(searchQuery.toLowerCase());
+      setResults(products);
+      setShowAll(false);
+    } catch (error) {
+      console.error('Search failed:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Auto-search when debounced query changes
+  useEffect(() => {
+    handleSearch(debouncedQuery);
+  }, [debouncedQuery, handleSearch]);
+
+  const handleManualSearch = () => {
+    handleSearch(query);
   };
 
   return (
@@ -62,7 +104,8 @@ export default function ProductSearch() {
             }}
           />
           <button
-            onClick={handleSearch}
+            onClick={handleManualSearch}
+            disabled={isLoading}
             className="flex-shrink-0 px-4 py-2 sm:px-6 sm:py-3 rounded-lg transition-colors font-bold text-base sm:text-lg shadow-md focus:outline-none flex items-center justify-center"
             style={{
               backgroundColor: colours.button.primary.background,
@@ -72,19 +115,24 @@ export default function ProductSearch() {
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.background}
             onFocus={(e) => e.currentTarget.style.boxShadow = colours.input.focus.ring}
             onBlur={(e) => e.currentTarget.style.boxShadow = 'none'}
+
             aria-label="Search"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <circle cx="11" cy="11" r="7" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
+            {isLoading ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            )}
           </button>
         </div>
       </div>

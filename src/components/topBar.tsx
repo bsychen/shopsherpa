@@ -9,9 +9,13 @@ import { colours } from "@/styles/colours";
 
 export default function TopBar() {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, setUser);
+    const unsub = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setIsLoading(false);
+    });
     return () => unsub();
   }, []);
 
@@ -26,7 +30,9 @@ export default function TopBar() {
         ShopSmart
       </Link>
       <div className="flex items-center gap-6">
-        {user ? (
+        {isLoading ? (
+          <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        ) : user ? (
           <Link
             href="/profile"
             className="transition flex items-center gap-1 font-medium hover:underline"
