@@ -11,7 +11,6 @@ import RecentlyViewedProducts from "@/components/RecentlyViewedProducts";
 import PreferencesBarGraph from "@/components/PreferencesBarGraph";
 import AllergenManager from "@/components/AllergenManager";
 import Image from "next/image";
-import { Pencil } from "lucide-react";
 import { colours } from "@/styles/colours";
 
 export default function ProfilePage() {

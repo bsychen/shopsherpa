@@ -10,7 +10,7 @@ interface SimilarProductsProps {
   currentProductId: string
 }
 
-export default function SimilarProducts({ products, currentProductId }: SimilarProductsProps) {
+export default function SimilarProducts({ products }: SimilarProductsProps) {
   const router = useRouter()
 
   return (

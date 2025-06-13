@@ -4,11 +4,12 @@ import { Review } from "@/types/review"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { colours } from "@/styles/colours"
+import { UserProfile } from "@/types/user"
 
 interface ProductReviewsProps {
   reviews: Review[]
   usernames: Record<string, string>
-  user: any
+  user: UserProfile
   productId: string
   refreshing: boolean
   visibleReviews: number

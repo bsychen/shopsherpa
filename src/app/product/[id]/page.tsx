@@ -9,7 +9,6 @@ import Link from "next/link"
 import Image from "next/image"
 import { onAuthStateChanged, User } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
-import { useRouter } from "next/navigation"
 import ProductRadarChart from "@/components/ProductRadarChart";
 import { useRef } from "react";
 import TabbedInfoBox from "@/components/TabbedInfoBox"
@@ -201,8 +200,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         return normalizedProductAllergen === userAllergen.toLowerCase();
       })
     ) : [];
-  
-  const router = useRouter();
 
   useEffect(() => {
     setLoading(true);

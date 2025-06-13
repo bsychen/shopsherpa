@@ -11,7 +11,7 @@ interface ProductsByBrandProps {
   currentProductId: string
 }
 
-export default function ProductsByBrand({ products, brandName, currentProductId }: ProductsByBrandProps) {
+export default function ProductsByBrand({ products, brandName }: ProductsByBrandProps) {
   const router = useRouter()
 
   return (
