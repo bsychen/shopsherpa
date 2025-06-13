@@ -4,6 +4,49 @@ import { ProductSearchResult } from "@/types/product";
 import Fuse from "fuse.js";
 
 const FUZZY_THRESHOLD = 0.3;
+const CACHE_DURATION = 300; // 5 minutes
+const SEARCH_LIMIT = 500; // Increased for better search quality
+
+// In-memory cache for products
+let productsCache: {
+  data: ProductSearchResult[];
+  timestamp: number;
+} | null = null;
+
+async function getCachedProducts(): Promise<ProductSearchResult[]> {
+  const now = Date.now();
+  
+  // Return cached data if still valid
+  if (productsCache && (now - productsCache.timestamp) < CACHE_DURATION * 1000) {
+    return productsCache.data;
+  }
+  
+  // Fetch fresh data
+  const productsSnapshot = await db
+    .collection("products")
+    .select("productName", "brandName", "imageUrl") // Only fetch needed fields
+    .limit(SEARCH_LIMIT)
+    .get();
+
+  const products: ProductSearchResult[] = [];
+  productsSnapshot.forEach(doc => {
+    const data = doc.data();
+    products.push({
+      id: doc.id,
+      productName: data.productName || 'Unknown Product',
+      brandName: data.brandName || null,
+      imageUrl: data.imageUrl || null,
+    });
+  });
+
+  // Update cache
+  productsCache = {
+    data: products,
+    timestamp: now,
+  };
+
+  return products;
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -15,22 +58,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json([]);
     }
 
-    // Get more products for better search results
-    const productsSnapshot = await db
-      .collection("products")
-      .limit(100) // Get more products for better search
-      .get();
-
-    const products: ProductSearchResult[] = [];
-    productsSnapshot.forEach(doc => {
-      const data = doc.data();
-      products.push({
-        id: doc.id,
-        productName: data.productName || 'Unknown Product',
-        brandName: data.brandName || null,
-        imageUrl: data.imageUrl || null,
-      });
-    });
+    // Get cached products
+    const products = await getCachedProducts();
 
     // Use Fuse.js for fuzzy search
     const fuse = new Fuse(products, {
@@ -45,7 +74,11 @@ export async function GET(req: NextRequest) {
     // Apply limit
     const limitedResults = results.slice(0, limit);
     
-    return NextResponse.json(limitedResults);
+    // Add cache headers
+    const response = NextResponse.json(limitedResults);
+    response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    
+    return response;
   } catch (error) {
     console.error('Search API error:', error);
     return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });

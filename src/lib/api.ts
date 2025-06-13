@@ -4,31 +4,66 @@ import { Review } from "@/types/review";
 import { ReviewSummary } from "@/types/reviewSummary";
 import { UserProfile } from "firebase/auth";
 
+// Simple in-memory cache
+const cache = new Map();
+const CACHE_DURATION = 300000; // 5 minutes
+
+function getCacheKey(url: string): string {
+  return url;
+}
+
+function isValidCache(timestamp: number): boolean {
+  return Date.now() - timestamp < CACHE_DURATION;
+}
+
+async function fetchWithCache(url: string, options?: RequestInit) {
+  const cacheKey = getCacheKey(url);
+  const cached = cache.get(cacheKey);
+  
+  if (cached && isValidCache(cached.timestamp)) {
+    return { json: () => Promise.resolve(cached.data), ok: cached.ok };
+  }
+  
+  const response = await fetch(url, options);
+  const data = await response.json();
+  
+  // Only cache successful responses
+  if (response.ok) {
+    cache.set(cacheKey, {
+      data,
+      timestamp: Date.now(),
+      ok: response.ok
+    });
+  }
+  
+  return { json: () => Promise.resolve(data), ok: response.ok };
+}
+
 export async function searchProducts(query: string) {
-  const res = await fetch(`/api/products/search?name=${encodeURIComponent(query)}`);
+  const res = await fetchWithCache(`/api/products/search?name=${encodeURIComponent(query)}`);
   return await res.json();
 }
 
 export async function getProduct(id: string): Promise<Product | null> {
-  const res = await fetch(`/api/products/${id}`);
+  const res = await fetchWithCache(`/api/products/${id}`);
   if (!res.ok) return null;
   return await res.json();
 } 
 
 export async function getProductReviews(productId: string): Promise<Review[] | null>  {
-  const res = await fetch(`/api/reviews/productId/${encodeURIComponent(productId)}`);
+  const res = await fetchWithCache(`/api/reviews/productId/${encodeURIComponent(productId)}`);
   if (!res.ok) return [];
   return await res.json();
 }
 
 export async function getUserReviews(userId: string): Promise<Review[] | null> {
-  const res = await fetch(`/api/reviews/userId/${encodeURIComponent(userId)}`);
+  const res = await fetchWithCache(`/api/reviews/userId/${encodeURIComponent(userId)}`);
   if (!res.ok) return [];
   return await res.json();
 }
 
 export async function getReview(id: string): Promise<Review | null> {
-  const res = await fetch(`/api/reviews/${id}`);
+  const res = await fetchWithCache(`/api/reviews/${id}`);
   if (!res.ok) return null;
   return await res.json();
 }
