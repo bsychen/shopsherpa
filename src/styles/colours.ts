@@ -36,8 +36,9 @@ export const colours = {
       }
     },
     secondary: {
-      background: colourMap.lightGreen,
+      background: colourMap.white,
       text: colourMap.darkTeal,
+      border: colourMap.green,
       hover: {
         background: colourMap.yellow,
       }
@@ -205,7 +206,7 @@ export const colours = {
       background: colourMap.lightGreen,
     },
     disabled: {
-      background: colourMap.lightGreen,
+      background: colourMap.white,
       text: colourMap.green,
     }
   },

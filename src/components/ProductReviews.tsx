@@ -92,6 +92,7 @@ export default function ProductReviews({
                 className="inline-flex items-center font-semibold px-3 h-10 rounded-lg transition text-sm"
                 style={{ 
                   backgroundColor: colours.button.secondary.background,
+                  border: `1px solid ${colours.button.secondary.border}`,
                   color: colours.button.secondary.text
                 }}
                 onMouseEnter={(e) => {
@@ -122,7 +123,7 @@ export default function ProductReviews({
                       <button
                         className={`w-full text-left px-4 py-2 transition-all duration-200 rounded ${sortBy === option ? 'shadow ring-2 scale-[1.04]' : ''}`}
                         style={{
-                          backgroundColor: sortBy === option ? colours.interactive.selected.background : 'transparent',
+                          backgroundColor: sortBy === option ? colours.interactive.disabled.background : 'transparent',
                           color: sortBy === option ? colours.interactive.selected.text : colours.text.primary,
                           ...(sortBy === option && { 
                             borderColor: colours.button.primary.background,
@@ -160,6 +161,7 @@ export default function ProductReviews({
               className="inline-flex items-center justify-center font-bold text-xl px-4 h-10 rounded-lg transition ml-2 mb-0"
               style={{ 
                 backgroundColor: colours.button.secondary.background,
+                border: `1px solid ${colours.button.secondary.border}`,
                 color: colours.button.secondary.text
               }}
               onMouseEnter={(e) => {
@@ -242,6 +244,7 @@ export default function ProductReviews({
                   className="px-4 py-2 rounded font-semibold transition"
                   style={{ 
                     backgroundColor: colours.button.secondary.background,
+                    border: `1px solid ${colours.button.secondary.border}`,
                     color: colours.button.secondary.text
                   }}
                   onMouseEnter={(e) => {
