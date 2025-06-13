@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getUserReviews, getProduct } from "@/lib/api";
 import { Review } from "@/types/review";
 import Link from "next/link";
+import { colours } from "@/styles/colours";
 
 interface UserReviewsListProps {
   userId: string;
@@ -37,7 +38,7 @@ export default function UserReviewsList({ userId }: UserReviewsListProps) {
   }, [reviews]);
 
   // Remove loading spinner and always render the list, but apply blur/opacity when loading
-  if (!reviews.length && !loading) return <div className="text-gray-400">No reviews yet.</div>;
+  if (!reviews.length && !loading) return <div style={{ color: colours.text.muted }}>No reviews yet.</div>;
 
   // Sort reviews by createdAt descending
   const sortedReviews = [...reviews].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
@@ -50,17 +51,29 @@ export default function UserReviewsList({ userId }: UserReviewsListProps) {
         {visibleReviews.map((review, idx) => (
           <li
             key={review.id}
-            className="bg-zinc-50 rounded p-3 border border-zinc-200 hover:bg-zinc-100 transition cursor-pointer"
-            style={!showAll ? { opacity: fadeOpacities[idx] ?? 1 } : {}}
+            style={{
+              backgroundColor: colours.card.background,
+              borderColor: colours.card.border,
+              borderWidth: '1px',
+              borderStyle: 'solid',
+              opacity: !showAll ? (fadeOpacities[idx] ?? 1) : 1
+            }}
+            className="rounded p-3 transition cursor-pointer"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = colours.card.hover.background;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = colours.card.background;
+            }}
           >
             <Link href={`/review/${review.id}`} className="block w-full h-full">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-blue-600 hover:underline">
+                <span className="font-semibold" style={{ color: colours.text.link }}>
                   {productNames[review.productId] || "View Product"}
                 </span>
-                <span className="text-xs text-gray-400">{new Date(review.createdAt).toLocaleDateString()}</span>
+                <span className="text-xs" style={{ color: colours.text.muted }}>{new Date(review.createdAt).toLocaleDateString()}</span>
               </div>
-              <div className="mt-1 text-sm text-gray-700">{review.reviewText}</div>
+              <div className="mt-1 text-sm" style={{ color: colours.text.secondary }}>{review.reviewText}</div>
               <div className="mt-2 flex gap-4 text-sm">
                 <span title="Rating">⭐ {review.rating}</span>
               </div>
@@ -71,7 +84,17 @@ export default function UserReviewsList({ userId }: UserReviewsListProps) {
       {!showAll && sortedReviews.length > 3 && (
         <div className="flex justify-center mt-3">
           <button
-            className="px-4 py-2 rounded bg-zinc-200 hover:bg-zinc-300 text-sm text-zinc-700 transition"
+            className="px-4 py-2 rounded text-sm transition"
+            style={{
+              backgroundColor: colours.button.secondary.background,
+              color: colours.button.secondary.text,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = colours.button.secondary.hover.background;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = colours.button.secondary.background;
+            }}
             onClick={() => setShowAll(true)}
           >
             See more

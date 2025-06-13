@@ -1,25 +1,26 @@
 import React from 'react';
 import { Product } from '@/types/product';
+import { colours } from '@/styles/colours';
 
 // Helper function to get color based on position
 const getPositionColor = (price: number, q1: number, q3: number) => {
   if (price <= q1) {
     return {
-      bg: 'bg-green-50',
-      border: 'border-green-200',
-      text: 'text-green-600'
+      bg: colours.status.success.background,
+      border: colours.status.success.border,
+      text: colours.status.success.text
     };
   } else if (price >= q3) {
     return {
-      bg: 'bg-red-50',
-      border: 'border-red-200',
-      text: 'text-red-600'
+      bg: colours.status.error.background,
+      border: colours.status.error.border,
+      text: colours.status.error.text
     };
   } else {
     return {
-      bg: 'bg-amber-50',
-      border: 'border-amber-200',
-      text: 'text-amber-600'
+      bg: colours.status.warning.background,
+      border: colours.status.warning.border,
+      text: colours.status.warning.text
     };
   }
 };
@@ -53,7 +54,11 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
   // If no real prices available, use sample data
   if (productPrice === 0) {
     return (
-      <div className="w-full h-24 flex items-center justify-center text-zinc-500 text-sm bg-zinc-50 rounded-lg border border-zinc-200">
+      <div className="w-full h-24 flex items-center justify-center text-sm rounded-lg" style={{ 
+        color: colours.text.muted, 
+        backgroundColor: colours.background.secondary,
+        border: `1px solid ${colours.card.border}`
+      }}>
         Price data unavailable
       </div>
     );
@@ -83,26 +88,36 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
         {/* Main horizontal line - Split into three segments */}
         <div className="absolute h-1.5 flex top-[75%] left-[5%] right-[5%] -translate-y-1/2">
           <div 
-            className="h-full bg-green-400 rounded-l-full"
-            style={{ width: `${scale(priceStats.q1)}%` }}
+            className="h-full rounded-l-full"
+            style={{ 
+              width: `${scale(priceStats.q1)}%`,
+              backgroundColor: colours.status.success.icon
+            }}
           />
           <div 
-            className="h-full bg-amber-400"
-            style={{ width: `${scale(priceStats.q3) - scale(priceStats.q1)}%` }}
+            className="h-full"
+            style={{ 
+              width: `${scale(priceStats.q3) - scale(priceStats.q1)}%`,
+              backgroundColor: colours.score.medium // Yellow for median quartile
+            }}
           />
           <div 
-            className="h-full bg-red-400 rounded-r-full"
-            style={{ width: `${100 - scale(priceStats.q3)}%` }}
+            className="h-full rounded-r-full"
+            style={{ 
+              width: `${100 - scale(priceStats.q3)}%`,
+              backgroundColor: colours.score.low // Red for upper quartile
+            }}
           />
         </div>
         
         {/* Median line */}
         <div 
-          className="absolute h-5 w-0.5 bg-black/20 z-[2]"
+          className="absolute h-1 w-0.5 z-[2]"
           style={{
             top: '75%',
             left: `${scale(priceStats.median)}%`,
-            transform: 'translate(-50%, -50%)'
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: colours.score.medium // Yellow for median line
           }}
         />
         
@@ -116,20 +131,29 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
           }}
         >
           {/* Product box with shadow and border */}
-          <div className={`${colors.bg} rounded-md shadow-sm ${colors.border} px-2 py-1 mb-1`}>
-            <div className={`text-xs font-medium ${colors.text} whitespace-nowrap`}>
+          <div className="rounded-md shadow-sm px-2 py-1 mb-1" style={{
+            backgroundColor: colors.bg,
+            border: `1px solid ${colors.border}`
+          }}>
+            <div className="text-xs font-medium whitespace-nowrap" style={{ color: colors.text }}>
               £{productPrice.toFixed(2)}
             </div>
           </div>
           {/* Triangle pointer */}
           <div 
-            className={`w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] ${colors.border}`}
+            className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px]"
+            style={{ borderTopColor: colors.border }}
           />
         </div>          
         {/* Price labels with buttons */}
         <div className="absolute -bottom-6 left-[0%]">
           <button 
-            className="bg-green-50 rounded-md shadow-sm border border-green-200 px-2 py-1 text-xs font-medium text-green-600 hover:text-green-700 transition-colors"
+            className="rounded-md shadow-sm px-2 py-1 text-xs font-medium transition-colors hover:opacity-80"
+            style={{
+              backgroundColor: colours.status.success.background,
+              border: `1px solid ${colours.status.success.border}`,
+              color: colours.status.success.text
+            }}
             onClick={onMinClick}
           >
             £{priceStats.min.toFixed(2)}
@@ -137,7 +161,12 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
         </div>
         <div className="absolute -bottom-6 right-[0%]">
           <button 
-            className="bg-red-50 rounded-md shadow-sm border border-red-200 px-2 py-1 text-xs font-medium text-red-600 hover:text-red-700 transition-colors"
+            className="rounded-md shadow-sm px-2 py-1 text-xs font-medium transition-colors hover:opacity-80"
+            style={{
+              backgroundColor: colours.status.error.background,
+              border: `1px solid ${colours.status.error.border}`,
+              color: colours.status.error.text
+            }}
             onClick={onMaxClick}
           >
             £{priceStats.max.toFixed(2)}

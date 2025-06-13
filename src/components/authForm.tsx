@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '@/lib/firebaseClient';
 import { createUserInFirestore } from '@/lib/api';
+import { colours } from '@/styles/colours';
 
 export default function AuthForm({
   mode = 'login',
@@ -87,7 +88,13 @@ export default function AuthForm({
         />
       </div>
       <button
-        className="bg-blue-500 hover:bg-blue-600 transition text-white font-semibold p-2 w-full rounded-md shadow"
+        className="transition font-semibold p-2 w-full rounded-md shadow"
+        style={{
+          backgroundColor: colours.button.primary.background,
+          color: colours.button.primary.text
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.hover.background}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.background}
         type="submit"
       >
         {mode === 'signup' ? 'Sign Up' : 'Log In'}

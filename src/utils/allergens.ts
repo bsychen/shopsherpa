@@ -1,5 +1,3 @@
-// Shared allergen utilities for consistent tag display across the app
-
 export interface AllergenInfo {
   title: string;
   emoji: string;

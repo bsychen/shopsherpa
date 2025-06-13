@@ -12,6 +12,7 @@ import {
   ChartOptions,
 } from "chart.js";
 import { useState, useEffect } from "react";
+import { colours } from "@/styles/colours";
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
@@ -79,10 +80,10 @@ export default function ProductRadarChart({
       {
         label: "Product Attributes",
         data: radarData,
-        backgroundColor: "rgba(96, 165, 250, 0.5)",
-        borderColor: "#2563eb",
+        backgroundColor: `${colours.chart.primary}80`, // 50% opacity
+        borderColor: colours.chart.primary,
         borderWidth: 2,
-        pointBackgroundColor: "#2563eb",
+        pointBackgroundColor: colours.chart.primary,
       },
     ],
   };
@@ -95,8 +96,8 @@ export default function ProductRadarChart({
         min: 0,
         max: 5,
         ticks: { stepSize: 1, display: false },
-        grid: { color: "#e5e7eb" },
-        pointLabels: { color: "#334155", font: { size: 16 } },
+        grid: { color: colours.chart.grid },
+        pointLabels: { color: colours.chart.text, font: { size: 16 } },
       },
     },
   };

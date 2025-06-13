@@ -4,6 +4,7 @@ import { ThumbsUp, ThumbsDown, Reply, Clock, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 import { Comment } from '@/types/post';
 import { formatDate } from '@/utils/dateUtils';
+import { colours } from '@/styles/colours';
 
 interface CommentItemProps {
   comment: Comment;
@@ -49,23 +50,26 @@ export default function CommentItem({
 
   return (
     <div 
-      className="border-l-2 border-gray-100 pl-4 pb-4"
-      style={{ marginLeft: `${marginLeft}px` }}
+      className="pl-4 pb-4"
+      style={{ 
+        marginLeft: `${marginLeft}px`,
+        borderLeft: `2px solid ${colours.card.border}`
+      }}
     >
-      <div className="bg-gray-50 rounded-lg p-4">
+      <div className="rounded-lg p-4" style={{ backgroundColor: colours.background.secondary }}>
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-              <span className="text-blue-600 font-medium text-sm">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: colours.tag.default.background }}>
+              <span className="font-medium text-sm" style={{ color: colours.tag.default.text }}>
                 {comment.authorName.charAt(0).toUpperCase()}
               </span>
             </div>
             <div>
-              <span className="font-medium text-sm text-gray-900">
+              <span className="font-medium text-sm" style={{ color: colours.text.primary }}>
                 {comment.authorName}
               </span>
-              <div className="flex items-center gap-1 text-xs text-gray-500">
+              <div className="flex items-center gap-1 text-xs" style={{ color: colours.text.muted }}>
                 <Clock size={10} />
                 <span>{formatDate(comment.createdAt)}</span>
               </div>
@@ -75,7 +79,7 @@ export default function CommentItem({
 
         {/* Content */}
         <div className="mb-3">
-          <p className="text-gray-800 text-sm whitespace-pre-wrap">
+          <p className="text-sm whitespace-pre-wrap" style={{ color: colours.text.primary }}>
             {comment.content}
           </p>
         </div>
@@ -83,7 +87,7 @@ export default function CommentItem({
         {/* Linked Product */}
         {comment.linkedProduct && (
           <div className="mb-3">
-            <div className="flex items-center gap-2 p-2 bg-blue-50 rounded border border-blue-200">
+            <div className="flex items-center gap-2 p-2 rounded" style={{ backgroundColor: colours.tag.default.background, border: `1px solid ${colours.tag.default.border}` }}>
               <Image
                 src={comment.linkedProduct.imageUrl}
                 alt={comment.linkedProduct.name}
@@ -92,13 +96,14 @@ export default function CommentItem({
                 className="object-cover rounded"
               />
               <div className="flex-1">
-                <p className="text-xs font-medium text-blue-900">
+                <p className="text-xs font-medium" style={{ color: colours.tag.default.text }}>
                   {comment.linkedProduct.name}
                 </p>
               </div>
               <a
                 href={`/product/${comment.linkedProduct.id}`}
-                className="text-blue-600 hover:text-blue-800"
+                className="hover:opacity-70"
+                style={{ color: colours.text.link }}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -114,11 +119,11 @@ export default function CommentItem({
           <button
             onClick={handleLike}
             disabled={!currentUserId}
-            className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors ${
-              hasLiked
-                ? 'bg-green-100 text-green-700'
-                : 'text-gray-600 hover:bg-gray-100'
-            } ${!currentUserId ? 'cursor-not-allowed opacity-50' : ''}`}
+            className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors ${!currentUserId ? 'cursor-not-allowed opacity-50' : ''}`}
+            style={{
+              backgroundColor: hasLiked ? colours.status.success.background : colours.interactive.hover.background,
+              color: hasLiked ? colours.status.success.text : colours.text.secondary
+            }}
           >
             <ThumbsUp size={12} />
             <span>{likeCount}</span>
@@ -128,11 +133,11 @@ export default function CommentItem({
           <button
             onClick={handleDislike}
             disabled={!currentUserId}
-            className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors ${
-              hasDisliked
-                ? 'bg-red-100 text-red-700'
-                : 'text-gray-600 hover:bg-gray-100'
-            } ${!currentUserId ? 'cursor-not-allowed opacity-50' : ''}`}
+            className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors ${!currentUserId ? 'cursor-not-allowed opacity-50' : ''}`}
+            style={{
+              backgroundColor: hasDisliked ? colours.status.error.background : colours.interactive.hover.background,
+              color: hasDisliked ? colours.status.error.text : colours.text.secondary
+            }}
           >
             <ThumbsDown size={12} />
             <span>{dislikeCount}</span>
@@ -143,9 +148,11 @@ export default function CommentItem({
             <button
               onClick={handleReply}
               disabled={!currentUserId}
-              className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors text-gray-600 hover:bg-gray-100 ${
-                !currentUserId ? 'cursor-not-allowed opacity-50' : ''
-              }`}
+              className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors hover:opacity-70 ${!currentUserId ? 'cursor-not-allowed opacity-50' : ''}`}
+              style={{
+                backgroundColor: colours.interactive.hover.background,
+                color: colours.text.secondary
+              }}
             >
               <Reply size={12} />
               <span>Reply</span>

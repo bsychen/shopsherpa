@@ -9,11 +9,14 @@ import Link from "next/link"
 import Image from "next/image"
 import { onAuthStateChanged, User } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
-import { useRouter } from "next/navigation"
 import { useRef } from "react";
 import TabbedInfoBox from "@/components/TabbedInfoBox"
 import LoadingAnimation from "@/components/LoadingSpinner";
+import SimilarProducts from "@/components/SimilarProducts";
+import ProductsByBrand from "@/components/ProductsByBrand";
+import ProductReviews from "@/components/ProductReviews";
 import { UserProfile } from "@/types/user";
+import { colours } from "@/styles/colours";
 import { 
   getAllergenInfoFromCode, 
   getAllergenTagClasses, 
@@ -51,10 +54,10 @@ function AnimatedMatchPercent({ percent, small }: { percent: number, small?: boo
 
   // Color logic
   const color = displayed >= 70
-    ? { text: "#166534" }
+    ? { text: colours.score.high }
     : displayed >= 50
-    ? { text: "#a16207" }
-    : { text: "#b91c1c" };
+    ? { text: colours.score.medium }
+    : { text: colours.score.low };
 
   return (
     <span
@@ -66,7 +69,12 @@ function AnimatedMatchPercent({ percent, small }: { percent: number, small?: boo
       >
         {displayed}%
       </span>
-      <span className={`block font-medium mt-1 text-zinc-500 text-center ${small ? 'text-[10px]' : 'text-xs'}`}>match</span>
+      <span 
+        className={`block font-medium mt-1 text-center ${small ? 'text-[10px]' : 'text-xs'}`}
+        style={{ color: colours.text.secondary }}
+      >
+        match
+      </span>
     </span>
   );
 }
@@ -194,8 +202,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         return normalizedProductAllergen === userAllergen.toLowerCase();
       })
     ) : [];
-  
-  const router = useRouter();
 
   useEffect(() => {
     setLoading(true);
@@ -288,39 +294,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     recordVisit();
   }, [id, user]);
 
-  const handleWriteReview = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (user) {
-      router.push(`/review/create/${id}`);
-    } else {
-      localStorage.setItem("postAuthRedirect", `/review/create/${id}`);
-      router.push("/auth");
-    }
-  };
-
-  const filteredReviews = filter.score !== null
-    ? reviews.filter(r => r.rating === filter.score)
-    : reviews;
-
-  const sortedReviews = [...filteredReviews].sort((a, b) => {
-    const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-    const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-    if (sortBy === 'recent') return bDate - aDate;
-    const aScore = a.rating || 0;
-    const bScore = b.rating || 0;
-    if (sortBy === 'critical') return aScore !== bScore ? aScore - bScore : bDate - aDate;
-    if (sortBy === 'favourable') return aScore !== bScore ? bScore - aScore : bDate - aDate;
-    return 0;
-  });
-
-  useEffect(() => {
-    if (filter.score !== null || sortOpen === false) {
-      setRefreshing(true);
-      const timeout = setTimeout(() => setRefreshing(false), 350);
-      return () => clearTimeout(timeout);
-    }
-  }, [filter, sortBy, sortOpen]);
-
   // Calculate price statistics when similar products change
   useEffect(() => {
     if (!product || !similarProducts.length) return;
@@ -345,23 +318,56 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   if (!product) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 bg-zinc-50 dark:bg-zinc-100">
-        <div className="text-lg text-red-600 mb-4">Product not found</div>
+      <div 
+        className="flex flex-col items-center justify-center min-h-[60vh] p-4"
+        style={{ backgroundColor: colours.background.secondary }}
+      >
+        <div 
+          className="text-lg mb-4"
+          style={{ color: colours.status.error.text }}
+        >
+          Product not found
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 bg-zinc-50 dark:bg-zinc-100">
-      <div className="w-full max-w-xl bg-white rounded-lg shadow p-6 flex flex-col items-center border border-zinc-200 relative">
+    <div 
+      className="flex flex-col items-center justify-center min-h-[60vh] p-4"
+      style={{ backgroundColor: colours.background.secondary }}
+    >
+      <div 
+        className="w-full max-w-xl rounded-lg shadow p-6 flex flex-col items-center border relative"
+        style={{ 
+          backgroundColor: colours.content.surface,
+          borderColor: colours.content.border
+        }}
+      >
         <div className="absolute left-6 top-6">
-          <Link href="/" className="flex items-center text-blue-600 hover:underline">
+          <Link 
+            href="/" 
+            className="flex items-center hover:underline"
+            style={{ color: colours.text.link }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = colours.text.linkHover
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = colours.text.link
+            }}
+          >
             <span className="mr-2 text-2xl">&#8592;</span>
             <span className="font-semibold">Go back home</span>
           </Link>
         </div>
         {/* Product Info Card */}
-        <div className="w-full flex flex-row items-center justify-between mt-10 mb-4 bg-zinc-100 border border-zinc-200 rounded-lg p-4 shadow-sm">
+        <div 
+          className="w-full flex flex-row items-center justify-between mt-10 mb-4 border rounded-lg p-4 shadow-sm"
+          style={{ 
+            backgroundColor: colours.content.surfaceSecondary,
+            borderColor: colours.content.border
+          }}
+        >
           <div className="flex flex-row items-center gap-4 w-full">
             <div className="flex flex-col items-start gap-1 flex-1 min-w-0">
               <button
@@ -371,11 +377,24 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 aria-controls="product-image-dropdown"
                 style={{ background: 'none', border: 'none', padding: 0 }}
               >
-                <h1 className="text-2xl font-bold text-zinc-800 text-left m-0 p-0 leading-tight truncate max-w-[320px] md:max-w-[520px]">
+                <h1 
+                  className="text-2xl font-bold text-left m-0 p-0 leading-tight truncate max-w-[320px] md:max-w-[520px]"
+                  style={{ color: colours.text.primary }}
+                >
                   {product.productName}
-                  <span className="ml-2 align-middle inline-block text-base text-zinc-400">{imageDropdownOpen ? '▲' : '▼'}</span>
+                  <span 
+                    className="ml-2 align-middle inline-block text-base"
+                    style={{ color: colours.text.secondary }}
+                  >
+                    {imageDropdownOpen ? '▲' : '▼'}
+                  </span>
                 </h1>
-                <span className="text-xs text-gray-400 mt-0.5 truncate max-w-[260px] md:max-w-[420px]">Product ID: {product.id}</span>
+                <span 
+                  className="text-xs mt-0.5 truncate max-w-[260px] md:max-w-[420px]"
+                  style={{ color: colours.text.secondary }}
+                >
+                  Product ID: {product.id}
+                </span>
               </button>
               {imageDropdownOpen && product.imageUrl && (
                 <div id="product-image-dropdown" className="mt-3 w-full flex justify-center">
@@ -384,8 +403,12 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                     alt={product.productName}
                     width={128}
                     height={128}
-                    className="object-contain rounded border border-zinc-200 bg-zinc-100 h-24 w-24 md:h-32 md:w-32 shadow"
-                    style={{ boxShadow: '0 1px 8px rgba(0,0,0,0.08)' }}
+                    className="object-contain rounded border h-24 w-24 md:h-32 md:w-32 shadow"
+                    style={{ 
+                      borderColor: colours.content.border,
+                      backgroundColor: colours.content.surfaceSecondary,
+                      boxShadow: '0 1px 8px rgba(0,0,0,0.08)'
+                    }}
                   />
                 </div>
               )}
@@ -395,8 +418,18 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 <AnimatedMatchPercent percent={matchPercentage} small />
               ) : (
                 <span className="relative flex flex-col items-center justify-center ml-2 min-w-[40px] min-h-[40px]">
-                  <span className="font-bold text-base text-zinc-400">--</span>
-                  <span className="block font-medium mt-1 text-zinc-500 text-center text-[10px]">match</span>
+                  <span 
+                    className="font-bold text-base"
+                    style={{ color: colours.text.secondary }}
+                  >
+                    --
+                  </span>
+                  <span 
+                    className="block font-medium mt-1 text-center text-[10px]"
+                    style={{ color: colours.text.secondary }}
+                  >
+                    match
+                  </span>
                 </span>
               )}
             </div>
@@ -406,13 +439,32 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         {/* Allergen Warning Banner */}
         {allergenWarnings && allergenWarnings.length > 0 && (
           <div className="w-full max-w-xl mb-4">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-3">
+            <div 
+              className="border rounded-lg p-3 flex items-start gap-3"
+              style={{ 
+                backgroundColor: colours.status.error.background,
+                borderColor: colours.status.error.border
+              }}
+            >
               <div className="flex-shrink-0 mt-0.5">
-                <span className="text-red-500 text-xl">⚠️</span>
+                <span 
+                  className="text-xl"
+                  style={{ color: colours.status.error.icon }}
+                >
+                  ⚠️
+                </span>
               </div>
               <div className="flex-1">
-                <h3 className="text-red-800 font-semibold text-sm mb-1">Allergen Warning</h3>
-                <p className="text-red-700 text-sm">
+                <h3 
+                  className="font-semibold text-sm mb-1"
+                  style={{ color: colours.status.error.text }}
+                >
+                  Allergen Warning
+                </h3>
+                <p 
+                  className="text-sm"
+                  style={{ color: colours.status.error.text }}
+                >
                   This product contains allergens that match your profile: {allergenWarnings.map(allergen => allergen.replace(/-/g, ' ')).join(', ')}
                 </p>
               </div>
@@ -450,7 +502,12 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           />
           {(product.alergenInformation && product.alergenInformation.length > 0 || product.labels && product.labels.length > 0 || product.countryOfOriginCode) && (
             <div className="w-full">
-              <div className="text-xs text-zinc-500 font-semibold mt-2 mb-1 ml-1">Allergens & Labels:</div>
+              <div 
+                className="text-xs font-semibold mt-2 mb-1 ml-1"
+                style={{ color: colours.text.secondary }}
+              >
+                Allergens & Labels:
+              </div>
               <div className="flex flex-wrap gap-2 mb-2 justify-start">
                 {/* Allergen tags (red) */}
                 {product.alergenInformation && product.alergenInformation.map((allergen, idx) => {
@@ -488,8 +545,21 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   return (
                     <span
                       key={`label-${idx}`}
-                      className="inline-block bg-zinc-100 border border-zinc-300 text-zinc-700 text-sm px-3 py-1.5 rounded-full font-semibold shadow-sm hover:bg-zinc-200 hover:text-zinc-900 transition"
-                      style={{ whiteSpace: 'nowrap' }}
+                      className="inline-block border text-sm px-3 py-1.5 rounded-full font-semibold shadow-sm transition"
+                      style={{ 
+                        whiteSpace: 'nowrap',
+                        backgroundColor: colours.tag.default.background,
+                        borderColor: colours.tag.default.border,
+                        color: colours.tag.default.text
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = colours.tag.default.hover.background
+                        e.currentTarget.style.color = colours.tag.default.hover.text
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = colours.tag.default.background
+                        e.currentTarget.style.color = colours.tag.default.text
+                      }}
                     >
                       {`${map.emoji} ${map.title}`}
                     </span>
@@ -501,213 +571,35 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         </div>
         
         {/* Similar Products Section */}
-        <div className="w-full max-w-xl flex flex-col items-start mb-4">
-          <div className="w-full bg-zinc-50 rounded-xl p-4 border border-zinc-200">
-            <h2 className="text-lg font-semibold text-zinc-800 mb-3 px-1">Similar Products</h2>
-            <div className="w-full overflow-x-auto pb-4 hide-scrollbar scroll-smooth">
-              <div 
-                className="flex space-x-4 px-1 scroll-pl-6" 
-                style={{ 
-                  width: 'max-content',
-                  scrollSnapType: 'x mandatory',
-                  scrollPaddingLeft: '50%',
-                  WebkitOverflowScrolling: 'touch'
-                }}
-              >
-                {similarProducts.length > 0 ? similarProducts.map(prod => (
-                  <div 
-                    key={prod.id} 
-                    className="flex flex-col items-center bg-white border border-zinc-200 rounded-lg p-2 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-105 hover:opacity-100"
-                    style={{ 
-                      width: '100px', 
-                      flex: '0 0 auto',
-                      scrollSnapAlign: 'center',
-                      opacity: 0.85,
-                    }}
-                  >
-                    <Image
-                      src={prod.imageUrl || "/placeholder.jpg"}
-                      alt={prod.productName}
-                      width={48}
-                      height={48}
-                      className="w-12 h-12 object-contain rounded mb-2 border border-zinc-200 bg-white"
-                    />
-                    <div className="font-medium text-xs text-zinc-700 text-center mb-1 line-clamp-2 w-full">
-                      {prod.productName}
-                    </div>
-                    <div className="text-[10px] text-zinc-500 mb-1">{prod.brandName || 'Unknown Brand'}</div>
-                    <button 
-                      onClick={() => router.push(`/product/${prod.id}`)}
-                      className="text-[10px] text-blue-600 hover:underline"
-                    >
-                      View
-                    </button>
-                  </div>
-                )) : (
-                  <div className="w-full text-center text-zinc-500 text-sm py-4">
-                    No similar products found
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        <SimilarProducts 
+          products={similarProducts}
+          currentProductId={id}
+        />
         {/* More by this brand Section */}
-        <div className="w-full max-w-xl flex flex-col items-start mb-4">
-          <div className="w-full bg-zinc-50 rounded-xl p-4 border border-zinc-200">
-            <h2 className="text-lg font-semibold text-zinc-800 mb-3 px-1">More by {product.brandName}</h2>
-            <div className="w-full overflow-x-auto pb-4 hide-scrollbar scroll-smooth">
-              <div 
-                className="flex space-x-4 px-1 scroll-pl-6" 
-                style={{ 
-                  width: 'max-content',
-                  scrollSnapType: 'x mandatory',
-                  scrollPaddingLeft: '50%',
-                  WebkitOverflowScrolling: 'touch'
-                }}
-              >
-                {brandProducts.length > 0 ? brandProducts.map(prod => (
-                  <div 
-                    key={prod.id} 
-                    className="flex flex-col items-center bg-white border border-zinc-200 rounded-lg p-2 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-105 hover:opacity-100"
-                    style={{ 
-                      width: '100px', 
-                      flex: '0 0 auto',
-                      scrollSnapAlign: 'center',
-                      opacity: 0.85,
-                    }}
-                  >
-                    <Image
-                      src={prod.imageUrl || "/placeholder.jpg"}
-                      alt={prod.productName}
-                      width={48}
-                      height={48}
-                      className="w-12 h-12 object-contain rounded mb-2 border border-zinc-200 bg-white"
-                    />
-                    <div className="font-medium text-xs text-zinc-700 text-center mb-1 line-clamp-2 w-full">
-                      {prod.productName}
-                    </div>
-                    <div className="text-[10px] text-zinc-500 mb-1">{prod.brandName || 'Unknown Brand'}</div>
-                    <button 
-                      onClick={() => router.push(`/product/${prod.id}`)}
-                      className="text-[10px] text-blue-600 hover:underline"
-                    >
-                      View
-                    </button>
-                  </div>
-                )) : (
-                  <div className="w-full text-center text-zinc-500 text-sm py-4">
-                    No other products from this brand
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        <ProductsByBrand 
+          products={brandProducts}
+          brandName={product.brandName || 'Unknown Brand'}
+          currentProductId={id}
+        />
         {/* Reviews Section */}
-        <div className="w-full">
-          <div className={`w-full bg-zinc-50 border border-zinc-200 rounded-xl p-4 transition-all duration-300 ${refreshing ? 'opacity-40 blur-[2px]' : 'opacity-100 blur-0'}`}>
-            <div className="flex items-center justify-between w-full mb-2">
-              <h2 className="text-xl font-semibold text-zinc-800">Reviews</h2>
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <button
-                    onClick={() => setSortOpen(v => !v)}
-                    className="inline-flex items-center bg-zinc-200 hover:bg-zinc-300 text-zinc-800 font-semibold px-3 h-10 rounded-lg transition text-sm"
-                    aria-haspopup="listbox"
-                    aria-expanded={sortOpen}
-                  >
-                    Sort by
-                    <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-                  </button>
-                  {sortOpen && (
-                    <ul className="absolute right-0 mt-1 w-44 bg-white border border-zinc-200 rounded-lg shadow-lg z-20" role="listbox">
-                      {['recent', 'critical', 'favourable'].map(option => (
-                        <li key={option}>
-                          <button
-                            className={`w-full text-left px-4 py-2 hover:bg-zinc-100 transition-all duration-200 rounded ${sortBy === option ? 'bg-blue-100 text-blue-700 shadow ring-2 ring-blue-300 scale-[1.04]' : ''}`}
-                            onClick={() => { setSortBy(option as typeof sortBy); setSortOpen(false); setRefreshing(true); setTimeout(() => setRefreshing(false), 350); }}
-                            role="option"
-                            aria-selected={sortBy === option}
-                          >
-                            {option === 'recent' ? 'Most Recent' : option === 'critical' ? 'Most Critical' : 'Most Favourable'}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-                <button
-                  onClick={handleWriteReview}
-                  className="inline-flex items-center justify-center bg-zinc-200 hover:bg-zinc-300 text-zinc-800 font-bold text-xl px-4 h-10 rounded-lg transition ml-2 mb-0"
-                  aria-label="Write a Review"
-                >
-                  <span className="w-full flex items-center justify-center" style={{lineHeight: 1}}>
-                    <span className="text-xl leading-none flex items-center justify-center">+</span>
-                  </span>
-                </button>
-              </div>
-            </div>
-            {sortedReviews.length === 0 ? (
-              <div className="text-zinc-500">No reviews{filter.score ? ` with ${filter.score} star${filter.score > 1 ? 's' : ''}` : ''}.</div>
-            ) : (
-              <>
-                <ul className="space-y-4">
-                  {sortedReviews.slice(0, visibleReviews).map((review, idx) => {
-                    let opacity = 1;
-                    if (!seeMoreClicked && visibleReviews === 3 && !filter.score) {
-                      opacity = 1 - idx * 0.3;
-                    }
-                    return (
-                      <li key={review.id} style={{ opacity }}>
-                        <Link href={`/review/${review.id}`} className="block bg-white rounded-lg border border-zinc-200 shadow-sm p-4 hover:bg-zinc-50 transition cursor-pointer">
-                          <div className="font-bold text-zinc-700 mb-1">
-                            {review.isAnonymous ? "anon" : (usernames[review.userId] || "User")}
-                          </div>
-                          <div className="flex flex-row items-center gap-4 mb-1">
-                            <span className="flex items-center">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <span
-                                  key={star}
-                                  className={`text-xl ${review.rating >= star ? '' : 'opacity-30'}`}
-                                  role="img"
-                                  aria-label="star"
-                                >
-                                  ⭐
-                                </span>
-                              ))}
-                            </span>
-                          </div>
-                          <div className="text-zinc-700 truncate">{review.reviewText || "(No review text)"}</div>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-                {visibleReviews < sortedReviews.length && (
-                  <div className="flex justify-center mt-4">
-                    <button
-                      onClick={() => { setVisibleReviews(sortedReviews.length); setSeeMoreClicked(true); }}
-                      className="px-4 py-2 bg-zinc-200 hover:bg-zinc-300 text-zinc-800 rounded font-semibold transition"
-                    >
-                      See more
-                    </button>
-                  </div>
-                )}
-                {filter.score && (
-                  <div className="flex justify-center mt-2">
-                    <button
-                      onClick={() => setFilter({ score: null })}
-                      className="px-3 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded font-semibold transition"
-                    >
-                      Clear filter
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        </div>
+        <ProductReviews
+          reviews={reviews}
+          usernames={usernames}
+          user={userPreferences}
+          productId={id}
+          refreshing={refreshing}
+          visibleReviews={visibleReviews}
+          setVisibleReviews={setVisibleReviews}
+          setSeeMoreClicked={setSeeMoreClicked}
+          seeMoreClicked={seeMoreClicked}
+          filter={filter}
+          setFilter={setFilter}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          sortOpen={sortOpen}
+          setSortOpen={setSortOpen}
+          setRefreshing={setRefreshing}
+        />
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import { UserCircleIcon, ArrowRightCircleIcon } from "@heroicons/react/24/outline";
+import { colours } from "@/styles/colours";
 
 export default function TopBar() {
   const [user, setUser] = useState<User | null>(null);
@@ -19,10 +20,11 @@ export default function TopBar() {
   }, []);
 
   return (
-    <header className="w-full bg-white shadow flex items-center justify-between px-4 py-3 mb-6">
+    <header className="w-full shadow flex items-center justify-between px-4 py-3 mb-6" style={{ backgroundColor: colours.card.background }}>
       <Link
         href="/"
-        className="text-xl font-bold text-blue-600 tracking-tight select-none hover:underline"
+        className="text-xl font-bold tracking-tight select-none hover:underline"
+        style={{ color: colours.text.link }}
         title="Home"
       >
         ShopSmart
@@ -33,7 +35,8 @@ export default function TopBar() {
         ) : user ? (
           <Link
             href="/profile"
-            className="text-blue-700 hover:text-blue-900 transition flex items-center gap-1 font-medium"
+            className="transition flex items-center gap-1 font-medium hover:underline"
+            style={{ color: colours.text.link }}
             title="Profile"
           >
             <UserCircleIcon className="h-6 w-6" />
@@ -42,7 +45,8 @@ export default function TopBar() {
         ) : (
           <Link
             href="/auth"
-            className="text-blue-700 hover:text-blue-900 transition flex items-center gap-1 font-medium"
+            className="transition flex items-center gap-1 font-medium hover:underline"
+            style={{ color: colours.text.link }}
             title="Login"
           >
             <ArrowRightCircleIcon className="h-6 w-6" />

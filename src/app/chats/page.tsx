@@ -9,6 +9,7 @@ import { Post } from "@/types/post";
 import PostCard from "@/components/PostCard";
 import PostFilters from "@/components/PostFilters";
 import CreatePostModal from "@/components/CreatePostModal";
+import { colours } from "@/styles/colours";
 
 export default function PostsPage() {
   const [user, setUser] = useState(null);
@@ -124,22 +125,40 @@ export default function PostsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div 
+      className="min-h-screen"
+      style={{ backgroundColor: colours.background.secondary }}
+    >
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center text-blue-600 hover:underline">
+            <Link 
+              href="/" 
+              className="flex items-center hover:underline"
+              style={{ color: colours.text.link }}
+            >
               <span className="mr-2 text-2xl">&#8592;</span>
               <span className="font-semibold">Go back home</span>
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900">ShopSmart Community</h1>
+            <h1 
+              className="text-3xl font-bold"
+              style={{ color: colours.text.primary }}
+            >
+              ShopSmart Community
+            </h1>
           </div>
           
           {user && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-medium"
+              style={{
+                backgroundColor: colours.button.primary.background,
+                color: colours.button.primary.text
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.hover.background}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.background}
             >
               <Plus size={20} />
               Create Post
@@ -161,18 +180,41 @@ export default function PostsPage() {
         <div className="space-y-6">
           {loading ? (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-gray-600 mt-4">Loading posts...</p>
+              <div 
+                className="animate-spin rounded-full h-12 w-12 mx-auto"
+                style={{ 
+                  borderTopColor: 'transparent',
+                  border: `2px solid ${colours.chart.primary}`,
+                  borderTopWidth: '2px'
+                }}
+              ></div>
+              <p 
+                className="mt-4"
+                style={{ color: colours.text.secondary }}
+              >
+                Loading posts...
+              </p>
             </div>
           ) : posts.length === 0 ? (
             <div className="text-center py-12">
-              <div className="text-gray-400 mb-4">
+              <div 
+                className="mb-4"
+                style={{ color: colours.text.muted }}
+              >
                 <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10m0 0V6a2 2 0 00-2-2H9a2 2 0 00-2 2v2m0 0v10a2 2 0 002 2h6a2 2 0 002-2V8m0 0V6a2 2 0 00-2-2H9a2 2 0 00-2 2v2" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No posts yet</h3>
-              <p className="text-gray-600 mb-4">
+              <h3 
+                className="text-lg font-medium mb-2"
+                style={{ color: colours.text.primary }}
+              >
+                No posts yet
+              </h3>
+              <p 
+                className="mb-4"
+                style={{ color: colours.text.secondary }}
+              >
                 {selectedTags.length > 0 || searchTerm 
                   ? "No posts match your current filters. Try adjusting your search."
                   : "Be the first to share something with the community!"
@@ -181,7 +223,13 @@ export default function PostsPage() {
               {user && (selectedTags.length === 0 && !searchTerm) && (
                 <button
                   onClick={() => setShowCreateModal(true)}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  className="px-6 py-2 rounded-lg transition-colors font-medium"
+                  style={{
+                    backgroundColor: colours.button.primary.background,
+                    color: colours.button.primary.text
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.hover.background}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.background}
                 >
                   Create First Post
                 </button>

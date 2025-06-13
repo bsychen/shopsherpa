@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Post } from '@/types/post';
 import { formatDate } from '@/utils/dateUtils';
+import { colours } from '@/styles/colours';
 
 interface PostCardProps {
   post: Post;
@@ -46,17 +47,18 @@ export default function PostCard({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+    <div className="rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow" style={{ backgroundColor: colours.card.background, border: `1px solid ${colours.card.border}` }}>
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
           <Link 
             href={`/posts/${post.id}`}
-            className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+            className="text-xl font-bold hover:underline transition-colors"
+            style={{ color: colours.text.primary }}
           >
             {post.title}
           </Link>
-          <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+          <div className="flex items-center gap-2 mt-2 text-sm" style={{ color: colours.text.secondary }}>
             <span className="font-medium">{post.authorName}</span>
             <span>•</span>
             <div className="flex items-center gap-1">
@@ -73,7 +75,11 @@ export default function PostCard({
           {post.tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs"
+              style={{ 
+                backgroundColor: colours.tag.default.background,
+                color: colours.tag.default.text
+              }}
             >
               <Tag size={10} />
               {tag}
@@ -85,7 +91,7 @@ export default function PostCard({
       {/* Linked Product */}
       {post.linkedProduct && (
         <div className="mb-4">
-          <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: colours.tag.default.background, border: `1px solid ${colours.tag.default.border}` }}>
             <Image
               src={post.linkedProduct.imageUrl}
               alt={post.linkedProduct.name}
@@ -94,12 +100,13 @@ export default function PostCard({
               className="object-cover rounded"
             />
             <div className="flex-1">
-              <p className="font-medium text-sm text-blue-900">{post.linkedProduct.name}</p>
-              <p className="text-blue-700 text-xs">Referenced Product</p>
+              <p className="font-medium text-sm" style={{ color: colours.tag.default.text }}>{post.linkedProduct.name}</p>
+              <p className="text-xs" style={{ color: colours.text.secondary }}>Referenced Product</p>
             </div>
             <Link
               href={`/product/${post.linkedProduct.id}`}
-              className="text-blue-600 hover:text-blue-800"
+              className="hover:opacity-70"
+              style={{ color: colours.text.link }}
             >
               <ExternalLink size={16} />
             </Link>
@@ -109,11 +116,12 @@ export default function PostCard({
 
       {/* Content */}
       <div className="mb-4">
-        <p className="text-gray-800 whitespace-pre-wrap">{displayContent}</p>
+        <p className="whitespace-pre-wrap" style={{ color: colours.text.primary }}>{displayContent}</p>
         {shouldTruncate && !isExpanded && (
           <button
             onClick={() => setIsExpanded(true)}
-            className="text-blue-600 hover:text-blue-700 text-sm mt-2 font-medium"
+            className="text-sm mt-2 font-medium hover:underline"
+            style={{ color: colours.text.link }}
           >
             Read more
           </button>
@@ -121,7 +129,8 @@ export default function PostCard({
         {shouldTruncate && isExpanded && !showFullContent && (
           <button
             onClick={() => setIsExpanded(false)}
-            className="text-blue-600 hover:text-blue-700 text-sm mt-2 font-medium"
+            className="text-sm mt-2 font-medium hover:underline"
+            style={{ color: colours.text.link }}
           >
             Show less
           </button>
@@ -129,17 +138,17 @@ export default function PostCard({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+      <div className="flex items-center justify-between pt-4" style={{ borderTop: `1px solid ${colours.card.border}` }}>
         <div className="flex items-center gap-4">
           {/* Like Button */}
           <button
             onClick={handleLike}
             disabled={!currentUserId}
-            className={`flex items-center gap-2 px-3 py-1 rounded-full transition-colors ${
-              hasLiked
-                ? 'bg-green-100 text-green-700'
-                : 'text-gray-600 hover:bg-gray-100'
-            } ${!currentUserId ? 'cursor-not-allowed opacity-50' : ''}`}
+            className={`flex items-center gap-2 px-3 py-1 rounded-full transition-colors ${!currentUserId ? 'cursor-not-allowed opacity-50' : ''}`}
+            style={{
+              backgroundColor: hasLiked ? colours.status.success.background : colours.interactive.hover.background,
+              color: hasLiked ? colours.status.success.text : colours.text.secondary
+            }}
           >
             <ThumbsUp size={16} />
             <span className="text-sm font-medium">{likeCount}</span>
@@ -149,11 +158,11 @@ export default function PostCard({
           <button
             onClick={handleDislike}
             disabled={!currentUserId}
-            className={`flex items-center gap-2 px-3 py-1 rounded-full transition-colors ${
-              hasDisliked
-                ? 'bg-red-100 text-red-700'
-                : 'text-gray-600 hover:bg-gray-100'
-            } ${!currentUserId ? 'cursor-not-allowed opacity-50' : ''}`}
+            className={`flex items-center gap-2 px-3 py-1 rounded-full transition-colors ${!currentUserId ? 'cursor-not-allowed opacity-50' : ''}`}
+            style={{
+              backgroundColor: hasDisliked ? colours.status.error.background : colours.interactive.hover.background,
+              color: hasDisliked ? colours.status.error.text : colours.text.secondary
+            }}
           >
             <ThumbsDown size={16} />
             <span className="text-sm font-medium">{dislikeCount}</span>
@@ -162,7 +171,11 @@ export default function PostCard({
           {/* Comments */}
           <Link
             href={`/posts/${post.id}`}
-            className="flex items-center gap-2 px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-2 px-3 py-1 rounded-full transition-colors hover:opacity-70"
+            style={{ 
+              backgroundColor: colours.interactive.hover.background,
+              color: colours.text.secondary 
+            }}
           >
             <MessageCircle size={16} />
             <span className="text-sm font-medium">{post.commentCount}</span>
@@ -173,7 +186,8 @@ export default function PostCard({
         {!showFullContent && (
           <Link
             href={`/posts/${post.id}`}
-            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+            className="text-sm font-medium hover:underline"
+            style={{ color: colours.text.link }}
           >
             View Post
           </Link>
