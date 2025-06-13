@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { Pencil, Check } from 'lucide-react';
 import { UserProfile } from '@/types/user';
 import { 
   getAllergenInfo, 
@@ -60,13 +61,32 @@ export default function AllergenManager({ userProfile, onAllergensUpdate, isUpda
         <button
           onClick={toggleEditMode}
           disabled={isUpdating}
-          className="px-3 py-1 text-sm font-medium rounded-lg transition-colors duration-200 disabled:opacity-50 hover:opacity-70"
+          className="px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 disabled:opacity-50 flex items-center gap-2"
           style={{ 
-            color: colours.text.link,
-            backgroundColor: colours.interactive.hover.background
+            color: colours.button.edit.text,
+            backgroundColor: colours.button.edit.background,
+            border: `1px solid ${colours.content.border}`
+          }}
+          onMouseEnter={(e) => {
+            if (!isUpdating) {
+              e.currentTarget.style.backgroundColor = colours.button.edit.hover.background;
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = colours.button.edit.background;
           }}
         >
-          {isEditMode ? 'Done' : 'Edit'}
+          {isEditMode ? (
+            <>
+              <Check size={16} />
+              Done
+            </>
+          ) : (
+            <>
+              <Pencil size={16} />
+              Edit
+            </>
+          )}
         </button>
       </div>
 

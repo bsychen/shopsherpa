@@ -98,26 +98,26 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
             className="h-full"
             style={{ 
               width: `${scale(priceStats.q3) - scale(priceStats.q1)}%`,
-              backgroundColor: colours.status.warning.icon
+              backgroundColor: colours.score.medium // Yellow for median quartile
             }}
           />
           <div 
             className="h-full rounded-r-full"
             style={{ 
               width: `${100 - scale(priceStats.q3)}%`,
-              backgroundColor: colours.status.error.icon
+              backgroundColor: colours.score.low // Red for upper quartile
             }}
           />
         </div>
         
         {/* Median line */}
         <div 
-          className="absolute h-5 w-0.5 z-[2]"
+          className="absolute h-1 w-0.5 z-[2]"
           style={{
             top: '75%',
             left: `${scale(priceStats.median)}%`,
             transform: 'translate(-50%, -50%)',
-            backgroundColor: colours.text.muted
+            backgroundColor: colours.score.medium // Yellow for median line
           }}
         />
         

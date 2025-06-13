@@ -62,13 +62,20 @@ export const colours = {
       hover: {
         background: colourMap.lightGreen,
       }
+    },
+    edit: {
+      background: colourMap.white,
+      text: colourMap.darkTeal,
+      hover: {
+        background: colourMap.lightGreen,
+      }
     }
   },
 
   // Input styles
   input: {
     background: colourMap.white,
-    border: colourMap.lightGreen,
+    border: colourMap.grey,
     text: colourMap.darkTeal,
     placeholder: colourMap.green,
     focus: {
@@ -80,7 +87,7 @@ export const colours = {
   // Text styles
   text: {
     primary: colourMap.darkTeal,
-    secondary: colourMap.green,
+    secondary: colourMap.darkTeal,
     tertiary: colourMap.yellow,
     muted: colourMap.grey,
     inverse: colourMap.white,
@@ -91,9 +98,9 @@ export const colours = {
   // Background styles
   background: {
     primary: colourMap.white,
-    secondary: colourMap.lightGreen,
-    tertiary: colourMap.yellow,
-    muted: colourMap.lightGreen,
+    secondary: colourMap.white,
+    tertiary: colourMap.white,
+    muted: colourMap.white,
   },
 
   // Status colors
@@ -175,7 +182,7 @@ export const colours = {
 
   // Loading spinner
   spinner: {
-    border: colourMap.lightGreen,
+    border: colourMap.grey,
     borderTop: colourMap.green,
     text: colourMap.green,
   },
@@ -206,8 +213,8 @@ export const colours = {
   // Content areas
   content: {
     surface: colourMap.white,
-    surfaceSecondary: colourMap.lightGreen,
-    border: colourMap.lightGreen,
+    surfaceSecondary: colourMap.white,
+    border: colourMap.grey,
     borderSecondary: colourMap.green,
   },
 
@@ -229,59 +236,27 @@ export const colours = {
     }
   },
 
-  // Component-specific mappings for easy migration
-  components: {
-    // For zinc/gray replacements
-    zinc: {
-      50: colourMap.lightGreen,
-      100: colourMap.lightGreen,
-      200: colourMap.green,
-      300: colourMap.green,
-      500: colourMap.darkTeal,
-      700: colourMap.darkTeal,
-      800: colourMap.darkTeal,
-      900: colourMap.darkTeal,
+  bargraph: {
+    background: colourMap.white,
+    price: {
+      background: colourMap.green,
+      border: colourMap.green,
     },
-    // For blue replacements  
-    blue: {
-      50: colourMap.lightGreen,
-      100: colourMap.lightGreen,
-      200: colourMap.green,
-      300: colourMap.green,
-      500: colourMap.green,
-      600: colourMap.green,
-      700: colourMap.darkTeal,
-      800: colourMap.darkTeal,
+    quality: {
+      background: colourMap.green,
+      border: colourMap.green,
     },
-    // For red replacements
-    red: {
-      50: colourMap.lightGreen,
-      100: colourMap.lightGreen,
-      200: colourMap.red,
-      300: colourMap.red,
-      600: colourMap.red,
-      700: colourMap.red,
-      800: colourMap.red,
-      900: colourMap.red,
+    nutrition: {
+      background: colourMap.green,
+      border: colourMap.green,
     },
-    // For green replacements
-    green: {
-      50: colourMap.lightGreen,
-      100: colourMap.lightGreen,
-      200: colourMap.green,
-      400: colourMap.green,
-      500: colourMap.green,
-      600: colourMap.green,
-      700: colourMap.darkTeal,
+    sustainability: {
+      background: colourMap.green,
+      border: colourMap.green,
     },
-    // For gray replacements
-    gray: {
-      50: colourMap.lightGreen,
-      100: colourMap.lightGreen,
-      200: colourMap.green,
-      300: colourMap.green,
-      600: colourMap.darkTeal,
-      700: colourMap.darkTeal,
-    }
+    brand: {
+      background: colourMap.green,
+      border: colourMap.green,
+    },
   }
 };

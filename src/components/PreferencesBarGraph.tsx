@@ -20,11 +20,11 @@ interface PreferenceItem {
 }
 
 const preferences: PreferenceItem[] = [
-  { key: 'pricePreference', label: 'Price', color: colours.status.warning.icon, circleColor: colours.status.warning.border, svg: '/dollar-svgrepo-com.svg' },
-  { key: 'qualityPreference', label: 'Quality', color: colours.status.error.icon, circleColor: colours.status.error.border, svg: '/quality-supervision-svgrepo-com.svg' },
-  { key: 'nutritionPreference', label: 'Nutrition', color: colours.chart.primary, circleColor: colours.chart.primary, svg: '/meal-svgrepo-com.svg' },
-  { key: 'sustainabilityPreference', label: 'Sustainability', color: colours.status.success.icon, circleColor: colours.status.success.border, svg: '/leaf-svgrepo-com.svg' },
-  { key: 'brandPreference', label: 'Brand', color: colours.tag.primary.background, circleColor: colours.tag.primary.border, svg: '/prices-svgrepo-com.svg' },
+  { key: 'pricePreference', label: 'Price', color: colours.bargraph.price.background, circleColor: colours.bargraph.price.border, svg: '/dollar-svgrepo-com.svg' },
+  { key: 'qualityPreference', label: 'Quality', color: colours.bargraph.quality.background, circleColor: colours.bargraph.quality.border, svg: '/quality-supervision-svgrepo-com.svg' },
+  { key: 'nutritionPreference', label: 'Nutrition', color: colours.bargraph.nutrition.background, circleColor: colours.bargraph.nutrition.border, svg: '/meal-svgrepo-com.svg' },
+  { key: 'sustainabilityPreference', label: 'Sustainability', color: colours.bargraph.sustainability.background, circleColor: colours.bargraph.sustainability.border, svg: '/leaf-svgrepo-com.svg' },
+  { key: 'brandPreference', label: 'Brand', color: colours.bargraph.brand.background, circleColor: colours.bargraph.brand.border, svg: '/prices-svgrepo-com.svg' },
 ];
 
 export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, isUpdating = false }: PreferencesBarGraphProps) {

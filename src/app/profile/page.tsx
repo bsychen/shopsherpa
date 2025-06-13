@@ -11,6 +11,7 @@ import RecentlyViewedProducts from "@/components/RecentlyViewedProducts";
 import PreferencesBarGraph from "@/components/PreferencesBarGraph";
 import AllergenManager from "@/components/AllergenManager";
 import Image from "next/image";
+import { Pencil } from "lucide-react";
 import { colours } from "@/styles/colours";
 
 export default function ProfilePage() {
@@ -290,24 +291,11 @@ export default function ProfilePage() {
 
         <button
           onClick={handleLogout}
-          className="mt-6 font-semibold py-2 px-4 rounded transition"
-          style={{
-            backgroundColor: colours.button.danger.background,
-            color: colours.button.danger.text
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = colours.button.danger.hover.background
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = colours.button.danger.background
-          }}
+          className="mt-6 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded transition"
         >
           Log out
         </button>
-        <div 
-          className="mt-4 text-xs text-left"
-          style={{ color: colours.text.muted }}
-        >
+        <div className="mt-4 text-xs text-gray-400 text-left">
           User ID: {user.userId}
         </div>
       </div>
