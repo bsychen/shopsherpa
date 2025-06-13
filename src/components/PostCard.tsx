@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { MessageCircle, ThumbsDown, ThumbsUp, Tag, ExternalLink, Clock } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Post } from '@/types/post';
 import { formatDate } from '@/utils/dateUtils';
 
@@ -85,10 +86,12 @@ export default function PostCard({
       {post.linkedProduct && (
         <div className="mb-4">
           <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-            <img
+            <Image
               src={post.linkedProduct.imageUrl}
               alt={post.linkedProduct.name}
-              className="w-12 h-12 object-cover rounded"
+              width={48}
+              height={48}
+              className="object-cover rounded"
             />
             <div className="flex-1">
               <p className="font-medium text-sm text-blue-900">{post.linkedProduct.name}</p>

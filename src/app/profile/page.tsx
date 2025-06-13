@@ -162,15 +162,6 @@ export default function ProfilePage() {
           </div>
         </>
       )}
-        <button
-          onClick={handleLogout}
-          className="mt-6 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded transition"
-        >
-          Log out
-        </button>
-        <div className="mt-4 text-xs text-gray-400 text-left">
-          User ID: {user.userId}
-        </div>
       </div>
 
       {/* Allergen Management Section - Separate Box */}

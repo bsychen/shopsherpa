@@ -43,7 +43,14 @@ export async function PUT(request: NextRequest) {
     }
 
     // Build update object with only provided fields
-    const updateData: any = {};
+    const updateData: Partial<{
+      pricePreference: number;
+      qualityPreference: number;
+      nutritionPreference: number;
+      sustainabilityPreference: number;
+      brandPreference: number;
+      allergens: string[];
+    }> = {};
     if (pricePreference !== undefined) updateData.pricePreference = pricePreference;
     if (qualityPreference !== undefined) updateData.qualityPreference = qualityPreference;
     if (nutritionPreference !== undefined) updateData.nutritionPreference = nutritionPreference;

@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { UserProfile } from '@/types/user';
 import { 
   getAllergenInfo, 
-  getRemovableAllergenTagClasses, 
   formatAllergenDisplay,
   AVAILABLE_ALLERGENS 
 } from '@/utils/allergens';

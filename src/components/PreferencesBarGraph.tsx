@@ -116,7 +116,7 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
       const updates: Partial<UserProfile> = {};
       preferences.forEach(pref => {
         if (localPreferences[pref.key] !== (userProfile[pref.key] || 1)) {
-          (updates as any)[pref.key] = localPreferences[pref.key];
+          (updates as Record<string, number>)[pref.key] = localPreferences[pref.key];
         }
       });
       

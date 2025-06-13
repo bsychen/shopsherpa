@@ -1,6 +1,7 @@
 "use client";
 
 import { ThumbsUp, ThumbsDown, Reply, Clock, ExternalLink } from 'lucide-react';
+import Image from 'next/image';
 import { Comment } from '@/types/post';
 import { formatDate } from '@/utils/dateUtils';
 
@@ -83,10 +84,12 @@ export default function CommentItem({
         {comment.linkedProduct && (
           <div className="mb-3">
             <div className="flex items-center gap-2 p-2 bg-blue-50 rounded border border-blue-200">
-              <img
+              <Image
                 src={comment.linkedProduct.imageUrl}
                 alt={comment.linkedProduct.name}
-                className="w-8 h-8 object-cover rounded"
+                width={32}
+                height={32}
+                className="object-cover rounded"
               />
               <div className="flex-1">
                 <p className="text-xs font-medium text-blue-900">

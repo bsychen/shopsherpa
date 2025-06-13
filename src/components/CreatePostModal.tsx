@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { X, Search, Tag, Link } from 'lucide-react';
 import { Product } from '@/types/product';
 
@@ -147,10 +148,12 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
               
               {selectedProduct && (
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg mb-3">
-                  <img
+                  <Image
                     src={selectedProduct.imageUrl}
                     alt={selectedProduct.productName}
-                    className="w-12 h-12 object-cover rounded"
+                    width={48}
+                    height={48}
+                    className="object-cover rounded"
                   />
                   <div className="flex-1">
                     <p className="font-medium text-sm">{selectedProduct.productName}</p>
@@ -191,10 +194,12 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
                           }}
                           className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 text-left"
                         >
-                          <img
+                          <Image
                             src={product.imageUrl}
                             alt={product.productName}
-                            className="w-10 h-10 object-cover rounded"
+                            width={40}
+                            height={40}
+                            className="object-cover rounded"
                           />
                           <div>
                             <p className="font-medium text-sm">{product.productName}</p>
