@@ -15,6 +15,11 @@ import { useRef } from "react";
 import TabbedInfoBox from "@/components/TabbedInfoBox"
 import LoadingAnimation from "@/components/LoadingSpinner";
 import { UserProfile } from "@/types/user";
+import { 
+  getAllergenInfoFromCode, 
+  getAllergenTagClasses, 
+  formatAllergenDisplay 
+} from "@/utils/allergens";
 
 function AnimatedMatchPercent({ percent, small }: { percent: number, small?: boolean }) {
   const [displayed, setDisplayed] = useState(0);
@@ -438,16 +443,15 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               <div className="flex flex-wrap gap-2 mb-2 justify-start">
                 {/* Allergen tags (orange) */}
                 {product.alergenInformation && product.alergenInformation.map((allergen, idx) => {
-                  const key = allergen.trim().toLowerCase();
-                  const map = ALLERGEN_MAP[key];
-                  if (!map) return null;
+                  const allergenInfo = getAllergenInfoFromCode(allergen);
+                  if (!allergenInfo) return null;
                   return (
                     <span
                       key={`allergen-${idx}`}
-                      className="inline-block bg-orange-100 border border-orange-300 text-orange-700 text-sm px-3 py-1.5 rounded-full font-semibold shadow-sm hover:bg-orange-200 hover:text-orange-900 transition"
+                      className={getAllergenTagClasses()}
                       style={{ whiteSpace: 'nowrap' }}
                     >
-                      {`${map.emoji} ${map.title}`}
+                      {formatAllergenDisplay(allergenInfo)}
                     </span>
                   );
                 })}
@@ -683,25 +687,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     </div>
   );
 }
-
-// Allergen mapping: maps Open Food Facts allergen codes to display name and emoji
-const ALLERGEN_MAP: Record<string, { title: string; emoji: string }> = {
-  'en:gluten': { title: 'Gluten', emoji: '🌾' },
-  'en:peanuts': { title: 'Peanuts', emoji: '🥜' },
-  'en:milk': { title: 'Milk', emoji: '🥛' },
-  'en:soybeans': { title: 'Soy', emoji: '🌱' },
-  'en:eggs': { title: 'Eggs', emoji: '🥚' },
-  'en:tree-nuts': { title: 'Tree Nuts', emoji: '🌰' },
-  'en:sesame-seeds': { title: 'Sesame', emoji: '⚪️' },
-  'en:fish': { title: 'Fish', emoji: '🐟' },
-  'en:crustaceans': { title: 'Crustaceans', emoji: '🦐' },
-  'en:mustard': { title: 'Mustard', emoji: '🌭' },
-  'en:celery': { title: 'Celery', emoji: '🥬' },
-  'en:lupin': { title: 'Lupin', emoji: '🌸' },
-  'en:molluscs': { title: 'Molluscs', emoji: '🦪' },
-  'en:sulphur-dioxide-and-sulphites': { title: 'Sulphites', emoji: '🧪' },
-  // Add more as needed
-};
 
 // Label mapping: maps Open Food Facts label codes to display name and emoji
 const LABEL_MAP: Record<string, { title: string; emoji: string }> = {

@@ -9,6 +9,7 @@ import type { UserProfile } from "@/types/user";
 import UserReviewsList from "@/components/UserReviewsList";
 import RecentlyViewedProducts from "@/components/RecentlyViewedProducts";
 import PreferencesBarGraph from "@/components/PreferencesBarGraph";
+import AllergenManager from "@/components/AllergenManager";
 import Image from "next/image";
 
 export default function ProfilePage() {
@@ -88,6 +89,36 @@ export default function ProfilePage() {
     }
   };
 
+  const handleAllergensUpdate = async (allergens: string[]) => {
+    if (!firebaseUser) return;
+
+    setIsUpdatingPreferences(true); // Reuse the same loading state
+    try {
+      const idToken = await firebaseUser.getIdToken();
+      const response = await fetch('/api/auth/updatePreferences', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ allergens }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update allergens');
+      }
+
+      // Update local user state with new allergens
+      setUser(prevUser => prevUser ? { ...prevUser, allergens } : null);
+    } catch (error) {
+      console.error('Error updating allergens:', error);
+      throw error; // Re-throw to let the component handle the error
+    } finally {
+      setIsUpdatingPreferences(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-40">
@@ -129,9 +160,31 @@ export default function ProfilePage() {
               isUpdating={isUpdatingPreferences}
             />
           </div>
+        </>
+      )}
+        <button
+          onClick={handleLogout}
+          className="mt-6 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded transition"
+        >
+          Log out
+        </button>
+        <div className="mt-4 text-xs text-gray-400 text-left">
+          User ID: {user.userId}
+        </div>
+      </div>
 
-          {/* Dropdown Sections with More Space */}
-          <div className="mt-12 space-y-4">
+      {/* Allergen Management Section - Separate Box */}
+      {user && user.userId && (
+        <AllergenManager 
+          userProfile={user}
+          onAllergensUpdate={handleAllergensUpdate}
+          isUpdating={isUpdatingPreferences}
+        />
+      )}
+
+      {/* Dropdown Sections */}
+      {user && user.userId && (
+        <div className="space-y-4">
             {/* Recently Viewed Products Section */}
             <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3 transition-all duration-300">
               <button
@@ -194,8 +247,8 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-        </>
-      )}
+        )}
+
         <button
           onClick={handleLogout}
           className="mt-6 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded transition"
@@ -206,6 +259,5 @@ export default function ProfilePage() {
           User ID: {user.userId}
         </div>
       </div>
-    </div>
   );
 }
