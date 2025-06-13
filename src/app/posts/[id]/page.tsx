@@ -1,0 +1,311 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebaseClient";
+import Link from "next/link";
+import { ArrowLeft, MessageCircle, Send } from "lucide-react";
+import { Post, Comment } from "@/types/post";
+import PostCard from "@/components/PostCard";
+
+export default function PostPage() {
+  const params = useParams();
+  const postId = params.id as string;
+  
+  const [user, setUser] = useState(null);
+  const [post, setPost] = useState<Post | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingComments, setLoadingComments] = useState(true);
+  const [newComment, setNewComment] = useState("");
+  const [submittingComment, setSubmittingComment] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (postId) {
+      fetchPost();
+      fetchComments();
+    }
+  }, [postId]);
+
+  const fetchPost = async () => {
+    try {
+      const response = await fetch(`/api/posts/${postId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setPost(data);
+      }
+    } catch (error) {
+      console.error('Error fetching post:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchComments = async () => {
+    try {
+      const response = await fetch(`/api/posts/${postId}/comments`);
+      if (response.ok) {
+        const data = await response.json();
+        setComments(data);
+      }
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+
+  const handleSubmitComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !newComment.trim()) return;
+
+    setSubmittingComment(true);
+    try {
+      const response = await fetch(`/api/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: newComment.trim(),
+          authorId: user.uid,
+          authorName: user.displayName || user.email,
+        }),
+      });
+
+      if (response.ok) {
+        const newCommentData = await response.json();
+        setComments([...comments, newCommentData]);
+        setNewComment("");
+        // Update post comment count
+        if (post) {
+          setPost({
+            ...post,
+            commentCount: post.commentCount + 1,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error creating comment:', error);
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
+
+  const handlePostAction = async (postId: string, action: string) => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(`/api/posts/${postId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action,
+          userId: user.uid,
+        }),
+      });
+
+      if (response.ok) {
+        // Refresh post to get updated like/dislike counts
+        fetchPost();
+      }
+    } catch (error) {
+      console.error('Error updating post:', error);
+    }
+  };
+
+  const handleLike = (postId: string, action: 'like' | 'unlike') => {
+    handlePostAction(postId, action);
+  };
+
+  const handleDislike = (postId: string, action: 'dislike' | 'undislike') => {
+    handlePostAction(postId, action);
+  };
+
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!post) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Post not found</h1>
+          <p className="text-gray-600 mb-4">The post you're looking for doesn't exist.</p>
+          <Link
+            href="/chats"
+            className="text-blue-600 hover:text-blue-700 font-medium"
+          >
+            Back to Community
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        {/* Header */}
+        <div className="mb-6">
+          <Link 
+            href="/chats" 
+            className="flex items-center text-blue-600 hover:underline mb-4"
+          >
+            <ArrowLeft size={20} className="mr-2" />
+            <span className="font-semibold">Back to Community</span>
+          </Link>
+        </div>
+
+        {/* Post */}
+        <div className="mb-8">
+          <PostCard
+            post={post}
+            currentUserId={user?.uid}
+            onLike={handleLike}
+            onDislike={handleDislike}
+            showFullContent={true}
+          />
+        </div>
+
+        {/* Comments Section */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center gap-2 mb-6">
+            <MessageCircle size={20} className="text-gray-600" />
+            <h2 className="text-xl font-bold text-gray-900">
+              Comments ({comments.length})
+            </h2>
+          </div>
+
+          {/* Comment Form */}
+          {user ? (
+            <form onSubmit={handleSubmitComment} className="mb-6">
+              <div className="flex gap-3">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span className="text-blue-600 font-medium text-sm">
+                      {(user.displayName || user.email || '').charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <textarea
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    rows={3}
+                    placeholder="Share your thoughts..."
+                    maxLength={500}
+                  />
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-xs text-gray-500">
+                      {newComment.length}/500 characters
+                    </span>
+                    <button
+                      type="submit"
+                      disabled={!newComment.trim() || submittingComment}
+                      className="flex items-center gap-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <Send size={16} />
+                      {submittingComment ? 'Posting...' : 'Post Comment'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          ) : (
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg text-center">
+              <p className="text-gray-600 mb-2">Sign in to join the conversation</p>
+              <Link
+                href="/auth"
+                className="text-blue-600 hover:text-blue-700 font-medium"
+              >
+                Sign In
+              </Link>
+            </div>
+          )}
+
+          {/* Comments List */}
+          {loadingComments ? (
+            <div className="text-center py-6">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="text-gray-600 mt-2">Loading comments...</p>
+            </div>
+          ) : comments.length === 0 ? (
+            <div className="text-center py-8">
+              <MessageCircle size={48} className="mx-auto text-gray-300 mb-3" />
+              <p className="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {comments.map((comment) => (
+                <div key={comment.id} className="flex gap-3">
+                  <div className="flex-shrink-0">
+                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                      <span className="text-gray-600 font-medium text-xs">
+                        {comment.authorName.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium text-sm text-gray-900">
+                          {comment.authorName}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {formatDate(comment.createdAt)}
+                        </span>
+                      </div>
+                      <p className="text-gray-800 text-sm whitespace-pre-wrap">
+                        {comment.content}
+                      </p>
+                      {comment.linkedProduct && (
+                        <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200">
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={comment.linkedProduct.imageUrl}
+                              alt={comment.linkedProduct.name}
+                              className="w-6 h-6 object-cover rounded"
+                            />
+                            <span className="text-xs text-blue-700 font-medium">
+                              {comment.linkedProduct.name}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
