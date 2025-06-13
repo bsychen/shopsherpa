@@ -62,8 +62,7 @@ export default function UserReviewsList({ userId }: UserReviewsListProps) {
               </div>
               <div className="mt-1 text-sm text-gray-700">{review.reviewText}</div>
               <div className="mt-2 flex gap-4 text-sm">
-                <span title="Value Rating">💰 {review.valueRating}</span>
-                <span title="Quality Rating">🍎 {review.qualityRating}</span>
+                <span title="Rating">⭐ {review.rating}</span>
               </div>
             </Link>
           </li>

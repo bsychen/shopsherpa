@@ -76,7 +76,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   const triggerAnimation = (tab) => {
     if (tab === "Quality") {
       setAnimatedQuality(0);
-      setTimeout(() => setAnimatedQuality(reviewSummary?.averageQualityRating || 0), 50);
+      setTimeout(() => setAnimatedQuality(reviewSummary?.averageRating || 0), 50);
     } else if (tab === "Brand") {
       setAnimatedBrand(0);
       setTimeout(() => setAnimatedBrand(brandRating), 50);
@@ -255,7 +255,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
                 </svg>
                 <span className="relative z-10 flex items-center justify-center w-12 h-12 text-3xl">🍎</span>
               </span>
-              <span className="ml-1 text-xs text-zinc-500">Avg Score: {reviewSummary.averageQualityRating?.toFixed(2)}</span>
+              <span className="ml-1 text-xs text-zinc-500">Avg Score: {reviewSummary.averageRating?.toFixed(2)}</span>
             </div>
             <div className="w-full">
               <div className="font-semibold mb-1 text-xs md:text-base">Quality</div>
@@ -268,9 +268,9 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
                     <span className="text-[10px] w-5 text-right mr-1">{star}★</span>
                     <div
                       className="bg-red-400 rounded h-3 transition-all duration-700 animate-bar-grow group-hover:bg-red-500"
-                      style={{ width: `${Math.max(6, Number(reviewSummary.qualityDistribution?.[star] || 0) * 12)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
+                      style={{ width: `${Math.max(6, Number(reviewSummary.ratingDistribution?.[star] || 0) * 12)}px`, transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)' }}
                     />
-                    <span className="text-[10px] text-gray-500 ml-1">{String(reviewSummary.qualityDistribution?.[star] || 0)}</span>
+                    <span className="text-[10px] text-gray-500 ml-1">{String(reviewSummary.ratingDistribution?.[star] || 0)}</span>
                   </div>
                 ))}
               </div>
