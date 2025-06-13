@@ -5,9 +5,10 @@ import { useParams } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import Link from "next/link";
-import { ArrowLeft, MessageCircle, Send } from "lucide-react";
+import { ArrowLeft, MessageCircle, Send, Link as LinkIcon, Search, X } from "lucide-react";
 import { Post, Comment } from "@/types/post";
 import PostCard from "@/components/PostCard";
+import CommentItem from "@/components/CommentItem";
 
 export default function PostPage() {
   const params = useParams();
@@ -20,6 +21,10 @@ export default function PostPage() {
   const [loadingComments, setLoadingComments] = useState(true);
   const [newComment, setNewComment] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [commentProductSearch, setCommentProductSearch] = useState('');
+  const [commentProducts, setCommentProducts] = useState<any[]>([]);
+  const [selectedCommentProduct, setSelectedCommentProduct] = useState<any>(null);
+  const [showCommentProductSearch, setShowCommentProductSearch] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -34,6 +39,26 @@ export default function PostPage() {
       fetchComments();
     }
   }, [postId]);
+
+  useEffect(() => {
+    if (commentProductSearch.length > 2) {
+      searchProducts(commentProductSearch);
+    } else {
+      setCommentProducts([]);
+    }
+  }, [commentProductSearch]);
+
+  const searchProducts = async (term: string) => {
+    try {
+      const response = await fetch(`/api/products/search?q=${encodeURIComponent(term)}&limit=5`);
+      if (response.ok) {
+        const data = await response.json();
+        setCommentProducts(data);
+      }
+    } catch (error) {
+      console.error('Error searching products:', error);
+    }
+  };
 
   const fetchPost = async () => {
     try {
@@ -78,6 +103,7 @@ export default function PostPage() {
           content: newComment.trim(),
           authorId: user.uid,
           authorName: user.displayName || user.email,
+          linkedProductId: selectedCommentProduct?.id,
         }),
       });
 
@@ -85,6 +111,9 @@ export default function PostPage() {
         const newCommentData = await response.json();
         setComments([...comments, newCommentData]);
         setNewComment("");
+        setSelectedCommentProduct(null);
+        setCommentProductSearch('');
+        setShowCommentProductSearch(false);
         // Update post comment count
         if (post) {
           setPost({
@@ -98,6 +127,38 @@ export default function PostPage() {
     } finally {
       setSubmittingComment(false);
     }
+  };
+
+  const handleCommentAction = async (commentId: string, action: string) => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(`/api/comments/${commentId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action,
+          userId: user.uid,
+        }),
+      });
+
+      if (response.ok) {
+        // Refresh comments to get updated like/dislike counts
+        fetchComments();
+      }
+    } catch (error) {
+      console.error('Error updating comment:', error);
+    }
+  };
+
+  const handleCommentLike = (commentId: string, action: 'like' | 'unlike') => {
+    handleCommentAction(commentId, action);
+  };
+
+  const handleCommentDislike = (commentId: string, action: 'dislike' | 'undislike') => {
+    handleCommentAction(commentId, action);
   };
 
   const handlePostAction = async (postId: string, action: string) => {
@@ -221,10 +282,86 @@ export default function PostPage() {
                     placeholder="Share your thoughts..."
                     maxLength={500}
                   />
+                  
+                  {/* Product Linking for Comments */}
+                  <div className="mt-2">
+                    {selectedCommentProduct && (
+                      <div className="flex items-center gap-2 p-2 bg-blue-50 rounded border border-blue-200 mb-2">
+                        <img
+                          src={selectedCommentProduct.imageUrl}
+                          alt={selectedCommentProduct.productName}
+                          className="w-6 h-6 object-cover rounded"
+                        />
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-blue-800">{selectedCommentProduct.productName}</p>
+                          <p className="text-xs text-blue-600">{selectedCommentProduct.brandName}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedCommentProduct(null)}
+                          className="text-blue-500 hover:text-blue-700"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    )}
+
+                    {showCommentProductSearch && !selectedCommentProduct && (
+                      <div className="relative mb-2">
+                        <div className="relative">
+                          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={14} />
+                          <input
+                            type="text"
+                            value={commentProductSearch}
+                            onChange={(e) => setCommentProductSearch(e.target.value)}
+                            className="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            placeholder="Search for a product..."
+                          />
+                        </div>
+                        {commentProducts.length > 0 && (
+                          <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded mt-1 max-h-32 overflow-y-auto z-10 shadow-lg">
+                            {commentProducts.map((product) => (
+                              <button
+                                key={product.id}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedCommentProduct(product);
+                                  setCommentProductSearch('');
+                                  setCommentProducts([]);
+                                }}
+                                className="w-full flex items-center gap-2 p-2 hover:bg-gray-50 text-left"
+                              >
+                                <img
+                                  src={product.imageUrl}
+                                  alt={product.productName}
+                                  className="w-6 h-6 object-cover rounded"
+                                />
+                                <div>
+                                  <p className="text-xs font-medium">{product.productName}</p>
+                                  <p className="text-xs text-gray-600">{product.brandName}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                   <div className="flex justify-between items-center mt-2">
-                    <span className="text-xs text-gray-500">
-                      {newComment.length}/500 characters
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500">
+                        {newComment.length}/500 characters
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setShowCommentProductSearch(!showCommentProductSearch)}
+                        className="text-blue-600 hover:text-blue-700 flex items-center gap-1 text-xs"
+                      >
+                        <LinkIcon size={12} />
+                        {showCommentProductSearch ? 'Hide' : 'Link Product'}
+                      </button>
+                    </div>
                     <button
                       type="submit"
                       disabled={!newComment.trim() || submittingComment}
@@ -263,44 +400,14 @@ export default function PostPage() {
           ) : (
             <div className="space-y-4">
               {comments.map((comment) => (
-                <div key={comment.id} className="flex gap-3">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                      <span className="text-gray-600 font-medium text-xs">
-                        {comment.authorName.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <div className="bg-gray-50 rounded-lg p-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-sm text-gray-900">
-                          {comment.authorName}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {formatDate(comment.createdAt)}
-                        </span>
-                      </div>
-                      <p className="text-gray-800 text-sm whitespace-pre-wrap">
-                        {comment.content}
-                      </p>
-                      {comment.linkedProduct && (
-                        <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200">
-                          <div className="flex items-center gap-2">
-                            <img
-                              src={comment.linkedProduct.imageUrl}
-                              alt={comment.linkedProduct.name}
-                              className="w-6 h-6 object-cover rounded"
-                            />
-                            <span className="text-xs text-blue-700 font-medium">
-                              {comment.linkedProduct.name}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <CommentItem
+                  key={comment.id}
+                  comment={comment}
+                  currentUserId={user?.uid}
+                  onLike={handleCommentLike}
+                  onDislike={handleCommentDislike}
+                  depth={0}
+                />
               ))}
             </div>
           )}

@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
             if (productDoc.exists) {
               const productData = productDoc.data();
               linkedProduct = {
-                id: productData?.id,
+                id: data.linkedProductId, // Use the document ID instead of productData.id
                 name: productData?.productName,
                 imageUrl: productData?.imageUrl,
               };
