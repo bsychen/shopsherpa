@@ -13,7 +13,7 @@ export async function GET(request: Request) {
         { status: 400 }
       );
     }
-    return NextResponse.json(getBrand(brandName));
+    return NextResponse.json(await getBrand(brandName));
 
   } catch (error) {
     console.error("Error fetching brand:", error);

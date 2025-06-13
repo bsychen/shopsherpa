@@ -9,7 +9,7 @@ import { UserProfile } from "@/types/user"
 interface ProductReviewsProps {
   reviews: Review[]
   usernames: Record<string, string>
-  user: UserProfile
+  user: UserProfile | null
   productId: string
   refreshing: boolean
   visibleReviews: number

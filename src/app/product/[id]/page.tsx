@@ -579,7 +579,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         <ProductReviews
           reviews={reviews}
           usernames={usernames}
-          user={user}
+          user={userPreferences}
           productId={id}
           refreshing={refreshing}
           visibleReviews={visibleReviews}
