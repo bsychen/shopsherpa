@@ -1,4 +1,5 @@
 // Shared allergen utilities for consistent tag display across the app
+import { colours } from '@/styles/colours';
 
 export interface AllergenInfo {
   title: string;

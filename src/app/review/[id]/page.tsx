@@ -6,6 +6,7 @@ import { auth } from "@/lib/firebaseClient";
 import { useRouter, useParams } from "next/navigation";
 import { Review } from "@/types/review";
 import { getReview, getProduct, getUserById } from "@/lib/api";
+import { colours } from "@/styles/colours";
 
 export default function ReviewPage() {
   const params = useParams();
@@ -79,11 +80,18 @@ export default function ReviewPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-10 bg-white rounded-xl shadow p-8">
+    <div 
+      className="max-w-md mx-auto mt-10 rounded-xl shadow p-8"
+      style={{
+        backgroundColor: colours.card.background,
+        border: `1px solid ${colours.card.border}`
+      }}
+    >
       <div className="flex items-center mb-4">
         <a
           href={productName ? `/product/${review.productId}` : "#"}
-          className="flex items-center text-blue-600 hover:underline"
+          className="flex items-center hover:underline"
+          style={{ color: colours.text.link }}
         >
           <span className="mr-2 text-2xl">&#8592;</span>
           <span className="font-semibold">
@@ -92,12 +100,18 @@ export default function ReviewPage() {
         </a>
       </div>
       <div className="mb-2 flex items-center">
-        <span className="font-bold text-zinc-800 text-2xl min-w-[110px]">
+        <span 
+          className="font-bold text-2xl min-w-[110px]"
+          style={{ color: colours.text.primary }}
+        >
           {username ? `${username} says...` : "User says..."}
         </span>
       </div>
       <div className="mb-2 flex items-center">
-        <span className="font-semibold text-gray-700 min-w-[110px] text-sm">
+        <span 
+          className="font-semibold min-w-[110px] text-sm"
+          style={{ color: colours.text.secondary }}
+        >
           Rating:
         </span>
         <span className="ml-4">
@@ -116,7 +130,14 @@ export default function ReviewPage() {
         </span>
       </div>
       <div className="mb-2 flex">
-        <div className="ml-2 text-gray-900 bg-zinc-100 rounded p-3 border border-zinc-200 mt-1 w-full">
+        <div 
+          className="ml-2 rounded p-3 mt-1 w-full"
+          style={{
+            backgroundColor: colours.content.surfaceSecondary,
+            border: `1px solid ${colours.content.border}`,
+            color: colours.text.primary
+          }}
+        >
           {review.reviewText || "(No review text)"}
         </div>
       </div>
@@ -134,19 +155,36 @@ export default function ReviewPage() {
                 }
               }
             }}
-            className="bg-red-100 hover:bg-red-200 text-red-700 font-medium py-1 px-3 rounded text-xs border border-red-200 transition"
+            className="font-medium py-1 px-3 rounded text-xs transition"
+            style={{
+              backgroundColor: colours.status.error.background,
+              color: colours.status.error.text,
+              border: `1px solid ${colours.status.error.border}`
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colours.button.danger.hover.background}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colours.status.error.background}
           >
             Delete
           </button>
           <button
             onClick={() => router.push(`/review/update/${review.id}`)}
-            className="bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium py-1 px-3 rounded text-xs border border-blue-200 transition"
+            className="font-medium py-1 px-3 rounded text-xs transition"
+            style={{
+              backgroundColor: colours.status.info.background,
+              color: colours.status.info.text,
+              border: `1px solid ${colours.status.info.border}`
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.hover.background}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colours.status.info.background}
           >
             Edit
           </button>
         </div>
       )}
-      <div className="mt-6 text-xs text-gray-400 text-left">
+      <div 
+        className="mt-6 text-xs text-left"
+        style={{ color: colours.text.muted }}
+      >
         <div>Review ID: {review.id}</div>
         <div>Product ID: {review.productId}</div>
       </div>

@@ -6,6 +6,7 @@ import { auth } from "@/lib/firebaseClient";
 import { useRouter, useParams } from "next/navigation";
 import { getProduct, createReview } from "@/lib/api";
 import { Product } from "@/types/product";
+import { colours } from "@/styles/colours";
 
 export default function ReviewPage() {
   const params = useParams();
@@ -66,7 +67,7 @@ export default function ReviewPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-40">
-        <span className="text-gray-500">Loading...</span>
+        <span style={{ color: colours.text.muted }}>Loading...</span>
       </div>
     );
   }
@@ -74,31 +75,74 @@ export default function ReviewPage() {
   if (!user) {
     return (
       <div className="flex justify-center items-center h-40">
-        <span className="text-gray-500">Loading...</span>
+        <span style={{ color: colours.text.muted }}>Loading...</span>
       </div>
     );
   }
 
   return (
-    <div className="max-w-md mx-auto mt-10 bg-white rounded-xl shadow p-8">
+    <div 
+      className="max-w-md mx-auto mt-10 rounded-xl shadow p-8"
+      style={{
+        backgroundColor: colours.card.background,
+        border: `1px solid ${colours.card.border}`
+      }}
+    >
       <div className="flex items-center mb-4">
-        <a href={`/product/${id}`} className="flex items-center text-blue-600 hover:underline">
+        <a 
+          href={`/product/${id}`} 
+          className="flex items-center hover:underline"
+          style={{ color: colours.text.link }}
+        >
           <span className="mr-2 text-2xl">&#8592;</span>
           <span className="font-semibold">Go back to {product?.productName || 'product'}</span>
         </a>
       </div>
       {product && (
         <div className="mb-4">
-          <div className="text-lg font-semibold text-zinc-800 mb-1">{product.productName}</div>
-          <div className="text-zinc-700">What you should be paying: <span className="font-bold text-green-600">£{product.price?.toFixed(2)}</span></div>
+          <div 
+            className="text-lg font-semibold mb-1"
+            style={{ color: colours.text.primary }}
+          >
+            {product.productName}
+          </div>
+          <div style={{ color: colours.text.secondary }}>
+            What you should be paying: 
+            <span 
+              className="font-bold"
+              style={{ color: colours.score.high }}
+            >
+              £{product.price?.toFixed(2)}
+            </span>
+          </div>
         </div>
       )}
-      <h1 className="text-2xl font-bold mb-4 text-gray-800">Write a Review</h1>
+      <h1 
+        className="text-2xl font-bold mb-4"
+        style={{ color: colours.text.primary }}
+      >
+        Write a Review
+      </h1>
       {submitSuccess ? (
         <>
-          <div className="text-green-600 text-lg mb-4">Review submitted!</div>
+          <div 
+            className="text-lg mb-4"
+            style={{ color: colours.status.success.text }}
+          >
+            Review submitted!
+          </div>
           <button
-            className="w-full bg-zinc-200 hover:bg-zinc-300 text-zinc-800 font-semibold py-2 px-4 rounded transition"
+            className="w-full font-semibold py-2 px-4 rounded transition"
+            style={{
+              backgroundColor: colours.button.secondary.background,
+              color: colours.button.secondary.text
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = colours.button.secondary.hover.background;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = colours.button.secondary.background;
+            }}
             onClick={() => router.push(`/product/${id}`)}
           >
             Back to {product?.productName || 'Product'}
@@ -108,7 +152,12 @@ export default function ReviewPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <div className="mb-4">
-              <div className="mb-2 font-semibold text-zinc-700">Quality:</div>
+              <div 
+                className="mb-2 font-semibold"
+                style={{ color: colours.text.primary }}
+              >
+                Quality:
+              </div>
               <div className="flex space-x-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -129,13 +178,36 @@ export default function ReviewPage() {
                   type="checkbox"
                   checked={isAnonymous}
                   onChange={(e) => setIsAnonymous(e.target.checked)}
-                  className="rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
+                  style={{
+                    accentColor: colours.button.primary.background
+                  }}
+                  className="rounded"
                 />
-                <span className="text-sm text-zinc-700">Post anonymously</span>
+                <span 
+                  className="text-sm"
+                  style={{ color: colours.text.primary }}
+                >
+                  Post anonymously
+                </span>
               </label>
             </div>
             <textarea
-              className="w-full min-h-[100px] border border-zinc-300 rounded p-2 bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full min-h-[100px] rounded p-2 focus:outline-none"
+              style={{
+                backgroundColor: colours.input.background,
+                borderColor: colours.input.border,
+                borderWidth: '1px',
+                borderStyle: 'solid',
+                color: colours.input.text
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.boxShadow = colours.input.focus.ring;
+                e.currentTarget.style.borderColor = colours.input.focus.border;
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.borderColor = colours.input.border;
+              }}
               value={reviewText}
               onChange={e => setReviewText(e.target.value)}
               required
@@ -143,10 +215,31 @@ export default function ReviewPage() {
               placeholder="Share your thoughts about this product..."
             />
           </div>
-          {submitError && <div className="text-red-500 text-sm">{submitError}</div>}
+          {submitError && (
+            <div 
+              className="text-sm"
+              style={{ color: colours.status.error.text }}
+            >
+              {submitError}
+            </div>
+          )}
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition disabled:opacity-60"
+            className="w-full font-semibold py-2 px-4 rounded transition disabled:opacity-60"
+            style={{
+              backgroundColor: colours.button.primary.background,
+              color: colours.button.primary.text
+            }}
+            onMouseEnter={(e) => {
+              if (!submitting) {
+                e.currentTarget.style.backgroundColor = colours.button.primary.hover.background;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!submitting) {
+                e.currentTarget.style.backgroundColor = colours.button.primary.background;
+              }
+            }}
             disabled={submitting}
           >
             {submitting ? "Submitting..." : "Submit Review"}

@@ -11,6 +11,7 @@ import { Post, Comment } from "@/types/post";
 import { Product } from "@/types/product";
 import PostCard from "@/components/PostCard";
 import CommentItem from "@/components/CommentItem";
+import { colours } from "@/styles/colours";
 
 export default function PostPage() {
   const params = useParams();
@@ -197,21 +198,22 @@ export default function PostPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: colours.background.secondary }}>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: colours.spinner.border }}></div>
       </div>
     );
   }
 
   if (!post) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: colours.background.secondary }}>
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Post not found</h1>
-          <p className="text-gray-600 mb-4">The post you&apos;re looking for doesn&apos;t exist.</p>
+          <h1 className="text-2xl font-bold mb-2" style={{ color: colours.text.primary }}>Post not found</h1>
+          <p className="mb-4" style={{ color: colours.text.secondary }}>The post you&apos;re looking for doesn&apos;t exist.</p>
           <Link
             href="/chats"
-            className="text-blue-600 hover:text-blue-700 font-medium"
+            className="font-medium hover:underline"
+            style={{ color: colours.text.link }}
           >
             Back to Community
           </Link>
@@ -221,13 +223,14 @@ export default function PostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: colours.background.secondary }}>
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="mb-6">
           <Link 
             href="/chats" 
-            className="flex items-center text-blue-600 hover:underline mb-4"
+            className="flex items-center hover:underline mb-4"
+            style={{ color: colours.text.link }}
           >
             <ArrowLeft size={20} className="mr-2" />
             <span className="font-semibold">Back to Community</span>
@@ -246,10 +249,10 @@ export default function PostPage() {
         </div>
 
         {/* Comments Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: colours.card.background, border: `1px solid ${colours.card.border}` }}>
           <div className="flex items-center gap-2 mb-6">
-            <MessageCircle size={20} className="text-gray-600" />
-            <h2 className="text-xl font-bold text-gray-900">
+            <MessageCircle size={20} style={{ color: colours.text.secondary }} />
+            <h2 className="text-xl font-bold" style={{ color: colours.text.primary }}>
               Comments ({comments.length})
             </h2>
           </div>
@@ -259,8 +262,8 @@ export default function PostPage() {
             <form onSubmit={handleSubmitComment} className="mb-6">
               <div className="flex gap-3">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 font-medium text-sm">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: colours.tag.default.background }}>
+                    <span className="font-medium text-sm" style={{ color: colours.tag.default.text }}>
                       {(user.displayName || user.email || '').charAt(0).toUpperCase()}
                     </span>
                   </div>
@@ -269,7 +272,12 @@ export default function PostPage() {
                   <textarea
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    className="w-full px-3 py-2 rounded-lg resize-none"
+                    style={{
+                      border: `1px solid ${colours.card.border}`,
+                      backgroundColor: colours.input.background,
+                      color: colours.input.text
+                    }}
                     rows={3}
                     placeholder="Share your thoughts..."
                     maxLength={500}
@@ -278,7 +286,7 @@ export default function PostPage() {
                   {/* Product Linking for Comments */}
                   <div className="mt-2">
                     {selectedCommentProduct && (
-                      <div className="flex items-center gap-2 p-2 bg-blue-50 rounded border border-blue-200 mb-2">
+                      <div className="flex items-center gap-2 p-2 rounded mb-2" style={{ backgroundColor: colours.tag.default.background, border: `1px solid ${colours.tag.default.border}` }}>
                         <Image
                           src={selectedCommentProduct.imageUrl}
                           alt={selectedCommentProduct.productName}
@@ -287,13 +295,14 @@ export default function PostPage() {
                           className="object-cover rounded"
                         />
                         <div className="flex-1">
-                          <p className="text-xs font-medium text-blue-800">{selectedCommentProduct.productName}</p>
-                          <p className="text-xs text-blue-600">{selectedCommentProduct.brandName}</p>
+                          <p className="text-xs font-medium" style={{ color: colours.tag.default.text }}>{selectedCommentProduct.productName}</p>
+                          <p className="text-xs" style={{ color: colours.text.secondary }}>{selectedCommentProduct.brandName}</p>
                         </div>
                         <button
                           type="button"
                           onClick={() => setSelectedCommentProduct(null)}
-                          className="text-blue-500 hover:text-blue-700"
+                          className="hover:opacity-70"
+                          style={{ color: colours.text.secondary }}
                         >
                           <X size={14} />
                         </button>
@@ -303,17 +312,22 @@ export default function PostPage() {
                     {showCommentProductSearch && !selectedCommentProduct && (
                       <div className="relative mb-2">
                         <div className="relative">
-                          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={14} />
+                          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2" size={14} style={{ color: colours.text.muted }} />
                           <input
                             type="text"
                             value={commentProductSearch}
                             onChange={(e) => setCommentProductSearch(e.target.value)}
-                            className="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="w-full pl-8 pr-3 py-1.5 text-sm rounded"
+                            style={{
+                              border: `1px solid ${colours.card.border}`,
+                              backgroundColor: colours.input.background,
+                              color: colours.input.text
+                            }}
                             placeholder="Search for a product..."
                           />
                         </div>
                         {commentProducts.length > 0 && (
-                          <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded mt-1 max-h-32 overflow-y-auto z-10 shadow-lg">
+                          <div className="absolute top-full left-0 right-0 rounded mt-1 max-h-32 overflow-y-auto z-10 shadow-lg" style={{ backgroundColor: colours.card.background, border: `1px solid ${colours.card.border}` }}>
                             {commentProducts.map((product) => (
                               <button
                                 key={product.id}
@@ -346,13 +360,14 @@ export default function PostPage() {
 
                   <div className="flex justify-between items-center mt-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs" style={{ color: colours.text.muted }}>
                         {newComment.length}/500 characters
                       </span>
                       <button
                         type="button"
                         onClick={() => setShowCommentProductSearch(!showCommentProductSearch)}
-                        className="text-blue-600 hover:text-blue-700 flex items-center gap-1 text-xs"
+                        className="flex items-center gap-1 text-xs hover:underline"
+                        style={{ color: colours.text.link }}
                       >
                         <LinkIcon size={12} />
                         {showCommentProductSearch ? 'Hide' : 'Link Product'}
@@ -361,7 +376,21 @@ export default function PostPage() {
                     <button
                       type="submit"
                       disabled={!newComment.trim() || submittingComment}
-                      className="flex items-center gap-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="flex items-center gap-1 px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      style={{
+                        backgroundColor: colours.button.primary.background,
+                        color: colours.button.primary.text
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!e.currentTarget.disabled) {
+                          e.currentTarget.style.backgroundColor = colours.button.primary.hover.background;
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!e.currentTarget.disabled) {
+                          e.currentTarget.style.backgroundColor = colours.button.primary.background;
+                        }
+                      }}
                     >
                       <Send size={16} />
                       {submittingComment ? 'Posting...' : 'Post Comment'}
@@ -371,11 +400,12 @@ export default function PostPage() {
               </div>
             </form>
           ) : (
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg text-center">
-              <p className="text-gray-600 mb-2">Sign in to join the conversation</p>
+            <div className="mb-6 p-4 rounded-lg text-center" style={{ backgroundColor: colours.background.secondary }}>
+              <p className="mb-2" style={{ color: colours.text.secondary }}>Sign in to join the conversation</p>
               <Link
                 href="/auth"
-                className="text-blue-600 hover:text-blue-700 font-medium"
+                className="font-medium hover:underline"
+                style={{ color: colours.text.link }}
               >
                 Sign In
               </Link>
@@ -385,13 +415,13 @@ export default function PostPage() {
           {/* Comments List */}
           {loadingComments ? (
             <div className="text-center py-6">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-gray-600 mt-2">Loading comments...</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 mx-auto" style={{ borderColor: colours.spinner.border }}></div>
+              <p className="mt-2" style={{ color: colours.text.secondary }}>Loading comments...</p>
             </div>
           ) : comments.length === 0 ? (
             <div className="text-center py-8">
-              <MessageCircle size={48} className="mx-auto text-gray-300 mb-3" />
-              <p className="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+              <MessageCircle size={48} className="mx-auto mb-3" style={{ color: colours.text.muted }} />
+              <p style={{ color: colours.text.secondary }}>No comments yet. Be the first to share your thoughts!</p>
             </div>
           ) : (
             <div className="space-y-4">

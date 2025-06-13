@@ -3,6 +3,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { UserProfile } from '@/types/user';
 import Image from 'next/image';
+import { colours } from '@/styles/colours';
 
 interface PreferencesBarGraphProps {
   userProfile: UserProfile;
@@ -19,11 +20,11 @@ interface PreferenceItem {
 }
 
 const preferences: PreferenceItem[] = [
-  { key: 'pricePreference', label: 'Price', color: 'bg-yellow-500', circleColor: 'border-yellow-500', svg: '/dollar-svgrepo-com.svg' },
-  { key: 'qualityPreference', label: 'Quality', color: 'bg-red-500', circleColor: 'border-red-500', svg: '/quality-supervision-svgrepo-com.svg' },
-  { key: 'nutritionPreference', label: 'Nutrition', color: 'bg-blue-500', circleColor: 'border-blue-500', svg: '/meal-svgrepo-com.svg' },
-  { key: 'sustainabilityPreference', label: 'Sustainability', color: 'bg-green-500', circleColor: 'border-green-500', svg: '/leaf-svgrepo-com.svg' },
-  { key: 'brandPreference', label: 'Brand', color: 'bg-purple-500', circleColor: 'border-purple-500', svg: '/prices-svgrepo-com.svg' },
+  { key: 'pricePreference', label: 'Price', color: colours.status.warning.icon, circleColor: colours.status.warning.border, svg: '/dollar-svgrepo-com.svg' },
+  { key: 'qualityPreference', label: 'Quality', color: colours.status.error.icon, circleColor: colours.status.error.border, svg: '/quality-supervision-svgrepo-com.svg' },
+  { key: 'nutritionPreference', label: 'Nutrition', color: colours.chart.primary, circleColor: colours.chart.primary, svg: '/meal-svgrepo-com.svg' },
+  { key: 'sustainabilityPreference', label: 'Sustainability', color: colours.status.success.icon, circleColor: colours.status.success.border, svg: '/leaf-svgrepo-com.svg' },
+  { key: 'brandPreference', label: 'Brand', color: colours.tag.primary.background, circleColor: colours.tag.primary.border, svg: '/prices-svgrepo-com.svg' },
 ];
 
 export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, isUpdating = false }: PreferencesBarGraphProps) {
@@ -162,9 +163,9 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
                     alt={pref.label} 
                     width={20} 
                     height={20} 
-                    className="text-gray-600"
+                    style={{ color: colours.text.secondary }}
                   />
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-sm font-medium" style={{ color: colours.text.primary }}>
                     {pref.label}
                   </label>
                 </div>
@@ -172,30 +173,37 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
               
               <div 
                 ref={el => { containerRefs.current[pref.key] = el; }}
-                className={`relative h-8 bg-gray-200 rounded-lg cursor-pointer transition-all ${
-                  isDragging === pref.key ? 'ring-2 ring-blue-500 shadow-lg' : 'hover:shadow-md'
-                }`}
+                className={`relative h-8 rounded-lg cursor-pointer transition-all hover:shadow-md`}
+                style={{
+                  backgroundColor: colours.background.secondary,
+                  ...(isDragging === pref.key && {
+                    boxShadow: `0 0 0 2px ${colours.interactive.selected.background}`,
+                  })
+                }}
                 onMouseDown={handleMouseDown(pref.key)}
               >
                 <div 
-                  className={`h-full ${pref.color} rounded-lg flex items-center justify-end pr-2 transition-all duration-1000 ease-out ${
+                  className={`h-full rounded-lg flex items-center justify-end pr-2 transition-all duration-1000 ease-out ${
                     isAnimated ? 'opacity-100' : 'opacity-0'
                   }`}
                   style={{ 
                     width: isAnimated ? `${percentage}%` : '0%',
+                    backgroundColor: pref.color,
                     transitionDelay: `${index * 150}ms` // Stagger the animations
                   }}
                 >
-                  <div className={`w-3 h-3 bg-white rounded-full shadow-sm border-2 ${pref.circleColor} transition-all duration-300 ${
+                  <div className={`w-3 h-3 rounded-full shadow-sm border-2 transition-all duration-300 ${
                     isAnimated ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
                   }`} 
                   style={{ 
+                    backgroundColor: colours.card.background,
+                    borderColor: pref.circleColor,
                     transitionDelay: `${index * 150 + 800}ms` // Circle appears after bar fills
                   }} />
                 </div>
               </div>
               
-              <div className="text-xs text-gray-500 flex justify-between">
+              <div className="text-xs flex justify-between" style={{ color: colours.text.muted }}>
                 <span>Less Important</span>
                 <span>More Important</span>
               </div>
@@ -204,15 +212,16 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
         })}
 
       {showTip && (
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg relative">
+        <div className="mt-4 p-3 rounded-lg relative" style={{ backgroundColor: colours.background.secondary }}>
           <button
             onClick={() => setShowTip(false)}
-            className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="absolute top-2 right-2 transition-colors hover:opacity-70"
+            style={{ color: colours.text.muted }}
             aria-label="Close tip"
           >
             ✕
           </button>
-          <p className="text-xs text-gray-600 leading-relaxed pr-6">
+          <p className="text-xs leading-relaxed pr-6" style={{ color: colours.text.secondary }}>
             <span className="font-medium">💡 Tip:</span> Click and drag the sliders to adjust how important each factor is to you.
           </p>
         </div>
@@ -223,14 +232,19 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
           <button
             onClick={handleResetChanges}
             disabled={isUpdating}
-            className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 disabled:opacity-50"
+            className="px-3 py-1 text-sm disabled:opacity-50 hover:underline"
+            style={{ color: colours.text.secondary }}
           >
             Reset
           </button>
           <button
             onClick={handleSaveChanges}
             disabled={isUpdating}
-            className="px-4 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-1 text-sm rounded disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
+            style={{
+              backgroundColor: colours.button.primary.background,
+              color: colours.button.primary.text
+            }}
           >
             {isUpdating ? 'Saving...' : 'Save Changes'}
           </button>

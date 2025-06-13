@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { colours } from "@/styles/colours";
 
 const RecentlyViewedProducts = ({ userId }: { userId: string }) => {
     const [products, setProducts] = useState([]);
@@ -27,7 +28,7 @@ const RecentlyViewedProducts = ({ userId }: { userId: string }) => {
     }, [userId]);
 
     // Remove loading spinner and always render the list, but apply blur/opacity when loading
-    if (!products.length && !loading) return <div className="text-gray-400">No recently viewed products.</div>;
+    if (!products.length && !loading) return <div style={{ color: colours.text.muted }}>No recently viewed products.</div>;
 
     const sortedProducts = [...products];
     const visibleProducts = showAll ? sortedProducts : sortedProducts.slice(0, 3);
@@ -38,16 +39,28 @@ const RecentlyViewedProducts = ({ userId }: { userId: string }) => {
                 {visibleProducts.map((product) => (
                     <li
                         key={product.id}
-                        className="bg-zinc-50 rounded p-3 border border-zinc-200 hover:bg-zinc-100 transition cursor-pointer"
+                        style={{
+                            backgroundColor: colours.card.background,
+                            borderColor: colours.card.border,
+                            borderWidth: '1px',
+                            borderStyle: 'solid'
+                        }}
+                        className="rounded p-3 transition cursor-pointer"
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = colours.card.hover.background;
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = colours.card.background;
+                        }}
                     >
                         <Link
                             href={`/product/${product.id}`}
                             className="block w-full h-full"
                         >
-                            <div className="font-semibold text-blue-600 hover:underline text-lg mb-1">
+                            <div className="font-semibold text-lg mb-1" style={{ color: colours.text.link }}>
                                 {product.productName}
                             </div>
-                            <div className="text-xs text-gray-400">
+                            <div className="text-xs" style={{ color: colours.text.muted }}>
                                 Product ID: {product.id}
                             </div>
                         </Link>
@@ -57,7 +70,17 @@ const RecentlyViewedProducts = ({ userId }: { userId: string }) => {
             {!showAll && products.length > 3 && (
                 <div className="flex justify-center mt-3">
                     <button
-                        className="px-4 py-2 rounded bg-zinc-200 hover:bg-zinc-300 text-sm text-zinc-700 transition"
+                        className="px-4 py-2 rounded text-sm transition"
+                        style={{
+                            backgroundColor: colours.button.secondary.background,
+                            color: colours.button.secondary.text,
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = colours.button.secondary.hover.background;
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = colours.button.secondary.background;
+                        }}
                         onClick={() => setShowAll(true)}
                     >
                         See more

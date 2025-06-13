@@ -11,6 +11,7 @@ import RecentlyViewedProducts from "@/components/RecentlyViewedProducts";
 import PreferencesBarGraph from "@/components/PreferencesBarGraph";
 import AllergenManager from "@/components/AllergenManager";
 import Image from "next/image";
+import { colours } from "@/styles/colours";
 
 export default function ProfilePage() {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
@@ -122,7 +123,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-40">
-        <span className="text-gray-500">Loading...</span>
+        <span style={{ color: colours.text.secondary }}>Loading...</span>
       </div>
     );
   }
@@ -130,7 +131,7 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="flex justify-center items-center h-40">
-        <span className="text-red-500">User not found</span>
+        <span style={{ color: colours.status.error.text }}>User not found</span>
       </div>
     );
   }
@@ -138,14 +139,42 @@ export default function ProfilePage() {
   return (
     <div className="max-w-4xl mx-auto mt-10 p-6 space-y-6">
       {/* User Profile Card */}
-      <div className="bg-white rounded-xl shadow p-8">
-        <h1 className="text-2xl font-bold text-gray-800">{user.username || user.email || "Profile"}</h1>
-        <div className="text-xs text-gray-400 mb-4">{user.email}</div>
+      <div 
+        className="rounded-xl shadow p-8"
+        style={{
+          backgroundColor: colours.card.background,
+          border: `1px solid ${colours.card.border}`
+        }}
+      >
+        <h1 
+          className="text-2xl font-bold"
+          style={{ color: colours.text.primary }}
+        >
+          {user.username || user.email || "Profile"}
+        </h1>
+        <div 
+          className="text-xs mb-4"
+          style={{ color: colours.text.muted }}
+        >
+          {user.email}
+        </div>
         <div className="mb-2 flex justify-center">
           {user.pfp ? (
-            <Image src={user.pfp} alt="Profile" width={64} height={64} className="w-16 h-16 rounded-full border border-zinc-300" />
+            <Image 
+              src={user.pfp} 
+              alt="Profile" 
+              width={64} 
+              height={64} 
+              className="w-16 h-16 rounded-full"
+              style={{ border: `1px solid ${colours.content.border}` }}
+            />
           ) : (
-            <span className="italic text-gray-400">No profile picture</span>
+            <span 
+              className="italic"
+              style={{ color: colours.text.muted }}
+            >
+              No profile picture
+            </span>
           )}
         </div>
 
@@ -153,7 +182,12 @@ export default function ProfilePage() {
         <>
           {/* Shopping Preferences Section - Always Visible */}
           <div className="mt-8">
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">Shopping Preferences</h2>
+            <h2 
+              className="text-lg font-semibold mb-4"
+              style={{ color: colours.text.secondary }}
+            >
+              Shopping Preferences
+            </h2>
             <PreferencesBarGraph 
               userProfile={user}
               onPreferencesUpdate={handlePreferencesUpdate}
@@ -177,9 +211,16 @@ export default function ProfilePage() {
       {user && user.userId && (
         <div className="space-y-4">
             {/* Recently Viewed Products Section */}
-            <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3 transition-all duration-300">
+            <div 
+              className="rounded-xl p-3 transition-all duration-300"
+              style={{
+                backgroundColor: colours.content.surfaceSecondary,
+                border: `1px solid ${colours.content.border}`
+              }}
+            >
               <button
-                className="w-full flex items-center justify-between text-lg font-semibold text-gray-700 mb-2 focus:outline-none"
+                className="w-full flex items-center justify-between text-lg font-semibold mb-2 focus:outline-none"
+                style={{ color: colours.text.secondary }}
                 onClick={() => setShowRecents((v) => !v)}
                 aria-expanded={showRecents}
               >
@@ -208,9 +249,16 @@ export default function ProfilePage() {
             </div>
 
             {/* User Reviews Section */}
-            <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3 transition-all duration-300">
+            <div 
+              className="rounded-xl p-3 transition-all duration-300"
+              style={{
+                backgroundColor: colours.content.surfaceSecondary,
+                border: `1px solid ${colours.content.border}`
+              }}
+            >
               <button
-                className="w-full flex items-center justify-between text-lg font-semibold text-gray-700 mb-2 focus:outline-none"
+                className="w-full flex items-center justify-between text-lg font-semibold mb-2 focus:outline-none"
+                style={{ color: colours.text.secondary }}
                 onClick={() => setShowReviews((v) => !v)}
                 aria-expanded={showReviews}
               >
@@ -242,11 +290,24 @@ export default function ProfilePage() {
 
         <button
           onClick={handleLogout}
-          className="mt-6 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded transition"
+          className="mt-6 font-semibold py-2 px-4 rounded transition"
+          style={{
+            backgroundColor: colours.button.danger.background,
+            color: colours.button.danger.text
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = colours.button.danger.hover.background
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = colours.button.danger.background
+          }}
         >
           Log out
         </button>
-        <div className="mt-4 text-xs text-gray-400 text-left">
+        <div 
+          className="mt-4 text-xs text-left"
+          style={{ color: colours.text.muted }}
+        >
           User ID: {user.userId}
         </div>
       </div>
