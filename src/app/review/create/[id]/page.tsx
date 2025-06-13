@@ -17,8 +17,8 @@ export default function ReviewPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [valueRating, setValueRating] = useState(0);
-  const [qualityRating, setQualityRating] = useState(0);
+  const [rating, setRating] = useState(0);
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -49,14 +49,13 @@ export default function ReviewPage() {
     setSubmitSuccess(false);
     try {
       if (!user?.uid) throw new Error("User not authenticated");
-      if (!valueRating) throw new Error("Please select a value rating");
-      if (!qualityRating) throw new Error("Please select a quality rating");
+      if (!rating) throw new Error("Please select a rating");
 
-      await createReview(id, user.uid, reviewText, valueRating, qualityRating);
+      await createReview(id, user.uid, reviewText, rating, isAnonymous);
       setSubmitSuccess(true);
       setReviewText("");
-      setValueRating(0);
-      setQualityRating(0);
+      setRating(0);
+      setIsAnonymous(false);
     } catch (err) {
       setSubmitError((err as Error).message || "Unknown error");
     } finally {
@@ -108,39 +107,32 @@ export default function ReviewPage() {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <div className="flex flex-row gap-8 mb-4">
-              <div>
-                <div className="mb-2 font-semibold text-zinc-700">Value Rating:</div>
-                <div className="flex space-x-2">
-                  {[1, 2, 3, 4, 5].map((bag) => (
-                    <button
-                      type="button"
-                      key={bag}
-                      className={`text-2xl transition-colors ${valueRating >= bag ? '' : 'opacity-30'}`}
-                      onClick={() => setValueRating(bag)}
-                      aria-label={`Rate value ${bag} money bag${bag > 1 ? 's' : ''}`}
-                    >
-                      💰
-                    </button>
-                  ))}
-                </div>
+            <div className="mb-4">
+              <div className="mb-2 font-semibold text-zinc-700">Quality:</div>
+              <div className="flex space-x-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    type="button"
+                    key={star}
+                    className={`text-2xl transition-colors ${rating >= star ? '' : 'opacity-30'}`}
+                    onClick={() => setRating(star)}
+                    aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                  >
+                    ⭐
+                  </button>
+                ))}
               </div>
-              <div>
-                <div className="mb-2 font-semibold text-zinc-700">Quality Rating:</div>
-                <div className="flex space-x-2">
-                  {[1, 2, 3, 4, 5].map((apple) => (
-                    <button
-                      type="button"
-                      key={apple}
-                      className={`text-2xl transition-colors ${qualityRating >= apple ? '' : 'opacity-30'}`}
-                      onClick={() => setQualityRating(apple)}
-                      aria-label={`Rate quality ${apple} apple${apple > 1 ? 's' : ''}`}
-                    >
-                      🍎
-                    </button>
-                  ))}
-                </div>
-              </div>
+            </div>
+            <div className="mb-4">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={isAnonymous}
+                  onChange={(e) => setIsAnonymous(e.target.checked)}
+                  className="rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-sm text-zinc-700">Post anonymously</span>
+              </label>
             </div>
             <textarea
               className="w-full min-h-[100px] border border-zinc-300 rounded p-2 bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -148,6 +140,7 @@ export default function ReviewPage() {
               onChange={e => setReviewText(e.target.value)}
               required
               maxLength={1000}
+              placeholder="Share your thoughts about this product..."
             />
           </div>
           {submitError && <div className="text-red-500 text-sm">{submitError}</div>}

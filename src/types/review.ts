@@ -6,7 +6,7 @@ export interface Review {
   createdAt: Date;
   productId: string; 
   reviewText?: string;
-  valueRating: number;
-  qualityRating: number;
+  rating: number; // 1-5 star rating
   userId: string;
+  isAnonymous?: boolean; // whether the review is anonymous
 }

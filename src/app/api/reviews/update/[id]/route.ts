@@ -8,16 +8,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const { searchParams } = new URL(req.url);
 
     const reviewText = searchParams.get('reviewText') || undefined;
-    const valueRating = parseInt(searchParams.get('valueRating'));
-    const qualityRating = parseInt(searchParams.get('qualityRating'));
+    const rating = parseInt(searchParams.get('rating'));
 
     // Defensive: Only update provided fields
     const updateData: Partial<Review> & { updatedAt: Date } = {
       updatedAt: new Date(),
     };
     if (typeof reviewText === 'string') updateData.reviewText = reviewText;
-    if (!isNaN(valueRating)) updateData.valueRating = valueRating;
-    if (!isNaN(qualityRating)) updateData.qualityRating = qualityRating;
+    if (!isNaN(rating)) updateData.rating = rating;
 
     await db.collection('reviews').doc(id).update(updateData);
 

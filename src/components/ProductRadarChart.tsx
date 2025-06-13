@@ -93,7 +93,7 @@ export default function ProductRadarChart({
 
   const radarData = [
     priceScore, // Price score based on quartile position
-    reviewSummary?.averageQualityRating || 3, // Quality score from average quality rating
+    reviewSummary?.averageRating || 3, // Quality score from average rating
     getNutritionScore(product?.combinedNutritionGrade || ''), // Nutrition score from grade
     product?.sustainbilityScore || 3, // Sustainability score from product data
     brandScore, // Brand score from brand data
@@ -161,10 +161,10 @@ export default function ProductRadarChart({
     };
 
     if (openPopup === "Value" || openPopup === "Price") {
-      animateValue('value', reviewSummary?.averageValueRating || 0);
+      animateValue('value', reviewSummary?.averageRating || 0);
     }
     if (openPopup === "Quality") {
-      animateValue('quality', reviewSummary?.averageQualityRating || 0);
+      animateValue('quality', reviewSummary?.averageRating || 0);
     }
     if (openPopup === "Brand") {
       animateValue('brand', 75);

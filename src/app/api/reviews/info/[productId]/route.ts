@@ -22,43 +22,28 @@ export async function GET(
             return {
                 id: doc.id,
                 userId: data.userId,
-                valueRating: data.valueRating,
-                qualityRating: data.qualityRating,
+                rating: data.rating,
                 reviewText: data.reviewText,
                 createdAt: data.createdAt,
             };
         });
         const reviewCount = reviews.length;
-        const avgValueRating =
+        const avgRating =
             reviewCount === 0
                 ? 0
-                : reviews.reduce((sum, r) => sum + (r.valueRating || 0), 0) / reviewCount;
+                : reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount;
 
-        const avgQualityRating =
-            reviewCount === 0
-                ? 0
-                : reviews.reduce((sum, r) => sum + (r.qualityRating || 0), 0) / reviewCount;
-
-        const valueDistribution = reviews.reduce((acc, r) => {
-            if (typeof r.valueRating === 'number' && acc[r.valueRating] !== undefined) {
-                acc[r.valueRating]++;
-            }
-            return acc;
-        }, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } as Record<number, number>);
-
-        const qualityDistribution = reviews.reduce((acc, r) => {
-            if (typeof r.qualityRating === 'number' && acc[r.qualityRating] !== undefined) {
-                acc[r.qualityRating]++;
+        const ratingDistribution = reviews.reduce((acc, r) => {
+            if (typeof r.rating === 'number' && acc[r.rating] !== undefined) {
+                acc[r.rating]++;
             }
             return acc;
         }, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } as Record<number, number>);
 
         return NextResponse.json({
             productId,
-            averageValueRating: avgValueRating,
-            averageQualityRating: avgQualityRating,
-            valueDistribution,
-            qualityDistribution,
+            averageRating: avgRating,
+            ratingDistribution,
             totalReviews: reviewCount,
         }) as NextResponse<ReviewSummary>;
     } catch (error) {

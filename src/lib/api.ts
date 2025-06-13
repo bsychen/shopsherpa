@@ -33,12 +33,12 @@ export async function getReview(id: string): Promise<Review | null> {
   return await res.json();
 }
 
-export async function createReview(productId: string, userId: string, reviewText: string, valueRating: number, qualityRating: number) {
+export async function createReview(productId: string, userId: string, reviewText: string, rating: number, isAnonymous: boolean = false) {
   const params = new URLSearchParams({
     userId,
     reviewText,
-    valueRating: valueRating.toString(),
-    qualityRating: qualityRating.toString()
+    rating: rating.toString(),
+    isAnonymous: isAnonymous.toString()
   });
   const res = await fetch(`/api/reviews/create/${encodeURIComponent(productId)}?${params.toString()}`, {
     method: 'POST',
@@ -65,13 +65,11 @@ export async function getUserById(userId: string): Promise<UserProfile | null> {
 
 export async function updateReview(
   id: string,
-  valueRating?: number,
-  qualityRating?: number,
+  rating?: number,
   reviewText?: string
 ): Promise<{ success: boolean; error?: string }> {
   const params = new URLSearchParams();
-  if (typeof valueRating === 'number') params.append('valueRating', valueRating.toString());
-  if (typeof qualityRating === 'number') params.append('qualityRating', qualityRating.toString());
+  if (typeof rating === 'number') params.append('rating', rating.toString());
   if (typeof reviewText === 'string') params.append('reviewText', reviewText);
   const res = await fetch(`/api/reviews/update/${encodeURIComponent(id)}?${params.toString()}`, {
     method: 'PATCH',

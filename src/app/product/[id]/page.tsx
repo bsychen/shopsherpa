@@ -94,7 +94,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [_animatedQuality, setAnimatedQuality] = useState(0);
   const [visibleReviews, setVisibleReviews] = useState(3);
   const [seeMoreClicked, setSeeMoreClicked] = useState(false);
-  const [filter, setFilter] = useState<{ type: 'value' | 'quality' | null, score: number | null }>({ type: null, score: null });
+  const [filter, setFilter] = useState<{ score: number | null }>({ score: null });
   const [refreshing, setRefreshing] = useState(false);
   const [sortBy, setSortBy] = useState<'recent' | 'critical' | 'favourable'>('recent');
   const [sortOpen, setSortOpen] = useState(false);
@@ -144,8 +144,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   useEffect(() => {
     if (reviewSummary) {
-      setTimeout(() => setAnimatedValue(reviewSummary.averageValueRating), 50);
-      setTimeout(() => setAnimatedQuality(reviewSummary.averageQualityRating), 50);
+      setTimeout(() => setAnimatedValue(reviewSummary.averageRating), 50);
+      setTimeout(() => setAnimatedQuality(reviewSummary.averageRating), 50);
     }
   }, [reviewSummary]);
 
@@ -191,23 +191,23 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     }
   };
 
-  const filteredReviews = filter.type && filter.score !== null
-    ? reviews.filter(r => (filter.type === 'value' ? r.valueRating : r.qualityRating) === filter.score)
+  const filteredReviews = filter.score !== null
+    ? reviews.filter(r => r.rating === filter.score)
     : reviews;
 
   const sortedReviews = [...filteredReviews].sort((a, b) => {
     const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
     const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
     if (sortBy === 'recent') return bDate - aDate;
-    const aScore = (a.valueRating || 0) + (a.qualityRating || 0);
-    const bScore = (b.valueRating || 0) + (b.qualityRating || 0);
+    const aScore = a.rating || 0;
+    const bScore = b.rating || 0;
     if (sortBy === 'critical') return aScore !== bScore ? aScore - bScore : bDate - aDate;
     if (sortBy === 'favourable') return aScore !== bScore ? bScore - aScore : bDate - aDate;
     return 0;
   });
 
   useEffect(() => {
-    if (filter.type !== null || sortOpen === false) {
+    if (filter.score !== null || sortOpen === false) {
       setRefreshing(true);
       const timeout = setTimeout(() => setRefreshing(false), 350);
       return () => clearTimeout(timeout);
@@ -498,41 +498,31 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               </div>
             </div>
             {sortedReviews.length === 0 ? (
-              <div className="text-zinc-500">No reviews{filter.type ? ` with ${filter.type} score ${filter.score}` : ''}.</div>
+              <div className="text-zinc-500">No reviews{filter.score ? ` with ${filter.score} star${filter.score > 1 ? 's' : ''}` : ''}.</div>
             ) : (
               <>
                 <ul className="space-y-4">
                   {sortedReviews.slice(0, visibleReviews).map((review, idx) => {
                     let opacity = 1;
-                    if (!seeMoreClicked && visibleReviews === 3 && !filter.type) {
+                    if (!seeMoreClicked && visibleReviews === 3 && !filter.score) {
                       opacity = 1 - idx * 0.3;
                     }
                     return (
                       <li key={review.id} style={{ opacity }}>
                         <Link href={`/review/${review.id}`} className="block bg-white rounded-lg border border-zinc-200 shadow-sm p-4 hover:bg-zinc-50 transition cursor-pointer">
-                          <div className="font-bold text-zinc-700 mb-1">{usernames[review.userId] || "User"}</div>
+                          <div className="font-bold text-zinc-700 mb-1">
+                            {review.isAnonymous ? "anon" : (usernames[review.userId] || "User")}
+                          </div>
                           <div className="flex flex-row items-center gap-4 mb-1">
                             <span className="flex items-center">
-                              {[1, 2, 3, 4, 5].map((bag) => (
+                              {[1, 2, 3, 4, 5].map((star) => (
                                 <span
-                                  key={bag}
-                                  className={`text-xl ${review.valueRating >= bag ? '' : 'opacity-30'}`}
+                                  key={star}
+                                  className={`text-xl ${review.rating >= star ? '' : 'opacity-30'}`}
                                   role="img"
-                                  aria-label="money-bag"
+                                  aria-label="star"
                                 >
-                                  💰
-                                </span>
-                              ))}
-                            </span>
-                            <span className="flex items-center">
-                              {[1, 2, 3, 4, 5].map((apple) => (
-                                <span
-                                  key={apple}
-                                  className={`text-xl ${review.qualityRating >= apple ? '' : 'opacity-30'}`}
-                                  role="img"
-                                  aria-label="apple"
-                                >
-                                  🍎
+                                  ⭐
                                 </span>
                               ))}
                             </span>
@@ -553,10 +543,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                     </button>
                   </div>
                 )}
-                {filter.type && (
+                {filter.score && (
                   <div className="flex justify-center mt-2">
                     <button
-                      onClick={() => setFilter({ type: null, score: null })}
+                      onClick={() => setFilter({ score: null })}
                       className="px-3 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded font-semibold transition"
                     >
                       Clear filter

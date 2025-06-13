@@ -23,8 +23,8 @@ export default function Home() {
           </Link>
           <Link href="/chats">
             <button className="w-full px-6 py-4 bg-purple-600 text-white rounded-lg text-lg font-semibold hover:bg-purple-700 transition-colors shadow flex items-center justify-between group">
-              <span className="text-left w-full">Ask Our Users</span>
-              <Image src="/message-square.svg" alt="Ask Users" width={28} height={28} className="h-7 w-7 ml-4 filter invert group-hover:invert-0" />
+              <span className="text-left w-full">Community Posts</span>
+              <Image src="/message-square.svg" alt="Community Posts" width={28} height={28} className="h-7 w-7 ml-4 filter invert group-hover:invert-0" />
             </button>
           </Link>
         </div>
