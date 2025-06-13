@@ -121,10 +121,14 @@ export async function GET(
     const doc = await db.collection("products").doc(id).get();
     if (doc.exists) {
       const data = doc.data();
-      return NextResponse.json({
+      const response = NextResponse.json({
         id: doc.id,
         ...data,
       }) as NextResponse<Product>;
+      
+      // Add cache headers for existing products
+      response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+      return response;
     }
 
     const productData = await fetchProductData(id);
@@ -135,7 +139,11 @@ export async function GET(
     // Add to Firestore
     console.log("Adding product to Firestore:", productData);
     await db.collection("products").doc(id).set(productData);
-    return NextResponse.json(productData) as NextResponse<Product>;
+    
+    const response = NextResponse.json(productData) as NextResponse<Product>;
+    // Cache new products for shorter time initially
+    response.headers.set('Cache-Control', 'public, s-maxage=1800, stale-while-revalidate=3600');
+    return response;
   } catch {
     return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
   }
