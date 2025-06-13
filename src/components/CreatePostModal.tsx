@@ -2,13 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, Search, Tag, Link } from 'lucide-react';
-
-interface Product {
-  id: string;
-  productName: string;
-  brandName: string;
-  imageUrl: string;
-}
+import { Product } from '@/types/product';
 
 interface CreatePostModalProps {
   isOpen: boolean;

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from 'react';
-import { Heart, MessageCircle, ThumbsDown, ThumbsUp, Tag, ExternalLink, Clock } from 'lucide-react';
+import { MessageCircle, ThumbsDown, ThumbsUp, Tag, ExternalLink, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { Post } from '@/types/post';
+import { formatDate } from '@/utils/dateUtils';
 
 interface PostCardProps {
   post: Post;
@@ -32,19 +33,6 @@ export default function PostCard({
   const displayContent = shouldTruncate && !isExpanded 
     ? post.content.substring(0, 300) + '...' 
     : post.content;
-
-  const formatDate = (date: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - new Date(date).getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor(diff / (1000 * 60));
-
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
-    if (minutes > 0) return `${minutes}m ago`;
-    return 'Just now';
-  };
 
   const handleLike = () => {
     if (!currentUserId) return;

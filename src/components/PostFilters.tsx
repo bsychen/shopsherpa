@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Search, Filter, X, Tag, TrendingUp, Clock, Heart } from 'lucide-react';
+import { Tag as TagType } from '@/types/post';
 
 interface PostFiltersProps {
   selectedTags: string[];
@@ -10,13 +11,6 @@ interface PostFiltersProps {
   onTagsChange: (tags: string[]) => void;
   onSortChange: (sort: 'recent' | 'popular' | 'trending') => void;
   onSearchChange: (search: string) => void;
-}
-
-interface TagOption {
-  id: string;
-  name: string;
-  category: string;
-  usageCount: number;
 }
 
 export default function PostFilters({
@@ -28,7 +22,7 @@ export default function PostFilters({
   onSearchChange,
 }: PostFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
-  const [availableTags, setAvailableTags] = useState<TagOption[]>([]);
+  const [availableTags, setAvailableTags] = useState<TagType[]>([]);
   const [tagSearch, setTagSearch] = useState('');
 
   useEffect(() => {

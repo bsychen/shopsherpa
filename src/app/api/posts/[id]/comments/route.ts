@@ -47,9 +47,9 @@ export async function GET(
     );
 
     // Sort comments by createdAt in JavaScript to avoid index requirement
-    comments.sort((a: any, b: any) => {
-      const aTime = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
-      const bTime = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+    comments.sort((a, b) => {
+      const aTime = a.createdAt.getTime();
+      const bTime = b.createdAt.getTime();
       return aTime - bTime;
     });
 

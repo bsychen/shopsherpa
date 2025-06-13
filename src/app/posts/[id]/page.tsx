@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import Link from "next/link";
 import { ArrowLeft, MessageCircle, Send, Link as LinkIcon, Search, X } from "lucide-react";
 import { Post, Comment } from "@/types/post";
+import { Product } from "@/types/product";
 import PostCard from "@/components/PostCard";
 import CommentItem from "@/components/CommentItem";
 
@@ -22,8 +23,8 @@ export default function PostPage() {
   const [newComment, setNewComment] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
   const [commentProductSearch, setCommentProductSearch] = useState('');
-  const [commentProducts, setCommentProducts] = useState<any[]>([]);
-  const [selectedCommentProduct, setSelectedCommentProduct] = useState<any>(null);
+  const [commentProducts, setCommentProducts] = useState<Product[]>([]);
+  const [selectedCommentProduct, setSelectedCommentProduct] = useState<Product | null>(null);
   const [showCommentProductSearch, setShowCommentProductSearch] = useState(false);
 
   useEffect(() => {
@@ -32,21 +33,6 @@ export default function PostPage() {
     });
     return () => unsubscribe();
   }, []);
-
-  useEffect(() => {
-    if (postId) {
-      fetchPost();
-      fetchComments();
-    }
-  }, [postId]);
-
-  useEffect(() => {
-    if (commentProductSearch.length > 2) {
-      searchProducts(commentProductSearch);
-    } else {
-      setCommentProducts([]);
-    }
-  }, [commentProductSearch]);
 
   const searchProducts = async (term: string) => {
     try {
@@ -60,7 +46,7 @@ export default function PostPage() {
     }
   };
 
-  const fetchPost = async () => {
+  const fetchPost = useCallback(async () => {
     try {
       const response = await fetch(`/api/posts/${postId}`);
       if (response.ok) {
@@ -72,9 +58,9 @@ export default function PostPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [postId]);
 
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     try {
       const response = await fetch(`/api/posts/${postId}/comments`);
       if (response.ok) {
@@ -86,7 +72,22 @@ export default function PostPage() {
     } finally {
       setLoadingComments(false);
     }
-  };
+  }, [postId]);
+
+  useEffect(() => {
+    if (postId) {
+      fetchPost();
+      fetchComments();
+    }
+  }, [postId, fetchPost, fetchComments]);
+
+  useEffect(() => {
+    if (commentProductSearch.length > 2) {
+      searchProducts(commentProductSearch);
+    } else {
+      setCommentProducts([]);
+    }
+  }, [commentProductSearch]);
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,16 +194,6 @@ export default function PostPage() {
     handlePostAction(postId, action);
   };
 
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -216,7 +207,7 @@ export default function PostPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Post not found</h1>
-          <p className="text-gray-600 mb-4">The post you're looking for doesn't exist.</p>
+          <p className="text-gray-600 mb-4">The post you&apos;re looking for doesn&apos;t exist.</p>
           <Link
             href="/chats"
             className="text-blue-600 hover:text-blue-700 font-medium"

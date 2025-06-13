@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { FieldValue } from 'firebase-admin/firestore';
+import { FieldValue, Query, CollectionReference, DocumentData } from 'firebase-admin/firestore';
 import { db } from '@/lib/firebaseAdmin';
+import { Post } from '@/types/post';
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,7 +11,7 @@ export async function GET(request: NextRequest) {
     const searchTerm = searchParams.get('search') || '';
     const limitCount = parseInt(searchParams.get('limit') || '20');
 
-    let postsQuery: any = db.collection('posts');
+    let postsQuery: Query<DocumentData> | CollectionReference<DocumentData> = db.collection('posts');
 
     // Only apply one filter at a time to avoid composite index requirements
     if (tags.length > 0) {
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     const snapshot = await postsQuery.get();
     const posts = await Promise.all(
-      snapshot.docs.map(async (docSnapshot: any) => {
+      snapshot.docs.map(async (docSnapshot) => {
         const data = docSnapshot.data();
         let linkedProduct = null;
 
@@ -59,18 +60,20 @@ export async function GET(request: NextRequest) {
 
     // Sort in JavaScript if we have filters applied or need specific sorting
     if (tags.length > 0 || searchTerm) {
-      posts.sort((a: any, b: any) => {
-        const aTime = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
-        const bTime = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+      posts.sort((a, b) => {
+        const aTime = a.createdAt.getTime();
+        const bTime = b.createdAt.getTime();
         return bTime - aTime; // desc order
       });
     }
 
     // Sort by popularity if requested (after fetching likes/dislikes)
     if (sortBy === 'popular') {
-      posts.sort((a: any, b: any) => {
-        const aScore = (a.likes?.length || 0) - (a.dislikes?.length || 0);
-        const bScore = (b.likes?.length || 0) - (b.dislikes?.length || 0);
+      posts.sort((a, b) => {
+        const postA = a as Post;
+        const postB = b as Post;
+        const aScore = (postA.likes?.length || 0) - (postA.dislikes?.length || 0);
+        const bScore = (postB.likes?.length || 0) - (postB.dislikes?.length || 0);
         return bScore - aScore;
       });
     }

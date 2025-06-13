@@ -4,8 +4,8 @@ export interface Post {
   content: string;
   authorId: string;
   authorName: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   tags: string[];
   linkedProductId?: string;
   linkedProduct?: {
@@ -24,8 +24,8 @@ export interface Comment {
   content: string;
   authorId: string;
   authorName: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   linkedProductId?: string;
   linkedProduct?: {
     id: string;

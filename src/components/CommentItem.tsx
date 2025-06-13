@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from 'react';
 import { ThumbsUp, ThumbsDown, Reply, Clock, ExternalLink } from 'lucide-react';
 import { Comment } from '@/types/post';
+import { formatDate } from '@/utils/dateUtils';
 
 interface CommentItemProps {
   comment: Comment;
@@ -26,19 +26,6 @@ export default function CommentItem({
   
   const likeCount = comment.likes.length;
   const dislikeCount = comment.dislikes.length;
-
-  const formatDate = (date: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - new Date(date).getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor(diff / (1000 * 60));
-
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
-    if (minutes > 0) return `${minutes}m ago`;
-    return 'Just now';
-  };
 
   const handleLike = () => {
     if (!currentUserId) return;

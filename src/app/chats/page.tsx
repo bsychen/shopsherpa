@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import Link from "next/link";
@@ -29,11 +29,7 @@ export default function PostsPage() {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    fetchPosts();
-  }, [selectedTags, sortBy, searchTerm]);
-
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       const params = new URLSearchParams();
       if (selectedTags.length > 0) {
@@ -55,7 +51,11 @@ export default function PostsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedTags, sortBy, searchTerm]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
 
   const handleCreatePost = async (postData: {
     title: string;

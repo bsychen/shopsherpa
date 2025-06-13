@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebaseAdmin';
+import { Tag } from '@/types/post';
 
 export async function GET() {
   try {
@@ -13,7 +14,7 @@ export async function GET() {
     }));
 
     // Sort by usageCount in JavaScript to avoid index requirement
-    tags.sort((a: any, b: any) => (b.usageCount || 0) - (a.usageCount || 0));
+    tags.sort((a, b) => ((b as Tag).usageCount || 0) - ((a as Tag).usageCount || 0));
 
     return NextResponse.json(tags);
   } catch (error) {
