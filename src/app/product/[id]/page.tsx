@@ -20,6 +20,11 @@ import {
   getAllergenTagClasses, 
   formatAllergenDisplay 
 } from "@/utils/allergens";
+import {
+  getCountryInfoFromCode,
+  getCountryTagClasses,
+  formatCountryDisplay
+} from "@/utils/countries";
 
 function AnimatedMatchPercent({ percent, small }: { percent: number, small?: boolean }) {
   const [displayed, setDisplayed] = useState(0);
@@ -437,11 +442,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             maxPriceProduct={similarProducts.reduce((max, p) => (!max || (p.price || 0) > (max.price || 0)) ? p : max, null)}
             minPriceProduct={similarProducts.reduce((min, p) => (!min || (p.price || 0) < (min.price || 0)) ? p : min, null)}
           />
-          {(product.alergenInformation && product.alergenInformation.length > 0 || product.labels && product.labels.length > 0) && (
+          {(product.alergenInformation && product.alergenInformation.length > 0 || product.labels && product.labels.length > 0 || product.countryOfOriginCode) && (
             <div className="w-full">
               <div className="text-xs text-zinc-500 font-semibold mt-2 mb-1 ml-1">Allergens & Labels:</div>
               <div className="flex flex-wrap gap-2 mb-2 justify-start">
-                {/* Allergen tags (orange) */}
+                {/* Allergen tags (red) */}
                 {product.alergenInformation && product.alergenInformation.map((allergen, idx) => {
                   const allergenInfo = getAllergenInfoFromCode(allergen);
                   if (!allergenInfo) return null;
@@ -455,6 +460,20 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                     </span>
                   );
                 })}
+                {/* Country of origin tag (blue) */}
+                {product.countryOfOriginCode && (() => {
+                  const countryInfo = getCountryInfoFromCode(product.countryOfOriginCode);
+                  if (!countryInfo) return null;
+                  return (
+                    <span
+                      key="country-origin"
+                      className={getCountryTagClasses()}
+                      style={{ whiteSpace: 'nowrap' }}
+                    >
+                      {formatCountryDisplay(countryInfo)}
+                    </span>
+                  );
+                })()}
                 {/* Label tags (grey) */}
                 {product.labels && product.labels.map((label, idx) => {
                   const key = label.trim().toLowerCase();
