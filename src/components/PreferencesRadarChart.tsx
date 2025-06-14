@@ -85,15 +85,10 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
   const [isDragging, setIsDragging] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const [showButtons, setShowButtons] = useState(false);
-  const [isAnimated, setIsAnimated] = useState(false);
   const containerRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     setShowButtons(true);
-    const timer = setTimeout(() => {
-      setIsAnimated(true);
-    }, 100);
-    return () => clearTimeout(timer);
   }, []);
 
   // Update local preferences when userProfile changes
@@ -334,7 +329,7 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
             </h3>
           </div>
           
-          {preferences.map((pref, index) => {
+          {preferences.map((pref, _index) => {
             const value = localPreferences[pref.key];
             const percentage = ((value - 1) / 4) * 100;
             

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { X, Search, Tag, Link } from 'lucide-react';
+import { X, Search, Tag, Package } from 'lucide-react';
 import { Product } from '@/types/product';
 import { colours } from '@/styles/colours';
 
@@ -72,6 +72,8 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
     setSelectedTags([]);
     setSelectedProduct(null);
     setSearchTerm('');
+    setProducts([]);
+    setShowProductSearch(false);
   };
 
   const addTag = (tag: string) => {
@@ -181,55 +183,68 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
 
             {/* Linked Product */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium" style={{ color: colours.text.primary }}>Link a Product (Optional)</label>
-                <button
-                  type="button"
-                  onClick={() => setShowProductSearch(!showProductSearch)}
-                  className="flex items-center gap-1 hover:underline"
-                  style={{ color: colours.text.link }}
-                >
-                  <Link size={16} />
-                  {showProductSearch ? 'Hide' : 'Add Product'}
-                </button>
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-sm font-medium" style={{ color: colours.text.primary }}>
+                  Link a Product (Optional)
+                </label>
+                {!selectedProduct && (
+                  <button
+                    type="button"
+                    onClick={() => setShowProductSearch(!showProductSearch)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all hover:scale-105 ${
+                      showProductSearch ? 'shadow-sm' : ''
+                    }`}
+                    style={{
+                      backgroundColor: showProductSearch 
+                        ? colours.button.primary.background 
+                        : colours.tag.default.background,
+                      color: showProductSearch 
+                        ? colours.button.primary.text 
+                        : colours.text.secondary,
+                      border: `1px solid ${showProductSearch 
+                        ? colours.button.primary.background 
+                        : colours.tag.default.border}`
+                    }}
+                  >
+                    <Package size={14} />
+                    {showProductSearch ? 'Hide Product Search' : 'Link Product'}
+                  </button>
+                )}
               </div>
               
               {selectedProduct && (
-                <div 
-                  className="flex items-center gap-3 p-3 rounded-lg mb-3" 
-                  style={{ backgroundColor: colours.background.secondary }}
-                >
-                  <Image
-                    src={selectedProduct.imageUrl}
-                    alt={selectedProduct.productName}
-                    width={48}
-                    height={48}
-                    className="object-cover rounded"
-                  />
-                  <div className="flex-1">
-                    <p 
-                      className="font-medium text-sm"
-                      style={{ color: colours.text.primary }}
-                    >
+                <div className="flex items-center gap-3 p-3 rounded-lg shadow-sm border-2 mb-3" style={{ 
+                  backgroundColor: colours.tag.primary.background, 
+                  borderColor: colours.button.primary.background
+                }}>
+                  <div className="flex-shrink-0">
+                    <Image
+                      src={selectedProduct.imageUrl}
+                      alt={selectedProduct.productName}
+                      width={32}
+                      height={32}
+                      className="object-cover rounded-md"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate" style={{ color: colours.tag.primary.text }}>
                       {selectedProduct.productName}
                     </p>
-                    <p 
-                      className="text-xs"
-                      style={{ color: colours.text.secondary }}
-                    >
+                    <p className="text-xs opacity-80" style={{ color: colours.tag.primary.text }}>
                       {selectedProduct.brandName}
                     </p>
                   </div>
                   <button
                     type="button"
-                    onClick={() => setSelectedProduct(null)}
-                    style={{ color: colours.status.error.text }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = colours.status.error.border;
+                    onClick={() => {
+                      setSelectedProduct(null);
+                      setShowProductSearch(false);
+                      setSearchTerm('');
+                      setProducts([]);
                     }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = colours.status.error.text;
-                    }}
+                    className="flex-shrink-0 p-1 rounded-full hover:opacity-70 transition-opacity"
+                    style={{ color: colours.tag.primary.text }}
+                    title="Remove linked product"
                   >
                     <X size={16} />
                   </button>
@@ -237,42 +252,29 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
               )}
 
               {showProductSearch && !selectedProduct && (
-                <div className="relative">
+                <div className="relative mb-3">
                   <div className="relative">
-                    <Search 
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2" 
-                      size={16}
-                      style={{ color: colours.text.secondary }}
-                    />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2" size={16} style={{ color: colours.text.muted }} />
                     <input
                       type="text"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2"
+                      className="w-full pl-10 pr-4 py-3 text-sm rounded-lg border-2 focus:outline-none focus:ring-2 transition-all"
                       style={{
+                        borderColor: colours.button.primary.background,
                         backgroundColor: colours.input.background,
-                        borderColor: colours.input.border,
-                        color: colours.input.text
+                        color: colours.input.text,
+                        boxShadow: `0 0 0 2px ${colours.button.primary.background}20`
                       }}
-                      onFocus={(e) => {
-                        e.currentTarget.style.borderColor = colours.input.focus.border;
-                        e.currentTarget.style.boxShadow = colours.input.focus.ring;
-                      }}
-                      onBlur={(e) => {
-                        e.currentTarget.style.borderColor = colours.input.border;
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
-                      placeholder="Search for a product..."
+                      placeholder="Search for a product to link..."
+                      autoFocus
                     />
                   </div>
                   {products.length > 0 && (
-                    <div 
-                      className="absolute top-full left-0 right-0 border rounded-lg mt-1 max-h-48 overflow-y-auto z-10"
-                      style={{
-                        backgroundColor: colours.content.surface,
-                        borderColor: colours.content.border
-                      }}
-                    >
+                    <div className="absolute top-full left-0 right-0 rounded-lg mt-2 max-h-40 overflow-y-auto z-10 shadow-xl border-2" style={{ 
+                      backgroundColor: colours.card.background, 
+                      borderColor: colours.button.primary.background
+                    }}>
                       {products.map((product) => (
                         <button
                           key={product.id}
@@ -281,36 +283,32 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
                             setSelectedProduct(product);
                             setSearchTerm('');
                             setProducts([]);
+                            setShowProductSearch(false);
                           }}
-                          className="w-full flex items-center gap-3 p-3 text-left"
-                          style={{
-                            backgroundColor: colours.content.surface
+                          className="w-full flex items-center gap-3 p-3 hover:opacity-80 text-left transition-all border-b last:border-b-0"
+                          style={{ 
+                            backgroundColor: colours.card.background,
+                            borderBottomColor: colours.card.border
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = colours.interactive.hover.background;
+                            e.currentTarget.style.backgroundColor = colours.card.hover.background;
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = colours.content.surface;
+                            e.currentTarget.style.backgroundColor = colours.card.background;
                           }}
                         >
                           <Image
                             src={product.imageUrl}
                             alt={product.productName}
-                            width={40}
-                            height={40}
-                            className="object-cover rounded"
+                            width={28}
+                            height={28}
+                            className="object-cover rounded-md"
                           />
-                          <div>
-                            <p 
-                              className="font-medium text-sm"
-                              style={{ color: colours.text.primary }}
-                            >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate" style={{ color: colours.text.primary }}>
                               {product.productName}
                             </p>
-                            <p 
-                              className="text-xs"
-                              style={{ color: colours.text.secondary }}
-                            >
+                            <p className="text-xs truncate" style={{ color: colours.text.secondary }}>
                               {product.brandName}
                             </p>
                           </div>

@@ -20,7 +20,7 @@ export default function PostsPage() {
   
   // Filter states
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'trending'>('recent');
+  const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -129,31 +129,22 @@ export default function PostsPage() {
       className="min-h-screen"
       style={{ backgroundColor: colours.background.secondary }}
     >
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Link 
-              href="/" 
-              className="flex items-center hover:underline"
-              style={{ color: colours.text.link }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg>
-            </Link>
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div>
             <h1 
-              className="text-3xl font-bold"
+              className="text-2xl sm:text-3xl font-bold"
               style={{ color: colours.text.primary }}
             >
-              ShopSmart Community
+              Community
             </h1>
           </div>
           
           {user && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-medium"
+              className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition-colors font-medium text-sm sm:text-base"
               style={{
                 backgroundColor: colours.button.primary.background,
                 color: colours.button.primary.text
@@ -161,7 +152,8 @@ export default function PostsPage() {
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.hover.background}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.background}
             >
-              <Plus/>
+              <Plus />
+              <span className="hidden sm:inline">New Post</span>
             </button>
           )}
         </div>
@@ -177,7 +169,7 @@ export default function PostsPage() {
         />
 
         {/* Posts */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {loading ? (
             <div className="text-center py-12">
               <div 
@@ -250,13 +242,17 @@ export default function PostsPage() {
 
         {/* Auth prompt for non-logged in users */}
         {!user && (
-          <div className="text-center py-8">
-            <p className="text-gray-600 mb-4">
+          <div className="text-center py-6 sm:py-8">
+            <p className="text-sm sm:text-base mb-4" style={{ color: colours.text.secondary }}>
               Join the ShopSmart community to create posts and interact with others!
             </p>
             <Link
               href="/auth"
-              className="inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="inline-flex items-center px-4 py-2 sm:px-6 sm:py-2 rounded-lg transition-colors font-medium text-sm sm:text-base"
+              style={{
+                backgroundColor: colours.button.primary.background,
+                color: colours.button.primary.text
+              }}
             >
               Sign In to Get Started
             </Link>

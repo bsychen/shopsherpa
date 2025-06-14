@@ -46,6 +46,6 @@ export interface Tag {
 
 export interface PostFilters {
   tags: string[];
-  sortBy: 'recent' | 'popular' | 'trending';
+  sortBy: 'recent' | 'popular';
   searchTerm?: string;
 }
