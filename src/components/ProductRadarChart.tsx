@@ -231,7 +231,15 @@ export default function ProductRadarChart({
             }}
             tabIndex={-1}
             aria-label={label}
-            onClick={() => setActiveTab(label)}
+            onClick={() => {
+              if (activeTab === label) {
+                // If clicking the already active tab, clear the selection
+                setActiveTab("");
+              } else {
+                // If clicking a different tab, set it as active
+                setActiveTab(label);
+              }
+            }}
           >
             <Image
               src={config.svg}

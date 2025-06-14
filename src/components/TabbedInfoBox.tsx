@@ -50,9 +50,12 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   const tabRefs = useRef([]);
   const [barStyle, setBarStyle] = useState({ left: 0, width: 0 });
   const contentRef = useRef(null);
-  const [boxHeight, setBoxHeight] = useState();
+  const [boxHeight, setBoxHeight] = useState<number | undefined>();
   const [showMinProduct, setShowMinProduct] = useState(false);
   const [showMaxProduct, setShowMaxProduct] = useState(false);
+  
+  // Derived state: collapsed when activeTab is empty
+  const isCollapsed = activeTab === "";
 
   // Convert nutrition grade to score (A=5, B=4, C=3, D=2, E=1, unknown=2)
   function getNutritionScore(grade: string): number {
@@ -67,7 +70,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   }
 
   // Animation trigger function
-  const triggerAnimation = (tab) => {
+  const triggerAnimation = (tab: string) => {
     if (tab === "Quality") {
       setAnimatedQuality(0);
       setTimeout(() => setAnimatedQuality(reviewSummary?.averageRating || 0), 50);
@@ -86,6 +89,11 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   // Update sliding bar position/width on tab change or window resize
   useEffect(() => {
     const updateBar = () => {
+      if (activeTab === "") {
+        setBarStyle({ left: 0, width: 0 });
+        return;
+      }
+      
       const idx = tabs.indexOf(activeTab);
       const btn = tabRefs.current[idx];
       if (btn) {
@@ -104,21 +112,34 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
 
   // Update box height on content change
   useEffect(() => {
-    // Update the height calculation to better handle product details
-    if (contentRef.current) {
+    if (isCollapsed) {
+      // When collapsed, only show the tabs height (no margin below)
+      setBoxHeight(44); // Just the tab height without bottom margin
+    } else if (contentRef.current) {
+      // When expanded, calculate content height
       const newHeight = contentRef.current.scrollHeight;
       
       // Use requestAnimationFrame to ensure smooth height transition
       requestAnimationFrame(() => {
-        setBoxHeight(newHeight);
+        setBoxHeight(newHeight + 50); // Add tab height
       });
     }
-  }, [activeTab, product, reviewSummary, showMinProduct, showMaxProduct]);
+  }, [activeTab, product, reviewSummary, showMinProduct, showMaxProduct, isCollapsed]);
 
   useEffect(() => {
-    triggerAnimation(activeTab);
+    if (!isCollapsed && activeTab !== "") {
+      triggerAnimation(activeTab);
+    }
     // eslint-disable-next-line
   }, [activeTab, reviewSummary]);
+
+  // Trigger animation when activeTab changes externally (e.g., from radar chart)
+  useEffect(() => {
+    if (activeTab !== "") {
+      triggerAnimation(activeTab);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   const min = priceStats.min;
   const max = priceStats.max;
@@ -129,27 +150,29 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
       style={{
         backgroundColor: colours.content.surfaceSecondary,
         border: `1px solid ${colours.content.border}`,
-        height: boxHeight ? boxHeight + 90 : undefined,
-        minHeight: 210,
+        height: boxHeight ? boxHeight + 32 : undefined,
+        minHeight: isCollapsed ? 80 : 210,
         transition: "height 0.4s cubic-bezier(0.4,0,0.2,1), background 0.3s",
         position: "relative"
       }}
     >
       {/* Tab Headers */}
       <div 
-        className="flex mb-4 border-b justify-center gap-2 relative"
-        style={{ borderColor: colours.content.border }}
+        className={`flex ${isCollapsed ? 'mb-0' : 'mb-4'} ${!isCollapsed ? 'border-b' : ''} justify-center gap-2 relative`}
+        style={{ borderColor: isCollapsed ? 'transparent' : colours.content.border }}
       >
-        {/* Sliding Grey Bar */}
-        <div
-          className="absolute bottom-0 h-1 rounded transition-all duration-300"
-          style={{
-            left: barStyle.left,
-            width: barStyle.width,
-            backgroundColor: colours.ui.neutral.border,
-            transition: "left 0.35s cubic-bezier(0.4,0,0.2,1), width 0.35s cubic-bezier(0.4,0,0.2,1)",
-          }}
-        />
+        {/* Sliding Grey Bar - only show when expanded */}
+        {!isCollapsed && (
+          <div
+            className="absolute bottom-0 h-1 rounded transition-all duration-300"
+            style={{
+              left: barStyle.left,
+              width: barStyle.width,
+              backgroundColor: colours.ui.neutral.border,
+              transition: "left 0.35s cubic-bezier(0.4,0,0.2,1), width 0.35s cubic-bezier(0.4,0,0.2,1)",
+            }}
+          />
+        )}
         {tabs.map((tab, i) => (
           <button
             key={tab}
@@ -170,8 +193,14 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
               }
             }}
             onClick={() => {
-              setActiveTab(tab);
-              triggerAnimation(tab);
+              if (activeTab === tab && !isCollapsed) {
+                // If clicking the active tab while expanded, collapse by clearing activeTab
+                setActiveTab("");
+              } else {
+                // If clicking a different tab or expanding from collapsed state
+                setActiveTab(tab);
+                triggerAnimation(tab);
+              }
             }}
             aria-label={tab}
           >
@@ -180,14 +209,15 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
         ))}
       </div>
       {/* Content area */}
-      <div 
-        ref={contentRef} 
-        className="relative px-4 pb-4"
-        style={{ 
-          opacity: 1, 
-          transition: 'opacity 0.2s ease-in-out, height 0.3s ease-in-out'
-        }}
-      >
+      {!isCollapsed && (
+        <div 
+          ref={contentRef} 
+          className="relative px-4 pb-4"
+          style={{ 
+            opacity: 1, 
+            transition: 'opacity 0.2s ease-in-out, height 0.3s ease-in-out'
+          }}
+        >
         {activeTab === "Price" && reviewSummary && (
           <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
             <h2 
@@ -528,7 +558,8 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
             </div>
           </div>
         )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

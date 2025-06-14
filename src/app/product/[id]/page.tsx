@@ -8,7 +8,6 @@ import { getProduct, getProductReviews, getReviewSummary, getBrandById, getProdu
 import Link from "next/link"
 import { onAuthStateChanged, User } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
-import { useRef } from "react";
 import TabbedInfoBox from "@/components/TabbedInfoBox"
 import LoadingAnimation from "@/components/LoadingSpinner";
 import SimilarProducts from "@/components/SimilarProducts";
@@ -109,7 +108,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [refreshing, setRefreshing] = useState(false);
   const [sortBy, setSortBy] = useState<'recent' | 'critical' | 'favourable'>('recent');
   const [sortOpen, setSortOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>("Price");
+  const [activeTab, setActiveTab] = useState<string>("");
   const [brandRating, setBrandRating] = useState<number>(3);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [brandProducts, setBrandProducts] = useState<Product[]>([]);
