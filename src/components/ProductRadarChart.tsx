@@ -116,7 +116,6 @@ export default function ProductRadarChart({
   allergenWarnings?: string[];
 }) {
   // Initialize allergen expanded state based on whether allergens exist
-  const [isAllergenExpanded, setIsAllergenExpanded] = useState(allergenWarnings && allergenWarnings.length > 0);
   const radarData = [
     priceScore,
     qualityScore,
@@ -179,7 +178,6 @@ export default function ProductRadarChart({
           <AllergenWarning 
             allergenWarnings={allergenWarnings} 
             isEmbedded={true}
-            onExpandedChange={setIsAllergenExpanded}
           />
         </div>
       )}
