@@ -26,58 +26,9 @@ import {
   getCountryTagClasses,
   formatCountryDisplay
 } from "@/utils/countries";
-import AllergenWarning from "@/components/AllergenWarning"
 
 // Lazy load heavy components
 const ProductRadarChart = lazy(() => import("@/components/ProductRadarChart"));
-
-function AnimatedMatchPercent({ percent, small }: { percent: number, small?: boolean }) {
-  const [displayed, setDisplayed] = useState(0);
-  const rafRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    let start: number | null = null;
-    const duration = 900;
-    function animate(ts: number) {
-      if (!start) start = ts;
-      const progress = Math.min((ts - start) / duration, 1);
-      setDisplayed(Math.round(percent * progress));
-      if (progress < 1) {
-        rafRef.current = requestAnimationFrame(animate);
-      } else {
-        setDisplayed(percent);
-      }
-    }
-    rafRef.current = requestAnimationFrame(animate);
-    return () => rafRef.current && cancelAnimationFrame(rafRef.current);
-  }, [percent]);
-
-  // Color logic
-  const color = displayed >= 70
-    ? { text: colours.score.high }
-    : displayed >= 50
-    ? { text: colours.score.medium }
-    : { text: colours.score.low };
-
-  return (
-    <span
-      className={`relative flex flex-col items-center justify-center ml-2 ${small ? 'min-w-[40px] min-h-[40px]' : 'min-w-[64px] min-h-[64px]'}`}
-    >
-      <span
-        className={`font-bold ${small ? 'text-base' : 'text-xl'}`}
-        style={{ color: color.text, pointerEvents: 'none', userSelect: 'none' }}
-      >
-        {displayed}%
-      </span>
-      <span 
-        className={`block font-medium mt-1 text-center ${small ? 'text-[10px]' : 'text-xs'}`}
-        style={{ color: colours.text.secondary }}
-      >
-        match
-      </span>
-    </span>
-  );
-}
 
 // Helper function to calculate quartiles
 const calculateQuartile = (arr: number[], q: number) => {
@@ -354,8 +305,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               e.currentTarget.style.color = colours.text.link
             }}
           >
-           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
            </svg>
           </Link>
           <div className="flex-1 min-w-0">
@@ -374,9 +325,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           </div>
         </div>
         
-        {/* Allergen Warning Banner */}
-        {allergenWarnings && allergenWarnings.length > 0 && <AllergenWarning allergenWarnings={allergenWarnings}/>}
-
         {/* Spider Web Diagram Box */}
         <div className="w-full max-w-xl flex flex-col items-center mb-4">
           <div className="flex items-center justify-center w-full" style={{ minHeight: 220, minWidth: 0 }}>
@@ -392,6 +340,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 sustainabilityScore={sustainabilityScore}
                 brandScore={brandScore}
                 matchPercentage={matchPercentage}
+                allergenWarnings={allergenWarnings}
               />
             </Suspense>
           </div>

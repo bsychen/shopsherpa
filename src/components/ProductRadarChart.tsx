@@ -13,6 +13,7 @@ import {
 } from "chart.js";
 import { useState, useEffect, useRef } from "react";
 import { colours } from "@/styles/colours";
+import AllergenWarning from "./AllergenWarning";
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
@@ -102,6 +103,7 @@ export default function ProductRadarChart({
   sustainabilityScore = 3,
   brandScore = 3,
   matchPercentage = null,
+  allergenWarnings = [],
 }: {
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -111,6 +113,7 @@ export default function ProductRadarChart({
   sustainabilityScore?: number;
   brandScore?: number;
   matchPercentage?: number | null;
+  allergenWarnings?: string[];
 }) {
   const radarData = [
     priceScore,
@@ -143,7 +146,7 @@ export default function ProductRadarChart({
         min: 0,
         max: 5,
         ticks: { stepSize: 1, display: false },
-        grid: { color: `${colours.chart.grid}80` },
+        grid: { color: "#9CA3AF" },
         pointLabels: { color: colours.chart.text, font: { size: 16 } },
       },
     },
@@ -168,6 +171,13 @@ export default function ProductRadarChart({
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: containerSize, height: containerSize }}>
+      {/* Allergen Warning - top left corner */}
+      {allergenWarnings && allergenWarnings.length > 0 && (
+        <div className="absolute top-2 left-2 z-10">
+          <AllergenWarning allergenWarnings={allergenWarnings} isEmbedded={true} />
+        </div>
+      )}
+      
       {/* Match Percentage in top right corner */}
       {matchPercentage !== null && (
         <div className="absolute top-2 right-2 z-10">
@@ -189,7 +199,7 @@ export default function ProductRadarChart({
           <button
             key={label}
             type="button"
-            className={`absolute flex items-center justify-center rounded-xl shadow border ${config.color} ${config.border} ${activeTab === label ? "ring-2 ring-zinc-200 scale-110" : ""}`}
+            className={`absolute flex items-center justify-center rounded-xl shadow-lg border-2 border-black ${config.color} ${activeTab === label ? "ring-2 ring-zinc-200 scale-110" : ""}`}
             style={{
               left: x,
               top: y,
@@ -202,6 +212,7 @@ export default function ProductRadarChart({
               transform: showButtons ? (activeTab === label ? "scale(1.10)" : "scale(1)") : "scale(0.5)",
               transition: "transform 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.45s cubic-bezier(0.4,0,0.2,1)",
               transitionDelay: delay,
+              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
             }}
             tabIndex={-1}
             aria-label={label}
