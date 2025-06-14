@@ -24,20 +24,6 @@ export default function Home() {
               <Image src="/search.svg" alt="Search" width={28} height={28} className="h-7 w-7 ml-4 filter invert group-hover:invert-0" />
             </button>
           </Link>
-          <Link href="/scan">
-            <button 
-              className="w-full px-6 py-4 rounded-lg text-lg font-semibold transition-colors shadow flex items-center justify-between group"
-              style={{ 
-                backgroundColor: colours.button.success.background,
-                color: colours.button.success.text
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colours.button.success.hover.background}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colours.button.success.background}
-            >
-              <span className="text-left w-full">Scan a Barcode</span>
-              <Image src="/barcode-2.svg" alt="Scan Barcode" width={28} height={28} className="h-7 w-7 ml-4 filter invert group-hover:invert-0" />
-            </button>
-          </Link>
           <Link href="/chats">
             <button 
               className="w-full px-6 py-4 rounded-lg text-lg font-semibold transition-colors shadow flex items-center justify-between group"
