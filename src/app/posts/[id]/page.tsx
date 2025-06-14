@@ -12,6 +12,7 @@ import { Product } from "@/types/product";
 import PostCard from "@/components/PostCard";
 import CommentItem from "@/components/CommentItem";
 import { colours } from "@/styles/colours";
+import LoadingAnimation from "@/components/LoadingSpinner";
 
 export default function PostPage() {
   const params = useParams();
@@ -197,11 +198,7 @@ export default function PostPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: colours.background.secondary }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: colours.spinner.border }}></div>
-      </div>
-    );
+    return <LoadingAnimation />;
   }
 
   if (!post) {

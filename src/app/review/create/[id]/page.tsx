@@ -7,6 +7,7 @@ import { useRouter, useParams } from "next/navigation";
 import { getProduct, createReview } from "@/lib/api";
 import { Product } from "@/types/product";
 import { colours } from "@/styles/colours";
+import LoadingAnimation from "@/components/LoadingSpinner";
 
 export default function ReviewPage() {
   const params = useParams();
@@ -65,11 +66,7 @@ export default function ReviewPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-40">
-        <span style={{ color: colours.text.muted }}>Loading...</span>
-      </div>
-    );
+    return <LoadingAnimation />;
   }
 
   if (!user) {

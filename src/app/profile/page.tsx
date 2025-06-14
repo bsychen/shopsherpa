@@ -12,6 +12,7 @@ import PreferencesBarGraph from "@/components/PreferencesBarGraph";
 import AllergenManager from "@/components/AllergenManager";
 import Image from "next/image";
 import { colours } from "@/styles/colours";
+import LoadingAnimation from "@/components/LoadingSpinner";
 
 export default function ProfilePage() {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
@@ -122,9 +123,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-40">
-        <span style={{ color: colours.text.secondary }}>Loading...</span>
-      </div>
+      <LoadingAnimation />
     );
   }
 

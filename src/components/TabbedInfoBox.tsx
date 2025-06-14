@@ -190,7 +190,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
         {activeTab === "Price" && reviewSummary && (
           <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
             <h2 
-              className="text-lg font-bold mb-2 self-start"
+              className="text-lg font-bold mb-1 self-start"
               style={{ color: colours.text.primary }}
             >
               Price Range
@@ -277,13 +277,13 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
         )}
         {activeTab === "Quality" && reviewSummary && (
           <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
-            <h2 
-              className="text-lg font-bold mb-2 self-start"
-              style={{ color: colours.text.primary }}
-            >
-              Quality
-            </h2>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="w-full flex items-center gap-3 mb-4">
+              <h2 
+                className="text-lg font-bold mb-2 self-start"
+                style={{ color: colours.text.primary }}
+              >
+                Quality
+              </h2>
               <span className="relative inline-block w-12 h-12 align-middle">
                 <svg width="48" height="48" viewBox="0 0 48 48" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
                   <circle
@@ -309,6 +309,10 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
               >
                 Avg Score: {reviewSummary.averageRating?.toFixed(2)}
               </span>
+            </div>
+            
+            <div className="flex items-center gap-2 mb-2">
+              
             </div>
             <div className="w-full">
               <div 

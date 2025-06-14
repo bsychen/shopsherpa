@@ -94,7 +94,6 @@ const calculateQuartile = (arr: number[], q: number) => {
 };
 
 function getQuartileScore(price: number, q1: number, q3: number): number {
-  console.log("Calculating quartile score for price:", price, "Q1:", q1, "Q3:", q3);
   if (!price || q1 === q3) return 3; // Default score for invalid data
   if (price <= q1) return 5;
   if (price >= q3) return 1;
@@ -219,7 +218,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         // Fetch similar products based on genericName
         if (productData.genericNameLower) {
           const similar = await getProductsWithGenericName(productData.genericNameLower);
-          console.log('Similar products:', similar);
           // Filter out the current product and limit to 8 products
           setSimilarProducts(similar.filter(p => p.id !== id).slice(0, 8));
         }

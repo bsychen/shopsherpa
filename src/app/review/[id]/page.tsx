@@ -7,6 +7,7 @@ import { useRouter, useParams } from "next/navigation";
 import { Review } from "@/types/review";
 import { getReview, getProduct, getUserById } from "@/lib/api";
 import { colours } from "@/styles/colours";
+import LoadingAnimation from "@/components/LoadingSpinner";
 
 export default function ReviewPage() {
   const params = useParams();
@@ -64,11 +65,7 @@ export default function ReviewPage() {
   }, [review, id]);
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-40">
-        <span className="text-gray-500">Loading...</span>
-      </div>
-    );
+    return <LoadingAnimation />;
   }
 
   if (!review) {

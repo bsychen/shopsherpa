@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { getReview, updateReview } from "@/lib/api";
 import { Review } from "@/types/review";
 import { colours } from "@/styles/colours";
+import LoadingAnimation from "@/components/LoadingSpinner";
 
 export default function UpdateReviewPage() {
   const params = useParams();
@@ -43,7 +44,7 @@ export default function UpdateReviewPage() {
     }
   };
 
-  if (loading) return <div className="flex justify-center items-center h-40" style={{ color: colours.text.muted }}>Loading...</div>;
+  if (loading) return <LoadingAnimation />;
   if (!review) return <div className="flex justify-center items-center h-40" style={{ color: colours.status.error.text }}>Review not found</div>;
 
   return (
