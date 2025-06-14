@@ -6,7 +6,6 @@ import { Review } from "@/types/review"
 import { ReviewSummary } from "@/types/reviewSummary"
 import { getProduct, getProductReviews, getReviewSummary, getBrandById, getProductsWithGenericName, getProductsByBrand, getUserById } from "@/lib/api"
 import Link from "next/link"
-import Image from "next/image"
 import { onAuthStateChanged, User } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
 import { useRef } from "react";
@@ -159,7 +158,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [refreshing, setRefreshing] = useState(false);
   const [sortBy, setSortBy] = useState<'recent' | 'critical' | 'favourable'>('recent');
   const [sortOpen, setSortOpen] = useState(false);
-  const [imageDropdownOpen, setImageDropdownOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("Price");
   const [brandRating, setBrandRating] = useState<number>(3);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
@@ -344,10 +342,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           borderColor: colours.content.border
         }}
       >
-        <div className="absolute left-6 top-6">
+        {/* Header with title, product name and ID */}
+        <div className="w-full flex items-center gap-3 mb-4">
           <Link 
             href="/" 
-            className="flex items-center hover:underline"
+            className="flex items-center hover:underline flex-shrink-0"
             style={{ color: colours.text.link }}
             onMouseEnter={(e) => {
               e.currentTarget.style.color = colours.text.linkHover
@@ -356,83 +355,23 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               e.currentTarget.style.color = colours.text.link
             }}
           >
-            <span className="mr-2 text-2xl">&#8592;</span>
-            <span className="font-semibold">Go back home</span>
+           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+           </svg>
           </Link>
-        </div>
-        {/* Product Info Card */}
-        <div 
-          className="w-full flex flex-row items-center justify-between mt-10 mb-4 border rounded-lg p-4 shadow-sm"
-          style={{ 
-            backgroundColor: colours.content.surfaceSecondary,
-            borderColor: colours.content.border
-          }}
-        >
-          <div className="flex flex-row items-center gap-4 w-full">
-            <div className="flex flex-col items-start gap-1 flex-1 min-w-0">
-              <button
-                className="w-full text-left focus:outline-none"
-                onClick={() => setImageDropdownOpen((v) => !v)}
-                aria-expanded={imageDropdownOpen}
-                aria-controls="product-image-dropdown"
-                style={{ background: 'none', border: 'none', padding: 0 }}
-              >
-                <h1 
-                  className="text-2xl font-bold text-left m-0 p-0 leading-tight truncate max-w-[320px] md:max-w-[520px]"
-                  style={{ color: colours.text.primary }}
-                >
-                  {product.productName}
-                  <span 
-                    className="ml-2 align-middle inline-block text-base"
-                    style={{ color: colours.text.secondary }}
-                  >
-                    {imageDropdownOpen ? '▲' : '▼'}
-                  </span>
-                </h1>
-                <span 
-                  className="text-xs mt-0.5 truncate max-w-[260px] md:max-w-[420px]"
-                  style={{ color: colours.text.secondary }}
-                >
-                  Product ID: {product.id}
-                </span>
-              </button>
-              {imageDropdownOpen && product.imageUrl && (
-                <div id="product-image-dropdown" className="mt-3 w-full flex justify-center">
-                  <Image
-                    src={product.imageUrl}
-                    alt={product.productName}
-                    width={128}
-                    height={128}
-                    className="object-contain rounded border h-24 w-24 md:h-32 md:w-32 shadow"
-                    style={{ 
-                      borderColor: colours.content.border,
-                      backgroundColor: colours.content.surfaceSecondary,
-                      boxShadow: '0 1px 8px rgba(0,0,0,0.08)'
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-            <div className="flex flex-col items-end justify-center min-w-[48px] md:min-w-[64px] flex-shrink-0">
-              {matchPercentage !== null ? (
-                <AnimatedMatchPercent percent={matchPercentage} small />
-              ) : (
-                <span className="relative flex flex-col items-center justify-center ml-2 min-w-[40px] min-h-[40px]">
-                  <span 
-                    className="font-bold text-base"
-                    style={{ color: colours.text.secondary }}
-                  >
-                    --
-                  </span>
-                  <span 
-                    className="block font-medium mt-1 text-center text-[10px]"
-                    style={{ color: colours.text.secondary }}
-                  >
-                    match
-                  </span>
-                </span>
-              )}
-            </div>
+          <div className="flex-1 min-w-0">
+            <h1 
+              className="text-2xl font-bold text-left m-0 p-0 leading-tight truncate"
+              style={{ color: colours.text.primary }}
+            >
+              {product.productName}
+            </h1>
+            <span 
+              className="text-xs mt-0.5 truncate block"
+              style={{ color: colours.text.secondary }}
+            >
+              Product ID: {product.id}
+            </span>
           </div>
         </div>
         
@@ -486,6 +425,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 nutritionScore={nutritionScore}
                 sustainabilityScore={sustainabilityScore}
                 brandScore={brandScore}
+                matchPercentage={matchPercentage}
               />
             </Suspense>
           </div>

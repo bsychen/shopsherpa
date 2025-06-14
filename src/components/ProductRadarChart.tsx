@@ -11,10 +11,56 @@ import {
   Legend,
   ChartOptions,
 } from "chart.js";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { colours } from "@/styles/colours";
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
+
+function AnimatedMatchPercent({ percent }: { percent: number }) {
+  const [displayed, setDisplayed] = useState(0);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    let start: number | null = null;
+    const duration = 900;
+    function animate(ts: number) {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      setDisplayed(Math.round(percent * progress));
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(animate);
+      } else {
+        setDisplayed(percent);
+      }
+    }
+    rafRef.current = requestAnimationFrame(animate);
+    return () => rafRef.current && cancelAnimationFrame(rafRef.current);
+  }, [percent]);
+
+  // Color logic
+  const color = displayed >= 70
+    ? { text: colours.score.high }
+    : displayed >= 50
+    ? { text: colours.score.medium }
+    : { text: colours.score.low };
+
+  return (
+    <span className="relative flex flex-col items-center justify-center min-w-[48px] min-h-[48px]">
+      <span
+        className="font-bold text-lg"
+        style={{ color: color.text, pointerEvents: 'none', userSelect: 'none' }}
+      >
+        {displayed}%
+      </span>
+      <span 
+        className="block font-medium mt-0.5 text-center text-xs"
+        style={{ color: colours.text.secondary }}
+      >
+        match
+      </span>
+    </span>
+  );
+}
 
 const BUTTON_CONFIG: Record<string, { color: string; border: string; svg: string }> = {
   Price: {
@@ -55,6 +101,7 @@ export default function ProductRadarChart({
   nutritionScore = 2,
   sustainabilityScore = 3,
   brandScore = 3,
+  matchPercentage = null,
 }: {
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -63,6 +110,7 @@ export default function ProductRadarChart({
   nutritionScore?: number;
   sustainabilityScore?: number;
   brandScore?: number;
+  matchPercentage?: number | null;
 }) {
   const radarData = [
     priceScore,
@@ -120,6 +168,12 @@ export default function ProductRadarChart({
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: containerSize, height: containerSize }}>
+      {/* Match Percentage in top right corner */}
+      {matchPercentage !== null && (
+        <div className="absolute top-2 right-2 z-10">
+          <AnimatedMatchPercent percent={matchPercentage} />
+        </div>
+      )}
       {/* Radar Chart */}
       <div className="absolute left-0 top-0 w-full h-full flex items-center justify-center pointer-events-none">
         <Radar data={chartData} options={options} style={{ maxHeight: 240, maxWidth: 240 }} />
