@@ -26,6 +26,7 @@ import {
   getCountryTagClasses,
   formatCountryDisplay
 } from "@/utils/countries";
+import AllergenWarning from "@/components/AllergenWarning"
 
 // Lazy load heavy components
 const ProductRadarChart = lazy(() => import("@/components/ProductRadarChart"));
@@ -376,40 +377,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         </div>
         
         {/* Allergen Warning Banner */}
-        {allergenWarnings && allergenWarnings.length > 0 && (
-          <div className="w-full max-w-xl mb-4">
-            <div 
-              className="border rounded-lg p-3 flex items-start gap-3"
-              style={{ 
-                backgroundColor: colours.status.error.background,
-                borderColor: colours.status.error.border
-              }}
-            >
-              <div className="flex-shrink-0 mt-0.5">
-                <span 
-                  className="text-xl"
-                  style={{ color: colours.status.error.icon }}
-                >
-                  ⚠️
-                </span>
-              </div>
-              <div className="flex-1">
-                <h3 
-                  className="font-semibold text-sm mb-1"
-                  style={{ color: colours.status.error.text }}
-                >
-                  Allergen Warning
-                </h3>
-                <p 
-                  className="text-sm"
-                  style={{ color: colours.status.error.text }}
-                >
-                  This product contains allergens that match your profile: {allergenWarnings.map(allergen => allergen.replace(/-/g, ' ')).join(', ')}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        {allergenWarnings && allergenWarnings.length > 0 && <AllergenWarning allergenWarnings={allergenWarnings}/>}
 
         {/* Spider Web Diagram Box */}
         <div className="w-full max-w-xl flex flex-col items-center mb-4">

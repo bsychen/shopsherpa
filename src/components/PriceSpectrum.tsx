@@ -125,7 +125,7 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
         <div 
           className="absolute flex flex-col items-center z-20 animate-slide-in-pointer"
           style={{
-            top: '28px', // Moved closer to the spectrum bar
+            top: '28px', 
             left: `${currentPosition}%`,
             transform: 'translateX(-50%)'
           }}
