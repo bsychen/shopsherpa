@@ -10,7 +10,8 @@ interface AllergenWarningProps {
 }
 
 export default function AllergenWarning({ allergenWarnings, isEmbedded = false, onExpandedChange }: AllergenWarningProps) {
-  const [isMinimized, setIsMinimized] = useState(isEmbedded);
+  // Default to expanded when there are allergens, regardless of embedded state
+  const [isMinimized, setIsMinimized] = useState(false);
 
   const handleToggle = (minimized: boolean) => {
     setIsMinimized(minimized);
@@ -22,7 +23,7 @@ export default function AllergenWarning({ allergenWarnings, isEmbedded = false, 
   }
 
   const containerClasses = isEmbedded 
-    ? "absolute z-20" 
+    ? "flex justify-center" 
     : "w-full max-w-xl mb-4";
 
   return (
@@ -60,7 +61,7 @@ export default function AllergenWarning({ allergenWarnings, isEmbedded = false, 
             ...(isEmbedded && {
               minWidth: '280px',
               maxWidth: '320px',
-              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+              boxShadow: '0 4px 12px -2px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
             })
           }}
         >

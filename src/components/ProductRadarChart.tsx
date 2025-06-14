@@ -115,7 +115,8 @@ export default function ProductRadarChart({
   matchPercentage?: number | null;
   allergenWarnings?: string[];
 }) {
-  const [isAllergenExpanded, setIsAllergenExpanded] = useState(false);
+  // Initialize allergen expanded state based on whether allergens exist
+  const [isAllergenExpanded, setIsAllergenExpanded] = useState(allergenWarnings && allergenWarnings.length > 0);
   const radarData = [
     priceScore,
     qualityScore,
@@ -170,14 +171,11 @@ export default function ProductRadarChart({
 
   useEffect(() => { setShowButtons(true); }, []);
 
-  // Calculate vertical offset when allergen warning is expanded
-  const chartVerticalOffset = isAllergenExpanded ? 120 : 0;
-
   return (
-    <div className="relative flex items-center justify-center" style={{ width: containerSize, height: containerSize }}>
-      {/* Allergen Warning - top left corner */}
+    <div className="flex flex-col items-center gap-4">
+      {/* Allergen Warning - positioned above chart */}
       {allergenWarnings && allergenWarnings.length > 0 && (
-        <div className="absolute top-2 left-2 z-10">
+        <div className="w-full flex justify-center">
           <AllergenWarning 
             allergenWarnings={allergenWarnings} 
             isEmbedded={true}
@@ -185,20 +183,15 @@ export default function ProductRadarChart({
           />
         </div>
       )}
-      <div 
-      className="relative flex items-center justify-center transition-all duration-500 ease-in-out" 
-      style={{ 
-        width: containerSize, 
-        height: containerSize,
-        transform: `translateY(${chartVerticalOffset}px)`
-      }}
-    >
-      {/* Match Percentage in top right corner */}
-      {matchPercentage !== null && (
-        <div className="absolute top-2 right-2 z-10">
-          <AnimatedMatchPercent percent={matchPercentage} />
-        </div>
-      )}
+      
+      {/* Radar Chart Container */}
+      <div className="relative flex items-center justify-center" style={{ width: containerSize, height: containerSize }}>
+        {/* Match Percentage in top right corner */}
+        {matchPercentage !== null && (
+          <div className="absolute top-2 right-2 z-10">
+            <AnimatedMatchPercent percent={matchPercentage} />
+          </div>
+        )}
       {/* Radar Chart */}
       <div className="absolute left-0 top-0 w-full h-full flex items-center justify-center pointer-events-none">
         <Radar data={chartData} options={options} style={{ maxHeight: 240, maxWidth: 240 }} />
@@ -252,7 +245,7 @@ export default function ProductRadarChart({
           </button>
         );
       })}
-    </div>
+      </div>
     </div>
   );
 }
