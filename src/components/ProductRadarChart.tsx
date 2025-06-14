@@ -16,7 +16,6 @@ import { colours } from "@/styles/colours";
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
-// --- Constants for colors, borders, SVGs ---
 const BUTTON_CONFIG: Record<string, { color: string; border: string; svg: string }> = {
   Price: {
     color: "bg-yellow-100",
@@ -80,8 +79,8 @@ export default function ProductRadarChart({
       {
         label: "Product Attributes",
         data: radarData,
-        backgroundColor: `${colours.chart.primary}80`, // 50% opacity
-        borderColor: colours.chart.primary,
+        backgroundColor: `${colours.chart.primary}80`,
+        borderColor: `${colours.chart.grid}80`,
         borderWidth: 2,
         pointBackgroundColor: colours.chart.primary,
       },
@@ -96,13 +95,12 @@ export default function ProductRadarChart({
         min: 0,
         max: 5,
         ticks: { stepSize: 1, display: false },
-        grid: { color: colours.chart.grid },
+        grid: { color: `${colours.chart.grid}80` },
         pointLabels: { color: colours.chart.text, font: { size: 16 } },
       },
     },
   };
 
-  // Layout constants
   // Layout constants
   const containerSize = 260;
   const btnBase = 40;
@@ -116,12 +114,10 @@ export default function ProductRadarChart({
   const angleStep = (2 * Math.PI) / LABELS.length;
   const offset = 1.2;
   const verticalShift = 14;
-  // Animation state
   const [showButtons, setShowButtons] = useState(false);
 
   useEffect(() => { setShowButtons(true); }, []);
 
-  // --- Render ---
   return (
     <div className="relative flex items-center justify-center" style={{ width: containerSize, height: containerSize }}>
       {/* Radar Chart */}

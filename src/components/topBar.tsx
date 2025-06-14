@@ -31,7 +31,13 @@ export default function TopBar() {
       </Link>
       <div className="flex items-center gap-6">
         {isLoading ? (
-          <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <div 
+            className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin"
+            style={{ 
+              borderColor: colours.button.primary.background,
+              borderTopColor: 'transparent'
+            }}
+          ></div>
         ) : user ? (
           <Link
             href="/profile"

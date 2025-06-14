@@ -4,7 +4,9 @@
  */
 const colourMap = {
     red: '#D24330',
+    darkRed: '#A02A1D',
     yellow: '#ECCC36',
+    darkYellow: '#BFA02A',
     lightGreen: '#EBF6B7',
     green: '#309563',
     darkTeal: '#0C4038',
@@ -114,13 +116,13 @@ export const colours = {
     },
     warning: {
       background: colourMap.yellow,
-      border: colourMap.red,
+      border: colourMap.darkYellow,
       text: colourMap.darkTeal,
       icon: colourMap.red,
     },
     error: {
       background: colourMap.red,
-      border: colourMap.darkTeal,
+      border: colourMap.darkRed,
       text: colourMap.white,
       icon: colourMap.white,
     },
@@ -191,9 +193,9 @@ export const colours = {
   // Chart colors
   chart: {
     primary: colourMap.green,
-    secondary: colourMap.lightGreen,
-    grid: colourMap.lightGreen,
-    text: colourMap.darkTeal,
+    secondary: colourMap.grey,
+    grid: colourMap.grey,
+    text: colourMap.grey,
   },
 
   // Interactive elements
