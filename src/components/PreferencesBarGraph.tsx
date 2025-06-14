@@ -50,15 +50,18 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
     return () => clearTimeout(timer);
   }, []);
 
-  const handleMouseDown = useCallback((prefKey: string) => (e: React.MouseEvent) => {
+  // Handle both mouse and touch events for cross-platform compatibility
+  const handlePointerDown = useCallback((prefKey: string) => (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     setIsDragging(prefKey);
     
-    // Handle immediate position update for click
+    // Handle immediate position update for click/touch
     const container = containerRefs.current[prefKey];
     if (container) {
       const rect = container.getBoundingClientRect();
-      const x = e.clientX - rect.left;
+      // Support both mouse and touch events
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      const x = clientX - rect.left;
       const percentage = Math.max(0, Math.min(1, x / rect.width));
       const value = Math.round((percentage * 4 + 1) * 10) / 10;
       
@@ -73,14 +76,17 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
     }
   }, [userProfile]);
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
+  // Handle pointer movement for both mouse and touch
+  const handlePointerMove = useCallback((e: MouseEvent | TouchEvent) => {
     if (!isDragging) return;
 
     const container = containerRefs.current[isDragging];
     if (!container) return;
 
     const rect = container.getBoundingClientRect();
-    const x = e.clientX - rect.left;
+    // Support both mouse and touch events
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const x = clientX - rect.left;
     const percentage = Math.max(0, Math.min(1, x / rect.width));
     const value = Math.round((percentage * 4 + 1) * 10) / 10; // 1.0 to 5.0 with 0.1 precision
     
@@ -97,20 +103,32 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
     });
   }, [isDragging, userProfile]);
 
-  const handleMouseUp = useCallback(() => {
+  const handlePointerEnd = useCallback(() => {
     setIsDragging(null);
   }, []);
 
+  // Set up event listeners for mouse and touch events
   React.useEffect(() => {
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      const handleMove = (e: MouseEvent | TouchEvent) => {
+        // Prevent default to avoid scrolling on mobile during drag
+        e.preventDefault();
+        handlePointerMove(e);
+      };
+      
+      // Add both mouse and touch event listeners
+      document.addEventListener('mousemove', handleMove);
+      document.addEventListener('mouseup', handlePointerEnd);
+      document.addEventListener('touchmove', handleMove, { passive: false });
+      document.addEventListener('touchend', handlePointerEnd);
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('mousemove', handleMove);
+        document.removeEventListener('mouseup', handlePointerEnd);
+        document.removeEventListener('touchmove', handleMove);
+        document.removeEventListener('touchend', handlePointerEnd);
       };
     }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+  }, [isDragging, handlePointerMove, handlePointerEnd]);
 
   const handleSaveChanges = async () => {
     try {
@@ -173,14 +191,16 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
               
               <div 
                 ref={el => { containerRefs.current[pref.key] = el; }}
-                className={`relative h-8 rounded-lg cursor-pointer transition-all hover:shadow-md`}
+                className={`relative h-8 rounded-lg cursor-pointer transition-all hover:shadow-md touch-manipulation`}
                 style={{
                   backgroundColor: colours.background.secondary,
+                  minHeight: '44px', // iOS minimum touch target
                   ...(isDragging === pref.key && {
                     boxShadow: `0 0 0 2px ${colours.interactive.selected.background}`,
                   })
                 }}
-                onMouseDown={handleMouseDown(pref.key)}
+                onMouseDown={handlePointerDown(pref.key)}
+                onTouchStart={handlePointerDown(pref.key)}
               >
                 <div 
                   className={`h-full rounded-lg flex items-center justify-end pr-2 transition-all duration-1000 ease-out ${
@@ -192,7 +212,7 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
                     transitionDelay: `${index * 150}ms` // Stagger the animations
                   }}
                 >
-                  <div className={`w-3 h-3 rounded-full shadow-sm border-2 transition-all duration-300 ${
+                  <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full shadow-sm border-2 transition-all duration-300 ${
                     isAnimated ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
                   }`} 
                   style={{ 
