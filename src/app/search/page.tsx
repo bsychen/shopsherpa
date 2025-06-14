@@ -4,9 +4,12 @@ import React, { useState, useEffect, useCallback, useRef, memo } from "react";
 import Link from "next/link";
 import { BrowserMultiFormatReader } from "@zxing/browser";
 import { useRouter } from "next/navigation";
+import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
+import { auth } from "@/lib/firebaseClient";
 import { searchProducts } from "@/lib/api";
 import { colours } from "@/styles/colours";
 import { ProductSearchResult } from "@/types/product";
+import RecentlyViewedProducts from "@/components/RecentlyViewedProducts";
 
 // Debounce hook
 function useDebounce(value: string, delay: number) {
@@ -62,10 +65,19 @@ export default function ProductSearch() {
   const [showAll, setShowAll] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const router = useRouter();
   
   const debouncedQuery = useDebounce(query, 500); // Increased debounce delay
+
+  // Auth state listener
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      setFirebaseUser(user);
+    });
+    return () => unsub();
+  }, []);
 
   const handleSearch = useCallback(async (searchQuery: string) => {
     if (!searchQuery.trim()) {
@@ -271,6 +283,27 @@ export default function ProductSearch() {
           <video ref={videoRef} className="w-full h-auto" />
         </div>
       </div>
+
+      {/* Recently Viewed Products */}
+      {firebaseUser && (
+        <div className="w-full mt-8">
+          <div 
+            className="rounded-xl p-4"
+            style={{
+              backgroundColor: colours.content.surfaceSecondary,
+              border: `1px solid ${colours.content.border}`
+            }}
+          >
+            <h2 
+              className="text-lg font-semibold mb-4"
+              style={{ color: colours.text.secondary }}
+            >
+              Recently Viewed Products
+            </h2>
+            <RecentlyViewedProducts userId={firebaseUser.uid} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

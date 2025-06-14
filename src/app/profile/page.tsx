@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { getUserById } from "@/lib/api";
 import type { UserProfile } from "@/types/user";
 import UserReviewsList from "@/components/UserReviewsList";
-import RecentlyViewedProducts from "@/components/RecentlyViewedProducts";
 import PreferencesBarGraph from "@/components/PreferencesBarGraph";
 import AllergenManager from "@/components/AllergenManager";
 import Image from "next/image";
@@ -18,7 +17,6 @@ export default function ProfilePage() {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showRecents, setShowRecents] = useState(false);
   const [showReviews, setShowReviews] = useState(false);
   const [isUpdatingPreferences, setIsUpdatingPreferences] = useState(false);
   const router = useRouter();
@@ -209,44 +207,6 @@ export default function ProfilePage() {
       {/* Dropdown Sections */}
       {user && user.userId && (
         <div className="space-y-4">
-            {/* Recently Viewed Products Section */}
-            <div 
-              className="rounded-xl p-3 transition-all duration-300"
-              style={{
-                backgroundColor: colours.content.surfaceSecondary,
-                border: `1px solid ${colours.content.border}`
-              }}
-            >
-              <button
-                className="w-full flex items-center justify-between text-lg font-semibold mb-2 focus:outline-none"
-                style={{ color: colours.text.secondary }}
-                onClick={() => setShowRecents((v) => !v)}
-                aria-expanded={showRecents}
-              >
-                <span>Recently Viewed Products</span>
-                <Image 
-                  src="/down-arrow.svg" 
-                  alt="Toggle arrow" 
-                  width={16} 
-                  height={16} 
-                  className={`transform transition-transform duration-300 ease-in-out ${showRecents ? 'rotate-180' : ''}`}
-                />
-              </button>
-              <div 
-                className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                  showRecents ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                }`}
-              >
-                <div className={`transition-all duration-300 delay-150 ${
-                  showRecents ? 'transform translate-y-0 opacity-100' : 'transform -translate-y-2 opacity-0'
-                }`}>
-                  <div className={`${showRecents ? 'animate-fade-in' : ''}`} style={{ animationDelay: '200ms' }}>
-                    <RecentlyViewedProducts userId={user.userId} />
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* User Reviews Section */}
             <div 
               className="rounded-xl p-3 transition-all duration-300"

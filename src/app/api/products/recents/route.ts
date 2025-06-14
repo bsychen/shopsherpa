@@ -33,11 +33,13 @@ export async function GET(req: Request) {
                 const productDoc = await db.collection('products').doc(productId).get();
 
                 const productData = productDoc.data();
-                return {
+                const product = {
                     id: productId,
-                    productName: productData.ProductName,
+                    productName: productData?.productName || 'Unknown Product',
                     ...(doc.data() as Record<string, unknown>),
                 };
+                
+                return product;
             })
         );
 
