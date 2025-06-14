@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { getUserById } from "@/lib/api";
 import type { UserProfile } from "@/types/user";
 import UserReviewsList from "@/components/UserReviewsList";
-import PreferencesBarGraph from "@/components/PreferencesBarGraph";
+import PreferencesRadarChart from "@/components/PreferencesRadarChart";
 import AllergenManager from "@/components/AllergenManager";
 import Image from "next/image";
 import { colours } from "@/styles/colours";
@@ -134,7 +134,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 p-6 space-y-6">
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
       {/* User Profile Card */}
       <div 
         className="rounded-xl shadow p-8"
@@ -155,26 +155,6 @@ export default function ProfilePage() {
         >
           {user.email}
         </div>
-        <div className="mb-2 flex justify-center">
-          {user.pfp ? (
-            <Image 
-              src={user.pfp} 
-              alt="Profile" 
-              width={64} 
-              height={64} 
-              className="w-16 h-16 rounded-full"
-              style={{ border: `1px solid ${colours.content.border}` }}
-            />
-          ) : (
-            <span 
-              className="italic"
-              style={{ color: colours.text.muted }}
-            >
-              No profile picture
-            </span>
-          )}
-        </div>
-
         {user && user.userId && (
         <>
           {/* Shopping Preferences Section - Always Visible */}
@@ -185,7 +165,7 @@ export default function ProfilePage() {
             >
               Shopping Preferences
             </h2>
-            <PreferencesBarGraph 
+            <PreferencesRadarChart 
               userProfile={user}
               onPreferencesUpdate={handlePreferencesUpdate}
               isUpdating={isUpdatingPreferences}
