@@ -6,10 +6,16 @@ import { colours } from "@/styles/colours";
 interface AllergenWarningProps {
   allergenWarnings: string[];
   isEmbedded?: boolean;
+  onExpandedChange?: (isExpanded: boolean) => void;
 }
 
-export default function AllergenWarning({ allergenWarnings, isEmbedded = false }: AllergenWarningProps) {
+export default function AllergenWarning({ allergenWarnings, isEmbedded = false, onExpandedChange }: AllergenWarningProps) {
   const [isMinimized, setIsMinimized] = useState(isEmbedded);
+
+  const handleToggle = (minimized: boolean) => {
+    setIsMinimized(minimized);
+    onExpandedChange?.(!minimized);
+  };
 
   if (!allergenWarnings || allergenWarnings.length === 0) {
     return null;
@@ -24,7 +30,7 @@ export default function AllergenWarning({ allergenWarnings, isEmbedded = false }
       {isMinimized ? (
         // Minimized state - small warning icon
         <button
-          onClick={() => setIsMinimized(false)}
+          onClick={() => handleToggle(false)}
           className="border rounded-full p-2 flex items-center justify-center hover:scale-110 transition-all duration-300 transform"
           style={{ 
             backgroundColor: `${colours.status.error.background}99`,
@@ -81,7 +87,7 @@ export default function AllergenWarning({ allergenWarnings, isEmbedded = false }
             </p>
           </div>
           <button
-            onClick={() => setIsMinimized(true)}
+            onClick={() => handleToggle(true)}
             className="flex-shrink-0 p-1 rounded hover:bg-red-100 transition-colors"
             aria-label="Minimize allergen warning"
             style={{ color: colours.status.error.text }}

@@ -115,6 +115,7 @@ export default function ProductRadarChart({
   matchPercentage?: number | null;
   allergenWarnings?: string[];
 }) {
+  const [isAllergenExpanded, setIsAllergenExpanded] = useState(false);
   const radarData = [
     priceScore,
     qualityScore,
@@ -169,15 +170,29 @@ export default function ProductRadarChart({
 
   useEffect(() => { setShowButtons(true); }, []);
 
+  // Calculate vertical offset when allergen warning is expanded
+  const chartVerticalOffset = isAllergenExpanded ? 120 : 0;
+
   return (
     <div className="relative flex items-center justify-center" style={{ width: containerSize, height: containerSize }}>
       {/* Allergen Warning - top left corner */}
       {allergenWarnings && allergenWarnings.length > 0 && (
         <div className="absolute top-2 left-2 z-10">
-          <AllergenWarning allergenWarnings={allergenWarnings} isEmbedded={true} />
+          <AllergenWarning 
+            allergenWarnings={allergenWarnings} 
+            isEmbedded={true}
+            onExpandedChange={setIsAllergenExpanded}
+          />
         </div>
       )}
-      
+      <div 
+      className="relative flex items-center justify-center transition-all duration-500 ease-in-out" 
+      style={{ 
+        width: containerSize, 
+        height: containerSize,
+        transform: `translateY(${chartVerticalOffset}px)`
+      }}
+    >
       {/* Match Percentage in top right corner */}
       {matchPercentage !== null && (
         <div className="absolute top-2 right-2 z-10">
@@ -229,6 +244,7 @@ export default function ProductRadarChart({
           </button>
         );
       })}
+    </div>
     </div>
   );
 }
