@@ -141,25 +141,14 @@ export default function ProductSearch() {
 
   return (
     <div 
-      className="relative max-w-xl mx-auto mt-10 rounded-xl shadow p-8 flex flex-col items-center min-h-[400px]"
+      className="relative max-w-xl mx-auto mt-4 rounded-xl shadow p-6 flex flex-col items-center min-h-[400px]"
       style={{
         backgroundColor: colours.card.background,
         border: `1px solid ${colours.card.border}`
       }}
     >
-      <div className="relative w-full h-10 mb-2">
-        <Link
-          href="/"
-          className="flex items-center hover:underline absolute top-0 left-0 z-20"
-          style={{ color: colours.text.link }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-          </svg>
-        </Link>
-      </div>
       <h1 
-        className="text-2xl font-bold mb-6 mt-2"
+        className="text-2xl font-bold mb-6"
         style={{ color: colours.text.primary }}
       >
         Search & Scan Products
