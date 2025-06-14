@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus } from "@/components/Icons";
 import { Post } from "@/types/post";
 import PostCard from "@/components/PostCard";
 import PostFilters from "@/components/PostFilters";
@@ -161,8 +161,7 @@ export default function PostsPage() {
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.hover.background}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.background}
             >
-              <Plus size={20} />
-              Create Post
+              <Plus/>
             </button>
           )}
         </div>

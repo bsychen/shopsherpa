@@ -8,6 +8,7 @@ import { getProduct, createReview } from "@/lib/api";
 import { Product } from "@/types/product";
 import { colours } from "@/styles/colours";
 import LoadingAnimation from "@/components/LoadingSpinner";
+import StarIcon from "@/components/Icons";
 
 export default function ReviewPage() {
   const params = useParams();
@@ -161,11 +162,11 @@ export default function ReviewPage() {
                   <button
                     type="button"
                     key={star}
-                    className={`text-2xl transition-colors ${rating >= star ? '' : 'opacity-30'}`}
+                    className={`transition-colors ${rating >= star ? '' : 'opacity-30'}`}
                     onClick={() => setRating(star)}
                     aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
                   >
-                    ⭐
+                    <StarIcon size={24} />
                   </button>
                 ))}
               </div>

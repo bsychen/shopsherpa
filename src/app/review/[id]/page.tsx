@@ -8,6 +8,7 @@ import { Review } from "@/types/review";
 import { getReview, getProduct, getUserById } from "@/lib/api";
 import { colours } from "@/styles/colours";
 import LoadingAnimation from "@/components/LoadingSpinner";
+import StarIcon from "@/components/Icons";
 
 export default function ReviewPage() {
   const params = useParams();
@@ -114,13 +115,13 @@ export default function ReviewPage() {
           {[1, 2, 3, 4, 5].map((star) => (
             <span
               key={star}
-              className={`text-2xl ${
+              className={`inline-block ${
                 review.rating >= star ? "" : "opacity-30"
               }`}
               role="img"
               aria-label="star"
             >
-              ⭐
+              <StarIcon size={20} />
             </span>
           ))}
         </span>

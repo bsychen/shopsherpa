@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { colours } from "@/styles/colours"
 import { UserProfile } from "@/types/user"
+import StarIcon, { Plus } from "./Icons"
 
 interface ProductReviewsProps {
   reviews: Review[]
@@ -173,9 +174,7 @@ export default function ProductReviews({
               }}
               aria-label="Write a Review"
             >
-              <span className="w-full flex items-center justify-center" style={{lineHeight: 1}}>
-                <span className="text-xl leading-none flex items-center justify-center">+</span>
-              </span>
+             <Plus/>
             </button>
           </div>
         </div>
@@ -218,11 +217,11 @@ export default function ProductReviews({
                           {[1, 2, 3, 4, 5].map((star) => (
                             <span
                               key={star}
-                              className={`text-xl ${review.rating >= star ? '' : 'opacity-30'}`}
+                              className={`text-xl ${review.rating >= star ? `border-${colours.status.warning.background}` : 'opacity-30'}`}
                               role="img"
                               aria-label="star"
                             >
-                              ⭐
+                             <StarIcon size={24} />
                             </span>
                           ))}
                         </span>

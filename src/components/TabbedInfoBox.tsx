@@ -4,6 +4,7 @@ import { Product } from "@/types/product";
 import { ReviewSummary } from "@/types/reviewSummary";
 import PriceSpectrum from "./PriceSpectrum";
 import { colours } from "@/styles/colours";
+import StarIcon from "./Icons";
 
 const TAB_ICONS: Record<string, React.ReactNode> = {
   Price: <Image src="/pound-svgrepo-com.svg" alt="Price" width={24} height={24} className="w-6 h-6" />,
@@ -282,7 +283,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
                 className="text-lg font-bold mb-2 self-start"
                 style={{ color: colours.text.primary }}
               >
-                Quality
+                Reviews
               </h2>
               <span className="relative inline-block w-12 h-12 align-middle">
                 <svg width="48" height="48" viewBox="0 0 48 48" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
@@ -301,7 +302,9 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
                     }}
                   />
                 </svg>
-                <span className="relative z-10 flex items-center justify-center w-12 h-12 text-3xl">🍎</span>
+                <span className="relative z-10 flex items-center justify-center w-12 h-12 text-3xl">
+                  <StarIcon size={24}/>
+                </span>
               </span>
               <span 
                 className="ml-1 text-xs"
@@ -316,45 +319,51 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
             </div>
             <div className="w-full">
               <div 
-                className="font-semibold mb-1 text-xs md:text-base"
+                className="font-semibold mb-3 text-xs md:text-base"
                 style={{ color: colours.text.primary }}
               >
-                Quality
+                Rating Distribution
               </div>
-              <div className="flex flex-col gap-1 h-auto w-full">
-                {[5,4,3,2,1].map(star => (
-                  <div
-                    key={star}
-                    className="flex items-center mb-0.5 w-full group focus:outline-none"
-                  >
-                    <span 
-                      className="text-[10px] w-5 text-right mr-1"
-                      style={{ color: colours.text.primary }}
-                    >
-                      {star}★
-                    </span>
+              <div className="flex items-end justify-center gap-2 h-32 w-full px-4">
+                {[1,2,3,4,5].map(star => {
+                  const count = Number(reviewSummary.ratingDistribution?.[star] || 0);
+                  const maxCount = Math.max(...[1,2,3,4,5].map(s => Number(reviewSummary.ratingDistribution?.[s] || 0)));
+                  const height = maxCount > 0 ? Math.max(8, (count / maxCount) * 100) : 8;
+                  
+                  return (
                     <div
-                      className="rounded h-3 transition-all duration-700 animate-bar-grow"
-                      style={{ 
-                        width: `${Math.max(6, Number(reviewSummary.ratingDistribution?.[star] || 0) * 12)}px`, 
-                        transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)',
-                        backgroundColor: colours.score.medium
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = colours.score.high
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = colours.score.medium
-                      }}
-                    />
-                    <span 
-                      className="text-[10px] ml-1"
-                      style={{ color: colours.text.secondary }}
+                      key={star}
+                      className="flex flex-col items-center group focus:outline-none"
                     >
-                      {String(reviewSummary.ratingDistribution?.[star] || 0)}
-                    </span>
-                  </div>
-                ))}
+                      <span 
+                        className="text-[10px] mb-1"
+                        style={{ color: colours.text.secondary }}
+                      >
+                        {count}
+                      </span>
+                      <div
+                        className="rounded w-6 transition-all duration-700 animate-bar-grow"
+                        style={{ 
+                          height: `${height}px`, 
+                          transition: 'height 0.7s cubic-bezier(0.4,0,0.2,1), background-color 0.3s ease',
+                          backgroundColor: colours.score.medium
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = colours.score.high
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = colours.score.medium
+                        }}
+                      />
+                      <span 
+                        className="text-[10px] mt-1 flex items-center"
+                        style={{ color: colours.text.primary }}
+                      >
+                        {star}<StarIcon size={8} className="ml-0.5" />
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

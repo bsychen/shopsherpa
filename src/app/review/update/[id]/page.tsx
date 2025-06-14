@@ -6,6 +6,7 @@ import { getReview, updateReview } from "@/lib/api";
 import { Review } from "@/types/review";
 import { colours } from "@/styles/colours";
 import LoadingAnimation from "@/components/LoadingSpinner";
+import StarIcon from "@/components/Icons";
 
 export default function UpdateReviewPage() {
   const params = useParams();
@@ -64,14 +65,14 @@ export default function UpdateReviewPage() {
         <div>
           <label className="font-semibold" style={{ color: colours.text.primary }}>Rating:</label>
           <div className="flex gap-1 mt-1">
-            {[1,2,3,4,5].map((val) => (
+            {[1,2,3,4,5].map((star) => (
               <button
                 type="button"
-                key={val}
-                className={`text-2xl ${rating >= val ? '' : 'opacity-30'}`}
-                onClick={() => setRating(val)}
-                aria-label={`Set rating to ${val}`}
-              >⭐</button>
+                key={star}
+                className={`transition-colors ${rating >= star ? '' : 'opacity-30'}`}
+                onClick={() => setRating(star)}
+                aria-label={`Set rating to ${star}`}
+              ><StarIcon size={24} /></button>
             ))}
           </div>
         </div>
