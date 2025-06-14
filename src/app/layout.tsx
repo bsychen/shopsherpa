@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import TopBar from "@/components/topBar"
+import BottomNav from "@/components/BottomNav"
 
 import "./globals.css";
 
@@ -24,7 +25,10 @@ export default function RootLayout({
       </head>
       <body>
         <TopBar />
-        {children}
+        <main className="pb-16">
+          {children}
+        </main>
+        <BottomNav />
       </body>
     </html>
   )
