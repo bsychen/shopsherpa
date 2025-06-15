@@ -63,8 +63,8 @@ export default function AllergenManager({ userProfile, onAllergensUpdate, isUpda
         border: `2px solid ${colours.card.border}`
       }}>
       {/* Header with title and edit button */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold" style={{ color: colours.text.primary }}>Allergens</h2>
+      <div className="flex items-center justify-between mb-2">
+        <h1 className="text-lg font-semibold" style={{ color: colours.text.primary }}>Allergens</h1>
         <button
           onClick={toggleEditMode}
           disabled={isUpdating}

@@ -142,7 +142,7 @@ export default function ProfilePage() {
     >
       {/* User Profile Card */}
       <div 
-        className="rounded-xl shadow-lg p-8"
+        className="rounded-xl shadow-lg p-6"
         style={{
           backgroundColor: colours.card.background,
           border: `2px solid ${colours.card.border}`
@@ -194,7 +194,7 @@ export default function ProfilePage() {
         <div className="space-y-4">
             {/* User Reviews Section */}
             <div 
-              className="rounded-xl shadow-lg p-3 transition-all duration-300"
+              className="rounded-xl shadow-lg p-6 transition-all duration-300"
               style={{
                 backgroundColor: colours.content.surfaceSecondary,
                 border: `2px solid ${colours.card.border}`
