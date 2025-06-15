@@ -80,15 +80,3 @@
 .scroll-snap-center {
   scroll-snap-align: center;
 }
-
-/* Center item emphasis */
-.similar-products-container:hover > * {
-  opacity: 0.6;
-  transform: scale(0.95);
-  transition: all 0.3s ease;
-}
-
-.similar-products-container > *:hover {
-  opacity: 1;
-  transform: scale(1);
-}

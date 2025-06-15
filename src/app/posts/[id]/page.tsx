@@ -209,7 +209,7 @@ export default function PostPage() {
           <p className="mb-4 text-sm sm:text-base" style={{ color: colours.text.secondary }}>The post you&apos;re looking for doesn&apos;t exist.</p>
           <Link
             href="/chats"
-            className="inline-flex items-center gap-2 font-medium hover:underline text-sm sm:text-base"
+            className="inline-flex items-center gap-2 font-medium text-sm sm:text-base"
             style={{ color: colours.text.link }}
           >
             <ArrowLeft size={16} />
@@ -227,7 +227,7 @@ export default function PostPage() {
         <div className="mb-4 sm:mb-6">
           <Link 
             href="/chats" 
-            className="flex items-center hover:underline mb-3 sm:mb-4"
+            className="flex items-center mb-3 sm:mb-4"
             style={{ color: colours.text.link }}
           >
             <ArrowLeft size={18} className="mr-2" />
@@ -313,7 +313,7 @@ export default function PostPage() {
                             setCommentProductSearch('');
                             setCommentProducts([]);
                           }}
-                          className="flex-shrink-0 p-1 rounded-full hover:opacity-70 transition-opacity"
+                          className="flex-shrink-0 p-1 rounded-full transition-opacity"
                           style={{ color: colours.tag.primary.text }}
                           title="Remove linked product"
                         >
@@ -356,16 +356,10 @@ export default function PostPage() {
                                   setCommentProducts([]);
                                   setShowCommentProductSearch(false);
                                 }}
-                                className="w-full flex items-center gap-3 p-3 hover:opacity-80 text-left transition-all border-b last:border-b-0"
+                                className="w-full flex items-center gap-3 p-3 text-left transition-all border-b last:border-b-0"
                                 style={{ 
                                   backgroundColor: colours.card.background,
                                   borderBottomColor: colours.card.border
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.backgroundColor = colours.card.hover.background;
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.backgroundColor = colours.card.background;
                                 }}
                               >
                                 <Image
@@ -403,7 +397,7 @@ export default function PostPage() {
                         <button
                           type="button"
                           onClick={() => setShowCommentProductSearch(!showCommentProductSearch)}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all hover:scale-105 ${
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                             showCommentProductSearch ? 'shadow-sm' : ''
                           }`}
                           style={{
@@ -426,20 +420,10 @@ export default function PostPage() {
                     <button
                       type="submit"
                       disabled={!newComment.trim() || submittingComment}
-                      className="flex items-center justify-center w-10 h-10 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105"
+                      className="flex items-center justify-center w-10 h-10 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       style={{
                         backgroundColor: colours.button.primary.background,
                         color: colours.button.primary.text
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!e.currentTarget.disabled) {
-                          e.currentTarget.style.backgroundColor = colours.button.primary.hover.background;
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!e.currentTarget.disabled) {
-                          e.currentTarget.style.backgroundColor = colours.button.primary.background;
-                        }
                       }}
                       title={submittingComment ? 'Posting...' : 'Post Comment'}
                     >
@@ -454,7 +438,7 @@ export default function PostPage() {
               <p className="mb-2" style={{ color: colours.text.secondary }}>Sign in to join the conversation</p>
               <Link
                 href="/auth"
-                className="font-medium hover:underline"
+                className="font-medium"
                 style={{ color: colours.text.link }}
               >
                 Sign In

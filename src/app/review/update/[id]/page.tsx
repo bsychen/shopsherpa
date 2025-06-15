@@ -53,7 +53,7 @@ export default function UpdateReviewPage() {
       <div className="flex items-center mb-4">
         <a
           href={review ? `/review/${review.id}` : "#"}
-          className="flex items-center hover:underline"
+          className="flex items-center"
           style={{ color: colours.text.link }}
         >
           <span className="mr-2 text-2xl">&#8592;</span>
@@ -97,12 +97,6 @@ export default function UpdateReviewPage() {
           style={{
             backgroundColor: colours.button.primary.background,
             color: colours.button.primary.text
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = colours.button.primary.hover.background;
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = colours.button.primary.background;
           }}
         >
           Update Review

@@ -142,7 +142,7 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
         {/* Price labels with buttons */}
         <div className="absolute -bottom-6 left-[0%]">
           <button 
-            className="rounded-md shadow-sm px-2 py-1 text-xs font-medium transition-colors hover:opacity-80"
+            className="rounded-md shadow-sm px-2 py-1 text-xs font-medium transition-colors"
             style={{
               backgroundColor: colours.status.success.background,
               border: `1px solid ${colours.status.success.border}`,
@@ -155,7 +155,7 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
         </div>
         <div className="absolute -bottom-6 right-[0%]">
           <button 
-            className="rounded-md shadow-sm px-2 py-1 text-xs font-medium transition-colors hover:opacity-80"
+            className="rounded-md shadow-sm px-2 py-1 text-xs font-medium transition-colors"
             style={{
               backgroundColor: colours.status.error.background,
               border: `1px solid ${colours.status.error.border}`,

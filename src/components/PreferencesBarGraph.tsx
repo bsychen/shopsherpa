@@ -191,7 +191,7 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
               
               <div 
                 ref={el => { containerRefs.current[pref.key] = el; }}
-                className={`relative h-8 rounded-lg cursor-pointer transition-all hover:shadow-md touch-manipulation`}
+                className={`relative h-8 rounded-lg cursor-pointer transition-all touch-manipulation`}
                 style={{
                   backgroundColor: colours.background.secondary,
                   minHeight: '44px', // iOS minimum touch target
@@ -235,7 +235,7 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
         <div className="mt-4 p-3 rounded-lg relative" style={{ backgroundColor: colours.background.secondary }}>
           <button
             onClick={() => setShowTip(false)}
-            className="absolute top-2 right-2 transition-colors hover:opacity-70"
+            className="absolute top-2 right-2 transition-colors"
             style={{ color: colours.text.muted }}
             aria-label="Close tip"
           >
@@ -252,7 +252,7 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
           <button
             onClick={handleResetChanges}
             disabled={isUpdating}
-            className="px-3 py-1 text-sm disabled:opacity-50 hover:underline"
+            className="px-3 py-1 text-sm disabled:opacity-50"
             style={{ color: colours.text.secondary }}
           >
             Reset
@@ -260,7 +260,7 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
           <button
             onClick={handleSaveChanges}
             disabled={isUpdating}
-            className="px-4 py-1 text-sm rounded disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
+            className="px-4 py-1 text-sm rounded disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               backgroundColor: colours.button.primary.background,
               color: colours.button.primary.text

@@ -38,8 +38,6 @@ const SearchResult = memo(({ product, onSelect }: { product: ProductSearchResult
       style={{ 
         borderColor: colours.content.border
       }}
-      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colours.card.hover.background}
-      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
     >
       <div 
         className="font-medium text-sm mb-1"
@@ -197,8 +195,6 @@ export default function ProductSearch() {
               backgroundColor: colours.button.primary.background,
               color: colours.button.primary.text
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.hover.background}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.background}
             onFocus={(e) => e.currentTarget.style.boxShadow = colours.input.focus.ring}
             onBlur={(e) => e.currentTarget.style.boxShadow = 'none'}
             aria-label="Search"

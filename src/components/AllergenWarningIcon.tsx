@@ -16,7 +16,7 @@ export default function AllergenWarningIcon({ hasAllergens, onClick }: AllergenW
   return (
     <button
       onClick={onClick}
-      className="absolute bottom-0 right-0 flex items-center justify-center hover:scale-110 transition-all duration-200 transform z-10"
+      className="absolute bottom-0 right-0 flex items-center justify-center transition-all duration-200 transform z-10"
       style={{ 
         width: '24px',
         height: '24px',

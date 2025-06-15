@@ -318,14 +318,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         <div className="w-full flex items-center gap-3 mb-4">
           <Link 
             href="/" 
-            className="flex items-center hover:underline flex-shrink-0"
+            className="flex items-center flex-shrink-0"
             style={{ color: colours.text.link }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = colours.text.linkHover
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = colours.text.link
-            }}
           >
            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -429,14 +423,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                         backgroundColor: colours.tag.default.background,
                         borderColor: colours.tag.default.border,
                         color: colours.tag.default.text
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = colours.tag.default.hover.background
-                        e.currentTarget.style.color = colours.tag.default.hover.text
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = colours.tag.default.background
-                        e.currentTarget.style.color = colours.tag.default.text
                       }}
                     >
                       {`${map.emoji} ${map.title}`}

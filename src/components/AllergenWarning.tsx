@@ -118,7 +118,7 @@ export default function AllergenWarning({ allergenWarnings, isVisible, onClose, 
         <div className="flex items-center justify-center min-h-full w-full">
           {/* Modal */}
           <div 
-            className={`bg-white rounded-xl shadow-2xl border-4 max-w-md w-full mx-4 my-8 transform transition-all duration-300 ease-out ${
+            className={`bg-white rounded-xl shadow-2xl border-2 max-w-md w-full mx-4 my-8 transform transition-all duration-300 ease-out ${
               isAnimating 
                 ? 'scale-100 opacity-100 translate-y-0' 
                 : 'scale-95 opacity-0 translate-y-4'
@@ -247,29 +247,22 @@ export default function AllergenWarning({ allergenWarnings, isVisible, onClose, 
           >
             <button
               onClick={handleBackToSearch}
-              className={`px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 hover:shadow-sm transition-all duration-200 transform ${
+              className={`px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-xl shadow-lg border-2 border-black p-3 rounded-lg transition-all duration-200 transform ${
                 contentAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-              } hover:scale-105 active:scale-95`}
+              }  active:scale-95`}
               style={{ transitionDelay: contentAnimating ? '500ms' : '0ms' }} // First button exits immediately
             >
               Back to Search
             </button>
             <button
               onClick={handleProceed}
-              className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-all duration-200 transform ${
+              className={`px-4 py-2 text-sm font-medium text-white rounded-xl shadow-lg border-2 border-black p-3 transition-all duration-200 transform ${
                 contentAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-              } hover:scale-105 active:scale-95 hover:shadow-lg`}
+              } active:scale-95 `}
               style={{ 
                 backgroundColor: colours.status.error.background,
                 borderColor: colours.status.error.border,
                 transitionDelay: contentAnimating ? '550ms' : '0ms', // Second button exits immediately
-              }}
-              onMouseEnter={(e) => {
-                // Use the darker red color for hover
-                e.currentTarget.style.backgroundColor = '#A02A1D'; // colourMap.darkRed
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = colours.status.error.background;
               }}
             >
               Proceed Anyway

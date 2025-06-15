@@ -149,8 +149,6 @@ export default function PostsPage() {
                 backgroundColor: colours.button.primary.background,
                 color: colours.button.primary.text
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.hover.background}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.background}
             >
               <Plus />
               <span className="hidden sm:inline">New Post</span>
@@ -220,9 +218,7 @@ export default function PostsPage() {
                     backgroundColor: colours.button.primary.background,
                     color: colours.button.primary.text
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.hover.background}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.background}
-                >
+                  >
                   Create First Post
                 </button>
               )}

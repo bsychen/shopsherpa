@@ -276,7 +276,7 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
           {!isEditMode && (
             <button
               onClick={() => setIsEditMode(true)}
-              className="absolute top-2 right-2 z-10 px-3 py-1 text-sm rounded-lg transition-colors hover:opacity-80 flex items-center gap-1"
+              className="absolute top-2 right-2 z-10 px-3 py-1 text-sm rounded-lg transition-colors flex items-center gap-1"
               style={{
                 backgroundColor: colours.button.secondary.background,
                 color: colours.button.secondary.text
@@ -367,7 +367,7 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
                 
                 <div 
                   ref={el => { containerRefs.current[pref.key] = el; }}
-                  className={`relative h-8 rounded-lg cursor-pointer transition-all hover:shadow-md touch-manipulation`}
+                  className={`relative h-8 rounded-lg cursor-pointer transition-all touch-manipulation`}
                   style={{
                     backgroundColor: colours.background.secondary,
                     minHeight: '44px', // iOS minimum touch target
@@ -405,7 +405,7 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
             <button
               onClick={handleCancelEdit}
               disabled={isUpdating}
-              className="px-4 py-2 text-sm rounded-lg disabled:opacity-50 hover:opacity-80 transition-opacity"
+              className="px-4 py-2 text-sm rounded-lg disabled:opacity-50  transition-opacity"
               style={{ 
                 backgroundColor: colours.button.secondary.background,
                 color: colours.button.secondary.text 
@@ -417,7 +417,7 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
               <button
                 onClick={handleResetChanges}
                 disabled={isUpdating}
-                className="px-3 py-2 text-sm disabled:opacity-50 hover:underline"
+                className="px-3 py-2 text-sm disabled:opacity-50"
                 style={{ color: colours.text.secondary }}
               >
                 Reset
@@ -426,7 +426,7 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
             <button
               onClick={handleSaveChanges}
               disabled={isUpdating || !hasChanges}
-              className="px-4 py-2 text-sm rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
+              className="px-4 py-2 text-sm rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
               style={{
                 backgroundColor: hasChanges ? colours.button.primary.background : colours.button.secondary.background,
                 color: hasChanges ? colours.button.primary.text : colours.button.secondary.text

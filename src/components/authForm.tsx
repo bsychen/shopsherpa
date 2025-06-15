@@ -93,8 +93,6 @@ export default function AuthForm({
           backgroundColor: colours.button.primary.background,
           color: colours.button.primary.text
         }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.hover.background}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.background}
         type="submit"
       >
         {mode === 'signup' ? 'Sign Up' : 'Log In'}
@@ -105,7 +103,7 @@ export default function AuthForm({
             Already have an account?{' '}
             <button
               type="button"
-              className="underline text-blue-600 hover:text-blue-800"
+              className="underline text-blue-600 -blue-800"
               onClick={onToggleMode}
             >
               Log In
@@ -116,7 +114,7 @@ export default function AuthForm({
             Don&apos;t have an account?{' '}
             <button
               type="button"
-              className="underline text-blue-600 hover:text-blue-800"
+              className="underline text-blue-600 -blue-800"
               onClick={onToggleMode}
             >
               Sign Up

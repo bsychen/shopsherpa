@@ -229,7 +229,7 @@ export default function ProfilePage() {
 
         <button
           onClick={handleLogout}
-          className="mt-6 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded transition"
+          className="mt-6 bg-red-500 text-white font-semibold py-2 px-4 rounded transition"
         >
           Log out
         </button>

@@ -3,7 +3,6 @@
 import { Product } from "@/types/product"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { colours } from "@/styles/colours"
 
 interface ProductCardProps {
   product: Product
@@ -23,7 +22,7 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
 
   return (
     <button 
-      className="flex flex-col items-center rounded-xl shadow-lg border-2 border-black p-3 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-zinc-200 bg-slate-100 hover:bg-slate-200"
+      className="flex flex-col items-center rounded-xl shadow-lg border-2 border-black p-3 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-zinc-200 bg-slate-100"
       style={{ 
         width: '100px', 
         flex: '0 0 auto',

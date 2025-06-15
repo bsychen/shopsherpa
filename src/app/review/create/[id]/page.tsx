@@ -89,7 +89,7 @@ export default function ReviewPage() {
       <div className="flex items-center mb-4">
         <a 
           href={`/product/${id}`} 
-          className="flex items-center hover:underline"
+          className="flex items-center"
           style={{ color: colours.text.link }}
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
@@ -135,12 +135,6 @@ export default function ReviewPage() {
             style={{
               backgroundColor: colours.button.secondary.background,
               color: colours.button.secondary.text
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = colours.button.secondary.hover.background;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = colours.button.secondary.background;
             }}
             onClick={() => router.push(`/product/${id}`)}
           >
@@ -228,16 +222,6 @@ export default function ReviewPage() {
             style={{
               backgroundColor: colours.button.primary.background,
               color: colours.button.primary.text
-            }}
-            onMouseEnter={(e) => {
-              if (!submitting) {
-                e.currentTarget.style.backgroundColor = colours.button.primary.hover.background;
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!submitting) {
-                e.currentTarget.style.backgroundColor = colours.button.primary.background;
-              }
             }}
             disabled={submitting}
           >

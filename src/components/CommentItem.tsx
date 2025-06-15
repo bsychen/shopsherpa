@@ -148,7 +148,7 @@ export default function CommentItem({
             <button
               onClick={handleReply}
               disabled={!currentUserId}
-              className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors hover:opacity-70 ${!currentUserId ? 'cursor-not-allowed opacity-50' : ''}`}
+              className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors ${!currentUserId ? 'cursor-not-allowed opacity-50' : ''}`}
               style={{
                 backgroundColor: colours.interactive.hover.background,
                 color: colours.text.secondary

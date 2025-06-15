@@ -69,14 +69,6 @@ export default function AllergenManager({ userProfile, onAllergensUpdate, isUpda
             backgroundColor: colours.button.edit.background,
             border: `1px solid ${colours.content.border}`
           }}
-          onMouseEnter={(e) => {
-            if (!isUpdating) {
-              e.currentTarget.style.backgroundColor = colours.button.edit.hover.background;
-            }
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = colours.button.edit.background;
-          }}
         >
           {isEditMode ? (
             <>
@@ -111,7 +103,7 @@ export default function AllergenManager({ userProfile, onAllergensUpdate, isUpda
                 <button
                   onClick={() => handleRemoveAllergen(allergen)}
                   disabled={isUpdating}
-                  className="ml-1 font-bold text-sm leading-none disabled:opacity-50 w-5 h-5 flex items-center justify-center rounded-full hover:opacity-70 transition-colors duration-150"
+                  className="ml-1 font-bold text-sm leading-none disabled:opacity-50 w-5 h-5 flex items-center justify-center rounded-full transition-colors duration-150"
                   style={{ color: colours.status.error.border }}
                   aria-label={`Remove ${allergen} allergen`}
                 >
@@ -148,7 +140,7 @@ export default function AllergenManager({ userProfile, onAllergensUpdate, isUpda
                     key={allergenOption.dbKey}
                     onClick={() => handleAddAllergen(allergenOption.dbKey)}
                     disabled={isUpdating}
-                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm transition-all duration-200 disabled:opacity-50 opacity-0 animate-fade-in hover:opacity-80`}
+                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm transition-all duration-200 disabled:opacity-50 opacity-0 animate-fade-in`}
                     style={{ 
                       backgroundColor: colours.tag.default.background,
                       color: colours.tag.default.text,

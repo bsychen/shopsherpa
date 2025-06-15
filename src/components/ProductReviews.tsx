@@ -182,12 +182,6 @@ export default function ProductReviews({
                         backgroundColor: colours.content.surface,
                         borderColor: colours.content.border
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = colours.interactive.hover.background
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = colours.content.surface
-                      }}
                     >
                       <div 
                         className="font-bold mb-1"
@@ -250,12 +244,6 @@ export default function ProductReviews({
                   style={{ 
                     backgroundColor: colours.button.ghost.background,
                     color: colours.button.ghost.text
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = colours.button.ghost.hover.background
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = colours.button.ghost.background
                   }}
                 >
                   Clear filter
