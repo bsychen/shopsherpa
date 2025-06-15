@@ -20,7 +20,7 @@ export default function AllergenWarningIcon({ hasAllergens, onClick }: AllergenW
       style={{ 
         width: '24px',
         height: '24px',
-        transform: 'translate(14px)', // Position it slightly outside the corner
+        transform: 'translate(3px, -3px)', // Position it slightly outside the corner
         color: colours.status.error.icon,
         backgroundColor: 'transparent',
       }}

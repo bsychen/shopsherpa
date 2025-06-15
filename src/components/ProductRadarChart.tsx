@@ -17,8 +17,9 @@ import AllergenWarningIcon from "./AllergenWarningIcon";
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
-function AnimatedMatchPercent({ percent }: { percent: number }) {
+function AnimatedMatchPercent({ percent, hasAllergens = false }: { percent: number, hasAllergens?: boolean }) {
   const [displayed, setDisplayed] = useState(0);
+  const [animatedPercent, setAnimatedPercent] = useState(0);
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -27,35 +28,56 @@ function AnimatedMatchPercent({ percent }: { percent: number }) {
     function animate(ts: number) {
       if (!start) start = ts;
       const progress = Math.min((ts - start) / duration, 1);
-      setDisplayed(Math.round(percent * progress));
+      const currentPercent = percent * progress;
+      setDisplayed(Math.round(currentPercent));
+      setAnimatedPercent(currentPercent);
       if (progress < 1) {
         rafRef.current = requestAnimationFrame(animate);
       } else {
         setDisplayed(percent);
+        setAnimatedPercent(percent);
       }
     }
     rafRef.current = requestAnimationFrame(animate);
     return () => rafRef.current && cancelAnimationFrame(rafRef.current);
   }, [percent]);
 
-  // Color logic
-  const color = displayed >= 70
+  // Color logic - red if allergens are flagged, otherwise based on percentage
+  const color = hasAllergens 
+    ? { text: `${colours.status.error.background}80` }
+    : displayed >= 70
     ? { text: colours.score.high }
     : displayed >= 50
     ? { text: colours.score.medium }
     : { text: colours.score.low };
 
   return (
-    <span className="relative flex flex-col items-center justify-center min-w-[48px] min-h-[48px]">
+    <span className="relative flex flex-col items-center justify-center min-w-[70px] min-h-[70px]">
+      {/* Ring animation background */}
+      <svg width="70" height="70" viewBox="0 0 70 70" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
+        <circle
+          cx="35" cy="35" r="30"
+          fill="none"
+          stroke={color.text}
+          strokeWidth="6"
+          strokeDasharray={Math.PI * 2 * 30}
+          strokeDashoffset={Math.PI * 2 * 30 * (1 - (animatedPercent / 100))}
+          strokeLinecap="round"
+          style={{
+            transform: 'rotate(-90deg)',
+            transformOrigin: 'center center',
+          }}
+        />
+      </svg>
       <span
-        className="font-bold text-lg"
+        className="font-bold text-lg relative z-10"
         style={{ color: color.text, pointerEvents: 'none', userSelect: 'none' }}
       >
         {displayed}%
       </span>
       <span 
-        className="block font-medium mt-0.5 text-center text-xs"
-        style={{ color: colours.text.secondary }}
+        className="block font-medium text-center text-xs relative z-10"
+        style={{ color: colours.text.secondary, marginTop: '-2px' }}
       >
         match
       </span>
@@ -171,7 +193,7 @@ export default function ProductRadarChart({
   const [showButtons, setShowButtons] = useState(false);
 
   useEffect(() => { 
-    setShowButtons(true);
+    setShowButtons(true);2
   }, []);
 
   return (
@@ -183,7 +205,10 @@ export default function ProductRadarChart({
           {/* Match Percentage in top right corner with allergen warning icon */}
           {matchPercentage !== null && (
             <div className="absolute top-2 right-2 z-10">
-              <AnimatedMatchPercent percent={matchPercentage} />
+              <AnimatedMatchPercent 
+                percent={matchPercentage} 
+                hasAllergens={allergenWarnings && allergenWarnings.length > 0}
+              />
               <AllergenWarningIcon 
                 hasAllergens={allergenWarnings && allergenWarnings.length > 0}
                 onClick={() => onAllergenWarningClick?.()}
