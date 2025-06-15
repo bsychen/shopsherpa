@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, use, Suspense, lazy, useMemo } from "react"
+import { useState, useEffect, use, Suspense, lazy } from "react"
 import { Product } from "@/types/product"
 import { Review } from "@/types/review"
 import { ReviewSummary } from "@/types/reviewSummary"
@@ -110,7 +110,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [filter, setFilter] = useState<{ score: number | null }>({ score: null });
   const [refreshing, setRefreshing] = useState(false);
   const [sortBy, setSortBy] = useState<'recent' | 'critical' | 'favourable'>('recent');
-  const [sortOpen, setSortOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("");
   const [brandRating, setBrandRating] = useState<number>(3);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
@@ -147,16 +146,14 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     ) : null;
   
   // Check for allergen matches
-  const allergenWarnings = useMemo(() => {
-    return userPreferences?.allergens && product?.alergenInformation ? 
-      userPreferences.allergens.filter(userAllergen => 
-        product.alergenInformation?.some(productAllergen => {
-          // Convert product allergen codes to lowercase format for comparison
-          const normalizedProductAllergen = productAllergen.trim().toLowerCase().replace(/^en:/, '');
-          return normalizedProductAllergen === userAllergen.toLowerCase();
-        })
-      ) : [];
-  }, [userPreferences?.allergens, product?.alergenInformation]);
+  const allergenWarnings = userPreferences?.allergens && product?.alergenInformation ? 
+    userPreferences.allergens.filter(userAllergen => 
+      product.alergenInformation?.some(productAllergen => {
+        // Convert product allergen codes to lowercase format for comparison
+        const normalizedProductAllergen = productAllergen.trim().toLowerCase().replace(/^en:/, '');
+        return normalizedProductAllergen === userAllergen.toLowerCase();
+      })
+    ) : [];
 
   useEffect(() => {
     setLoading(true);
@@ -475,8 +472,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           setFilter={setFilter}
           sortBy={sortBy}
           setSortBy={setSortBy}
-          sortOpen={sortOpen}
-          setSortOpen={setSortOpen}
           setRefreshing={setRefreshing}
         />
       </div>

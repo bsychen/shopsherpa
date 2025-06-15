@@ -114,7 +114,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   useEffect(() => {
     if (isCollapsed) {
       // When collapsed, only show the tabs height (no margin below)
-      setBoxHeight(44); // Just the tab height without bottom margin
+      setBoxHeight(30); // Just the tab height without bottom margin
     } else if (contentRef.current) {
       // When expanded, calculate content height
       const newHeight = contentRef.current.scrollHeight;
@@ -151,7 +151,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
         backgroundColor: colours.content.surfaceSecondary,
         border: `1px solid ${colours.content.border}`,
         height: boxHeight ? boxHeight + 32 : undefined,
-        minHeight: isCollapsed ? 60 : 210,
+        minHeight: isCollapsed ? 40 : 210,
         transition: "height 0.4s cubic-bezier(0.4,0,0.2,1), background 0.3s",
         position: "relative"
       }}

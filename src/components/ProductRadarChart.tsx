@@ -193,7 +193,7 @@ export default function ProductRadarChart({
   const [showButtons, setShowButtons] = useState(false);
 
   useEffect(() => { 
-    setShowButtons(true);
+    setShowButtons(true);2
   }, []);
 
   return (

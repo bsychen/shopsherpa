@@ -118,7 +118,7 @@ export default function AllergenWarning({ allergenWarnings, isVisible, onClose, 
         <div className="flex items-center justify-center min-h-full w-full">
           {/* Modal */}
           <div 
-            className={`bg-white rounded-xl shadow-2xl border-2 max-w-md w-full mx-4 my-8 transform transition-all duration-300 ease-out ${
+            className={`bg-white rounded-xl shadow-2xl border-4 max-w-md w-full mx-4 my-8 transform transition-all duration-300 ease-out ${
               isAnimating 
                 ? 'scale-100 opacity-100 translate-y-0' 
                 : 'scale-95 opacity-0 translate-y-4'
@@ -134,13 +134,20 @@ export default function AllergenWarning({ allergenWarnings, isVisible, onClose, 
           >
           {/* Header */}
           <div 
-            className={`px-6 py-4 border-b flex items-center gap-3 rounded-t-xl transform transition-all duration-300 ${
+            className={`px-6 py-4 border-b flex items-center gap-3 transform transition-all duration-300 ${
               contentAnimating ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
             }`}
             style={{ 
               backgroundColor: `${colours.status.error.background}99`,
               borderBottomColor: colours.status.error.border,
               transitionDelay: contentAnimating ? '0ms' : '50ms', // Faster exit
+              borderTopLeftRadius: '0.75rem', // 12px to match rounded-xl
+              borderTopRightRadius: '0.75rem', // 12px to match rounded-xl
+              marginTop: '-1px', // Slight overlap to ensure no gap with thick border
+              marginLeft: '-1px',
+              marginRight: '-1px',
+              paddingLeft: '1.75rem', // Adjust padding to account for margin
+              paddingRight: '1.75rem'
             }}
           >
             <span 
