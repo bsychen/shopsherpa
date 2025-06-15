@@ -151,76 +151,82 @@ export default function ProductSearch() {
 
   return (
     <div 
-      className="relative max-w-xl mx-auto mt-4 rounded-xl shadow p-6 flex flex-col items-center min-h-[400px]"
+      className="relative max-w-xl mx-auto rounded-xl shadow p-6 flex flex-col items-center min-h-[600px]"
       style={{
-        backgroundColor: colours.card.background,
+        backgroundColor: colours.background.secondary,
         border: `1px solid ${colours.card.border}`
       }}
     >
-      <h1 
-        className="text-2xl font-bold mb-6"
-        style={{ color: colours.text.primary }}
+    <div 
+        className="w-full max-w-xl rounded-lg shadow border-2 border-black shadow-sm p-6 flex flex-col items-center border relative  mb-4"
+        style={{ 
+          backgroundColor: colours.content.surface,
+          borderColor: colours.content.border
+        }}
       >
-        Search & Scan Products
-      </h1>
-      
-      {/* Search Bar */}
-      <div className="w-full flex justify-center mb-4">
-        <div className="w-full max-w-md flex gap-2">
-          <input
-            type="text"
-            placeholder="Search for a product..."
-            onChange={handleInputChange}
-            value={query}
-            className="flex-1 min-w-0 px-4 py-2 sm:px-5 sm:py-3 rounded-lg focus:outline-none shadow-md transition-all duration-200 focus:scale-[1.03] text-base sm:text-lg"
-            style={{
-              backgroundColor: colours.input.background,
-              border: `2px solid ${colours.input.border}`,
-              color: colours.input.text
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = colours.input.focus.border;
-              e.target.style.boxShadow = colours.input.focus.ring;
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = colours.input.border;
-              e.target.style.boxShadow = 'none';
-            }}
-          />
-          <button
-            onClick={handleManualSearch}
-            disabled={isLoading}
-            className="flex-shrink-0 px-4 py-2 sm:px-6 sm:py-3 rounded-lg transition-colors font-bold text-base sm:text-lg shadow-md focus:outline-none flex items-center justify-center"
-            style={{
-              backgroundColor: colours.button.primary.background,
-              color: colours.button.primary.text
-            }}
-            onFocus={(e) => e.currentTarget.style.boxShadow = colours.input.focus.ring}
-            onBlur={(e) => e.currentTarget.style.boxShadow = 'none'}
-            aria-label="Search"
-          >
-            {isLoading ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <circle cx="11" cy="11" r="7" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-            )}
-          </button>
+        <h1 
+          className="text-2xl font-bold mb-6"
+          style={{ color: colours.text.primary }}
+        >
+          Search & Scan Products
+        </h1>
+        
+        {/* Search Bar */}
+        <div className="w-full flex justify-center mb-4">
+          <div className="w-full max-w-md flex gap-2">
+            <input
+              type="text"
+              placeholder="Search for a product..."
+              onChange={handleInputChange}
+              value={query}
+              className="flex-1 min-w-0 px-4 py-2 sm:px-5 sm:py-3 rounded-lg shadow border-2 border-black shadow-sm focus:outline-none shadow-md transition-all duration-200 focus:scale-[1.03] text-base sm:text-lg"
+              style={{
+                backgroundColor: colours.input.background,
+                border: `2px solid ${colours.input.border}`,
+                color: colours.input.text
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = colours.input.focus.border;
+                e.target.style.boxShadow = colours.input.focus.ring;
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = colours.input.border;
+                e.target.style.boxShadow = 'none';
+              }}
+            />
+            <button
+              onClick={handleManualSearch}
+              disabled={isLoading}
+              className="flex-shrink-0 px-4 py-2 sm:px-6 sm:py-3 rounded-lg shadow border-2 border-black shadow-sm transition-colors font-bold text-base sm:text-lg shadow-md focus:outline-none flex items-center justify-center"
+              style={{
+                backgroundColor: `${colours.button.primary.background}80`,
+                color: colours.button.primary.text
+              }}
+              onFocus={(e) => e.currentTarget.style.boxShadow = colours.input.focus.ring}
+              onBlur={(e) => e.currentTarget.style.boxShadow = 'none'}
+              aria-label="Search"
+            >
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke='#000000'
+                  strokeWidth="2.4"
+                >
+                  <circle cx="11" cy="11" r="7" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
-      </div>
-
       {/* Search Results Dropdown */}
       {showDropdown && (
-        <div className="w-full mb-6">
+        <div className="w-full mb-4">
           <div 
             className="w-full bg-white rounded-lg shadow-lg border z-10 max-h-60 overflow-y-auto"
             style={{
@@ -260,31 +266,42 @@ export default function ProductSearch() {
           </div>
         </div>
       )}
+      </div>
 
-      {/* Barcode Scanner */}
-      <div className="w-full flex flex-col items-center">
-        <h2 
-          className="text-lg font-semibold mb-4"
-          style={{ color: colours.text.primary }}
-        >
-          Or scan a barcode
-        </h2>
-        <div 
-          className="rounded-lg overflow-hidden shadow mb-6 w-full max-w-xs flex items-center justify-center aspect-video"
-          style={{ 
-            backgroundColor: colours.content.surface,
-            border: `1px solid ${colours.content.border}`
-          }}
-        >
-          <video ref={videoRef} className="w-full h-auto" />
+      <div 
+        className="w-full max-w-xl rounded-lg shadow border-2 border-black shadow-sm p-6 flex flex-col items-center border relative  mb-4"
+        style={{ 
+          backgroundColor: colours.content.surface,
+          borderColor: colours.content.border
+        }}
+      >
+        {/* Barcode Scanner */}
+        <div className="w-full flex flex-col items-center">
+          <h2 
+            className="text-lg font-semibold mb-4"
+            style={{ color: colours.text.primary }}
+          >
+            Or scan a barcode
+          </h2>
+          <div 
+            className="rounded-lg overflow-hidden shadow mb-6 w-full max-w-xs flex items-center justify-center aspect-video"
+            style={{ 
+              backgroundColor: colours.content.surface,
+              border: `1px solid ${colours.content.border}`
+            }}
+          >
+            <video ref={videoRef} className="w-full h-auto" />
+          </div>
         </div>
       </div>
 
+      {/* Recently Viewed Products Section */}
+      
       {/* Recently Viewed Products */}
       {firebaseUser && (
-        <div className="w-full mt-8">
+        <div className="w-full">
           <div 
-            className="rounded-xl p-4"
+            className="w-full max-w-xl rounded-lg shadow border-2 border-black shadow-sm p-6"
             style={{
               backgroundColor: colours.content.surfaceSecondary,
               border: `1px solid ${colours.content.border}`

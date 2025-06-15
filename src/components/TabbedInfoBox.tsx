@@ -178,14 +178,14 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
         className={`flex ${isCollapsed ? 'mb-0' : 'mb-4'} ${!isCollapsed ? 'border-b' : ''} justify-center gap-2 relative`}
         style={{ borderColor: isCollapsed ? 'transparent' : colours.content.border }}
       >
-        {/* Sliding Grey Bar - only show when expanded */}
+        {/* Sliding  Bar - only show when expanded */}
         {!isCollapsed && (
           <div
             className="absolute bottom-0 h-1 rounded transition-all duration-300"
             style={{
               left: barStyle.left,
               width: barStyle.width,
-              backgroundColor: colours.ui.neutral.border,
+              backgroundColor: '#000000',
               transition: "left 0.35s cubic-bezier(0.4,0,0.2,1), width 0.35s cubic-bezier(0.4,0,0.2,1)",
             }}
           />
