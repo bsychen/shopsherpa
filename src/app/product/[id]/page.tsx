@@ -19,11 +19,13 @@ import { colours } from "@/styles/colours";
 import { 
   getAllergenInfoFromCode, 
   getAllergenTagClasses, 
+  getAllergenTagStyles,
   formatAllergenDisplay 
 } from "@/utils/allergens";
 import {
   getCountryInfoFromCode,
   getCountryTagClasses,
+  getCountryTagStyles,
   formatCountryDisplay
 } from "@/utils/countries";
 
@@ -392,7 +394,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                     <span
                       key={`allergen-${idx}`}
                       className={getAllergenTagClasses()}
-                      style={{ whiteSpace: 'nowrap' }}
+                      style={{ ...getAllergenTagStyles(), whiteSpace: 'nowrap' }}
                     >
                       {formatAllergenDisplay(allergenInfo)}
                     </span>
@@ -406,7 +408,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                     <span
                       key="country-origin"
                       className={getCountryTagClasses()}
-                      style={{ whiteSpace: 'nowrap' }}
+                      style={{ ...getCountryTagStyles(), whiteSpace: 'nowrap' }}
                     >
                       {formatCountryDisplay(countryInfo)}
                     </span>
@@ -420,7 +422,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   return (
                     <span
                       key={`label-${idx}`}
-                      className="inline-block border text-sm px-3 py-1.5 rounded-full font-semibold shadow-sm transition"
+                      className="inline-block border-2 text-sm px-3 py-1.5 rounded-full font-semibold shadow-sm transition"
                       style={{ 
                         whiteSpace: 'nowrap',
                         backgroundColor: colours.tag.default.background,

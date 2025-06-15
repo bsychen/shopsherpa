@@ -13,6 +13,8 @@ const colourMap = {
     white: '#FFFFFF',
     transparent: 'transparent',
     grey: 'zinc-50',
+    indigo: '#103A5D',
+    darkIndigo: '#0A2A4B',
 }
 
 // Common component color patterns
@@ -261,5 +263,15 @@ export const colours = {
       background: colourMap.green,
       border: colourMap.green,
     },
+  },
+
+  tags: {
+    countries: {
+      border: colourMap.darkIndigo,
+      background: colourMap.indigo,
+      text: colourMap.white,
+    }
   }
+
+
 };

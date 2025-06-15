@@ -6,7 +6,9 @@ import { UserProfile } from '@/types/user';
 import { 
   getAllergenInfo, 
   formatAllergenDisplay,
-  AVAILABLE_ALLERGENS 
+  AVAILABLE_ALLERGENS,
+  getRemovableAllergenTagClasses,
+  getRemovableAllergenTagStyles
 } from '@/utils/allergens';
 import { colours } from '@/styles/colours';
 
@@ -97,14 +99,10 @@ export default function AllergenManager({ userProfile, onAllergensUpdate, isUpda
           return (
             <div
               key={allergen}
-              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm transition-all duration-200 hover:opacity-80 ${
+              className={`${getRemovableAllergenTagClasses()} ${
                 isEditMode ? 'pr-1' : ''
               }`}
-              style={{
-                backgroundColor: colours.status.error.background,
-                color: colours.status.error.text,
-                border: `1px solid ${colours.status.error.border}`
-              }}
+              style={getRemovableAllergenTagStyles()}
             >
               <span>
                 {allergenInfo ? formatAllergenDisplay(allergenInfo) : allergen}
@@ -114,7 +112,7 @@ export default function AllergenManager({ userProfile, onAllergensUpdate, isUpda
                   onClick={() => handleRemoveAllergen(allergen)}
                   disabled={isUpdating}
                   className="ml-1 font-bold text-sm leading-none disabled:opacity-50 w-5 h-5 flex items-center justify-center rounded-full hover:opacity-70 transition-colors duration-150"
-                  style={{ color: colours.status.error.text }}
+                  style={{ color: colours.status.error.border }}
                   aria-label={`Remove ${allergen} allergen`}
                 >
                   ×
@@ -154,7 +152,7 @@ export default function AllergenManager({ userProfile, onAllergensUpdate, isUpda
                     style={{ 
                       backgroundColor: colours.tag.default.background,
                       color: colours.tag.default.text,
-                      border: `1px solid ${colours.tag.default.border}`,
+                      border: `2px solid ${colours.tag.default.border}`,
                       animationDelay: isEditMode ? `${index * 50}ms` : '0ms',
                       animationFillMode: 'forwards'
                     }}

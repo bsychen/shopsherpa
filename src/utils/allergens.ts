@@ -1,3 +1,5 @@
+import { colours } from "@/styles/colours";
+
 export interface AllergenInfo {
   title: string;
   emoji: string;
@@ -75,16 +77,54 @@ export function getAllergenInfoFromCode(allergenCode: string): AllergenInfo | nu
 
 /**
  * Get the CSS classes for allergen tags - consistent styling across the app
+ * Uses the same color scheme as the allergen warning modal
  */
 export function getAllergenTagClasses(): string {
-  return "inline-block bg-red-100 border border-red-300 text-red-700 text-sm px-3 py-1.5 rounded-full font-semibold shadow-sm hover:bg-red-200 hover:text-red-900 transition";
+  return "inline-block text-sm px-3 py-1.5 rounded-full font-medium shadow-sm transition-all duration-200";
+}
+
+/**
+ * Get the inline styles for allergen tags using colours.status.error
+ */
+export function getAllergenTagStyles() {
+  return {
+    backgroundColor: `${colours.status.error.background}20`, // 20% opacity for lighter background
+    borderColor: colours.status.error.border,
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    color: colours.status.error.border, // Use border color for text for better contrast
+  };
+}
+
+/**
+ * Get the hover styles for allergen tags
+ */
+export function getAllergenTagHoverStyles() {
+  return {
+    backgroundColor: `${colours.status.error.background}30`, // 30% opacity for hover
+    color: colours.status.error.background,
+  };
 }
 
 /**
  * Get the CSS classes for removable allergen tags (profile page)
+ * Uses the same color scheme as the allergen warning modal
  */
 export function getRemovableAllergenTagClasses(): string {
-  return "inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm border border-red-200 transition-all duration-200 hover:bg-red-200";
+  return "inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm transition-all duration-200";
+}
+
+/**
+ * Get the inline styles for removable allergen tags using colours.status.error
+ */
+export function getRemovableAllergenTagStyles() {
+  return {
+    backgroundColor: `${colours.status.error.background}20`, // 20% opacity for lighter background
+    borderColor: colours.status.error.border,
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    color: colours.status.error.border, // Use border color for text for better contrast
+  };
 }
 
 /**
