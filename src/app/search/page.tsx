@@ -157,7 +157,7 @@ export default function ProductSearch() {
       }}
     >
     <div 
-        className="w-full max-w-xl rounded-lg shadow border-2 border-black shadow-sm p-6 flex flex-col items-center border relative  mb-4"
+        className="w-full max-w-xl rounded-lg shadow-lg border-2 border-black p-6 flex flex-col items-center border relative  mb-4"
         style={{ 
           backgroundColor: colours.content.surface,
           borderColor: colours.content.border
@@ -167,7 +167,7 @@ export default function ProductSearch() {
           className="text-2xl font-bold mb-6"
           style={{ color: colours.text.primary }}
         >
-          Search & Scan Products
+          Search for a Product
         </h1>
         
         {/* Search Bar */}
@@ -178,7 +178,7 @@ export default function ProductSearch() {
               placeholder="Search for a product..."
               onChange={handleInputChange}
               value={query}
-              className="flex-1 min-w-0 px-4 py-2 sm:px-5 sm:py-3 rounded-lg shadow-xl border-2 border-black shadow-sm focus:outline-none shadow-md transition-all duration-200 focus:scale-[1.03] text-base sm:text-lg"
+              className="flex-1 min-w-0 px-4 py-2 sm:px-5 sm:py-3 rounded-lg shadow-xl border-2 border-black focus:outline-none shadow-md transition-all duration-200 focus:scale-[1.03] text-base sm:text-lg"
               style={{
                 backgroundColor: colours.input.background,
                 border: `2px solid ${colours.input.border}`,
@@ -268,7 +268,7 @@ export default function ProductSearch() {
       </div>
 
       <div 
-        className="w-full max-w-xl rounded-lg shadow border-2 border-black shadow-sm p-6 flex flex-col items-center border relative  mb-4"
+        className="w-full max-w-xl rounded-lg shadow-lg border-2 border-black p-6 flex flex-col items-center border relative  mb-4"
         style={{ 
           backgroundColor: colours.content.surface,
           borderColor: colours.content.border
@@ -276,17 +276,17 @@ export default function ProductSearch() {
       >
         {/* Barcode Scanner */}
         <div className="w-full flex flex-col items-center">
-          <h2 
-            className="text-lg font-semibold mb-4"
+          <h1 
+            className="text-2xl font-bold mb-4"
             style={{ color: colours.text.primary }}
           >
-            Or scan a barcode
-          </h2>
+            Scan a Barcode
+          </h1>
           <div 
-            className="rounded-lg overflow-hidden shadow mb-6 w-full max-w-xs flex items-center justify-center aspect-video"
+            className="rounded-lg overflow-hidden shadow-xl mb-4 w-full max-w-xs flex items-center justify-center aspect-video"
             style={{ 
               backgroundColor: colours.content.surface,
-              border: `1px solid ${colours.content.border}`
+              border: `2px solid ${colours.card.border}`
             }}
           >
             <video ref={videoRef} className="w-full h-auto" />
@@ -300,14 +300,14 @@ export default function ProductSearch() {
       {firebaseUser && (
         <div className="w-full">
           <div 
-            className="w-full max-w-xl rounded-lg shadow border-2 border-black shadow-sm p-6"
+            className="w-full max-w-xl rounded-lg shadow-lg border-2 border-black p-6 items-center"
             style={{
               backgroundColor: colours.content.surfaceSecondary,
-              border: `1px solid ${colours.content.border}`
+              border: `2px solid ${colours.content.border}`
             }}
           >
-            <h2 
-              className="text-lg font-semibold mb-4"
+            <h2
+              className="text-xl font-bold mb-4"
               style={{ color: colours.text.secondary }}
             >
               Recently Viewed Products

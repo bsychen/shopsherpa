@@ -12,7 +12,7 @@ const colourMap = {
     darkTeal: '#0C4038',
     white: '#FDFAF7',
     transparent: 'transparent',
-    grey: 'zinc-50',
+    grey: '#BFC7B5',
     indigo: '#103A5D',
     darkIndigo: '#0A2A4B',
     cyan: '#3B9C87'
@@ -105,7 +105,7 @@ export const colours = {
   // Input styles
   input: {
     background: colourMap.white,
-    border: colourMap.grey,
+    border: colourMap.darkTeal,
     text: colourMap.darkTeal,
     placeholder: colourMap.green,
     focus: {
@@ -215,14 +215,15 @@ export const colours = {
     border: colourMap.grey,
     borderTop: colourMap.green,
     text: colourMap.green,
+    trolley: colourMap.darkTeal
   },
 
   // Chart colors
   chart: {
     primary: colourMap.green,
     secondary: colourMap.grey,
-    grid: colourMap.grey,
-    text: colourMap.grey,
+    grid: "zinc-50",
+    text: "zinc-50",
   },
 
   // Interactive elements
@@ -244,7 +245,7 @@ export const colours = {
   content: {
     surface: colourMap.white,
     surfaceSecondary: colourMap.white,
-    border: colourMap.grey,
+    border: colourMap.darkTeal,
     borderSecondary: colourMap.green,
   },
 

@@ -42,10 +42,10 @@ const RecentlyViewedProducts = ({ userId }: { userId: string }) => {
                         style={{
                             backgroundColor: colours.card.background,
                             borderColor: colours.card.border,
-                            borderWidth: '1px',
+                            borderWidth: '2px',
                             borderStyle: 'solid'
                         }}
-                        className="rounded p-3 transition cursor-pointer"
+                        className="rounded-xl shadow-xl p-3 transition cursor-pointer"
                     >
                         <Link
                             href={`/product/${product.id}`}
