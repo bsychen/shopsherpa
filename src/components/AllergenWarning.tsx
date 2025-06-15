@@ -247,7 +247,7 @@ export default function AllergenWarning({ allergenWarnings, isVisible, onClose, 
           >
             <button
               onClick={handleBackToSearch}
-              className={`px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-xl shadow-lg border-2 border-black p-3 rounded-lg transition-all duration-200 transform ${
+              className={`px-4 py-2 text-sm font-medium shadow-xl text-gray-700 bg-white rounded-xl border-2 border-black p-3 rounded-lg transition-all duration-200 transform ${
                 contentAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
               }  active:scale-95`}
               style={{ transitionDelay: contentAnimating ? '500ms' : '0ms' }} // First button exits immediately
@@ -256,7 +256,7 @@ export default function AllergenWarning({ allergenWarnings, isVisible, onClose, 
             </button>
             <button
               onClick={handleProceed}
-              className={`px-4 py-2 text-sm font-medium text-white rounded-xl shadow-lg border-2 border-black p-3 transition-all duration-200 transform ${
+              className={`px-4 py-2 text-sm font-medium shadow-xl text-white rounded-xl border-2 border-black p-3 transition-all duration-200 transform ${
                 contentAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
               } active:scale-95 `}
               style={{ 

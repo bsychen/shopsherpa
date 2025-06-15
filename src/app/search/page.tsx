@@ -179,7 +179,7 @@ export default function ProductSearch() {
               placeholder="Search for a product..."
               onChange={handleInputChange}
               value={query}
-              className="flex-1 min-w-0 px-4 py-2 sm:px-5 sm:py-3 rounded-lg shadow border-2 border-black shadow-sm focus:outline-none shadow-md transition-all duration-200 focus:scale-[1.03] text-base sm:text-lg"
+              className="flex-1 min-w-0 px-4 py-2 sm:px-5 sm:py-3 rounded-lg shadow-xl border-2 border-black shadow-sm focus:outline-none shadow-md transition-all duration-200 focus:scale-[1.03] text-base sm:text-lg"
               style={{
                 backgroundColor: colours.input.background,
                 border: `2px solid ${colours.input.border}`,
@@ -197,7 +197,7 @@ export default function ProductSearch() {
             <button
               onClick={handleManualSearch}
               disabled={isLoading}
-              className="flex-shrink-0 px-4 py-2 sm:px-6 sm:py-3 rounded-lg shadow border-2 border-black shadow-sm transition-colors font-bold text-base sm:text-lg shadow-md focus:outline-none flex items-center justify-center"
+              className="flex-shrink-0 px-4 py-2 sm:px-6 sm:py-3 rounded-lg shadow-xl border-2 border-black shadow-sm transition-colors font-bold text-base sm:text-lg shadow-md focus:outline-none flex items-center justify-center"
               style={{
                 backgroundColor: `${colours.button.primary.background}80`,
                 color: colours.button.primary.text
@@ -214,7 +214,7 @@ export default function ProductSearch() {
                   className="h-5 w-5"
                   fill="none"
                   viewBox="0 0 24 24"
-                  stroke='#000000'
+                  stroke='#0C4038'
                   strokeWidth="2.4"
                 >
                   <circle cx="11" cy="11" r="7" />

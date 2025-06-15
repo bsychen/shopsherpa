@@ -230,7 +230,7 @@ export default function ProductRadarChart({
           <button
             key={label}
             type="button"
-            className={`absolute flex items-center justify-center rounded-xl shadow-lg border-2 border-black ${config.color} ${activeTab === label ? "ring-2 ring-zinc-200 scale-110" : ""}`}
+            className={`absolute flex items-center justify-center rounded-xl shadow-xl border-2 border-black ${config.color} ${activeTab === label ? "ring-2 ring-zinc-200 scale-110" : ""}`}
             style={{
               left: x,
               top: y,

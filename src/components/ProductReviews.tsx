@@ -71,7 +71,7 @@ export default function ProductReviews({
   return (
     <div className="w-full">
       <div 
-        className={`w-full border rounded-xl shadow border-2 border-black p-4 transition-all duration-300 ${refreshing ? 'opacity-40 blur-[2px]' : 'opacity-100 blur-0'}`}
+        className={`w-full border rounded-xl shadow-lg border-2 border-black p-4 transition-all duration-300 ${refreshing ? 'opacity-40 blur-[2px]' : 'opacity-100 blur-0'}`}
         style={{ 
           backgroundColor: colours.content.surfaceSecondary,
           borderColor: colours.content.border
@@ -86,7 +86,7 @@ export default function ProductReviews({
           </h2>
           <button
             onClick={handleWriteReview}
-            className="flex items-center gap-1 px-3 py-1 rounded-lg shadow border-2 border-black transition-all duration-200"
+            className="flex items-center gap-1 px-3 py-1 rounded-lg shadow-xl border-2 border-black transition-all duration-200"
             style={{ 
               backgroundColor: '#f1f5f9', // slate-100
               boxShadow: "0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06)"
@@ -111,7 +111,7 @@ export default function ProductReviews({
                 setRefreshing(true)
                 setTimeout(() => setRefreshing(false), 350)
               }}
-              className={`flex items-center gap-1 px-3 py-1 rounded-lg shadow border-2 border-black transition-all duration-200 ${
+              className={`flex items-center gap-1 px-3 py-1 rounded-lg shadow-xl border-2 border-black transition-all duration-200 ${
                 sortBy === 'recent' ? 'ring-1 ring-zinc-200 scale-105' : ''
               }`}
               style={{
@@ -129,7 +129,7 @@ export default function ProductReviews({
                 setRefreshing(true)
                 setTimeout(() => setRefreshing(false), 350)
               }}
-              className={`flex items-center gap-1 px-3 py-1 rounded-lg shadow border-2 border-black transition-all duration-200 ${
+              className={`flex items-center gap-1 px-3 py-1 rounded-lg shadow-xl border-2 border-black transition-all duration-200 ${
                 sortBy === 'low' ? 'ring-1 ring-zinc-200 scale-105' : ''
               }`}
               style={{
@@ -147,7 +147,7 @@ export default function ProductReviews({
                 setRefreshing(true)
                 setTimeout(() => setRefreshing(false), 350)
               }}
-              className={`flex items-center gap-1 px-3 py-1 rounded-lg shadow border-2 border-black transition-all duration-200 ${
+              className={`flex items-center gap-1 px-3 py-1 rounded-lg shadow-xl border-2 border-black transition-all duration-200 ${
                 sortBy === 'high' ? 'ring-1 ring-zinc-200 scale-105' : ''
               }`}
               style={{
@@ -177,7 +177,7 @@ export default function ProductReviews({
                   <li key={review.id} style={{ opacity }}>
                     <Link 
                       href={`/review/${review.id}`} 
-                      className="block rounded-xl shadow border-2 border-black shadow-sm p-4 transition cursor-pointe bg-slate-100r"
+                      className="block rounded-xl shadow border-2 border-black shadow-xl p-4 transition cursor-pointe bg-slate-100r"
                       style={{ 
                         backgroundColor: '#f1f5f9',
                         borderColor: colours.content.border

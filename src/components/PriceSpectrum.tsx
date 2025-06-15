@@ -125,7 +125,7 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
           }}
         >
           {/* Product box with shadow and border */}
-          <div className="rounded-md shadow-sm px-2 py-1 mb-1" style={{
+          <div className="rounded-md shadow-xl px-2 py-1 mb-1" style={{
             backgroundColor: colors.bg,
             border: `1px solid ${colors.border}`
           }}>
@@ -135,17 +135,17 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
           </div>
           {/* Triangle pointer */}
           <div 
-            className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px]"
+            className="w-0 h-0 border-l-[6px] shadow-xl border-l-transparent border-r-[6px] border-r-transparent border-t-[6px]"
             style={{ borderTopColor: colors.border }}
           />
         </div>          
         {/* Price labels with buttons */}
         <div className="absolute -bottom-6 left-[0%]">
           <button 
-            className="rounded-md shadow-sm px-2 py-1 text-xs font-medium transition-colors"
+            className="rounded-md shadow-xl px-2 py-1 text-xs font-medium transition-colors"
             style={{
               backgroundColor: colours.status.success.background,
-              border: `1px solid ${colours.status.success.border}`,
+              border: `2px solid ${colours.status.success.border}`,
               color: colours.status.success.text
             }}
             onClick={onMinClick}
@@ -155,10 +155,10 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
         </div>
         <div className="absolute -bottom-6 right-[0%]">
           <button 
-            className="rounded-md shadow-sm px-2 py-1 text-xs font-medium transition-colors"
+            className="rounded-md shadow-xl px-2 py-1 text-xs font-medium transition-colors"
             style={{
               backgroundColor: colours.status.error.background,
-              border: `1px solid ${colours.status.error.border}`,
+              border: `2px solid ${colours.status.error.border}`,
               color: colours.status.error.text
             }}
             onClick={onMaxClick}
