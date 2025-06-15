@@ -151,7 +151,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
         backgroundColor: colours.content.surfaceSecondary,
         border: `1px solid ${colours.content.border}`,
         height: boxHeight ? boxHeight + 32 : undefined,
-        minHeight: isCollapsed ? 80 : 210,
+        minHeight: isCollapsed ? 60 : 210,
         transition: "height 0.4s cubic-bezier(0.4,0,0.2,1), background 0.3s",
         position: "relative"
       }}

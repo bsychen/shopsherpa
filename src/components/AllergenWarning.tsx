@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { colours } from "@/styles/colours";
 import { Warn } from "./Icons";
@@ -48,6 +48,16 @@ export default function AllergenWarning({ allergenWarnings, isVisible, onClose, 
     };
   }, [isVisible]);
 
+  const handleClose = useCallback(() => {
+    // Trigger exit animation first
+    setContentAnimating(false);
+    setIsAnimating(false);
+    // Wait for animation to complete before closing
+    setTimeout(() => {
+      onClose();
+    }, 400);
+  }, [onClose]);
+
   // Handle escape key to close modal
   useEffect(() => {
     const handleEscapeKey = (event: KeyboardEvent) => {
@@ -63,7 +73,7 @@ export default function AllergenWarning({ allergenWarnings, isVisible, onClose, 
     return () => {
       document.removeEventListener('keydown', handleEscapeKey);
     };
-  }, [isVisible]);
+  }, [isVisible, handleClose]);
 
   const handleBackToSearch = () => {
     // Trigger exit animation first
@@ -83,16 +93,6 @@ export default function AllergenWarning({ allergenWarnings, isVisible, onClose, 
     // Wait for animation to complete before proceeding
     setTimeout(() => {
       onProceed();
-      onClose();
-    }, 400);
-  };
-
-  const handleClose = () => {
-    // Trigger exit animation first
-    setContentAnimating(false);
-    setIsAnimating(false);
-    // Wait for animation to complete before closing
-    setTimeout(() => {
       onClose();
     }, 400);
   };

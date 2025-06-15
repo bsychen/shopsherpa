@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, use, Suspense, lazy } from "react"
+import { useState, useEffect, use, Suspense, lazy, useMemo } from "react"
 import { Product } from "@/types/product"
 import { Review } from "@/types/review"
 import { ReviewSummary } from "@/types/reviewSummary"
@@ -147,14 +147,16 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     ) : null;
   
   // Check for allergen matches
-  const allergenWarnings = userPreferences?.allergens && product?.alergenInformation ? 
-    userPreferences.allergens.filter(userAllergen => 
-      product.alergenInformation?.some(productAllergen => {
-        // Convert product allergen codes to lowercase format for comparison
-        const normalizedProductAllergen = productAllergen.trim().toLowerCase().replace(/^en:/, '');
-        return normalizedProductAllergen === userAllergen.toLowerCase();
-      })
-    ) : [];
+  const allergenWarnings = useMemo(() => {
+    return userPreferences?.allergens && product?.alergenInformation ? 
+      userPreferences.allergens.filter(userAllergen => 
+        product.alergenInformation?.some(productAllergen => {
+          // Convert product allergen codes to lowercase format for comparison
+          const normalizedProductAllergen = productAllergen.trim().toLowerCase().replace(/^en:/, '');
+          return normalizedProductAllergen === userAllergen.toLowerCase();
+        })
+      ) : [];
+  }, [userPreferences?.allergens, product?.alergenInformation]);
 
   useEffect(() => {
     setLoading(true);
