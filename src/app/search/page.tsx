@@ -157,14 +157,14 @@ export default function ProductSearch() {
       }}
     >
     <div 
-        className="w-full max-w-xl rounded-lg shadow-lg border-2 border-black p-6 flex flex-col items-center border relative  mb-4"
+        className="w-full max-w-xl rounded-lg shadow-lg border-2 border-black p-6 flex flex-col border relative  mb-4"
         style={{ 
           backgroundColor: colours.content.surface,
           borderColor: colours.content.border
         }}
       >
         <h1 
-          className="text-2xl font-bold mb-6"
+          className="text-2xl font-bold mb-4"
           style={{ color: colours.text.primary }}
         >
           Search for a Product
@@ -275,7 +275,7 @@ export default function ProductSearch() {
         }}
       >
         {/* Barcode Scanner */}
-        <div className="w-full flex flex-col items-center">
+        <div className="w-full flex flex-col">
           <h1 
             className="text-2xl font-bold mb-4"
             style={{ color: colours.text.primary }}

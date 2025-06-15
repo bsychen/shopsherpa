@@ -121,7 +121,7 @@ export const colours = {
     tertiary: colourMap.yellow,
     muted: colourMap.grey,
     inverse: colourMap.white,
-    link: colourMap.green,
+    link: colourMap.darkTeal,
     linkHover: colourMap.darkTeal,
   },
 
