@@ -2,7 +2,7 @@ import { colours } from '@/styles/colours';
 
 export default function LoadingAnimation() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] p-4" style={{ backgroundColor: colours.background.primary }}>
+    <div className="flex flex-col items-center justify-center min-h-[600px] p-4" style={{ backgroundColor: colours.background.primary }}>
       <div className="flex flex-col items-center">
         <div className="relative w-16 h-16 mb-4 flex items-center justify-center">
           <div className="absolute inset-0 w-full h-full border-4 rounded-full animate-spin" style={{ borderColor: colours.spinner.border, borderTopColor: colours.spinner.borderTop }} />

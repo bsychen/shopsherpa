@@ -53,12 +53,10 @@ export default function UserReviewsList({ userId }: UserReviewsListProps) {
             key={review.id}
             style={{
               backgroundColor: colours.card.background,
-              borderColor: colours.card.border,
-              borderWidth: '1px',
-              borderStyle: 'solid',
+              border: `2px solid ${colours.card.border}`,
               opacity: !showAll ? (fadeOpacities[idx] ?? 1) : 1
             }}
-            className="rounded p-3 transition cursor-pointer"
+            className="rounded-xl shadow-xl  p-3 transition cursor-pointer"
           >
             <Link href={`/review/${review.id}`} className="block w-full h-full">
               <div className="flex items-center justify-between">

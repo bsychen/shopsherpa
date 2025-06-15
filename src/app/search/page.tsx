@@ -151,10 +151,9 @@ export default function ProductSearch() {
 
   return (
     <div 
-      className="relative max-w-xl mx-auto rounded-xl shadow p-6 flex flex-col items-center min-h-[600px]"
+      className="relative max-w-xl mx-auto shadow p-6 flex flex-col items-center min-h-[600px]"
       style={{
         backgroundColor: colours.background.secondary,
-        border: `1px solid ${colours.card.border}`
       }}
     >
     <div 

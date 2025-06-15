@@ -56,18 +56,23 @@ export default function AllergenManager({ userProfile, onAllergensUpdate, isUpda
   };
 
   return (
-    <div className="rounded-xl shadow p-6 transition-all duration-500 ease-in-out" style={{ backgroundColor: colours.card.background }}>
+    <div 
+      className="rounded-xl shadow-lg p-6 transition-all duration-500 ease-in-out" 
+      style={{ 
+        backgroundColor: colours.card.background,
+        border: `2px solid ${colours.card.border}`
+      }}>
       {/* Header with title and edit button */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold" style={{ color: colours.text.primary }}>Allergens</h2>
         <button
           onClick={toggleEditMode}
           disabled={isUpdating}
-          className="px-3 py-2 text-sm font-medium rounded-lg shadow-xl transition-colors duration-200 disabled:opacity-50 flex items-center gap-2"
+          className="px-3 py-2 text-sm solid font-medium rounded-lg shadow-xl transition-colors duration-200 disabled:opacity-50 flex items-center gap-2"
           style={{ 
             color: colours.button.edit.text,
             backgroundColor: colours.button.edit.background,
-            border: `1px solid ${colours.content.border}`
+            border: `2px solid ${colours.card.border}`
           }}
         >
           {isEditMode ? (

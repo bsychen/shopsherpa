@@ -142,10 +142,10 @@ export default function ProfilePage() {
     >
       {/* User Profile Card */}
       <div 
-        className="rounded-xl shadow p-8"
+        className="rounded-xl shadow-lg p-8"
         style={{
           backgroundColor: colours.card.background,
-          border: `1px solid ${colours.card.border}`
+          border: `2px solid ${colours.card.border}`
         }}
       >
         <h1 
@@ -155,7 +155,7 @@ export default function ProfilePage() {
           {user.username || user.email || "Profile"}
         </h1>
         <div 
-          className="text-xs mb-4"
+          className="text-xs mb-2"
           style={{ color: colours.text.muted }}
         >
           {user.email}
@@ -163,7 +163,7 @@ export default function ProfilePage() {
         {user && user.userId && (
         <>
           {/* Shopping Preferences Section - Always Visible */}
-          <div className="mt-8">
+          <div className="mt-4">
             <h2 
               className="text-lg font-semibold mb-4"
               style={{ color: colours.text.secondary }}
@@ -194,10 +194,10 @@ export default function ProfilePage() {
         <div className="space-y-4">
             {/* User Reviews Section */}
             <div 
-              className="rounded-xl p-3 transition-all duration-300"
+              className="rounded-xl shadow-lg p-3 transition-all duration-300"
               style={{
                 backgroundColor: colours.content.surfaceSecondary,
-                border: `1px solid ${colours.content.border}`
+                border: `2px solid ${colours.card.border}`
               }}
             >
               <button
@@ -234,11 +234,15 @@ export default function ProfilePage() {
 
         <button
           onClick={handleLogout}
-          className="mt-6 bg-red-500 text-white font-semibold py-2 px-4 rounded transition"
+          className="rounded-xl shadow-xl text-white font-semibold py-2 px-4 rounded transition"
+          style={{
+            backgroundColor: colours.status.error.background,
+            border: `2px solid ${colours.status.error.border}`
+          }}
         >
           Log out
         </button>
-        <div className="mt-4 text-xs text-gray-400 text-left">
+        <div className="mt-4 text-xs text-grey-400 text-left">
           User ID: {user.userId}
         </div>
       </div>

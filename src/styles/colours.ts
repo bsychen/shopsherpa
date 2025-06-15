@@ -16,6 +16,7 @@ const colourMap = {
     indigo: '#103A5D',
     darkIndigo: '#0A2A4B',
     cyan: '#3B9C87'
+
 }
 
 // Common component color patterns
@@ -23,8 +24,8 @@ export const colours = {
   // Card styles
   card: {
     background: colourMap.white,
-    border: colourMap.grey,
-    shadow: 'shadow',
+    border: colourMap.darkTeal,
+    shadow: 'shadow-xl',
     hover: {
       background: colourMap.lightGreen,
       shadow: 'hover:shadow-md',

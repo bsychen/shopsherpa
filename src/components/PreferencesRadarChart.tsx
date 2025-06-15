@@ -271,15 +271,16 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
     <div className="space-y-6">
       {/* Radar Chart */}
       <div className="flex flex-col items-center">
-        <div className="relative flex items-center justify-center mb-4" style={{ width: containerSize, height: containerSize }}>
+        <div className="relative flex items-center justify-center" style={{ width: containerSize, height: containerSize }}>
           {/* Edit Button - positioned in top right */}
           {!isEditMode && (
             <button
               onClick={() => setIsEditMode(true)}
               className="absolute top-2 right-2 z-10 px-3 py-1 text-sm rounded-lg transition-colors flex items-center gap-1"
-              style={{
-                backgroundColor: colours.button.secondary.background,
-                color: colours.button.secondary.text
+              style={{ 
+                color: colours.button.edit.text,
+                backgroundColor: colours.button.edit.background,
+                border: `2px solid ${colours.card.border}`
               }}
             >
               <Pencil size={16} />
@@ -384,7 +385,9 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
                       width: `${percentage}%`,
                       backgroundColor: pref.color,
                     }}
-                  >                    <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full shadow-sm border-2" 
+                  >                    
+                  <div 
+                    className="w-3 h-3 sm:w-4 sm:h-4 rounded-full shadow-sm border-2" 
                     style={{
                       backgroundColor: colours.card.background,
                       borderColor: pref.circleColor,
@@ -405,10 +408,11 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
             <button
               onClick={handleCancelEdit}
               disabled={isUpdating}
-              className="px-4 py-2 text-sm rounded-lg disabled:opacity-50  transition-opacity"
+              className="px-4 py-2 text-sm rounded-xl shadow-xl disabled:opacity-50  transition-opacity"
               style={{ 
-                backgroundColor: colours.button.secondary.background,
-                color: colours.button.secondary.text 
+                color: colours.status.error.border,
+                backgroundColor: `${colours.status.error.background}70`,
+                border: `2px solid ${colours.status.error.border}`
               }}
             >
               Cancel
@@ -417,8 +421,12 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
               <button
                 onClick={handleResetChanges}
                 disabled={isUpdating}
-                className="px-3 py-2 text-sm disabled:opacity-50"
-                style={{ color: colours.text.secondary }}
+                className="px-3 py-2 rounded-xl shadow-xl text-sm disabled:opacity-50"
+                style={{ 
+                  color: colours.button.edit.text,
+                  backgroundColor: colours.button.edit.background,
+                  border: `2px solid ${colours.card.border}`
+                }}
               >
                 Reset
               </button>
@@ -426,9 +434,10 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
             <button
               onClick={handleSaveChanges}
               disabled={isUpdating || !hasChanges}
-              className="px-4 py-2 text-sm rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+              className="px-4 py-2 text-sm rounded-xl shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
               style={{
-                backgroundColor: hasChanges ? colours.button.primary.background : colours.button.secondary.background,
+                backgroundColor: hasChanges ? `${colours.button.primary.background}70` : colours.button.secondary.background,
+                border: hasChanges ? `2px solid ${colours.button.primary.background}`: null,
                 color: hasChanges ? colours.button.primary.text : colours.button.secondary.text
               }}
             >
