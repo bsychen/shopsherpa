@@ -13,7 +13,7 @@ import {
 } from "chart.js";
 import { useState, useEffect, useRef } from "react";
 import { colours } from "@/styles/colours";
-import AllergenWarning from "./AllergenWarning";
+import AllergenWarningIcon from "./AllergenWarningIcon";
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
@@ -104,6 +104,7 @@ export default function ProductRadarChart({
   brandScore = 3,
   matchPercentage = null,
   allergenWarnings = [],
+  onAllergenWarningClick,
 }: {
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -114,6 +115,7 @@ export default function ProductRadarChart({
   brandScore?: number;
   matchPercentage?: number | null;
   allergenWarnings?: string[];
+  onAllergenWarningClick?: () => void;
 }) {
   // Initialize allergen expanded state based on whether allergens exist
   const radarData = [
@@ -168,28 +170,26 @@ export default function ProductRadarChart({
   const verticalShift = 14;
   const [showButtons, setShowButtons] = useState(false);
 
-  useEffect(() => { setShowButtons(true); }, []);
+  useEffect(() => { 
+    setShowButtons(true);
+  }, []);
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      {/* Allergen Warning - positioned above chart */}
-      {allergenWarnings && allergenWarnings.length > 0 && (
-        <div className="w-full flex justify-center">
-          <AllergenWarning 
-            allergenWarnings={allergenWarnings} 
-            isEmbedded={true}
-          />
-        </div>
-      )}
-      
-      {/* Radar Chart Container */}
-      <div className="relative flex items-center justify-center" style={{ width: containerSize, height: containerSize }}>
-        {/* Match Percentage in top right corner */}
-        {matchPercentage !== null && (
-          <div className="absolute top-2 right-2 z-10">
-            <AnimatedMatchPercent percent={matchPercentage} />
-          </div>
-        )}
+    <div className="relative">
+      {/* Main content container */}
+      <div className="flex flex-col items-center gap-4">
+        {/* Radar Chart Container */}
+        <div className="relative flex items-center justify-center" style={{ width: containerSize, height: containerSize }}>
+          {/* Match Percentage in top right corner with allergen warning icon */}
+          {matchPercentage !== null && (
+            <div className="absolute top-2 right-2 z-10">
+              <AnimatedMatchPercent percent={matchPercentage} />
+              <AllergenWarningIcon 
+                hasAllergens={allergenWarnings && allergenWarnings.length > 0}
+                onClick={() => onAllergenWarningClick?.()}
+              />
+            </div>
+          )}
       {/* Radar Chart */}
       <div className="absolute left-0 top-0 w-full h-full flex items-center justify-center pointer-events-none">
         <Radar data={chartData} options={options} style={{ maxHeight: 240, maxWidth: 240 }} />
@@ -243,6 +243,7 @@ export default function ProductRadarChart({
           </button>
         );
       })}
+      </div>
       </div>
     </div>
   );

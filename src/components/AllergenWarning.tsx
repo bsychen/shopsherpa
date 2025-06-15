@@ -1,111 +1,104 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { colours } from "@/styles/colours";
 
 interface AllergenWarningProps {
   allergenWarnings: string[];
-  isEmbedded?: boolean;
-  onExpandedChange?: (isExpanded: boolean) => void;
+  isVisible: boolean;
+  onClose: () => void;
+  onProceed: () => void;
 }
 
-export default function AllergenWarning({ allergenWarnings, isEmbedded = false, onExpandedChange }: AllergenWarningProps) {
-  // Default to expanded when there are allergens, regardless of embedded state
-  const [isMinimized, setIsMinimized] = useState(false);
+export default function AllergenWarning({ allergenWarnings, isVisible, onClose, onProceed }: AllergenWarningProps) {
+  const router = useRouter();
 
-  const handleToggle = (minimized: boolean) => {
-    setIsMinimized(minimized);
-    onExpandedChange?.(!minimized);
+  const handleBackToSearch = () => {
+    router.push('/search');
   };
 
-  if (!allergenWarnings || allergenWarnings.length === 0) {
+  const handleProceed = () => {
+    onProceed();
+    onClose();
+  };
+
+  if (!allergenWarnings || allergenWarnings.length === 0 || !isVisible) {
     return null;
   }
 
-  const containerClasses = isEmbedded 
-    ? "flex justify-center" 
-    : "w-full max-w-xl mb-4";
-
   return (
-    <div className={containerClasses}>
-      {isMinimized ? (
-        // Minimized state - small warning icon
-        <button
-          onClick={() => handleToggle(false)}
-          className="border rounded-full p-2 flex items-center justify-center hover:scale-110 transition-all duration-300 transform"
-          style={{ 
-            backgroundColor: `${colours.status.error.background}99`,
-            borderColor: colours.status.error.border,
-            width: '36px',
-            height: '36px',
-            padding: '6px'
-          }}
-          aria-label="Expand allergen warning"
-        >
-          <span 
-            className="text-base"
-            style={{ color: colours.status.error.icon }}
-          >
-            ⚠️
-          </span>
-        </button>
-      ) : (
-        // Expanded state - full warning message with animation
+    <>
+      {/* Backdrop */}
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        {/* Modal */}
         <div 
-          className={`border rounded-lg p-3 flex items-start gap-3 relative transition-all duration-500 transform ${
-            isEmbedded ? 'animate-slide-up-expand' : ''
-          }`}
+          className="bg-white rounded-xl shadow-2xl border-2 max-w-md w-full mx-4 transform transition-all duration-300 scale-100"
           style={{ 
-            backgroundColor: `${colours.status.error.background}99`,
             borderColor: colours.status.error.border,
-            ...(isEmbedded && {
-              minWidth: '280px',
-              maxWidth: '320px',
-              boxShadow: '0 4px 12px -2px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-            })
           }}
         >
-          <div className="flex-shrink-0 mt-0.5">
+          {/* Header */}
+          <div 
+            className="px-6 py-4 border-b flex items-center gap-3"
+            style={{ 
+              backgroundColor: `${colours.status.error.background}99`,
+              borderBottomColor: colours.status.error.border,
+            }}
+          >
             <span 
-              className="text-xl"
+              className="text-2xl"
               style={{ color: colours.status.error.icon }}
             >
               ⚠️
             </span>
-          </div>
-          <div className="flex-1">
-            <h3 
-              className="font-semibold text-sm mb-1"
+            <h2 
+              className="text-lg font-bold"
               style={{ color: colours.status.error.text }}
             >
               Allergen Warning
-            </h3>
+            </h2>
+          </div>
+
+          {/* Content */}
+          <div className="px-6 py-4">
             <p 
-              className="text-sm"
+              className="text-sm mb-4"
               style={{ color: colours.status.error.text }}
             >
-              This product contains allergens that match your profile: {allergenWarnings.map(allergen => allergen.replace(/-/g, ' ')).join(', ')}
+              This product contains allergens that match your profile:
+            </p>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
+              <p className="text-sm font-medium text-red-800">
+                {allergenWarnings.map(allergen => allergen.replace(/-/g, ' ')).join(', ')}
+              </p>
+            </div>
+            <p className="text-sm text-gray-600 mb-6">
+              Would you like to go back to search for alternatives, or proceed with viewing this product?
             </p>
           </div>
-          <button
-            onClick={() => handleToggle(true)}
-            className="flex-shrink-0 p-1 rounded hover:bg-red-100 transition-colors"
-            aria-label="Minimize allergen warning"
-            style={{ color: colours.status.error.text }}
-          >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              strokeWidth="2" 
-              stroke="currentColor" 
-              className="w-4 h-4"
+
+          {/* Footer with buttons */}
+          <div className="px-6 py-4 border-t bg-gray-50 flex gap-3 justify-end">
+            <button
+              onClick={handleBackToSearch}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 12h-15" />
-            </svg>
-          </button>
+              Back to Search
+            </button>
+            <button
+              onClick={handleProceed}
+              className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors"
+              style={{ 
+                backgroundColor: colours.status.error.background,
+                borderColor: colours.status.error.border,
+              }}
+            >
+              Proceed Anyway
+            </button>
+          </div>
         </div>
-      )}
-    </div>
+      </div>
+    </>
   );
 }

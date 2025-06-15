@@ -13,6 +13,7 @@ import LoadingAnimation from "@/components/LoadingSpinner";
 import SimilarProducts from "@/components/SimilarProducts";
 import ProductsByBrand from "@/components/ProductsByBrand";
 import ProductReviews from "@/components/ProductReviews";
+import AllergenWarning from "@/components/AllergenWarning";
 import { UserProfile } from "@/types/user";
 import { colours } from "@/styles/colours";
 import { 
@@ -120,6 +121,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     median: number;
     q3: number;
   }>({ min: 0, max: 0, q1: 0, median: 0, q3: 0 });
+  const [showAllergenWarning, setShowAllergenWarning] = useState(false);
+  const [allergenWarningDismissed, setAllergenWarningDismissed] = useState(false);
   
   // Calculate all radar chart scores
   const priceScore = product ? getQuartileScore(product.price || 0, priceStats.q1, priceStats.q3) : 3;
@@ -208,6 +211,23 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     }
     fetchUserPreferences();
   }, [user]);
+
+  // Show allergen warning when product and user preferences are loaded
+  useEffect(() => {
+    if (product && userPreferences && allergenWarnings && allergenWarnings.length > 0 && !allergenWarningDismissed) {
+      setShowAllergenWarning(true);
+    }
+  }, [product, userPreferences, allergenWarnings, allergenWarningDismissed]);
+
+  // Handler functions for allergen warning
+  const handleAllergenWarningClose = () => {
+    setShowAllergenWarning(false);
+  };
+
+  const handleAllergenWarningProceed = () => {
+    setAllergenWarningDismissed(true);
+    setShowAllergenWarning(false);
+  };
 
   useEffect(() => {
     async function fetchUsernames() {
@@ -340,6 +360,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 brandScore={brandScore}
                 matchPercentage={matchPercentage}
                 allergenWarnings={allergenWarnings}
+                onAllergenWarningClick={() => setShowAllergenWarning(true)}
               />
             </Suspense>
           </div>
@@ -455,6 +476,14 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           setRefreshing={setRefreshing}
         />
       </div>
+      {showAllergenWarning && allergenWarnings.length > 0 && (
+        <AllergenWarning 
+          allergenWarnings={allergenWarnings}
+          isVisible={showAllergenWarning}
+          onClose={handleAllergenWarningClose}
+          onProceed={handleAllergenWarningProceed}
+        />
+      )}
     </div>
   );
 }
