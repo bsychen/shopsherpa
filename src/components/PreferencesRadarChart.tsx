@@ -268,15 +268,15 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
   const verticalShift = 14;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Radar Chart */}
       <div className="flex flex-col items-center">
-        <div className="relative flex items-center justify-center" style={{ width: containerSize, height: containerSize }}>
+        <div className="relative flex items-center justify-center" style={{ width: containerSize + 12, height: containerSize }}>
           {/* Edit Button - positioned in top right */}
           {!isEditMode && (
             <button
               onClick={() => setIsEditMode(true)}
-              className="absolute top-2 right-2 z-10 px-3 py-1 text-sm rounded-lg transition-colors flex items-center gap-1"
+              className="absolute top-0 right-0 z-10 px-3 py-2 text-sm solid font-medium rounded-lg shadow-xl transition-colors duration-200 disabled:opacity-50 flex items-center gap-2"
               style={{ 
                 color: colours.button.edit.text,
                 backgroundColor: colours.button.edit.background,

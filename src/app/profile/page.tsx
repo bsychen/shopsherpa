@@ -191,7 +191,7 @@ export default function ProfilePage() {
 
       {/* Dropdown Sections */}
       {user && user.userId && (
-        <div className="space-y-4">
+        <div className="space-y-2">
             {/* User Reviews Section */}
             <div 
               className="rounded-xl shadow-lg p-6 transition-all duration-300"
