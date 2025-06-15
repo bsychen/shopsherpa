@@ -71,7 +71,7 @@ export default function ProductReviews({
   return (
     <div className="w-full">
       <div 
-        className={`w-full border rounded-xl p-4 transition-all duration-300 ${refreshing ? 'opacity-40 blur-[2px]' : 'opacity-100 blur-0'}`}
+        className={`w-full border rounded-xl shadow border-2 border-black p-4 transition-all duration-300 ${refreshing ? 'opacity-40 blur-[2px]' : 'opacity-100 blur-0'}`}
         style={{ 
           backgroundColor: colours.content.surfaceSecondary,
           borderColor: colours.content.border
@@ -177,9 +177,9 @@ export default function ProductReviews({
                   <li key={review.id} style={{ opacity }}>
                     <Link 
                       href={`/review/${review.id}`} 
-                      className="block rounded-lg border shadow-sm p-4 transition cursor-pointer"
+                      className="block rounded-xl shadow border-2 border-black shadow-sm p-4 transition cursor-pointe bg-slate-100r"
                       style={{ 
-                        backgroundColor: colours.content.surface,
+                        backgroundColor: '#f1f5f9',
                         borderColor: colours.content.border
                       }}
                     >

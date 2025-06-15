@@ -7,14 +7,15 @@ const colourMap = {
     darkRed: '#A02A1D',
     yellow: '#ECCC36',
     darkYellow: '#BFA02A',
-    lightGreen: '#EBF6B7',
+    lightGreen: '#DFEDC3',
     green: '#309563',
     darkTeal: '#0C4038',
-    white: '#FFFFFF',
+    white: '#FDFAF7',
     transparent: 'transparent',
     grey: 'zinc-50',
     indigo: '#103A5D',
     darkIndigo: '#0A2A4B',
+    cyan: '#3B9C87'
 }
 
 // Common component color patterns
@@ -28,6 +29,29 @@ export const colours = {
       background: colourMap.lightGreen,
       shadow: 'hover:shadow-md',
     }
+  },
+
+  categories: {
+    price: { 
+      background: "bg-yellow-100",
+      border: "border-yellow-200",
+    },
+    quality: {
+      background: "bg-red-100",
+      border: "border-red-200",
+    },
+    nutrition: {
+      background: "bg-blue-100",
+      border: "border-blue-200",
+    },
+    sustainability: {
+      background: "bg-lime-100",
+      border: "border-green-200",
+    },
+    brand: {
+      background: "bg-purple-100",
+      border: "border-purple-200",
+    },
   },
 
   // Button styles
@@ -103,7 +127,7 @@ export const colours = {
   // Background styles
   background: {
     primary: colourMap.white,
-    secondary: colourMap.white,
+    secondary: colourMap.lightGreen,
     tertiary: colourMap.white,
     muted: colourMap.white,
   },
@@ -271,7 +295,15 @@ export const colours = {
       background: colourMap.indigo,
       text: colourMap.white,
     }
+  },
+
+  components: {
+    productCards: {
+      background: colourMap.cyan,
+    },
+
+    reviews: {
+      background: colourMap.cyan,
+    }
   }
-
-
 };

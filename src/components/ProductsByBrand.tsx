@@ -14,7 +14,7 @@ export default function ProductsByBrand({ products, brandName }: ProductsByBrand
   return (
     <div className="w-full max-w-xl flex flex-col items-start mb-4">
       <div 
-        className="w-full rounded-xl p-4 border"
+        className="w-full rounded-xl shadow border-2 border-black p-4 border"
         style={{ 
           backgroundColor: colours.content.surfaceSecondary,
           borderColor: colours.content.border 

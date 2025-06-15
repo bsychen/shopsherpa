@@ -144,15 +144,32 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   const min = priceStats.min;
   const max = priceStats.max;
 
+  // Get category background color based on active tab
+  const getCategoryBackground = () => {
+    if (isCollapsed || !activeTab) {
+      return colours.content.surfaceSecondary;
+    }
+    
+    const categoryMap: Record<string, string> = {
+      'Price': '#fef3c7', // yellow-100
+      'Quality': '#fee2e2', // red-100  
+      'Nutrition': '#dbeafe', // blue-100
+      'Sustainability': '#ecfccb', // lime-100
+      'Brand': '#f3e8ff', // purple-100
+    };
+    
+    return categoryMap[activeTab] || colours.content.surfaceSecondary;
+  };
+
   return (
     <div
-      className="w-full max-w-xl mt-4 rounded-xl shadow p-4 transition-colors duration-300"
+      className="w-full max-w-xl mt-4 rounded-xl shadow border-2 border-black shadow-sm p-4 transition-colors duration-300"
       style={{
-        backgroundColor: colours.content.surfaceSecondary,
+        backgroundColor: getCategoryBackground(),
         border: `1px solid ${colours.content.border}`,
         height: boxHeight ? boxHeight + 32 : undefined,
         minHeight: isCollapsed ? 40 : 210,
-        transition: "height 0.4s cubic-bezier(0.4,0,0.2,1), background 0.3s",
+        transition: "height 0.4s cubic-bezier(0.4,0,0.2,1), background-color 0.3s ease",
         position: "relative"
       }}
     >
@@ -181,16 +198,6 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
             style={{
               color: activeTab === tab ? colours.text.link : colours.text.secondary,
               minWidth: 44
-            }}
-            onMouseEnter={(e) => {
-              if (activeTab !== tab) {
-                e.currentTarget.style.color = colours.text.primary
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== tab) {
-                e.currentTarget.style.color = colours.text.secondary
-              }
             }}
             onClick={() => {
               if (activeTab === tab && !isCollapsed) {

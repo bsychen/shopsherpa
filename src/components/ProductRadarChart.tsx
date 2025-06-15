@@ -87,28 +87,28 @@ function AnimatedMatchPercent({ percent, hasAllergens = false }: { percent: numb
 
 const BUTTON_CONFIG: Record<string, { color: string; border: string; svg: string }> = {
   Price: {
-    color: "bg-yellow-100",
-    border: "border-yellow-200",
+    color: colours.categories.price.background,
+    border: colours.categories.price.border,
     svg: "/pound-svgrepo-com.svg",
   },
   Quality: {
-    color: "bg-red-100",
-    border: "border-red-200",
+    color: colours.categories.quality.background,
+    border: colours.categories.quality.border,
     svg: "/quality-supervision-svgrepo-com.svg",
   },
   Nutrition: {
-    color: "bg-blue-100",
-    border: "border-blue-200",
+    color: colours.categories.nutrition.background,
+    border: colours.categories.nutrition.border,
     svg: "/meal-svgrepo-com.svg",
   },
   Sustainability: {
-    color: "bg-lime-100",
-    border: "border-green-200",
+    color: colours.categories.sustainability.background,
+    border: colours.categories.sustainability.border,
     svg: "/leaf-svgrepo-com.svg",
   },
   Brand: {
-    color: "bg-purple-100",
-    border: "border-purple-200",
+    color: colours.categories.brand.background,
+    border: colours.categories.brand.border,
     svg: "/prices-svgrepo-com.svg",
   },
 };

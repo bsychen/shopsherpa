@@ -304,11 +304,21 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   return (
     <div 
-      className="flex flex-col items-center justify-center min-h-[60vh] p-4"
+      className="flex flex-col items-center justify-center min-h-[60vh] p-4 "
       style={{ backgroundColor: colours.background.secondary }}
     >
+      {/* Allergen Warning Modal */}
+      {showAllergenWarning && (
+        <AllergenWarning 
+          allergenWarnings={allergenWarnings}
+                isVisible={showAllergenWarning}
+                onClose={handleAllergenWarningClose}
+                onProceed={handleAllergenWarningProceed}
+        />
+      )}
+      {/* Main Product Card */}
       <div 
-        className="w-full max-w-xl rounded-lg shadow p-6 flex flex-col items-center border relative"
+        className="w-full max-w-xl rounded-lg shadow border-2 border-black shadow-sm p-6 flex flex-col items-center border relative  mb-4"
         style={{ 
           backgroundColor: colours.content.surface,
           borderColor: colours.content.border
@@ -433,7 +443,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             </div>
           )}
         </div>
-        
+       </div>
+
         {/* Similar Products Section */}
         <SimilarProducts 
           products={similarProducts}
@@ -463,15 +474,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           setRefreshing={setRefreshing}
         />
       </div>
-      {showAllergenWarning && allergenWarnings.length > 0 && (
-        <AllergenWarning 
-          allergenWarnings={allergenWarnings}
-          isVisible={showAllergenWarning}
-          onClose={handleAllergenWarningClose}
-          onProceed={handleAllergenWarningProceed}
-        />
-      )}
-    </div>
+             
   );
 }
 
