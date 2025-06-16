@@ -6,6 +6,7 @@ import { getBrand } from '@/lib/brandUtils';
 async function fetchProductData(id: string){
   const fields = [
     "product_name",
+    "product_name_en",
     "brands",
     "brands_tags",
     "categories_properties",
@@ -56,7 +57,12 @@ async function fetchProductData(id: string){
   const res = await fetch(`https://world.openfoodfacts.net/api/v2/product/${id}?fields=${encodeURIComponent(fieldsParam)}`);
   if (!res.ok) return null;
   const data = await res.json();
-  if (!data.product || !data.product.product_name) return null;    // Get or create brandId for this product
+  if (!data.product || (!data.product.product_name_en && !data.product.product_name)) return null;    
+  
+  // Use product_name_en if available, otherwise fall back to product_name
+  const productName = data.product.product_name_en || data.product.product_name;
+  
+  // Get or create brandId for this product
     const brandName = data.product.brands || 
       (data.product.brands_tags && data.product.brands_tags.length > 0 ? data.product.brands_tags[0] : '') || '';
     
@@ -77,8 +83,8 @@ async function fetchProductData(id: string){
     }
 
     return {
-    productName: data.product.product_name,
-    productNameLower: data.product.product_name.toLowerCase(),
+    productName: productName,
+    productNameLower: productName.toLowerCase(),
     brandName: brandName,
     brandId: brandId,
     combinedCategory: [...new Set([
@@ -88,6 +94,7 @@ async function fetchProductData(id: string){
       ...(data.product.main_category ? [data.product.main_category] : []),
       ...(data.product.main_category_fr ? [data.product.main_category_fr] : [])
     ])],
+    categoriesTags: data.product.categories_tags || [],
     genericNameLower: (data.product.generic_name || data.product.generic_name_en)
       ? (data.product.generic_name || data.product.generic_name_en).toLowerCase()
       : '',
