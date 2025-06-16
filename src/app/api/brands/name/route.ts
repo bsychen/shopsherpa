@@ -1,4 +1,3 @@
-import { db } from "@/lib/firebaseAdmin";
 import { NextResponse } from "next/server";
 import { getBrand } from "@/lib/brandUtils";
 
