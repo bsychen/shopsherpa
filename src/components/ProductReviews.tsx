@@ -70,7 +70,7 @@ export default function ProductReviews({
   })
 
   return (
-    <div className="w-full mb-2">
+    <div className="w-full max-w-xl flex flex-col items-start mb-2">
       <ContentBox 
         variant="secondary" 
         noMargin
@@ -85,16 +85,10 @@ export default function ProductReviews({
           </h2>
           <button
             onClick={handleWriteReview}
-            className="flex items-center gap-1 px-3 py-1 rounded-lg shadow-xl border-2 border-black transition-all duration-200"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl shadow-xl border-2 border-black transition-all duration-200"
             style={{ 
               backgroundColor: '#f1f5f9', // slate-100
               boxShadow: "0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06)"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#e2e8f0' // slate-200
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#f1f5f9' // slate-100
             }}
             aria-label="Write a Review"
           >
@@ -102,15 +96,14 @@ export default function ProductReviews({
           </button>
         </div>
         {/* Sort by buttons */}
-        <div className="flex items-center justify-center gap-1 mt-2 mb-2 flex-wrap">
-          <div className="flex gap-2">
+        <div className="flex items-center mt-2 mb-2">
             <button
               onClick={() => {
                 setSortBy('recent')
                 setRefreshing(true)
                 setTimeout(() => setRefreshing(false), 350)
               }}
-              className={`flex items-center gap-1 px-3 py-1 rounded-lg shadow-xl border-2 border-black transition-all duration-200 ${
+              className={`flex items-center justify-center gap-2 flex-1 py-2 pl-4 pr-2 rounded-xl shadow-xl border-2 border-black transition-all duration-200 ${
                 sortBy === 'recent' ? 'ring-1 ring-zinc-200 scale-105' : ''
               }`}
               style={{
@@ -119,16 +112,17 @@ export default function ProductReviews({
                 transform: sortBy === 'recent' ? 'scale(1.05)' : 'scale(1)'
               }}
             >
-              <Clock size={14} style={{ color: '#1f2937' }} />
-              <span className="font-medium text-sm" style={{ color: '#1f2937' }}>Recent</span>
+              <Clock size={18} style={{ color: '#1f2937' }} />
+              <span className="font-medium" style={{ color: '#1f2937' }}>Recent</span>
             </button>
+            <div className="w-3"></div>
             <button
               onClick={() => {
                 setSortBy('low')
                 setRefreshing(true)
                 setTimeout(() => setRefreshing(false), 350)
               }}
-              className={`flex items-center gap-1 px-3 py-1 rounded-lg shadow-xl border-2 border-black transition-all duration-200 ${
+              className={`flex items-center justify-center gap-2 flex-1 py-2 px-2 rounded-xl shadow-xl border-2 border-black transition-all duration-200 ${
                 sortBy === 'low' ? 'ring-1 ring-zinc-200 scale-105' : ''
               }`}
               style={{
@@ -137,16 +131,17 @@ export default function ProductReviews({
                 transform: sortBy === 'low' ? 'scale(1.05)' : 'scale(1)'
               }}
             >
-              <TrendingDown size={14} style={{ color: '#1f2937' }} />
-              <span className="font-medium text-sm" style={{ color: '#1f2937' }}>Low</span>
+              <TrendingDown size={18} style={{ color: '#1f2937' }} />
+              <span className="font-medium" style={{ color: '#1f2937' }}>Low</span>
             </button>
+            <div className="w-3"></div>
             <button
               onClick={() => {
                 setSortBy('high')
                 setRefreshing(true)
                 setTimeout(() => setRefreshing(false), 350)
               }}
-              className={`flex items-center gap-1 px-3 py-1 rounded-lg shadow-xl border-2 border-black transition-all duration-200 ${
+              className={`flex items-center justify-center gap-2 flex-1 py-2 pl-2 pr-4 rounded-xl shadow-xl border-2 border-black transition-all duration-200 ${
                 sortBy === 'high' ? 'ring-1 ring-zinc-200 scale-105' : ''
               }`}
               style={{
@@ -155,10 +150,9 @@ export default function ProductReviews({
                 transform: sortBy === 'high' ? 'scale(1.05)' : 'scale(1)'
               }}
             >
-              <TrendingUp size={14} style={{ color: '#1f2937' }} />
-              <span className="font-medium text-sm" style={{ color: '#1f2937' }}>High</span>
+              <TrendingUp size={18} style={{ color: '#1f2937' }} />
+              <span className="font-medium" style={{ color: '#1f2937' }}>High</span>
             </button>
-          </div>
         </div>
         {sortedReviews.length === 0 ? (
           <div style={{ color: colours.text.secondary }}>
@@ -218,7 +212,7 @@ export default function ProductReviews({
               <div className="flex justify-center mt-4">
                 <button
                   onClick={() => { setVisibleReviews(sortedReviews.length); setSeeMoreClicked(true) }}
-                  className="px-3 py-1 rounded-lg shadow border-2 border-black transition-all duration-200 font-medium text-sm"
+                  className="px-4 py-2 rounded-xl shadow border-2 border-black transition-all duration-200 font-medium"
                   style={{ 
                     backgroundColor: '#f1f5f9', // slate-100
                     boxShadow: "0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06)",
