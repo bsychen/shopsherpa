@@ -6,7 +6,7 @@ import { auth } from "@/lib/firebaseClient";
 import { useRouter, useParams } from "next/navigation";
 import { Review } from "@/types/review";
 import { Product } from "@/types/product";
-import { getReview, getProduct, getUserById } from "@/lib/api";
+import { getReview, getProduct, getUserById, updateReview } from "@/lib/api";
 import { colours } from "@/styles/colours";
 import LoadingAnimation from "@/components/LoadingSpinner";
 import ContentBox from "@/components/ContentBox";
@@ -24,6 +24,10 @@ export default function ReviewPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [username, setUsername] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [localRating, setLocalRating] = useState<number>(0);
+  const [localReviewText, setLocalReviewText] = useState<string>("");
   const router = useRouter();
   const { setTopBarState, resetTopBar } = useTopBar();
 
@@ -40,7 +44,7 @@ export default function ReviewPage() {
     setLoading(true);
     getReview(id).then((data) => {
       if (data) {
-        setReview({
+        const reviewData = {
           id: data.id ?? id,
           createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
           productId: data.productId,
@@ -48,7 +52,11 @@ export default function ReviewPage() {
           rating: data.rating,
           userId: data.userId,
           isAnonymous: data.isAnonymous || false,
-        });
+        };
+        setReview(reviewData);
+        // Initialize local state with current values
+        setLocalRating(reviewData.rating);
+        setLocalReviewText(reviewData.reviewText || "");
       } else {
         setReview(null);
       }
@@ -86,6 +94,52 @@ export default function ReviewPage() {
       resetTopBar();
     };
   }, [setTopBarState, resetTopBar, router, review]);
+
+  // Editing functions
+  const handleSaveChanges = async () => {
+    if (!review) return;
+    
+    setIsUpdating(true);
+    try {
+      const result = await updateReview(review.id, localRating, localReviewText);
+      if (result.success) {
+        // Update the review state with new values
+        setReview(prev => prev ? {
+          ...prev,
+          rating: localRating,
+          reviewText: localReviewText || undefined
+        } : null);
+        setIsEditMode(false);
+      } else {
+        alert(result.error || "Failed to update review");
+        // Reset local state on failure
+        setLocalRating(review.rating);
+        setLocalReviewText(review.reviewText || "");
+      }
+    } catch (error) {
+      console.error('Error updating review:', error);
+      alert("Failed to update review");
+      // Reset local state on failure
+      setLocalRating(review.rating);
+      setLocalReviewText(review.reviewText || "");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    if (!review) return;
+    
+    // Reset local state to original values
+    setLocalRating(review.rating);
+    setLocalReviewText(review.reviewText || "");
+    setIsEditMode(false);
+  };
+
+  const hasChanges = review && (
+    localRating !== review.rating || 
+    localReviewText !== (review.reviewText || "")
+  );
 
   if (loading) {
     return <LoadingAnimation />;
@@ -150,56 +204,95 @@ export default function ReviewPage() {
           
           {/* Rating Section */}
           <div className="mb-6">
-            <div className="flex items-center justify-center space-x-2">
+            <div className={`flex items-center justify-center space-x-2 transition-all duration-300 ${
+              isEditMode ? 'transform scale-105 rounded-lg p-2' : ''
+            }`}
+            style={isEditMode ? { backgroundColor: colours.card.background } : {}}
+            >
               {[1, 2, 3, 4, 5].map((star) => (
                 <span
                   key={star}
-                  className={`inline-block ${
-                    review.rating >= star ? "" : "opacity-30"
-                  }`}
+                  className={`inline-block transition-all duration-200 ${
+                    (isEditMode ? localRating : review.rating) >= star ? "drop-shadow-md" : "opacity-30"
+                  } ${isEditMode ? "cursor-pointer hover:scale-110 hover:drop-shadow-lg" : ""}`}
                   role="img"
                   aria-label="star"
+                  onClick={isEditMode ? () => setLocalRating(star) : undefined}
                 >
                   <StarIcon size={40} />
                 </span>
               ))}
             </div>
+            {isEditMode && (
+              <div className="text-center mt-2 text-sm animate-fade-in" style={{ color: colours.text.muted }}>
+                Click stars to rate
+              </div>
+            )}
           </div>
 
           {/* Review Text Section */}
           <div className="mb-6">
-            <div 
-              className="w-full min-h-[120px] rounded-lg p-3"
-              style={{
-                backgroundColor: colours.input.background,
-                borderColor: colours.input.border,
-                borderWidth: '1px',
-                borderStyle: 'solid',
-                color: colours.input.text
-              }}
-            >
-              {review.reviewText || "(No review text)"}
-            </div>
+            {isEditMode ? (
+              <div className="animate-fade-in">
+                <textarea
+                  value={localReviewText}
+                  onChange={(e) => setLocalReviewText(e.target.value)}
+                  className="w-full min-h-[120px] rounded-lg p-3 resize-none transition-all duration-300 transform scale-105 shadow-lg"
+                  style={{
+                    backgroundColor: colours.input.background,
+                    borderColor: colours.input.border,
+                    borderWidth: '2px',
+                    borderStyle: 'solid',
+                    color: colours.input.text
+                  }}
+                  placeholder="Share your thoughts about this product..."
+                  disabled={isUpdating}
+                  autoFocus
+                />
+                <div className="text-right mt-1 text-xs" style={{ color: colours.text.muted }}>
+                  {localReviewText.length} characters
+                </div>
+              </div>
+            ) : (
+              <div 
+                className="w-full min-h-[120px] rounded-lg p-3 transition-all duration-300"
+                style={{
+                  backgroundColor: colours.input.background,
+                  borderColor: colours.input.border,
+                  borderWidth: '2px',
+                  borderStyle: 'solid',
+                  color: colours.input.text
+                }}
+              >
+                {review.reviewText || "(No review text)"}
+              </div>
+            )}
           </div>
           {/* Action buttons for review owner */}
           {user && user.uid === review.userId && (
             <div className="flex justify-end gap-2 mt-4">
-              <DeleteButton
-                onClick={async () => {
-                  if (confirm("Are you sure you want to delete this review?")) {
-                    const res = await import("@/lib/api").then(m => m.deleteReview(review.id));
-                    if (res.success) {
-                      router.push(`/product/${review.productId}`);
-                    } else {
-                      alert(res.error || "Failed to delete review");
+              <div className="min-w-[80px]">
+                <DeleteButton
+                  onClick={async () => {
+                    if (confirm("Are you sure you want to delete this review?")) {
+                      const res = await import("@/lib/api").then(m => m.deleteReview(review.id));
+                      if (res.success) {
+                        router.push(`/product/${review.productId}`);
+                      } else {
+                        alert(res.error || "Failed to delete review");
+                      }
                     }
-                  }
-                }}
-              />
-              <EditButton
-                isEditMode={false}
-                onToggle={() => router.push(`/review/update/${review.id}`)}
-              />
+                  }}
+                  disabled={isUpdating}
+                />
+              </div>
+              <div className="min-w-[80px]">
+                <EditButton
+                  isEditMode={isEditMode}
+                  onToggle={isEditMode ? (hasChanges ? handleSaveChanges : handleCancelEdit) : () => setIsEditMode(true)}
+                  disabled={isUpdating}
+                />
+              </div>
             </div>
           )}
                           <div
