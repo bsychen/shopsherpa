@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
 import { Review } from "@/types/review";
 import { Product } from "@/types/product";
 import { getReview, getProduct, getUserById, updateReview } from "@/lib/api";
@@ -158,10 +159,10 @@ export default function ReviewPage() {
       className="min-h-screen"
       style={{ backgroundColor: colours.background.secondary }}
     >
-      <div className="max-w-md mx-auto pt-10 px-4">
+      <div className="max-w-md mx-auto pt-10 px-4 space-y-4">
         {/* Product Information Card */}
         {product && (
-          <ContentBox className="mb-4">
+          <ContentBox className="opacity-0 animate-fade-in" style={{ animationDelay: '0.1s' }}>
             <div className="flex items-center space-x-4">
               <Image
                 src={product.imageUrl || "/placeholder.jpg"}
@@ -171,12 +172,14 @@ export default function ReviewPage() {
                 className="w-15 h-15 object-contain rounded-lg"
               />
               <div className="flex-1">
-                <h2 
-                  className="text-lg font-semibold mb-1"
-                  style={{ color: colours.text.primary }}
-                >
-                  {product.productName}
-                </h2>
+                <Link href={`/product/${review.productId}`}>
+                  <h2 
+                    className="text-lg font-semibold mb-1 hover:underline cursor-pointer transition-all"
+                    style={{ color: colours.text.link }}
+                  >
+                    {product.productName}
+                  </h2>
+                </Link>
                 <p 
                   className="text-sm mb-1"
                   style={{ color: colours.text.secondary }}
@@ -194,16 +197,16 @@ export default function ReviewPage() {
           </ContentBox>
         )}
 
-        <ContentBox>
+        <ContentBox className="opacity-0 animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <h1 
-            className="text-2xl font-bold mb-4"
-            style={{ color: colours.text.primary }}
+            className="text-2xl font-bold mb-4 opacity-0 animate-fade-in"
+            style={{ color: colours.text.primary, animationDelay: '0.3s' }}
           >
             {username ? `${username} says...` : "User says..."}
           </h1>
           
           {/* Rating Section */}
-          <div className="mb-6">
+          <div className="mb-6 opacity-0 animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <div className={`flex items-center justify-center space-x-2 transition-all duration-300 ${
               isEditMode ? 'transform scale-105 rounded-lg p-2' : ''
             }`}
@@ -231,7 +234,7 @@ export default function ReviewPage() {
           </div>
 
           {/* Review Text Section */}
-          <div className="mb-6">
+          <div className="mb-6 opacity-0 animate-fade-in" style={{ animationDelay: '0.5s' }}>
             {isEditMode ? (
               <div className="animate-fade-in">
                 <textarea
@@ -270,7 +273,7 @@ export default function ReviewPage() {
           </div>
           {/* Action buttons for review owner */}
           {user && user.uid === review.userId && (
-            <div className="flex justify-end gap-2 mt-4">
+            <div className="flex justify-end gap-2 mt-4 opacity-0 animate-fade-in" style={{ animationDelay: '0.6s' }}>
               <div className="min-w-[80px]">
                 <DeleteButton
                   onClick={async () => {
@@ -296,8 +299,8 @@ export default function ReviewPage() {
             </div>
           )}
                           <div
-                  className="text-xs mt-4 font-mono"
-                  style={{ color: colours.text.muted }}
+                  className="text-xs mt-4 font-mono opacity-0 animate-fade-in"
+                  style={{ color: colours.text.muted, animationDelay: '0.7s' }}
                 >
                   Review ID: {review.id}
                 </div>

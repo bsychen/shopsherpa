@@ -101,10 +101,10 @@ export default function ReviewPage() {
       className="min-h-screen"
       style={{ backgroundColor: colours.background.secondary }}
     >
-      <div className="max-w-md mx-auto pt-10 px-4">
+      <div className="max-w-md mx-auto pt-10 px-4 space-y-4">
         {/* Product Information Card */}
         {product && (
-          <ContentBox className="mb-4">
+          <ContentBox className="opacity-0 animate-fade-in" style={{ animationDelay: '0.1s' }}>
             <div className="flex items-center space-x-4">
               <Image
                 src={product.imageUrl || "/placeholder.jpg"}
@@ -114,12 +114,14 @@ export default function ReviewPage() {
                 className="w-15 h-15 object-contain rounded-lg"
               />
               <div className="flex-1">
-                <h2 
-                  className="text-lg font-semibold mb-1"
-                  style={{ color: colours.text.primary }}
-                >
-                  {product.productName}
-                </h2>
+                <Link href={`/product/${id}`}>
+                  <h2 
+                    className="text-lg font-semibold mb-1 hover:underline cursor-pointer transition-all"
+                    style={{ color: colours.text.link }}
+                  >
+                    {product.productName}
+                  </h2>
+                </Link>
                 <p 
                   className="text-sm mb-1"
                   style={{ color: colours.text.secondary }}
@@ -137,7 +139,7 @@ export default function ReviewPage() {
           </ContentBox>
         )}
         
-        <ContentBox>
+        <ContentBox className="opacity-0 animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <h1 
             className="text-2xl font-bold mb-4"
             style={{ color: colours.text.primary }}
@@ -169,7 +171,7 @@ export default function ReviewPage() {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <div className="mb-6">
+            <div className="mb-6 opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
               <div className="flex items-center justify-center space-x-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -185,7 +187,7 @@ export default function ReviewPage() {
               </div>
             </div>
             
-            <div className="mb-6">
+            <div className="mb-6 opacity-0 animate-fade-in" style={{ animationDelay: '0.4s' }}>
               <textarea
                 className="w-full min-h-[120px] rounded-lg p-3 focus:outline-none focus:ring-2 transition-all"
                 style={{
@@ -214,7 +216,7 @@ export default function ReviewPage() {
               </div>
             </div>
             
-            <div className="mb-6">
+            <div className="mb-6 opacity-0 animate-fade-in" style={{ animationDelay: '0.5s' }}>
               <label className="flex items-center space-x-3 cursor-pointer">
                 <input
                   type="checkbox"
@@ -236,7 +238,7 @@ export default function ReviewPage() {
           </div>
           {submitError && (
             <div 
-              className="p-3 rounded-lg text-sm"
+              className="p-3 rounded-lg text-sm opacity-0 animate-fade-in"
               style={{ 
                 backgroundColor: colours.status.error.background,
                 color: colours.status.error.text,
@@ -248,16 +250,18 @@ export default function ReviewPage() {
           )}
           <button
             type="submit"
-            className="w-full font-semibold py-3 px-4 rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full font-semibold py-3 px-4 rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed opacity-0 animate-fade-in"
             style={{
               backgroundColor: colours.button.success.background,
-              color: colours.button.primary.text
+              color: colours.button.primary.text,
+              animationDelay: '0.6s'
             }}
             disabled={submitting || rating === 0}
           >
             {submitting ? "Submitting..." : "Submit Review"}
           </button>
-        </form>          )}
+        </form>
+      )}
         </ContentBox>
       </div>
     </div>
