@@ -20,12 +20,12 @@ export default function TopBar() {
 
   return (
     <div className="relative w-full z-50">
-      <header className="w-full flex items-center justify-center px-4 py-6 relative z-50" style={{ backgroundColor: colours.card.background }}>
+      <header className="w-full flex items-center justify-center px-4 py-7 relative z-50" style={{ backgroundColor: colours.card.background }}>
         {/* Back button - positioned absolutely on the left */}
         {topBarState.showBackButton && (
           <button
             onClick={handleBackClick}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 z-50"
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 -mt-2 z-50"
             style={{
               color: colours.text.primary,
             }}
@@ -34,7 +34,7 @@ export default function TopBar() {
           </button>
         )}
 
-        <div className="flex items-center gap-3 relative z-20">
+        <div className="flex items-center gap-3 relative z-20 -mt-2">
           <h1
             className="text-xl font-bold tracking-tight select-none"
             style={{ color: colours.text.primary }}
@@ -42,8 +42,8 @@ export default function TopBar() {
             ShopSherpa
           </h1>
           <Image
-            src="/shopping-cart.svg"
-            alt="Shopping Cart"
+            src="/shopsherpa_logo.png"
+            alt="ShopSherpa Logo"
             width={24}
             height={24}
             className="w-6 h-6"
