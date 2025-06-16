@@ -3,8 +3,8 @@
   "short_name": "ShopSherpa",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#63a088",
+  "theme_color": "#63a088",
   "description": "Compare supermarket prices and reviews with ShopSherpa.",
   "icons": [
     {

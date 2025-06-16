@@ -53,9 +53,7 @@ export default function ReviewPage() {
 
   useEffect(() => {
     if (!id || !review) return;
-    getProduct(review.productId).then(() => {
-      // No need to set productName as it's not used in the component
-    });
+    getProduct(review.productId).then(() => {});
     // Fetch username from userId (unless anonymous)
     if (review.userId && !review.isAnonymous) {
       getUserById(review.userId).then((user) => {
