@@ -165,8 +165,8 @@ export const colours = {
   // Tag styles
   tag: {
     default: {
-      background: colourMap.lightGreen,
-      border: colourMap.green,
+      background: `${colourMap.lightGreen}20`,
+      border: colourMap.lightGreen,
       text: colourMap.darkTeal,
       hover: {
         background: colourMap.yellow,
@@ -294,8 +294,8 @@ export const colours = {
 
   tags: {
     countries: {
-      border: colourMap.darkIndigo,
-      background: colourMap.indigo,
+      border: colourMap.indigo,
+      background: colourMap.babyBlue,
       text: colourMap.white,
     }
   },

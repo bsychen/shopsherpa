@@ -118,7 +118,7 @@ export function getCountryTagClasses(): string {
  */
 export function getCountryTagStyles() {
   return {
-    backgroundColor: `${colours.tags.countries.background}20`, // 20% opacity for lighter background
+    backgroundColor: colours.tags.countries.background, // 20% opacity for lighter background
     borderColor: colours.tags.countries.border,
     borderWidth: '2px',
     borderStyle: 'solid',
