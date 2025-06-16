@@ -69,7 +69,7 @@ export default function AllergenManager({
       style={style}>
       {/* Header with title and edit button */}
       <div className="flex items-center justify-between mb-2">
-        <h1 className="text-lg font-semibold" style={{ color: colours.text.primary }}>Allergens</h1>
+        <h1 className="text-xl font-semibold" style={{ color: colours.text.primary }}>Allergens</h1>
         <EditButton
           isEditMode={isEditMode}
           onToggle={toggleEditMode}

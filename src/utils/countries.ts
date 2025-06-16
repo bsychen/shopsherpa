@@ -110,7 +110,7 @@ export function getCountryInfoFromCode(countryCode: string): CountryInfo | null 
  * Uses the indigo color scheme from colours.tags.countries
  */
 export function getCountryTagClasses(): string {
-  return "inline-block text-sm px-3 py-1.5 rounded-full font-medium shadow-sm transition-all duration-200";
+  return "inline-block text-sm px-3 py-1.5 rounded-full font-medium shadow-lg transition-all duration-200";
 }
 
 /**

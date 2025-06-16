@@ -186,9 +186,9 @@ export default function ProductSearch() {
         backgroundColor: colours.background.secondary,
       }}
     >
-    <ContentBox className="opacity-0 animate-slide-in-bottom" style={{ animationDelay: '100ms' }}>
+    <ContentBox className="opacity-0 items-center animate-slide-in-bottom" style={{ animationDelay: '100ms' }}>
         <h1 
-          className="text-2xl font-bold mb-4"
+          className="text-2xl text-center font-bold mb-4"
           style={{ color: colours.text.primary }}
         >
           Search for a Product
@@ -273,7 +273,7 @@ export default function ProductSearch() {
 
       <ContentBox className="opacity-0 animate-slide-in-bottom" style={{ animationDelay: '200ms' }}>
         {/* Barcode Scanner */}
-        <div className="w-full flex flex-col">
+        <div className="w-full flex items-center flex-col">
           <h1 
             className="text-2xl font-bold mb-4"
             style={{ color: colours.text.primary }}

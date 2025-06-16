@@ -13,7 +13,6 @@ import {
   ChartOptions,
 } from "chart.js";
 import { UserProfile } from '@/types/user';
-import EditButton from './EditButton';
 import Image from 'next/image';
 import { colours } from '@/styles/colours';
 
@@ -23,6 +22,10 @@ interface PreferencesRadarChartProps {
   userProfile: UserProfile;
   onPreferencesUpdate: (preferences: Partial<UserProfile>) => Promise<void>;
   isUpdating?: boolean;
+  isEditMode?: boolean;
+  onToggleEditMode?: () => void;
+  onSaveChanges?: () => void;
+  onCancelEdit?: () => void;
 }
 
 interface PreferenceItem {
@@ -72,8 +75,15 @@ const BUTTON_CONFIG: Record<string, { color: string; border: string; svg: string
 const DEFAULT_BTN_COLOR = "bg-zinc-100";
 const DEFAULT_BTN_BORDER = "border-zinc-200";
 
-export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate, isUpdating = false }: PreferencesRadarChartProps) {
-  const [isEditMode, setIsEditMode] = useState(false);
+export default function PreferencesRadarChart({ 
+  userProfile, 
+  onPreferencesUpdate, 
+  isUpdating = false,
+  isEditMode = false,
+  onToggleEditMode,
+  onSaveChanges,
+  onCancelEdit
+}: PreferencesRadarChartProps) {
   const [isClosing, setIsClosing] = useState(false); // New state for animation
   const [localPreferences, setLocalPreferences] = useState(() => {
     const prefs: Record<string, number> = {};
@@ -209,7 +219,7 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
         
         // Complete the closing animation
         setTimeout(() => {
-          setIsEditMode(false);
+          onSaveChanges?.();
           setIsClosing(false);
         }, 300); // Wait for the animation to complete
         
@@ -227,7 +237,7 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
         
         // Reset states
         setIsClosing(false);
-        setIsEditMode(false);
+        onCancelEdit?.();
       }
     }, 100); // Small delay to ensure animation starts
   };
@@ -249,7 +259,7 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
     
     // Complete the closing animation
     setTimeout(() => {
-      setIsEditMode(false);
+      onCancelEdit?.();
       setIsClosing(false);
     }, 300);
   };
@@ -285,7 +295,7 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
         min: 0,
         max: 5,
         ticks: { stepSize: 1, display: false },
-        grid: { color: "#9CA3AF" },
+        grid: { color: "#D1D5DB" },
         pointLabels: { color: colours.chart.text, font: { size: 16 } },
       },
     },
@@ -298,30 +308,18 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
   const radarPadding = 38;
   const maxRadius = (containerSize / 2) - (btnBase / 2) - margin;
   const minRadius = (containerSize / 2) - radarPadding;
-  const buttonRadius = Math.max(minRadius, Math.min(maxRadius, 160));
+  const buttonRadius = Math.max(minRadius, Math.min(maxRadius, 120)); // Reduced to align with pentagon vertices
   const center = containerSize / 2;
   const LABELS = ["Price", "Quality", "Nutrition", "Sustainability", "Brand"];
   const angleStep = (2 * Math.PI) / LABELS.length;
-  const offset = 1.2;
-  const verticalShift = 14;
+  const offset = 1.3; // Reduced from 1.4 to 1.0 to align with pentagon vertices
+  const verticalShift = 14.5;
 
   return (
     <div className="space-y-4">
       {/* Radar Chart */}
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center gap-4 pb-8">
         <div className="relative flex items-center justify-center" style={{ width: containerSize + 12, height: containerSize }}>
-          {/* Edit Button - positioned in top right */}
-          <div className="absolute top-0 right-0 z-10">
-            <EditButton
-              isEditMode={isEditMode}
-              onToggle={isEditMode ? (hasChanges ? handleSaveChanges : handleCancelEdit) : () => {
-                setIsEditMode(true);
-                setIsClosing(false); // Ensure isClosing is false when entering edit mode
-              }}
-              disabled={isUpdating}
-            />
-          </div>
-          
           {/* Radar Chart */}
           <div className="absolute left-0 top-0 w-full h-full flex items-center justify-center pointer-events-none">
             <Radar data={chartData} options={options} style={{ maxHeight: 240, maxWidth: 240 }} />
@@ -330,37 +328,66 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
           {/* Radar Buttons */}
           {LABELS.map((label, i) => {
             const angle = -Math.PI / 2 + i * angleStep;
-            const x = center + buttonRadius * Math.cos(angle) * offset - btnBase / 2;
-            const y = center + buttonRadius * Math.sin(angle) * offset - btnBase / 2 + verticalShift;
+            const x = center + buttonRadius * Math.cos(angle) * offset - btnBase / 2 + 6; // Added +6 to move all buttons right
+            let y = center + buttonRadius * Math.sin(angle) * offset - btnBase / 2 + verticalShift;
+            
+            // Move Price button slightly higher to get it out of the way
+            if (label === "Price") {
+              y -= 8; // Move 8px higher
+            }
+            
             const config = BUTTON_CONFIG[label] || { color: DEFAULT_BTN_COLOR, border: DEFAULT_BTN_BORDER, svg: preferences[i].svg };
             const delay = `${i * 80}ms`;
             
+            // Calculate label position (below the button, better centered)
+            const labelX = center + buttonRadius * Math.cos(angle) * offset + 6; // Added +6 to move labels right too
+            const labelY = y + btnBase + 4; // 4px below the button (closer than before)
+            
             return (
-              <div
-                key={label}
-                className={`absolute flex items-center justify-center rounded-xl shadow-lg border-2 border-black ${config.color}`}
-                style={{
-                  left: x,
-                  top: y,
-                  width: btnBase,
-                  height: btnBase,
-                  zIndex: 2,
-                  padding: 0,
-                  opacity: showButtons ? 1 : 0,
-                  transform: showButtons ? "scale(1)" : "scale(0.5)",
-                  transition: "transform 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.45s cubic-bezier(0.4,0,0.2,1)",
-                  transitionDelay: delay,
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-                }}
-              >
-                <Image
-                  src={config.svg}
-                  alt={label}
-                  width={20}
-                  height={20}
-                  className="w-5 h-5 filter grayscale brightness-0 invert-0"
-                  style={{ filter: "grayscale(1) brightness(0.6)" }}
-                />
+              <div key={label}>
+                <div
+                  className={`absolute flex items-center justify-center rounded-xl shadow-lg border-2 border-black ${config.color}`}
+                  style={{
+                    left: x,
+                    top: y,
+                    width: btnBase,
+                    height: btnBase,
+                    zIndex: 2,
+                    padding: 0,
+                    opacity: showButtons ? 1 : 0,
+                    transform: showButtons ? "scale(1)" : "scale(0.5)",
+                    transition: "transform 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.45s cubic-bezier(0.4,0,0.2,1)",
+                    transitionDelay: delay,
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                  }}
+                >
+                  <Image
+                    src={config.svg}
+                    alt={label}
+                    width={20}
+                    height={20}
+                    className="w-5 h-5 filter grayscale brightness-0 invert-0"
+                    style={{ filter: "grayscale(1) brightness(0.6)" }}
+                  />
+                </div>
+                
+                {/* Label text underneath the button */}
+                <span
+                  className="absolute text-xs font-medium pointer-events-none"
+                  style={{
+                    left: labelX,
+                    top: labelY,
+                    color: colours.text.secondary,
+                    opacity: showButtons ? 1 : 0,
+                    transform: `translateX(-50%) ${showButtons ? "scale(1)" : "scale(0.5)"}`, // Center horizontally with translateX(-50%)
+                    transition: "transform 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.45s cubic-bezier(0.4,0,0.2,1)",
+                    transitionDelay: delay,
+                    zIndex: 1,
+                    whiteSpace: 'nowrap', // Prevent text wrapping
+                  }}
+                >
+                  {label}
+                </span>
               </div>
             );
           })}
