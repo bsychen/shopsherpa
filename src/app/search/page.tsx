@@ -118,34 +118,44 @@ export default function ProductSearch() {
     handleSearch(debouncedQuery);
   }, [debouncedQuery, handleSearch]);
 
-  // Barcode scanner setup
+  // Barcode scanner setup - only after page has loaded
   useEffect(() => {
+    if (pageLoading) return; // Don't start camera until page is loaded
+    
     let active = true;
     let controls: { stop: () => void } | null = null;
 
-    (async () => {
-      const devices = await BrowserMultiFormatReader.listVideoInputDevices();
-      if (devices.length > 0 && videoRef.current) {
-        const codeReader = new BrowserMultiFormatReader();
-        controls = await codeReader.decodeFromVideoDevice(
-          devices[0].deviceId,
-          videoRef.current,
-          (result, _err, c) => {
-            if (result && active) {
-              router.push(`/product/${result.getText()}`);
-              c.stop();
-              active = false;
+    const startCamera = async () => {
+      try {
+        const devices = await BrowserMultiFormatReader.listVideoInputDevices();
+        if (devices.length > 0 && videoRef.current && active) {
+          const codeReader = new BrowserMultiFormatReader();
+          controls = await codeReader.decodeFromVideoDevice(
+            devices[0].deviceId,
+            videoRef.current,
+            (result, _err, c) => {
+              if (result && active) {
+                router.push(`/product/${result.getText()}`);
+                c.stop();
+                active = false;
+              }
             }
-          }
-        );
+          );
+        }
+      } catch (error) {
+        console.error('Failed to start camera:', error);
       }
-    })();
+    };
+
+    // Add a small delay to ensure video element is fully rendered
+    const timer = setTimeout(startCamera, 100);
 
     return () => {
       active = false;
+      clearTimeout(timer);
       if (controls) controls.stop();
     };
-  }, [router]);
+  }, [router, pageLoading]);
 
   const handleManualSearch = () => {
     handleSearch(query);
