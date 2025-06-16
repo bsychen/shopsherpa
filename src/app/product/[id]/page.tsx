@@ -4,7 +4,7 @@ import { useState, useEffect, use, Suspense, lazy, useMemo } from "react"
 import { Product } from "@/types/product"
 import { Review } from "@/types/review"
 import { ReviewSummary } from "@/types/reviewSummary"
-import { getProduct, getProductReviews, getReviewSummary, getBrandById, getProductsWithGenericName, getProductsByBrand, getUserById } from "@/lib/api"
+import { getProduct, getProductReviews, getReviewSummary, getBrandById, getProductsByBrand, getUserById, getSimilarProductsByCategories } from "@/lib/api"
 import { onAuthStateChanged, User } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
 import { useRouter } from "next/navigation"
@@ -152,6 +152,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   }>({ min: 0, max: 0, q1: 0, median: 0, q3: 0 });
   const [showAllergenWarning, setShowAllergenWarning] = useState(false);
   const [allergenWarningDismissed, setAllergenWarningDismissed] = useState(false);
+
+  const sameProducts = useMemo(() => {
+    if (!product) return [];
+    return [...similarProducts.filter(p => p.categoriesTags.includes(product.categoriesTags[product.categoriesTags.length - 1])), product];
+  }, [similarProducts, product]);
   
   // Calculate all radar chart scores
   const priceScore = product ? getQuartileScore(product.price || 0, priceStats.q1, priceStats.q3) : 3;
@@ -199,11 +204,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           // Filter out the current product and limit to 8 products
           setBrandProducts(brandProds.filter(p => p.id !== id).slice(0, 8));
         }
-        // Fetch similar products based on genericName
-        if (productData.genericNameLower) {
-          const similar = await getProductsWithGenericName(productData.genericNameLower);
-          // Filter out the current product and limit to 8 products
-          setSimilarProducts(similar.filter(p => p.id !== id).slice(0, 8));
+        // Fetch similar products based on categories_tags
+        if (productData.categoriesTags && productData.categoriesTags.length > 0) {
+          const similar = await getSimilarProductsByCategories(productData.categoriesTags, id);
+          setSimilarProducts(similar);
         }
       }
       setLoading(false);
@@ -320,11 +324,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   // Calculate price statistics when similar products change
   useEffect(() => {
-    if (!product || !similarProducts.length) return;
+    if (!product || !(sameProducts.length - 1)) return;
     
     const getPrice = (p: Product) => p.price || p.expectedPrice || 0;
-    const prices = [...similarProducts.map(getPrice), getPrice(product)].filter(p => p > 0);
-    
+    const prices = [...sameProducts.map(getPrice), getPrice(product)].filter(p => p > 0);
+
     if (prices.length) {
       setPriceStats({
         min: Math.min(...prices),
@@ -334,7 +338,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         q3: calculateQuartile(prices, 0.75)
       });
     }
-  }, [similarProducts, product]);
+  }, [sameProducts, product]);
 
   if (loading) {
     return <LoadingAnimation />;
@@ -427,8 +431,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             brandRating={brandRating}
             brandProducts={brandProducts}
             priceStats={priceStats}
-            maxPriceProduct={similarProducts.reduce((max, p) => (!max || (p.price || 0) > (max.price || 0)) ? p : max, null)}
-            minPriceProduct={similarProducts.reduce((min, p) => (!min || (p.price || 0) < (min.price || 0)) ? p : min, null)}
+            maxPriceProduct={sameProducts.reduce((max, p) => (!max || (p.price || 0) > (max.price || 0)) ? p : max, null)}
+            minPriceProduct={sameProducts.reduce((min, p) => (!min || (p.price || 0) < (min.price || 0)) ? p : min, null)}
           />
           {(product.alergenInformation && product.alergenInformation.length > 0 || product.labels && product.labels.length > 0 || product.countryOfOriginCode) && (
             <div className="w-full">

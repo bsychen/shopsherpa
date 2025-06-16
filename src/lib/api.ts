@@ -154,3 +154,10 @@ export async function getProductsByBrand(brandId: string): Promise<Product[]> {
   if (!res.ok) return [];
   return await res.json();
 }
+
+export async function getSimilarProductsByCategories(categoriesTags: string[], currentProductId: string): Promise<Product[]> {
+  const tagsParam = categoriesTags.join(',');
+  const res = await fetch(`/api/products/similar?tags=${encodeURIComponent(tagsParam)}&currentId=${encodeURIComponent(currentProductId)}`);
+  if (!res.ok) return [];
+  return await res.json();
+}
