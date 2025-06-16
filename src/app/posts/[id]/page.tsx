@@ -3,7 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/lib/firebaseClient";
+import { collection, query, where, onSnapshot, doc, addDoc, serverTimestamp, updateDoc, increment, arrayUnion, arrayRemove } from "firebase/firestore";
+import { auth, db } from "@/lib/firebaseClient";
 import Link from "next/link";
 import Image from "next/image";
 import { MessageCircle, Send, Package, Search, X } from "lucide-react";
@@ -32,6 +33,8 @@ export default function PostPage() {
   const [commentProducts, setCommentProducts] = useState<Product[]>([]);
   const [selectedCommentProduct, setSelectedCommentProduct] = useState<Product | null>(null);
   const [showCommentProductSearch, setShowCommentProductSearch] = useState(false);
+  const [isRealTimeActive, setIsRealTimeActive] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -51,6 +54,20 @@ export default function PostPage() {
       resetTopBar();
     };
   }, [setTopBarState, resetTopBar]);
+
+  // Monitor online/offline status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const searchProducts = async (term: string) => {
     try {
@@ -92,12 +109,91 @@ export default function PostPage() {
     }
   }, [postId]);
 
+  // Set up real-time listener for comments
+  useEffect(() => {
+    if (!postId) return;
+
+    const commentsRef = collection(db, 'comments');
+    // Note: We'll sort in JavaScript to avoid composite index requirements
+    const commentsQuery = query(
+      commentsRef,
+      where('postId', '==', postId)
+    );
+
+    const unsubscribe = onSnapshot(commentsQuery, async (snapshot) => {
+      setIsRealTimeActive(true);
+      const commentsData = await Promise.all(
+        snapshot.docs.map(async (docSnapshot) => {
+          const data = docSnapshot.data();
+          let linkedProduct = null;
+
+          // Fetch linked product details if exists
+          if (data.linkedProductId) {
+            try {
+              const response = await fetch(`/api/products/${data.linkedProductId}`);
+              if (response.ok) {
+                const productData = await response.json();
+                linkedProduct = {
+                  id: data.linkedProductId,
+                  name: productData?.productName,
+                  imageUrl: productData?.imageUrl,
+                };
+              }
+            } catch (error) {
+              console.error('Error fetching linked product:', error);
+            }
+          }
+
+          return {
+            id: docSnapshot.id,
+            postId: data.postId,
+            content: data.content,
+            authorId: data.authorId,
+            authorName: data.authorName,
+            linkedProductId: data.linkedProductId,
+            linkedProduct,
+            likes: data.likes || [],
+            dislikes: data.dislikes || [],
+            parentCommentId: data.parentCommentId,
+            createdAt: data.createdAt?.toDate?.() ? data.createdAt.toDate().toISOString() : data.createdAt,
+            updatedAt: data.updatedAt?.toDate?.() ? data.updatedAt.toDate().toISOString() : data.updatedAt,
+          } as Comment;
+        })
+      );
+
+      // Sort comments by createdAt in JavaScript
+      commentsData.sort((a, b) => {
+        const aTime = new Date(a.createdAt).getTime();
+        const bTime = new Date(b.createdAt).getTime();
+        return aTime - bTime;
+      });
+
+      // Filter out optimistic updates and merge with real data
+      setComments(prevComments => {
+        const tempComments = prevComments.filter(c => c.id.startsWith('temp-'));
+        const realComments = commentsData;
+        return [...realComments, ...tempComments];
+      });
+      setLoadingComments(false);
+    }, (error) => {
+      console.error('Error in comments listener:', error);
+      setIsRealTimeActive(false);
+      setLoadingComments(false);
+      // Fallback to API call if real-time fails
+      fetchComments();
+    });
+
+    return () => {
+      setIsRealTimeActive(false);
+      unsubscribe();
+    };
+  }, [postId, fetchComments]);
+
   useEffect(() => {
     if (postId) {
       fetchPost();
-      fetchComments();
     }
-  }, [postId, fetchPost, fetchComments]);
+  }, [postId, fetchPost]);
 
   useEffect(() => {
     if (commentProductSearch.length > 2) {
@@ -112,37 +208,75 @@ export default function PostPage() {
     if (!user || !newComment.trim()) return;
 
     setSubmittingComment(true);
+    
+    // Optimistic update - add comment immediately to UI
+    const optimisticComment: Comment = {
+      id: `temp-${Date.now()}`, // Temporary ID
+      postId: postId,
+      content: newComment.trim(),
+      authorId: user.uid,
+      authorName: user.displayName || user.email || 'Anonymous',
+      linkedProductId: selectedCommentProduct?.id,
+      linkedProduct: selectedCommentProduct ? {
+        id: selectedCommentProduct.id,
+        name: selectedCommentProduct.productName,
+        imageUrl: selectedCommentProduct.imageUrl,
+      } : undefined,
+      likes: [],
+      dislikes: [],
+      parentCommentId: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Add optimistic comment to UI
+    setComments(prev => [...prev, optimisticComment]);
+
+    // Clear form immediately
+    const commentText = newComment.trim();
+    const linkedProduct = selectedCommentProduct;
+    setNewComment("");
+    setSelectedCommentProduct(null);
+    setCommentProductSearch('');
+    setShowCommentProductSearch(false);
+
     try {
-      const response = await fetch(`/api/posts/${postId}/comments`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: newComment.trim(),
-          authorId: user.uid,
-          authorName: user.displayName || user.email,
-          linkedProductId: selectedCommentProduct?.id,
-        }),
+      // Add comment to Firestore
+      const commentData = {
+        postId: postId,
+        content: commentText,
+        authorId: user.uid,
+        authorName: user.displayName || user.email,
+        linkedProductId: linkedProduct?.id || null,
+        parentCommentId: null,
+        likes: [],
+        dislikes: [],
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      };
+
+      await addDoc(collection(db, 'comments'), commentData);
+
+      // Update post comment count
+      const postRef = doc(db, 'posts', postId);
+      await updateDoc(postRef, {
+        commentCount: increment(1),
       });
 
-      if (response.ok) {
-        const newCommentData = await response.json();
-        setComments([...comments, newCommentData]);
-        setNewComment("");
-        setSelectedCommentProduct(null);
-        setCommentProductSearch('');
-        setShowCommentProductSearch(false);
-        // Update post comment count
-        if (post) {
-          setPost({
-            ...post,
-            commentCount: post.commentCount + 1,
-          });
-        }
+      // Update post state locally
+      if (post) {
+        setPost({
+          ...post,
+          commentCount: post.commentCount + 1,
+        });
       }
     } catch (error) {
       console.error('Error creating comment:', error);
+      // Remove optimistic comment on error
+      setComments(prev => prev.filter(c => c.id !== optimisticComment.id));
+      // Restore form values on error
+      setNewComment(commentText);
+      setSelectedCommentProduct(linkedProduct);
     } finally {
       setSubmittingComment(false);
     }
@@ -152,20 +286,31 @@ export default function PostPage() {
     if (!user) return;
 
     try {
-      const response = await fetch(`/api/comments/${commentId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action,
-          userId: user.uid,
-        }),
-      });
-
-      if (response.ok) {
-        // Refresh comments to get updated like/dislike counts
-        fetchComments();
+      const commentRef = doc(db, 'comments', commentId);
+      
+      switch (action) {
+        case 'like':
+          await updateDoc(commentRef, {
+            likes: arrayUnion(user.uid),
+            dislikes: arrayRemove(user.uid),
+          });
+          break;
+        case 'dislike':
+          await updateDoc(commentRef, {
+            dislikes: arrayUnion(user.uid),
+            likes: arrayRemove(user.uid),
+          });
+          break;
+        case 'unlike':
+          await updateDoc(commentRef, {
+            likes: arrayRemove(user.uid),
+          });
+          break;
+        case 'undislike':
+          await updateDoc(commentRef, {
+            dislikes: arrayRemove(user.uid),
+          });
+          break;
       }
     } catch (error) {
       console.error('Error updating comment:', error);
@@ -248,6 +393,18 @@ export default function PostPage() {
             <h2 className="text-lg sm:text-xl font-bold" style={{ color: colours.text.primary }}>
               Comments ({comments.length})
             </h2>
+            {isRealTimeActive && isOnline && (
+              <div className="flex items-center gap-1 text-xs" style={{ color: colours.status.success.text }}>
+                <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: colours.status.success.text }}></div>
+                <span>Live</span>
+              </div>
+            )}
+            {!isOnline && (
+              <div className="flex items-center gap-1 text-xs" style={{ color: colours.status.warning.text }}>
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colours.status.warning.text }}></div>
+                <span>Offline</span>
+              </div>
+            )}
           </div>
 
           {/* Comment Form */}

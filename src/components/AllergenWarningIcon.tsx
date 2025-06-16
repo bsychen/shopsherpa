@@ -16,17 +16,17 @@ export default function AllergenWarningIcon({ hasAllergens, onClick }: AllergenW
   return (
     <button
       onClick={onClick}
-      className="absolute bottom-0 right-0 flex items-center justify-center transition-all duration-200 transform z-10"
+      className="flex items-center justify-center transition-all duration-200 transform hover:scale-110"
       style={{ 
-        width: '24px',
-        height: '24px',
-        transform: 'translate(3px, -3px)', // Position it slightly outside the corner
+        width: '32px',
+        height: '32px',
         color: colours.status.error.icon,
         backgroundColor: 'transparent',
+        marginRight: '8px', // Pull the icon to align with the content box padding
       }}
       aria-label="Allergen warning - click to view details"
     >
-      <div className="w-4 h-4">
+      <div className="w-6 h-6">
         <Warn/>
       </div>
     </button>

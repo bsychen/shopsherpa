@@ -29,6 +29,15 @@
     transform: translateY(0) scale(1); 
   }
 }
+
+@keyframes slideIn {
+  from { 
+    transform: translateX(-100%); 
+  }
+  to { 
+    transform: translateX(0); 
+  }
+}
 .animate-slide-up-expand {
   animation: slide-up-expand 0.5s cubic-bezier(0.4,0,0.2,1) forwards;
 }

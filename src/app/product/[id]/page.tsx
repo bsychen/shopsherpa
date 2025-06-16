@@ -67,6 +67,29 @@ function getNutritionScore(grade: string): number {
   return scores[grade.toLowerCase()] || 2;
 }
 
+// Convert eco score to sustainability score (use ecoscore if available, fallback to sustainbilityScore)
+function getSustainabilityScore(product: Product): number {
+  // Check if ecoscore is available and not "not-applicable"
+  if (product.ecoInformation?.ecoscoreScore !== undefined) {
+    // Convert 0-100 ecoscore to 1-5 scale
+    return Math.max(1, Math.min(5, Math.round((product.ecoInformation.ecoscoreScore / 100) * 5)));
+  }
+  
+  // Check for ecoscore grade
+  if (product.ecoInformation?.ecoscore && product.ecoInformation.ecoscore !== 'not-applicable') {
+    const gradeScores: Record<string, number> = {
+      'a': 5,
+      'b': 4, 
+      'c': 3,
+      'd': 2,
+      'e': 1
+    };
+    return gradeScores[product.ecoInformation.ecoscore.toLowerCase()] || 3;
+  }
+  
+  return product.sustainbilityScore || 3;
+}
+
 // Calculate weighted match percentage based on user preferences and product scores
 function calculateMatchPercentage(
   scores: { price: number; quality: number; nutrition: number; sustainability: number; brand: number },
@@ -133,7 +156,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const priceScore = product ? getQuartileScore(product.price || 0, priceStats.q1, priceStats.q3) : 3;
   const qualityScore = reviewSummary?.averageRating || 3;
   const nutritionScore = product ? getNutritionScore(product.combinedNutritionGrade || '') : 2;
-  const sustainabilityScore = product?.sustainbilityScore || 3;
+  const sustainabilityScore = product ? getSustainabilityScore(product) : 3;
   const brandScore = brandRating;
   
   // Calculate match percentage based on user preferences
@@ -393,6 +416,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             product={product}
             reviewSummary={reviewSummary}
             brandRating={brandRating}
+            brandProducts={brandProducts}
             priceStats={priceStats}
             maxPriceProduct={similarProducts.reduce((max, p) => (!max || (p.price || 0) > (max.price || 0)) ? p : max, null)}
             minPriceProduct={similarProducts.reduce((min, p) => (!min || (p.price || 0) < (min.price || 0)) ? p : min, null)}

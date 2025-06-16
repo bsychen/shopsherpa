@@ -5,6 +5,7 @@ import { ReviewSummary } from "@/types/reviewSummary";
 import PriceSpectrum from "./PriceSpectrum";
 import { colours } from "@/styles/colours";
 import StarIcon from "./Icons";
+import { getReviewSummary } from "@/lib/api";
 
 const TAB_ICONS: Record<string, React.ReactNode> = {
   Price: <Image src="/pound-svgrepo-com.svg" alt="Price" width={24} height={24} className="w-6 h-6" />,
@@ -20,6 +21,7 @@ interface TabbedInfoBoxProps {
   product: Product;
   reviewSummary: ReviewSummary;
   brandRating?: number;
+  brandProducts?: Product[];
   priceStats?: {
         min: number;
         max: number;
@@ -37,6 +39,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   product,
   reviewSummary,
   brandRating = 3,
+  brandProducts = [],
   priceStats = { min: 0, max: 0, q1: 0, median: 0, q3: 0 },
   maxPriceProduct = null,
   minPriceProduct = null,
@@ -46,6 +49,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   const [animatedBrand, setAnimatedBrand] = useState(0);
   const [animatedSustainability, setAnimatedSustainability] = useState(0);
   const [animatedNutrition, setAnimatedNutrition] = useState(0);
+  const [brandReviewSummaries, setBrandReviewSummaries] = useState<Record<string, ReviewSummary>>({});
 
   const tabRefs = useRef([]);
   const [barStyle, setBarStyle] = useState({ left: 0, width: 0 });
@@ -69,6 +73,96 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
     return scores[grade.toLowerCase()] || 2;
   }
 
+  // Fetch review summaries for all brand products
+  useEffect(() => {
+    if (!brandProducts.length) return;
+
+    const fetchBrandReviewSummaries = async () => {
+      const summaries: Record<string, ReviewSummary> = {};
+      
+      // Include current product
+      const allBrandProducts = [...brandProducts, product];
+      
+      try {
+        await Promise.all(
+          allBrandProducts.map(async (brandProduct) => {
+            const summary = await getReviewSummary(brandProduct.id);
+            if (summary) {
+              summaries[brandProduct.id] = summary;
+            }
+          })
+        );
+        setBrandReviewSummaries(summaries);
+      } catch (error) {
+        console.error('Error fetching brand review summaries:', error);
+      }
+    };
+
+    fetchBrandReviewSummaries();
+  }, [brandProducts, product]);
+
+  // Calculate brand statistics from brandProducts
+  const calculateBrandStats = useMemo(() => {
+    if (!brandProducts.length) return null;
+
+    // Include current product in calculations
+    const allBrandProducts = [...brandProducts, product];
+
+    // Price statistics (use quartile-based scoring like the main product)
+    const prices = allBrandProducts.map(p => p.price || 0).filter(p => p > 0);
+    let priceScore = 3; // default
+    if (prices.length > 0) {
+      const sortedPrices = [...prices].sort((a, b) => a - b);
+      const q1 = sortedPrices[Math.floor(sortedPrices.length * 0.25)] || sortedPrices[0];
+      const q3 = sortedPrices[Math.floor(sortedPrices.length * 0.75)] || sortedPrices[sortedPrices.length - 1];
+      const averagePrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+      
+      // Lower prices get higher scores
+      if (averagePrice <= q1) priceScore = 5;
+      else if (averagePrice >= q3) priceScore = 2;
+      else priceScore = 4 - ((averagePrice - q1) / (q3 - q1)) * 2; // Scale between 2-4
+    }
+
+    // Quality statistics (based on actual review ratings from all brand products)
+    const reviewRatings = allBrandProducts
+      .map(p => brandReviewSummaries[p.id]?.averageRating)
+      .filter(rating => rating !== undefined && rating > 0);
+    
+    let qualityScore = brandRating; // fallback to brandRating if no review data
+    if (reviewRatings.length > 0) {
+      qualityScore = reviewRatings.reduce((a, b) => a + b, 0) / reviewRatings.length;
+    }
+
+    // Nutrition statistics
+    const nutritionScores = allBrandProducts.map(p => getNutritionScore(p.combinedNutritionGrade || ''));
+    const averageNutrition = nutritionScores.length > 0 
+      ? nutritionScores.reduce((a, b) => a + b, 0) / nutritionScores.length 
+      : 2;
+
+    // Sustainability statistics
+    const sustainabilityScores = allBrandProducts.map(p => p.sustainbilityScore || 3);
+    const averageSustainability = sustainabilityScores.length > 0
+      ? sustainabilityScores.reduce((a, b) => a + b, 0) / sustainabilityScores.length
+      : 3;
+
+    // Calculate overall brand score as average of all components
+    const roundedPrice = Math.round(priceScore * 10) / 10;
+    const roundedQuality = Math.round(qualityScore * 10) / 10;
+    const roundedNutrition = Math.round(averageNutrition * 10) / 10;
+    const roundedSustainability = Math.round(averageSustainability * 10) / 10;
+    
+    const overallBrandScore = Math.round(((roundedPrice + roundedQuality + roundedNutrition + roundedSustainability) / 4) * 10) / 10;
+
+    return {
+      price: roundedPrice,
+      quality: roundedQuality,
+      nutrition: roundedNutrition,
+      sustainability: roundedSustainability,
+      overallScore: overallBrandScore,
+      productCount: allBrandProducts.length
+    };
+  }, [brandProducts, product, brandRating, brandReviewSummaries]);
+
   // Animation trigger function
   const triggerAnimation = (tab: string) => {
     if (tab === "Quality") {
@@ -76,10 +170,22 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
       setTimeout(() => setAnimatedQuality(reviewSummary?.averageRating || 0), 50);
     } else if (tab === "Brand") {
       setAnimatedBrand(0);
-      setTimeout(() => setAnimatedBrand(brandRating), 50);
+      setTimeout(() => setAnimatedBrand(calculateBrandStats?.overallScore || brandRating), 50);
     } else if (tab === "Sustainability") {
       setAnimatedSustainability(0);
-      setTimeout(() => setAnimatedSustainability(product?.sustainbilityScore || 3), 50);
+      // Use the same logic as in the main page
+      let sustainabilityScore = 3;
+      if (product?.ecoInformation?.ecoscoreScore !== undefined) {
+        sustainabilityScore = Math.max(1, Math.min(5, Math.round((product.ecoInformation.ecoscoreScore / 100) * 5)));
+      } else if (product?.ecoInformation?.ecoscore && product.ecoInformation.ecoscore !== 'not-applicable') {
+        const gradeScores: Record<string, number> = {
+          'a': 5, 'b': 4, 'c': 3, 'd': 2, 'e': 1
+        };
+        sustainabilityScore = gradeScores[product.ecoInformation.ecoscore.toLowerCase()] || 3;
+      } else {
+        sustainabilityScore = product?.sustainbilityScore || 3;
+      }
+      setTimeout(() => setAnimatedSustainability(sustainabilityScore), 50);
     } else if (tab === "Nutrition") {
       setAnimatedNutrition(0);
       setTimeout(() => setAnimatedNutrition(getNutritionScore(product?.combinedNutritionGrade || '')), 50);
@@ -124,7 +230,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
         setBoxHeight(newHeight + 50); // Add tab height
       });
     }
-  }, [activeTab, product, reviewSummary, showMinProduct, showMaxProduct, isCollapsed]);
+  }, [activeTab, product, reviewSummary, showMinProduct, showMaxProduct, isCollapsed, calculateBrandStats]);
 
   useEffect(() => {
     if (!isCollapsed && activeTab !== "") {
@@ -413,96 +519,227 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
             >
               Nutrition
             </h2>
-            <div className="flex flex-col items-center justify-center gap-2">
-              <span className="relative inline-block w-24 h-24 align-middle">
-                <svg width="96" height="96" viewBox="0 0 96 96" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
-                  <circle
-                    cx="48" cy="48" r="40"
-                    fill="none"
-                    stroke={(() => {
-                      const score = animatedNutrition;
-                      if (score <= 2) return colours.score.low;
-                      if (score <= 3) return colours.score.medium;
-                      return colours.score.high;
-                    })()}
-                    strokeWidth="8"
-                    strokeDasharray={Math.PI * 2 * 40}
-                    strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedNutrition / 5))}
-                    strokeLinecap="round"
-                    style={{
-                      transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1), stroke 0.7s cubic-bezier(0.4,0,0.2,1)',
-                      transform: 'rotate(-90deg)',
-                      transformOrigin: 'center center',
-                    }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span 
-                    className="text-4xl font-bold"
-                    style={{
-                      color: (() => {
+            <div className="flex flex-col items-center justify-center gap-4 w-full">
+              {/* Nutrition Grade Circle */}
+              <div className="flex flex-col items-center gap-2">
+                <span className="relative inline-block w-24 h-24 align-middle">
+                  <svg width="96" height="96" viewBox="0 0 96 96" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
+                    <circle
+                      cx="48" cy="48" r="40"
+                      fill="none"
+                      stroke={(() => {
                         const score = animatedNutrition;
                         if (score <= 2) return colours.score.low;
                         if (score <= 3) return colours.score.medium;
                         return colours.score.high;
-                      })()
-                    }}
+                      })()}
+                      strokeWidth="8"
+                      strokeDasharray={Math.PI * 2 * 40}
+                      strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedNutrition / 5))}
+                      strokeLinecap="round"
+                      style={{
+                        transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1), stroke 0.7s cubic-bezier(0.4,0,0.2,1)',
+                        transform: 'rotate(-90deg)',
+                        transformOrigin: 'center center',
+                      }}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span 
+                      className="text-4xl font-bold"
+                      style={{
+                        color: (() => {
+                          const score = animatedNutrition;
+                          if (score <= 2) return colours.score.low;
+                          if (score <= 3) return colours.score.medium;
+                          return colours.score.high;
+                        })()
+                      }}
+                    >
+                      {product.combinedNutritionGrade?.toUpperCase() || '?'}
+                    </span>
+                  </div>
+                </span>
+                <span 
+                  className="text-sm font-medium"
+                  style={{ color: colours.text.secondary }}
+                >
+                  Nutrition Grade
+                </span>
+              </div>
+
+              {/* Nutrition Macros per 100g */}
+              {product.nutritionMacros && Object.values(product.nutritionMacros).some(value => value !== undefined) && (
+                <div className="w-full mt-4">
+                  <h3 
+                    className="text-md font-semibold mb-3 text-center"
+                    style={{ color: colours.text.primary }}
                   >
-                    {product.combinedNutritionGrade?.toUpperCase() || '?'}
-                  </span>
+                    Nutrition Facts (per 100g)
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3 w-full max-w-sm mx-auto">
+                    {product.nutritionMacros.energy !== undefined && (
+                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Energy</span>
+                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.energy} kcal</span>
+                      </div>
+                    )}
+                    {product.nutritionMacros.proteins !== undefined && (
+                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Protein</span>
+                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.proteins}g</span>
+                      </div>
+                    )}
+                    {product.nutritionMacros.carbohydrates !== undefined && (
+                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Carbs</span>
+                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.carbohydrates}g</span>
+                      </div>
+                    )}
+                    {product.nutritionMacros.sugars !== undefined && (
+                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Sugars</span>
+                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.sugars}g</span>
+                      </div>
+                    )}
+                    {product.nutritionMacros.fat !== undefined && (
+                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Fat</span>
+                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.fat}g</span>
+                      </div>
+                    )}
+                    {product.nutritionMacros.saturatedFat !== undefined && (
+                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Sat. Fat</span>
+                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.saturatedFat}g</span>
+                      </div>
+                    )}
+                    {product.nutritionMacros.fiber !== undefined && (
+                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Fiber</span>
+                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.fiber}g</span>
+                      </div>
+                    )}
+                    {product.nutritionMacros.sodium !== undefined && (
+                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Sodium</span>
+                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{(product.nutritionMacros.sodium * 1000).toFixed(0)}mg</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </span>
-              <span 
-                className="text-sm font-medium"
-                style={{ color: colours.text.secondary }}
-              >
-                Nutrition Grade
-              </span>
+              )}
             </div>
           </div>
         )}
         {activeTab === "Brand" && product && (
-          <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
+          <div className="w-full flex flex-col opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
             <h2 
-              className="text-lg font-bold mb-2 self-start"
+              className="text-lg font-bold mb-4 self-start"
               style={{ color: colours.text.primary }}
             >
-              Brand
+              Brand Performance
             </h2>
-            <div className="flex flex-col items-center justify-center gap-2">
-              <span className="relative inline-block w-24 h-24 align-middle">
-                <svg width="96" height="96" viewBox="0 0 96 96" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
-                  <circle
-                    cx="48" cy="48" r="40"
-                    fill="none"
-                    stroke={colours.chart.primary}
-                    strokeWidth="8"
-                    strokeDasharray={Math.PI * 2 * 40}
-                    strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedBrand / 5))}
-                    strokeLinecap="round"
-                    style={{
-                      transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
-                      transform: 'rotate(-90deg)',
-                      transformOrigin: 'center center',
-                    }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-4xl">🏢</span>
-                  <span 
-                    className="text-2xl font-bold"
-                    style={{ color: colours.text.primary }}
-                  >
-                    {animatedBrand}
-                  </span>
+            <div className="flex items-center gap-6">
+              {/* Brand Score Circle - Smaller and on the left */}
+              <div className="flex flex-col items-center">
+                <span className="relative inline-block w-16 h-16 align-middle">
+                  <svg width="64" height="64" viewBox="0 0 64 64" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
+                    <circle
+                      cx="32" cy="32" r="28"
+                      fill="none"
+                      stroke={colours.chart.primary}
+                      strokeWidth="6"
+                      strokeDasharray={Math.PI * 2 * 28}
+                      strokeDashoffset={Math.PI * 2 * 28 * (1 - (animatedBrand / 5))}
+                      strokeLinecap="round"
+                      style={{
+                        transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
+                        transform: 'rotate(-90deg)',
+                        transformOrigin: 'center center',
+                      }}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-2xl">🏢</span>
+                    <span 
+                      className="text-lg font-bold"
+                      style={{ color: colours.text.primary }}
+                    >
+                      {animatedBrand}
+                    </span>
+                  </div>
+                </span>
+                <span 
+                  className="text-xs font-medium mt-1 text-center"
+                  style={{ color: colours.text.secondary }}
+                >
+                  Brand Score
+                </span>
+              </div>
+
+              {/* Brand Stats Bar Graph - On the right */}
+              <div className="flex-1">
+                <div 
+                  className="text-sm font-medium mb-3"
+                  style={{ color: colours.text.primary }}
+                >
+                  Average Performance
                 </div>
-              </span>
-              <span 
-                className="text-sm font-medium"
-                style={{ color: colours.text.secondary }}
-              >
-                {product.brandName || 'Unknown'}
-              </span>
+                <div className="space-y-3">
+                  {calculateBrandStats ? [
+                    { label: 'Price', value: calculateBrandStats.price, color: '#ECCC36' }, // colourMap.yellow for price
+                    { label: 'Quality', value: calculateBrandStats.quality, color: '#D24330' }, // colourMap.red for quality
+                    { label: 'Nutrition', value: calculateBrandStats.nutrition, color: '#3b82f6' }, // blue for nutrition
+                    { label: 'Sustainability', value: calculateBrandStats.sustainability, color: '#309563' } // colourMap.green for sustainability
+                  ].map((stat, index) => (
+                    <div key={stat.label} className="flex items-center gap-3">
+                      <span 
+                        className="text-xs font-medium w-20 text-right"
+                        style={{ color: colours.text.secondary }}
+                      >
+                        {stat.label}
+                      </span>
+                      <div className="flex-1 max-w-24">
+                        <div 
+                          className="flex items-center h-4 rounded-full overflow-hidden"
+                          style={{ backgroundColor: colours.content.surfaceSecondary }}
+                        >
+                          <div
+                            className="h-full rounded-full transition-all duration-1000 ease-out opacity-0 animate-fade-in"
+                            style={{
+                              width: `${(stat.value / 5) * 100}%`,
+                              backgroundColor: stat.color,
+                              animationDelay: `${0.3 + index * 0.1}s`
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <span 
+                        className="text-xs font-medium w-8"
+                        style={{ color: colours.text.primary }}
+                      >
+                        {stat.value.toFixed(1)}
+                      </span>
+                    </div>
+                  )) : (
+                    <div 
+                      className="text-sm text-center py-4"
+                      style={{ color: colours.text.secondary }}
+                    >
+                      Not enough brand data available
+                    </div>
+                  )}
+                </div>
+                {calculateBrandStats && (
+                  <div 
+                    className="text-xs mt-3 text-center"
+                    style={{ color: colours.text.secondary }}
+                  >
+                    Based on {calculateBrandStats.productCount} products
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -514,54 +751,138 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
             >
               Sustainability
             </h2>
-            <div className="flex flex-col items-center justify-center gap-2">
-              <span className="relative inline-block w-24 h-24 align-middle">
-                <svg width="96" height="96" viewBox="0 0 96 96" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
-                  <circle
-                    cx="48" cy="48" r="40"
-                    fill="none"
-                    stroke={colours.chart.secondary}
-                    strokeWidth="8"
-                    strokeDasharray={Math.PI * 2 * 40}
-                    strokeDashoffset={Math.PI * 2 * 40}
-                    strokeLinecap="round"
-                    style={{
-                      transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
-                      transform: 'rotate(-90deg)',
-                      transformOrigin: 'center center',
-                    }}
-                  />
-                  <circle
-                    cx="48" cy="48" r="40"
-                    fill="none"
-                    stroke={colours.score.high}
-                    strokeWidth="8"
-                    strokeDasharray={Math.PI * 2 * 40}
-                    strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedSustainability / 5))}
-                    strokeLinecap="round"
-                    style={{
-                      transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
-                      transform: 'rotate(-90deg)',
-                      transformOrigin: 'center center',
-                    }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-4xl">🌱</span>
-                  <span 
-                    className="text-2xl font-bold"
+            <div className="flex flex-col items-center justify-center gap-4 w-full">
+              {/* Sustainability Score Circle */}
+              <div className="flex flex-col items-center gap-2">
+                <span className="relative inline-block w-24 h-24 align-middle">
+                  <svg width="96" height="96" viewBox="0 0 96 96" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
+                    <circle
+                      cx="48" cy="48" r="40"
+                      fill="none"
+                      stroke={colours.chart.secondary}
+                      strokeWidth="8"
+                      strokeDasharray={Math.PI * 2 * 40}
+                      strokeDashoffset={Math.PI * 2 * 40}
+                      strokeLinecap="round"
+                      style={{
+                        transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
+                        transform: 'rotate(-90deg)',
+                        transformOrigin: 'center center',
+                      }}
+                    />
+                    <circle
+                      cx="48" cy="48" r="40"
+                      fill="none"
+                      stroke={colours.score.high}
+                      strokeWidth="8"
+                      strokeDasharray={Math.PI * 2 * 40}
+                      strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedSustainability / 5))}
+                      strokeLinecap="round"
+                      style={{
+                        transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
+                        transform: 'rotate(-90deg)',
+                        transformOrigin: 'center center',
+                      }}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-4xl">🌱</span>
+                    <span 
+                      className="text-2xl font-bold"
+                      style={{ color: colours.text.primary }}
+                    >
+                      {animatedSustainability}
+                    </span>
+                  </div>
+                </span>
+                <span 
+                  className="text-sm font-medium"
+                  style={{ color: colours.text.secondary }}
+                >
+                  Sustainability Score
+                </span>
+              </div>
+
+              {/* Eco Information */}
+              {product.ecoInformation && (
+                <div className="w-full mt-4">
+                  <h3 
+                    className="text-md font-semibold mb-3 text-center"
                     style={{ color: colours.text.primary }}
                   >
-                    {animatedSustainability}
-                  </span>
+                    Environmental Impact
+                  </h3>
+                  <div className="space-y-3 w-full max-w-sm mx-auto">
+                    {/* Eco Score */}
+                    {(product.ecoInformation.ecoscore || product.ecoInformation.ecoscoreScore !== undefined) && (
+                      <div className="flex justify-between items-center p-3 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">🌍</span>
+                          <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Eco Score</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {product.ecoInformation.ecoscore && (
+                            <span 
+                              className="text-lg font-bold px-2 py-1 rounded"
+                              style={{ 
+                                color: colours.text.primary,
+                                backgroundColor: product.ecoInformation.ecoscore === 'a' ? colours.score.high :
+                                                product.ecoInformation.ecoscore === 'b' ? colours.score.medium :
+                                                product.ecoInformation.ecoscore === 'c' ? colours.score.medium :
+                                                colours.score.low
+                              }}
+                            >
+                              {product.ecoInformation.ecoscore.toUpperCase()}
+                            </span>
+                          )}
+                          {product.ecoInformation.ecoscoreScore !== undefined && (
+                            <span className="text-sm font-bold" style={{ color: colours.text.primary }}>
+                              {product.ecoInformation.ecoscoreScore}/100
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Packaging Information */}
+                    {product.ecoInformation.packagingInfo && product.ecoInformation.packagingInfo.length > 0 && (
+                      <div className="p-3 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xl">📦</span>
+                          <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Packaging</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {product.ecoInformation.packagingInfo.slice(0, 5).map((item, index) => (
+                            <span 
+                              key={index}
+                              className="text-xs px-2 py-1 rounded-full"
+                              style={{ 
+                                backgroundColor: colours.tag.default.background,
+                                color: colours.tag.default.text,
+                                fontSize: '10px'
+                              }}
+                            >
+                              {item.replace(/^en:/, '').replace(/-/g, ' ')}
+                            </span>
+                          ))}
+                          {product.ecoInformation.packagingInfo.length > 5 && (
+                            <span 
+                              className="text-xs px-2 py-1 rounded-full"
+                              style={{ 
+                                backgroundColor: colours.tag.default.background,
+                                color: colours.tag.default.text,
+                                fontSize: '10px'
+                              }}
+                            >
+                              +{product.ecoInformation.packagingInfo.length - 5} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </span>
-              <span 
-                className="text-sm font-medium"
-                style={{ color: colours.text.secondary }}
-              >
-                Sustainability Score
-              </span>
+              )}
             </div>
           </div>
         )}
