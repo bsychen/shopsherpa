@@ -15,6 +15,7 @@ import SimilarProducts from "@/components/SimilarProducts";
 import ProductsByBrand from "@/components/ProductsByBrand";
 import ProductReviews from "@/components/ProductReviews";
 import AllergenWarning from "@/components/AllergenWarning";
+import AllergenWarningIcon from "@/components/AllergenWarningIcon";
 import ContentBox from "@/components/ContentBox";
 import { UserProfile } from "@/types/user";
 import { colours } from "@/styles/colours";
@@ -351,12 +352,18 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         {/* Header with title, product name and ID */}
         <div className="w-full flex items-center gap-3 mb-4">
           <div className="flex-1 min-w-0">
-            <h1 
-              className="text-2xl font-bold text-left m-0 p-0 leading-tight truncate"
-              style={{ color: colours.text.primary }}
-            >
-              {product.productName}
-            </h1>
+            <div className="flex items-center justify-between">
+              <h1 
+                className="text-2xl font-bold text-left m-0 p-0 leading-tight truncate"
+                style={{ color: colours.text.primary }}
+              >
+                {product.productName}
+              </h1>
+              <AllergenWarningIcon 
+                hasAllergens={allergenWarnings && allergenWarnings.length > 0}
+                onClick={() => setShowAllergenWarning(true)}
+              />
+            </div>
             <span 
               className="text-xs mt-0.5 truncate block"
               style={{ color: colours.text.secondary }}
