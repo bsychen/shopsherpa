@@ -2,12 +2,12 @@
 
 import { Review } from "@/types/review"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { colours } from "@/styles/colours"
 import { UserProfile } from "@/types/user"
-import StarIcon, { Plus } from "./Icons"
-import { Clock, TrendingUp, TrendingDown } from "lucide-react"
+import StarIcon from "./Icons"
 import ContentBox from "./ContentBox"
+import CreateReviewButton from "./CreateReviewButton"
+import SortButtonGroup from "./SortButtonGroup"
 
 interface ProductReviewsProps {
   reviews: Review[]
@@ -42,18 +42,6 @@ export default function ProductReviews({
   setSortBy,
   setRefreshing
 }: ProductReviewsProps) {
-  const router = useRouter()
-
-  const handleWriteReview = (e: React.MouseEvent) => {
-    e.preventDefault()
-    if (user) {
-      router.push(`/review/create/${productId}`)
-    } else {
-      localStorage.setItem("postAuthRedirect", `/review/create/${productId}`)
-      router.push("/auth")
-    }
-  }
-
   const filteredReviews = filter.score !== null
     ? reviews.filter(r => r.rating === filter.score)
     : reviews
@@ -83,74 +71,13 @@ export default function ProductReviews({
           >
             Reviews
           </h2>
-          <button
-            onClick={handleWriteReview}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl shadow-xl border-2 border-black transition-all duration-200"
-            style={{ 
-              backgroundColor: '#f1f5f9', // slate-100
-              boxShadow: "0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06)"
-            }}
-            aria-label="Write a Review"
-          >
-           <Plus/>
-          </button>
+          <CreateReviewButton user={user} productId={productId} />
         </div>
-        {/* Sort by buttons */}
-        <div className="flex items-center mt-2 mb-2">
-            <button
-              onClick={() => {
-                setSortBy('recent')
-                setRefreshing(true)
-                setTimeout(() => setRefreshing(false), 350)
-              }}
-              className={`flex items-center justify-center gap-2 flex-1 py-2 pl-4 pr-2 rounded-xl shadow-xl border-2 border-black transition-all duration-200 ${
-                sortBy === 'recent' ? 'ring-1 ring-zinc-200' : ''
-              }`}
-              style={{
-                backgroundColor: sortBy === 'recent' ? '#e2e8f0' : '#f1f5f9', // slate-200 vs slate-100
-                boxShadow: "0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06)",
-              }}
-            >
-              <Clock size={18} style={{ color: '#1f2937' }} />
-              <span className="font-medium" style={{ color: '#1f2937' }}>Recent</span>
-            </button>
-            <div className="w-3"></div>
-            <button
-              onClick={() => {
-                setSortBy('low')
-                setRefreshing(true)
-                setTimeout(() => setRefreshing(false), 350)
-              }}
-              className={`flex items-center justify-center gap-2 flex-1 py-2 px-2 rounded-xl shadow-xl border-2 border-black transition-all duration-200 ${
-                sortBy === 'low' ? 'ring-1 ring-zinc-200' : ''
-              }`}
-              style={{
-                backgroundColor: sortBy === 'low' ? '#e2e8f0' : '#f1f5f9', // slate-200 vs slate-100
-                boxShadow: "0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06)",
-              }}
-            >
-              <TrendingDown size={18} style={{ color: '#1f2937' }} />
-              <span className="font-medium" style={{ color: '#1f2937' }}>Low</span>
-            </button>
-            <div className="w-3"></div>
-            <button
-              onClick={() => {
-                setSortBy('high')
-                setRefreshing(true)
-                setTimeout(() => setRefreshing(false), 350)
-              }}
-              className={`flex items-center justify-center gap-2 flex-1 py-2 pl-2 pr-4 rounded-xl shadow-xl border-2 border-black transition-all duration-200 ${
-                sortBy === 'high' ? 'ring-1 ring-zinc-200' : ''
-              }`}
-              style={{
-                backgroundColor: sortBy === 'high' ? '#e2e8f0' : '#f1f5f9', // slate-200 vs slate-100
-                boxShadow: "0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06)",
-              }}
-            >
-              <TrendingUp size={18} style={{ color: '#1f2937' }} />
-              <span className="font-medium" style={{ color: '#1f2937' }}>High</span>
-            </button>
-        </div>
+        <SortButtonGroup 
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          setRefreshing={setRefreshing}
+        />
         {sortedReviews.length === 0 ? (
           <div style={{ color: colours.text.secondary }}>
             No reviews{filter.score ? ` with ${filter.score} star${filter.score > 1 ? 's' : ''}` : ''}.

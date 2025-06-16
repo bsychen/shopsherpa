@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Search, Filter, X, Tag, Clock, Heart } from 'lucide-react';
+import { Search, X, Tag } from 'lucide-react';
 import { Tag as TagType } from '@/types/post';
 import { colours } from '@/styles/colours';
+import TagSortButtonGroup from './TagSortButtonGroup';
+import FilterToggleButton from './FilterToggleButton';
 
 interface PostFiltersProps {
   selectedTags: string[];
@@ -68,78 +70,42 @@ export default function PostFilters({
   return (
     <div>
       {/* Search Bar */}
-      <div className="relative mb-3 sm:mb-4">
+      <div className="relative mb-3">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2" size={20} style={{ color: colours.text.muted }} />
         <input
           type="text"
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full pl-9 sm:pl-10 pr-4 py-2 rounded-lg text-sm sm:text-base"
+          className="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg shadow-xl border-2 border-black focus:outline-none shadow-md transition-all duration-200 focus:scale-[1.02] text-base"
           style={{
-            border: `1px solid ${colours.card.border}`,
             backgroundColor: colours.input.background,
+            border: `2px solid ${colours.input.border}`,
             color: colours.input.text
           }}
           placeholder="Search posts..."
+          onFocus={(e) => {
+            e.target.style.borderColor = colours.input.focus.border;
+            e.target.style.boxShadow = colours.input.focus.ring;
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = colours.input.border;
+            e.target.style.boxShadow = 'none';
+          }}
         />
       </div>
-
-      {/* Sort and Filter Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
-        {/* Sort Options */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs sm:text-sm font-medium" style={{ color: colours.text.primary }}>Sort by:</span>
-          <div className="flex gap-1">
-            <button
-              onClick={() => onSortChange('recent')}
-              className="flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm transition-colors"
-              style={{
-                backgroundColor: sortBy === 'recent' ? colours.tag.primary.background : colours.tag.default.background,
-                color: sortBy === 'recent' ? colours.tag.primary.text : colours.tag.default.text
-              }}
-            >
-              <Clock size={12} />
-              Recent
-            </button>
-            <button
-              onClick={() => onSortChange('popular')}
-              className="flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm transition-colors"
-              style={{
-                backgroundColor: sortBy === 'popular' ? colours.tag.primary.background : colours.tag.default.background,
-                color: sortBy === 'popular' ? colours.tag.primary.text : colours.tag.default.text
-              }}
-            >
-              <Heart size={12} />
-              Popular
-            </button>
-          </div>
-        </div>
-
-        {/* Filter Toggle */}
-        <div className="flex items-center gap-2">
-          {hasActiveFilters && (
-            <button
-              onClick={clearAllFilters}
-              className="text-xs sm:text-sm font-medium hover:underline"
-              style={{ color: colours.status.error.text }}
-            >
-              Clear all
-            </button>
-          )}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-2 sm:px-3 py-1 rounded-lg transition-colors text-xs sm:text-sm"
-            style={{
-              backgroundColor: showFilters || selectedTags.length > 0 ? colours.tag.primary.background : colours.tag.default.background,
-              color: showFilters || selectedTags.length > 0 ? colours.tag.primary.text : colours.tag.default.text
-            }}
-          >
-            <Filter size={14} />
-            <span className="font-medium">
-              Tags {selectedTags.length > 0 && `(${selectedTags.length})`}
-            </span>
-          </button>
-        </div>
+      
+      {/* Sort and Filter Controls - Same Width as Search Bar */}
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <TagSortButtonGroup 
+          sortBy={sortBy}
+          onSortChange={onSortChange}
+        />
+        
+        <FilterToggleButton
+          isActive={showFilters}
+          selectedCount={selectedTags.length}
+          onClick={() => setShowFilters(!showFilters)}
+        />
       </div>
 
       {/* Selected Tags */}
