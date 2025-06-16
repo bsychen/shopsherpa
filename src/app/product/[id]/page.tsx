@@ -14,6 +14,7 @@ import SimilarProducts from "@/components/SimilarProducts";
 import ProductsByBrand from "@/components/ProductsByBrand";
 import ProductReviews from "@/components/ProductReviews";
 import AllergenWarning from "@/components/AllergenWarning";
+import ContentBox from "@/components/ContentBox";
 import { UserProfile } from "@/types/user";
 import { colours } from "@/styles/colours";
 import { 
@@ -317,13 +318,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         />
       )}
       {/* Main Product Card */}
-      <div 
-        className="w-full max-w-xl rounded-lg shadow border-2 border-black shadow-sm p-6 flex flex-col items-center border relative  mb-4"
-        style={{ 
-          backgroundColor: colours.content.surface,
-          borderColor: colours.content.border
-        }}
-      >
+      <ContentBox className="flex flex-col items-center border relative">
         {/* Header with title, product name and ID */}
         <div className="w-full flex items-center gap-3 mb-4">
           <Link 
@@ -443,7 +438,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             </div>
           )}
         </div>
-       </div>
+       </ContentBox>
 
         {/* Similar Products Section */}
         <SimilarProducts 

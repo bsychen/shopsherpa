@@ -9,6 +9,7 @@ import { Post } from "@/types/post";
 import PostCard from "@/components/PostCard";
 import PostFilters from "@/components/PostFilters";
 import CreatePostModal from "@/components/CreatePostModal";
+import ContentBox from "@/components/ContentBox";
 import { colours } from "@/styles/colours";
 
 export default function PostsPage() {
@@ -130,46 +131,49 @@ export default function PostsPage() {
       style={{ backgroundColor: colours.background.secondary }}
     >
       <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <div>
-            <h1 
-              className="text-2xl sm:text-3xl font-bold"
-              style={{ color: colours.text.primary }}
-            >
-              Community
-            </h1>
-          </div>
-          
-          {user && (
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition-colors font-medium text-sm sm:text-base"
-              style={{
-                backgroundColor: colours.button.primary.background,
-                color: colours.button.primary.text
-              }}
-            >
-              <Plus />
-              <span className="hidden sm:inline">New Post</span>
-            </button>
-          )}
-        </div>
-
+        
         {/* Filters */}
-        <PostFilters
-          selectedTags={selectedTags}
-          sortBy={sortBy}
-          searchTerm={searchTerm}
-          onTagsChange={setSelectedTags}
-          onSortChange={setSortBy}
-          onSearchChange={setSearchTerm}
-        />
+        <ContentBox className="mb-4">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <div>
+              <h1 
+                className="text-2xl sm:text-3xl font-bold"
+                style={{ color: colours.text.primary }}
+              >
+                Community
+              </h1>
+            </div>
+            
+            {user && (
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition-colors font-medium text-sm sm:text-base"
+                style={{
+                  backgroundColor: colours.button.primary.background,
+                  color: colours.button.primary.text
+                }}
+              >
+                <Plus />
+                <span className="hidden sm:inline">New Post</span>
+              </button>
+            )}
+          </div>
+          {/* Filters */}
+          <PostFilters
+            selectedTags={selectedTags}
+            sortBy={sortBy}
+            searchTerm={searchTerm}
+            onTagsChange={setSelectedTags}
+            onSortChange={setSortBy}
+            onSearchChange={setSearchTerm}
+          />
+        </ContentBox>
 
         {/* Posts */}
-        <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-2">
           {loading ? (
-            <div className="text-center py-12">
+            <ContentBox className="text-center py-12">
               <div 
                 className="animate-spin rounded-full h-12 w-12 mx-auto"
                 style={{ 
@@ -184,9 +188,9 @@ export default function PostsPage() {
               >
                 Loading posts...
               </p>
-            </div>
+            </ContentBox>
           ) : posts.length === 0 ? (
-            <div className="text-center py-12">
+            <ContentBox className="text-center py-12">
               <div 
                 className="mb-4"
                 style={{ color: colours.text.muted }}
@@ -222,23 +226,24 @@ export default function PostsPage() {
                   Create First Post
                 </button>
               )}
-            </div>
+            </ContentBox>
           ) : (
             posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                currentUserId={user?.uid}
-                onLike={handleLike}
-                onDislike={handleDislike}
-              />
+              <ContentBox key={post.id} className="mb-2">
+                <PostCard
+                  post={post}
+                  currentUserId={user?.uid}
+                  onLike={handleLike}
+                  onDislike={handleDislike}
+                />
+              </ContentBox>
             ))
           )}
         </div>
 
         {/* Auth prompt for non-logged in users */}
         {!user && (
-          <div className="text-center py-6 sm:py-8">
+          <ContentBox className="text-center py-6 sm:py-8 mt-4">
             <p className="text-sm sm:text-base mb-4" style={{ color: colours.text.secondary }}>
               Join the ShopSmart community to create posts and interact with others!
             </p>
@@ -252,7 +257,7 @@ export default function PostsPage() {
             >
               Sign In to Get Started
             </Link>
-          </div>
+          </ContentBox>
         )}
 
         {/* Create Post Modal */}

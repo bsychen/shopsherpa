@@ -10,6 +10,7 @@ import { searchProducts } from "@/lib/api";
 import { colours } from "@/styles/colours";
 import { ProductSearchResult } from "@/types/product";
 import RecentlyViewedProducts from "@/components/RecentlyViewedProducts";
+import ContentBox from "@/components/ContentBox";
 
 // Debounce hook
 function useDebounce(value: string, delay: number) {
@@ -151,18 +152,12 @@ export default function ProductSearch() {
 
   return (
     <div 
-      className="relative max-w-xl mx-auto shadow p-6 flex flex-col items-center min-h-[600px]"
+      className="relative max-w-xl mx-auto p-6 flex flex-col items-center min-h-[600px]"
       style={{
         backgroundColor: colours.background.secondary,
       }}
     >
-    <div 
-        className="w-full max-w-xl rounded-lg shadow-lg border-2 border-black p-6 flex flex-col border relative  mb-4"
-        style={{ 
-          backgroundColor: colours.content.surface,
-          borderColor: colours.content.border
-        }}
-      >
+    <ContentBox className="flex flex-col border relative">
         <h1 
           className="text-2xl font-bold mb-4"
           style={{ color: colours.text.primary }}
@@ -265,15 +260,9 @@ export default function ProductSearch() {
           </div>
         </div>
       )}
-      </div>
+      </ContentBox>
 
-      <div 
-        className="w-full max-w-xl rounded-lg shadow-lg border-2 border-black p-6 flex flex-col items-center border relative  mb-4"
-        style={{ 
-          backgroundColor: colours.content.surface,
-          borderColor: colours.content.border
-        }}
-      >
+      <ContentBox className="flex flex-col items-center border relative">
         {/* Barcode Scanner */}
         <div className="w-full flex flex-col">
           <h1 
@@ -292,20 +281,14 @@ export default function ProductSearch() {
             <video ref={videoRef} className="w-full h-auto" />
           </div>
         </div>
-      </div>
+      </ContentBox>
 
       {/* Recently Viewed Products Section */}
       
       {/* Recently Viewed Products */}
       {firebaseUser && (
         <div className="w-full">
-          <div 
-            className="w-full max-w-xl rounded-lg shadow-lg border-2 border-black p-6 items-center"
-            style={{
-              backgroundColor: colours.content.surfaceSecondary,
-              border: `2px solid ${colours.content.border}`
-            }}
-          >
+          <ContentBox variant="secondary" className="items-center">
             <h2
               className="text-xl font-bold mb-4"
               style={{ color: colours.text.secondary }}
@@ -313,7 +296,7 @@ export default function ProductSearch() {
               Recently Viewed Products
             </h2>
             <RecentlyViewedProducts userId={firebaseUser.uid} />
-          </div>
+          </ContentBox>
         </div>
       )}
     </div>

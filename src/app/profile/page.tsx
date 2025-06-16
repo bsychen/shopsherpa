@@ -9,6 +9,7 @@ import type { UserProfile } from "@/types/user";
 import UserReviewsList from "@/components/UserReviewsList";
 import PreferencesRadarChart from "@/components/PreferencesRadarChart";
 import AllergenManager from "@/components/AllergenManager";
+import ContentBox from "@/components/ContentBox";
 import Image from "next/image";
 import { colours } from "@/styles/colours";
 import LoadingAnimation from "@/components/LoadingSpinner";
@@ -141,13 +142,7 @@ export default function ProfilePage() {
       }}
     >
       {/* User Profile Card */}
-      <div 
-        className="rounded-xl shadow-lg p-6"
-        style={{
-          backgroundColor: colours.card.background,
-          border: `2px solid ${colours.card.border}`
-        }}
-      >
+      <ContentBox size="xl">
         <h1 
           className="text-2xl font-bold"
           style={{ color: colours.text.primary }}
@@ -178,7 +173,7 @@ export default function ProfilePage() {
           </div>
         </>
       )}
-      </div>
+      </ContentBox>
 
       {/* Allergen Management Section - Separate Box */}
       {user && user.userId && (
@@ -193,13 +188,7 @@ export default function ProfilePage() {
       {user && user.userId && (
         <div className="space-y-2">
             {/* User Reviews Section */}
-            <div 
-              className="rounded-xl shadow-lg p-6 transition-all duration-300"
-              style={{
-                backgroundColor: colours.content.surfaceSecondary,
-                border: `2px solid ${colours.card.border}`
-              }}
-            >
+            <ContentBox variant="secondary" className="transition-all duration-300">
               <button
                 className="w-full flex items-center justify-between text-lg font-semibold mb-2 focus:outline-none"
                 style={{ color: colours.text.secondary }}
@@ -228,7 +217,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </ContentBox>
           </div>
         )}
 

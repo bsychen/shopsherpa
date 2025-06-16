@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '@/lib/firebaseClient';
 import { createUserInFirestore } from '@/lib/api';
+import ContentBox from '@/components/ContentBox';
 import { colours } from '@/styles/colours';
 
 export default function AuthForm({
@@ -36,11 +37,10 @@ export default function AuthForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-sm mx-auto mt-10 bg-white rounded-xl shadow-lg p-8 space-y-6"
-    >
-      <h2 className="text-2xl font-bold text-center mb-4 text-gray-800">
+    <div className="max-w-sm mx-auto mt-10">
+      <ContentBox className="space-y-6">
+        <form onSubmit={handleSubmit}>
+          <h2 className="text-2xl font-bold text-center mb-4 text-gray-800">
         {mode === 'signup' ? 'Create an Account' : 'Welcome Back'}
       </h2>
       {mode === 'signup' && (
@@ -122,6 +122,8 @@ export default function AuthForm({
           </span>
         )}
       </div>
-    </form>
+        </form>
+      </ContentBox>
+    </div>
   );
 }

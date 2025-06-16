@@ -47,7 +47,7 @@ export default function PostCard({
   };
 
   return (
-    <div className="rounded-lg shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow" style={{ backgroundColor: colours.card.background, border: `1px solid ${colours.card.border}` }}>
+    <div>
       {/* Header */}
       <div className="flex items-start justify-between mb-3 sm:mb-4">
         <div className="flex-1">

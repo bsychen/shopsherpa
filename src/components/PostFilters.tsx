@@ -66,7 +66,7 @@ export default function PostFilters({
   const hasActiveFilters = selectedTags.length > 0 || searchTerm.length > 0 || sortBy !== 'recent';
 
   return (
-    <div className="rounded-lg shadow-sm p-3 sm:p-4 mb-4 sm:mb-6" style={{ backgroundColor: colours.card.background, border: `1px solid ${colours.card.border}` }}>
+    <div>
       {/* Search Bar */}
       <div className="relative mb-3 sm:mb-4">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2" size={20} style={{ color: colours.text.muted }} />

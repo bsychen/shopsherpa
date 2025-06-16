@@ -8,6 +8,7 @@ import { Review } from "@/types/review";
 import { getReview, getProduct, getUserById } from "@/lib/api";
 import { colours } from "@/styles/colours";
 import LoadingAnimation from "@/components/LoadingSpinner";
+import ContentBox from "@/components/ContentBox";
 import StarIcon from "@/components/Icons";
 
 export default function ReviewPage() {
@@ -79,13 +80,12 @@ export default function ReviewPage() {
 
   return (
     <div 
-      className="max-w-md mx-auto mt-10 rounded-xl shadow p-8"
-      style={{
-        backgroundColor: colours.card.background,
-        border: `1px solid ${colours.card.border}`
-      }}
+      className="min-h-screen"
+      style={{ backgroundColor: colours.background.secondary }}
     >
-      <div className="flex items-center mb-4">
+      <div className="max-w-md mx-auto pt-10 px-4">
+        <ContentBox>
+          <div className="flex items-center mb-4">
         <a
           href={productName ? `/product/${review.productId}` : "#"}
           className="flex items-center"
@@ -180,6 +180,8 @@ export default function ReviewPage() {
       >
         <div>Review ID: {review.id}</div>
         <div>Product ID: {review.productId}</div>
+      </div>
+        </ContentBox>
       </div>
     </div>
   );

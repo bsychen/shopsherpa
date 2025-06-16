@@ -7,6 +7,7 @@ import { colours } from "@/styles/colours"
 import { UserProfile } from "@/types/user"
 import StarIcon, { Plus } from "./Icons"
 import { Clock, TrendingUp, TrendingDown } from "lucide-react"
+import ContentBox from "./ContentBox"
 
 interface ProductReviewsProps {
   reviews: Review[]
@@ -69,13 +70,11 @@ export default function ProductReviews({
   })
 
   return (
-    <div className="w-full">
-      <div 
-        className={`w-full border rounded-xl shadow-lg border-2 border-black p-4 transition-all duration-300 ${refreshing ? 'opacity-40 blur-[2px]' : 'opacity-100 blur-0'}`}
-        style={{ 
-          backgroundColor: colours.content.surfaceSecondary,
-          borderColor: colours.content.border
-        }}
+    <div className="w-full mb-2">
+      <ContentBox 
+        variant="secondary" 
+        noMargin
+        className={`mb-2 transition-all duration-300 ${refreshing ? 'opacity-40 blur-[2px]' : 'opacity-100 blur-0'}`}
       >
         <div className="flex items-center justify-between w-full mb-2">
           <h2 
@@ -252,7 +251,7 @@ export default function ProductReviews({
             )}
           </>
         )}
-      </div>
+      </ContentBox>
     </div>
   )
 }

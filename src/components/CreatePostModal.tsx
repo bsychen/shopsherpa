@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { X, Search, Tag, Package } from 'lucide-react';
 import { Product } from '@/types/product';
+import ContentBox from '@/components/ContentBox';
 import { colours } from '@/styles/colours';
 
 interface CreatePostModalProps {
@@ -100,8 +101,8 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
       className="fixed inset-0 flex items-center justify-center z-50 p-4" 
       style={{ backgroundColor: `${colours.text.primary}80` }} // 50% opacity
     >
-      <div className="rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" style={{ backgroundColor: colours.card.background }}>
-        <div className="p-6">
+      <ContentBox className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold" style={{ color: colours.text.primary }}>Create New Post</h2>
             <button
@@ -498,8 +499,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
               </button>
             </div>
           </form>
-        </div>
-      </div>
+      </ContentBox>
     </div>
   );
 }

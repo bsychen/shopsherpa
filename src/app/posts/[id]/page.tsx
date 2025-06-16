@@ -11,6 +11,7 @@ import { Post, Comment } from "@/types/post";
 import { Product } from "@/types/product";
 import PostCard from "@/components/PostCard";
 import CommentItem from "@/components/CommentItem";
+import ContentBox from "@/components/ContentBox";
 import { colours } from "@/styles/colours";
 import LoadingAnimation from "@/components/LoadingSpinner";
 
@@ -236,7 +237,7 @@ export default function PostPage() {
         </div>
 
         {/* Post */}
-        <div className="mb-6 sm:mb-8">
+        <ContentBox className="mb-6 sm:mb-8">
           <PostCard
             post={post}
             currentUserId={user?.uid}
@@ -244,10 +245,10 @@ export default function PostPage() {
             onDislike={handleDislike}
             showFullContent={true}
           />
-        </div>
+        </ContentBox>
 
         {/* Comments Section */}
-        <div className="rounded-lg shadow-sm p-4 sm:p-6" style={{ backgroundColor: colours.card.background, border: `1px solid ${colours.card.border}` }}>
+        <ContentBox>
           <div className="flex items-center gap-2 mb-4 sm:mb-6">
             <MessageCircle size={20} style={{ color: colours.text.secondary }} />
             <h2 className="text-lg sm:text-xl font-bold" style={{ color: colours.text.primary }}>
@@ -471,7 +472,7 @@ export default function PostPage() {
               ))}
             </div>
           )}
-        </div>
+        </ContentBox>
       </div>
     </div>
   );
