@@ -1,6 +1,6 @@
-# ShopSmart
+# ShopSherpa
 
-**ShopSmart** is a mobile-first web application that empowers international students and immigrants in the UK to make informed grocery purchases through real-time value comparisons and user reviews.
+**ShopSherpa** is a mobile-first web application that empowers international students and immigrants in the UK to make informed grocery purchases through real-time value comparisons and user reviews.
 
 ## Key Features
 
@@ -8,4 +8,4 @@
 - 📷 **Mobile Barcode Scanner**: Seamless in-app camera scanning for fast lookup
 - 📊 **Value Insights**: Contextual guidance on relative value of grocery products so you can shop smart
 
-Built with ❤️ by the ShopSmart Team — empowering international communities through shopping confidence.
+Built with ❤️ by the ShopSherpa Team — empowering international communities through shopping confidence.
