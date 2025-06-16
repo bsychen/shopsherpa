@@ -13,7 +13,8 @@ import ContentBox from "@/components/ContentBox";
 import StarIcon from "@/components/Icons";
 import { useTopBar } from "@/contexts/TopBarContext";
 import Image from "next/image";
-import { Trash2, Edit3 } from "lucide-react";
+import EditButton from "@/components/EditButton";
+import DeleteButton from "@/components/DeleteButton";
 
 export default function ReviewPage() {
   const params = useParams();
@@ -134,12 +135,6 @@ export default function ReviewPage() {
                 >
                   Product ID: {review.productId}
                 </p>
-                <p 
-                  className="text-xs font-mono"
-                  style={{ color: colours.text.muted }}
-                >
-                  Review ID: {review.id}
-                </p>
               </div>
             </div>
           </ContentBox>
@@ -189,7 +184,7 @@ export default function ReviewPage() {
           {/* Action buttons for review owner */}
           {user && user.uid === review.userId && (
             <div className="flex justify-end gap-2 mt-4">
-              <button
+              <DeleteButton
                 onClick={async () => {
                   if (confirm("Are you sure you want to delete this review?")) {
                     const res = await import("@/lib/api").then(m => m.deleteReview(review.id));
@@ -200,37 +195,15 @@ export default function ReviewPage() {
                     }
                   }
                 }}
-                className="flex items-center justify-center w-8 h-8 rounded transition-all"
-                style={{
-                  backgroundColor: colours.status.error.background,
-                  color: colours.status.error.text,
-                  border: `1px solid ${colours.status.error.border}`
-                }}
-                aria-label="Delete review"
-              >
-                <Trash2 size={16} />
-              </button>
-              <button
-                onClick={() => router.push(`/review/update/${review.id}`)}
-                className="flex items-center justify-center w-8 h-8 rounded transition-all"
-                style={{
-                  backgroundColor: colours.button.primary.background,
-                  color: colours.button.primary.text
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = colours.button.primary.hover.background;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = colours.button.primary.background;
-                }}
-                aria-label="Edit review"
-              >
-                <Edit3 size={16} />
-              </button>
+              />
+              <EditButton
+                isEditMode={false}
+                onToggle={() => router.push(`/review/update/${review.id}`)}
+              />
             </div>
           )}
                           <div
-                  className="text-xs font-mono"
+                  className="text-xs mt-4 font-mono"
                   style={{ color: colours.text.muted }}
                 >
                   Review ID: {review.id}

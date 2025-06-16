@@ -236,9 +236,6 @@ export default function ProfilePage() {
         >
           Log out
         </button>
-        <div className="mt-4 text-xs text-grey-400 text-left opacity-0 animate-fade-in" style={{ animationDelay: '500ms' }}>
-          User ID: {user.userId}
-        </div>
       </div>
   );
 }
