@@ -178,12 +178,6 @@ export default function ReviewPage() {
             </div>
             
             <div className="mb-6">
-              <label 
-                className="block text-sm font-medium mb-3"
-                style={{ color: colours.text.primary }}
-              >
-                Review
-              </label>
               <textarea
                 className="w-full min-h-[120px] rounded-lg p-3 focus:outline-none focus:ring-2 transition-all"
                 style={{

@@ -2,19 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { getReview, updateReview } from "@/lib/api";
+import { getReview, updateReview, getProduct } from "@/lib/api";
 import { Review } from "@/types/review";
+import { Product } from "@/types/product";
 import { colours } from "@/styles/colours";
 import ContentBox from "@/components/ContentBox";
 import LoadingAnimation from "@/components/LoadingSpinner";
 import StarIcon from "@/components/Icons";
 import { useTopBar } from "@/contexts/TopBarContext";
+import Image from "next/image";
 
 export default function UpdateReviewPage() {
   const params = useParams();
   const id = params?.id as string;
   const router = useRouter();
   const [review, setReview] = useState<Review | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [loading, setLoading] = useState(true);
@@ -30,6 +33,10 @@ export default function UpdateReviewPage() {
         setReview(data);
         setRating(data.rating || 0);
         setReviewText(data.reviewText || "");
+        // Fetch product information
+        getProduct(data.productId).then((productData) => {
+          setProduct(productData);
+        });
       }
       setLoading(false);
     });
@@ -83,64 +90,93 @@ export default function UpdateReviewPage() {
       style={{ backgroundColor: colours.background.secondary }}
     >
       <div className="max-w-md mx-auto pt-10 px-4">
+        {/* Product Information Card */}
+        {product && (
+          <ContentBox className="mb-4">
+            <div className="flex items-center space-x-4">
+              <Image
+                src={product.imageUrl || "/placeholder.jpg"}
+                alt={product.productName}
+                width={60}
+                height={60}
+                className="w-15 h-15 object-contain rounded-lg"
+              />
+              <div className="flex-1">
+                <h2 
+                  className="text-lg font-semibold mb-1"
+                  style={{ color: colours.text.primary }}
+                >
+                  {product.productName}
+                </h2>
+                <p 
+                  className="text-sm mb-1"
+                  style={{ color: colours.text.secondary }}
+                >
+                  {product.brandName || 'Unknown Brand'}
+                </p>
+                <p 
+                  className="text-xs font-mono"
+                  style={{ color: colours.text.muted }}
+                >
+                  Product ID: {review.productId}
+                </p>
+              </div>
+            </div>
+          </ContentBox>
+        )}
+
         <ContentBox>
-          <h1 className="text-2xl font-bold mb-6 text-center" style={{ color: colours.text.primary }}>
+          <h1 
+            className="text-2xl font-bold mb-4"
+            style={{ color: colours.text.primary }}
+          >
             Update Your Review
           </h1>
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label 
-                className="block text-sm font-medium mb-3"
-                style={{ color: colours.text.primary }}
-              >
-                Rating
-              </label>
-              <div className="flex space-x-1">
-                {[1,2,3,4,5].map((star) => (
-                  <button
-                    type="button"
-                    key={star}
-                    className={`transition-all hover:scale-110 ${rating >= star ? '' : 'opacity-30'}`}
-                    onClick={() => setRating(star)}
-                    aria-label={`Set rating to ${star}`}
-                  >
-                    <StarIcon size={28} />
-                  </button>
-                ))}
+              <div className="mb-6">
+                <div className="flex items-center justify-center space-x-2">
+                  {[1,2,3,4,5].map((star) => (
+                    <button
+                      type="button"
+                      key={star}
+                      className={`transition-all hover:scale-110 ${rating >= star ? '' : 'opacity-30'}`}
+                      onClick={() => setRating(star)}
+                      aria-label={`Set rating to ${star}`}
+                    >
+                      <StarIcon size={40} />
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
             
-            <div>
-              <label 
-                className="block text-sm font-medium mb-3"
-                style={{ color: colours.text.primary }}
-              >
-                Review Text
-              </label>
-              <textarea
-                className="w-full rounded-lg p-3 focus:outline-none focus:ring-2 transition-all"
-                style={{ 
-                  border: `1px solid ${colours.card.border}`,
-                  backgroundColor: colours.input.background,
-                  color: colours.input.text
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.boxShadow = colours.input.focus.ring;
-                  e.currentTarget.style.borderColor = colours.input.focus.border;
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.boxShadow = 'none';
-                  e.currentTarget.style.borderColor = colours.card.border;
-                }}
-                rows={5}
-                value={reviewText}
-                onChange={e => setReviewText(e.target.value)}
-                placeholder="Update your review..."
-                maxLength={1000}
-              />
-              <div className="mt-1 text-xs" style={{ color: colours.text.muted }}>
-                {reviewText.length}/1000 characters
+              <div className="mb-6">
+                <textarea
+                  className="w-full min-h-[120px] rounded-lg p-3 focus:outline-none focus:ring-2 transition-all"
+                  style={{
+                    backgroundColor: colours.input.background,
+                    borderColor: colours.input.border,
+                    borderWidth: '1px',
+                    borderStyle: 'solid',
+                    color: colours.input.text
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.boxShadow = colours.input.focus.ring;
+                    e.currentTarget.style.borderColor = colours.input.focus.border;
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.boxShadow = 'none';
+                    e.currentTarget.style.borderColor = colours.input.border;
+                  }}
+                  value={reviewText}
+                  onChange={e => setReviewText(e.target.value)}
+                  placeholder="Update your review..."
+                  maxLength={1000}
+                />
+                <div className="mt-1 text-xs" style={{ color: colours.text.muted }}>
+                  {reviewText.length}/1000 characters
+                </div>
               </div>
             </div>
             
