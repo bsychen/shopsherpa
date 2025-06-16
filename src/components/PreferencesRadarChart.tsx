@@ -74,6 +74,7 @@ const DEFAULT_BTN_BORDER = "border-zinc-200";
 
 export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate, isUpdating = false }: PreferencesRadarChartProps) {
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isClosing, setIsClosing] = useState(false); // New state for animation
   const [localPreferences, setLocalPreferences] = useState(() => {
     const prefs: Record<string, number> = {};
     preferences.forEach(pref => {
@@ -104,7 +105,12 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
   }, [userProfile]);
 
   const handlePointerDown = useCallback((prefKey: string) => (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
+    // Only prevent default for mouse events, not touch events
+    if ('touches' in e) {
+      // For touch events, we'll handle preventDefault in the document listeners
+    } else {
+      e.preventDefault();
+    }
     setIsDragging(prefKey);
     
     const container = containerRefs.current[prefKey];
@@ -158,46 +164,72 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
     if (isDragging) {
       const handleMove = (e: MouseEvent | TouchEvent) => {
         // Prevent default to avoid scrolling on mobile
-        e.preventDefault();
+        if (e.cancelable) {
+          e.preventDefault();
+        }
         handlePointerMove(e);
       };
       
+      const handleEnd = (e: MouseEvent | TouchEvent) => {
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+        handlePointerEnd();
+      };
+      
       document.addEventListener('mousemove', handleMove);
-      document.addEventListener('mouseup', handlePointerEnd);
+      document.addEventListener('mouseup', handleEnd);
       document.addEventListener('touchmove', handleMove, { passive: false });
-      document.addEventListener('touchend', handlePointerEnd);
+      document.addEventListener('touchend', handleEnd, { passive: false });
       return () => {
         document.removeEventListener('mousemove', handleMove);
-        document.removeEventListener('mouseup', handlePointerEnd);
+        document.removeEventListener('mouseup', handleEnd);
         document.removeEventListener('touchmove', handleMove);
-        document.removeEventListener('touchend', handlePointerEnd);
+        document.removeEventListener('touchend', handleEnd);
       };
     }
   }, [isDragging, handlePointerMove, handlePointerEnd]);
 
   const handleSaveChanges = async () => {
-    try {
-      const updates: Partial<UserProfile> = {};
-      preferences.forEach(pref => {
-        if (localPreferences[pref.key] !== (userProfile[pref.key] || 1)) {
-          (updates as Record<string, number>)[pref.key] = localPreferences[pref.key];
-        }
-      });
-      
-      await onPreferencesUpdate(updates);
-      setHasChanges(false);
-      setIsEditMode(false);
-    } catch (error) {
-      console.error('Failed to save preferences:', error);
-      setLocalPreferences(() => {
-        const prefs: Record<string, number> = {};
+    // Start closing animation immediately
+    setIsClosing(true);
+    
+    // Wait for animation to start, then continue with background save
+    setTimeout(async () => {
+      try {
+        const updates: Partial<UserProfile> = {};
         preferences.forEach(pref => {
-          prefs[pref.key] = userProfile[pref.key] || 1;
+          if (localPreferences[pref.key] !== (userProfile[pref.key] || 1)) {
+            (updates as Record<string, number>)[pref.key] = localPreferences[pref.key];
+          }
         });
-        return prefs;
-      });
-      setHasChanges(false);
-    }
+        
+        await onPreferencesUpdate(updates);
+        setHasChanges(false);
+        
+        // Complete the closing animation
+        setTimeout(() => {
+          setIsEditMode(false);
+          setIsClosing(false);
+        }, 300); // Wait for the animation to complete
+        
+      } catch (error) {
+        console.error('Failed to save preferences:', error);
+        // Revert changes on error
+        setLocalPreferences(() => {
+          const prefs: Record<string, number> = {};
+          preferences.forEach(pref => {
+            prefs[pref.key] = userProfile[pref.key] || 1;
+          });
+          return prefs;
+        });
+        setHasChanges(false);
+        
+        // Reset states
+        setIsClosing(false);
+        setIsEditMode(false);
+      }
+    }, 100); // Small delay to ensure animation starts
   };
 
   const handleResetChanges = () => {
@@ -213,7 +245,13 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
 
   const handleCancelEdit = () => {
     handleResetChanges();
-    setIsEditMode(false);
+    setIsClosing(true);
+    
+    // Complete the closing animation
+    setTimeout(() => {
+      setIsEditMode(false);
+      setIsClosing(false);
+    }, 300);
   };
 
   // Prepare radar chart data
@@ -276,7 +314,10 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
           <div className="absolute top-0 right-0 z-10">
             <EditButton
               isEditMode={isEditMode}
-              onToggle={isEditMode ? (hasChanges ? handleSaveChanges : handleCancelEdit) : () => setIsEditMode(true)}
+              onToggle={isEditMode ? (hasChanges ? handleSaveChanges : handleCancelEdit) : () => {
+                setIsEditMode(true);
+                setIsClosing(false); // Ensure isClosing is false when entering edit mode
+              }}
               disabled={isUpdating}
             />
           </div>
@@ -327,20 +368,39 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
       </div>
 
       {/* Edit Mode - Bar Graphs */}
-      {isEditMode && (
-        <div className="space-y-4 transition-all duration-300">
+      <div 
+        className={`overflow-hidden transition-all duration-500 ease-in-out ${
+          isEditMode && !isClosing ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
+        }`}
+        style={{
+          transitionProperty: 'max-height, opacity, padding, margin',
+        }}
+      >
+        <div className={`space-y-4 transform transition-all duration-500 ease-in-out ${
+          isEditMode && !isClosing ? 'translate-y-0 scale-100' : 'translate-y-4 scale-95'
+        }`}>
           <div className="text-center">
+                            
             <h3 className="text-sm font-medium mb-4" style={{ color: colours.text.primary }}>
               Adjust Your Preferences
             </h3>
           </div>
           
-          {preferences.map((pref, _index) => {
+          {preferences.map((pref, index) => {
             const value = localPreferences[pref.key];
             const percentage = ((value - 1) / 4) * 100;
+            const delay = `${index * 100}ms`;
             
             return (
-              <div key={pref.key} className="space-y-2">
+              <div 
+                key={pref.key} 
+                className={`space-y-2 transform transition-all duration-300 ease-out ${
+                  isEditMode && !isClosing ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'
+                }`}
+                style={{
+                  transitionDelay: isEditMode && !isClosing ? delay : '0ms',
+                }}
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Image 
@@ -361,22 +421,22 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
                 
                 <div 
                   ref={el => { containerRefs.current[pref.key] = el; }}
-                  className={`relative h-8 rounded-lg cursor-pointer transition-all touch-manipulation`}
+                  className={`relative rounded-xl cursor-pointer transition-all duration-200 ease-in-out touch-manipulation overflow-hidden`}
                   style={{
-                    backgroundColor: colours.background.secondary,
-                    minHeight: '44px', // iOS minimum touch target
-                    ...(isDragging === pref.key && {
-                      boxShadow: `0 0 0 2px ${colours.interactive.selected.background}`,
-                    })
+                    backgroundColor: colours.bargraph.background,
+                    border: `2px dotted ${colours.card.border}30`,
+                    height: '44px', // Exact height
                   }}
                   onMouseDown={handlePointerDown(pref.key)}
                   onTouchStart={handlePointerDown(pref.key)}
                 >
                   <div 
-                    className={`h-full rounded-lg flex items-center justify-end pr-2 transition-all duration-300 ease-out`}
+                    className={`flex items-center justify-end pr-2 transition-all duration-150 ease-out absolute inset-0 rounded-xl`}
                     style={{ 
                       width: `${percentage}%`,
                       backgroundColor: pref.color,
+                      border: `2px solid ${colours.card.border}`,
+                      transition: 'width 0.1s cubic-bezier(0.4, 0, 0.2, 1)',
                     }}
                   >                    
                   <div 
@@ -384,17 +444,21 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
                     style={{
                       backgroundColor: colours.card.background,
                       borderColor: pref.circleColor,
+                      border: `2px solid ${colours.card.border}`,
+                      borderRadius: 'inherit',
                     }} />
                   </div>
                 </div>
                 
-                <div className="text-xs flex justify-between" style={{ color: colours.text.muted }}>
-                  <span>Less Important</span>
-                  <span>More Important</span>
-                </div>
+
               </div>
             );
           })}
+
+          <div className="text-xs flex justify-between" style={{ color: colours.text.muted }}>
+            <span>Less Important</span>
+            <span>More Important</span>
+          </div>
 
           {/* Action Buttons */}
           <div className="flex gap-2 justify-end pt-4">
@@ -426,7 +490,7 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
             )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

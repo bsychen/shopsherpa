@@ -17,7 +17,7 @@ const colourMap = {
     indigo: '#103A5D',
     darkIndigo: '#0A2A4B',
     cyan: '#3B9C87',
-    babyBlue: '#A2DFF7',
+    babyBlue: '#f1f5fb',
 }
 
 // Common component color patterns
@@ -95,7 +95,7 @@ export const colours = {
       }
     },
     edit: {
-      background: colourMap.white,
+      background: colourMap.babyBlue,
       text: colourMap.darkTeal,
       hover: {
         background: colourMap.lightGreen,
@@ -269,7 +269,7 @@ export const colours = {
   },
 
   bargraph: {
-    background: colourMap.white,
+    background: colourMap.babyBlue,
     price: {
       background: colourMap.green,
       border: colourMap.green,
