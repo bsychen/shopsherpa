@@ -179,7 +179,7 @@ export default function ReviewPage() {
                     onClick={() => setRating(star)}
                     aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
                   >
-                    <StarIcon size={40} />
+                    <StarIcon size={40} filled={rating >= star} />
                   </button>
                 ))}
               </div>

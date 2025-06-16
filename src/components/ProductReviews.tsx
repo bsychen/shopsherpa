@@ -191,7 +191,7 @@ export default function ProductReviews({
                               role="img"
                               aria-label="star"
                             >
-                             <StarIcon size={24} />
+                             <StarIcon size={24} filled={review.rating >= star} />
                             </span>
                           ))}
                         </span>

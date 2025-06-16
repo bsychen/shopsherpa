@@ -5,7 +5,7 @@
 const colourMap = {
     red: '#D24330',
     darkRed: '#A02A1D',
-    yellow: '#ECCC36',
+    yellow: '#E2C149',
     darkYellow: '#BFA02A',
     lightGreen: '#63a088',
     green: '#309563',

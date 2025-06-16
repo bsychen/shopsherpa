@@ -4,13 +4,14 @@ interface StarIconProps {
   size?: number;
   className?: string;
   stroke?: string;
+  filled?: boolean;
 }
 
-export default function StarIcon({ size = 16, className = "", stroke = colours.status.warning.background }: StarIconProps) {
+export default function StarIcon({ size = 16, className = "", stroke = colours.status.warning.background, filled = false }: StarIconProps) {
   return (
     <svg 
       xmlns="http://www.w3.org/2000/svg" 
-      fill="none" 
+      fill={filled ? `${stroke}80` : "none"}
       viewBox="0 0 24 24" 
       strokeWidth="1.5" 
       stroke={stroke} 

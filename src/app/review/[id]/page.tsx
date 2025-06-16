@@ -219,7 +219,7 @@ export default function ReviewPage() {
                   aria-label="star"
                   onClick={isEditMode ? () => setLocalRating(star) : undefined}
                 >
-                  <StarIcon size={40} />
+                  <StarIcon size={40} filled={(isEditMode ? localRating : review.rating) >= star} />
                 </span>
               ))}
             </div>
