@@ -2,9 +2,15 @@ import { colours } from '@/styles/colours';
 
 export default function LoadingAnimation() {
   return (
-    <div className="flex flex-col items-center justify-start pt-20 min-h-[600px] p-4" style={{ backgroundColor: colours.background.primary }}>
+    <div className="flex flex-col items-center justify-start pt-20 min-h-[600px] p-4" style={{ backgroundColor: colours.background.secondary }}>
       <div className="flex flex-col items-center">
-        <div className="relative w-16 h-16 mb-4 flex items-center justify-center">
+        <div className="relative w-48 h-48 mb-4 flex flex-col items-center justify-center">
+          {/* Circle background to encapsulate everything */}
+          <div
+            className="absolute inset-0 w-48 h-48 rounded-full drop-shadow-lg"
+            style={{ backgroundColor: colours.background.primary }}
+          />
+          <div className="relative w-16 h-16 flex items-center justify-center z-10 mb-4">
           <div className="absolute inset-0 w-full h-full border-4 rounded-full animate-spin" style={{ borderColor: colours.spinner.border, borderTopColor: colours.spinner.borderTop }} />
           <span className="relative flex items-center justify-center w-8 h-8" style={{ top: '-2px',  left: '-2px', position: 'relative' }}>
             {/* Inline SVG for shopping cart */}
@@ -21,9 +27,10 @@ export default function LoadingAnimation() {
               />
             </svg>
           </span>
-        </div>
-        <div className="text-lg font-semibold tracking-wide" style={{ color: colours.text.secondary }}>
-          Loading...
+          </div>
+          <div className="relative text-lg font-semibold tracking-wide z-10" style={{ color: colours.text.secondary }}>
+            Loading...
+          </div>
         </div>
       </div>
     </div>
