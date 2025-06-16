@@ -78,89 +78,65 @@ const BottomNav = () => {
           preserveAspectRatio="none"
           style={{ fill: colours.card.background }}
         >
-          {/* Back Layer - Tallest trees, most transparent - positioned to fill gaps */}
+          {/* Back Layer - Tallest trees, most transparent - positioned to fill gaps (6 mountains) */}
           <g opacity="0.4">
-            {/* Unique mountain 1 - Tall and wider base */}
-            <polygon points="0,32 12,0 24,32" />
-            <polygon points="6,32 12,2 18,32" />
+            {/* Unique mountain 1 - Very wide mountain spanning larger area */}
+            <polygon points="0,32 18,0 36,32" />
+            <polygon points="8,32 18,2 28,32" />
             
-            {/* Unique mountain 2 - Very wide mountain range */}
-            <polygon points="25,32 45,1 65,32" />
-            <polygon points="32,32 45,4 58,32" />
+            {/* Unique mountain 2 - Massive wide mountain range */}
+            <polygon points="35,32 68,1 101,32" />
+            <polygon points="46,32 68,4 90,32" />
             
-            {/* Unique mountain 3 - Broad asymmetric peak */}
-            <polygon points="70,32 85,3 105,32" />
-            <polygon points="77,32 88,1 98,32" />
+            {/* Unique mountain 3 - Broad asymmetric peak covering more ground */}
+            <polygon points="100,32 125,3 150,32" />
+            <polygon points="110,32 130,1 145,32" />
             
-            {/* Unique mountain 4 - Massive wide base */}
-            <polygon points="108,32 130,0 152,32" />
-            <polygon points="118,32 130,3 142,32" />
+            {/* Unique mountain 4 - Extra wide base mountain */}
+            <polygon points="148,32 180,0 212,32" />
+            <polygon points="160,32 180,3 200,32" />
             
-            {/* Unique mountain 5 - Wide off-center peak */}
-            <polygon points="155,32 175,2 200,32" />
-            <polygon points="165,32 178,0 190,32" />
+            {/* Unique mountain 5 - Wide off-center peak with broader base */}
+            <polygon points="210,32 245,2 280,32" />
+            <polygon points="225,32 248,0 270,32" />
             
-            {/* Unique mountain 6 - Medium wide range */}
-            <polygon points="205,32 225,4 245,32" />
-            <polygon points="215,32 225,1 235,32" />
-            
-            {/* Unique mountain 7 - Tall spire with wide base */}
-            <polygon points="248,32 265,0 282,32" />
-            <polygon points="256,32 265,3 274,32" />
-            
-            {/* Unique mountain 8 - Massive double peak range */}
-            <polygon points="285,32 305,1 325,32" />
-            <polygon points="292,32 302,4 312,32" />
-            <polygon points="313,32 320,2 327,32" />
-            
-            {/* Unique mountain 9 - Wide irregular mountain */}
-            <polygon points="330,32 355,3 380,32" />
-            <polygon points="340,32 358,0 370,32" />
-            
-            {/* Unique mountain 10 - Edge mountain range */}
-            <polygon points="375,32 390,1 405,32" />
-            <polygon points="382,32 390,4 398,32" />
+            {/* Unique mountain 6 - Massive edge mountain range covering remaining space */}
+            <polygon points="278,32 320,1 362,32" />
+            <polygon points="290,32 320,4 350,32" />
+            <polygon points="355,32 380,2 405,32" />
           </g>
           
-          {/* Middle Layer - Medium height trees - positioned between front and back */}
+          {/* Middle Layer - Medium height trees - positioned between front and back (7 mountains) */}
           <g opacity="0.7">
             {/* Unique mid mountain 1 - Very broad base */}
-            <polygon points="15,32 35,8 55,32" />
-            <polygon points="25,32 35,12 45,32" />
+            <polygon points="12,32 40,8 68,32" />
+            <polygon points="22,32 40,12 58,32" />
             
             {/* Unique mid mountain 2 - Wide and tall */}
-            <polygon points="55,32 72,5 89,32" />
-            <polygon points="63,32 72,9 81,32" />
+            <polygon points="65,32 88,5 111,32" />
+            <polygon points="73,32 88,9 103,32" />
             
             {/* Unique mid mountain 3 - Broad leaning mountain */}
-            <polygon points="92,32 110,7 128,32" />
-            <polygon points="100,32 113,11 121,32" />
+            <polygon points="108,32 130,7 152,32" />
+            <polygon points="118,32 135,11 147,32" />
             
             {/* Unique mid mountain 4 - Wide triple peak range */}
-            <polygon points="135,32 155,6 175,32" />
-            <polygon points="142,32 155,10 168,32" />
-            <polygon points="170,32 177,8 184,32" />
+            <polygon points="150,32 175,6 200,32" />
+            <polygon points="158,32 175,10 192,32" />
+            <polygon points="195,32 205,8 215,32" />
             
             {/* Unique mid mountain 5 - Very wide and short range */}
-            <polygon points="190,32 215,12 240,32" />
-            <polygon points="200,32 215,16 230,32" />
+            <polygon points="210,32 240,12 270,32" />
+            <polygon points="222,32 240,16 258,32" />
             
             {/* Unique mid mountain 6 - Wide pointed peak */}
-            <polygon points="235,32 250,6 265,32" />
-            <polygon points="242,32 250,10 258,32" />
+            <polygon points="265,32 285,6 305,32" />
+            <polygon points="273,32 285,10 297,32" />
             
-            {/* Unique mid mountain 7 - Large irregular mountain */}
-            <polygon points="270,32 290,9 315,32" />
-            <polygon points="278,32 293,5 307,32" />
-            
-            {/* Unique mid mountain 8 - Wide double mountain cluster */}
-            <polygon points="320,32 340,7 360,32" />
-            <polygon points="328,32 340,11 352,32" />
-            <polygon points="355,32 365,9 375,32" />
-            
-            {/* Unique mid mountain 9 - Broad leaning range */}
-            <polygon points="365,32 385,8 405,32" />
-            <polygon points="373,32 388,12 398,32" />
+            {/* Unique mid mountain 7 - Large edge mountain covering remaining space */}
+            <polygon points="300,32 340,9 380,32" />
+            <polygon points="315,32 345,5 375,32" />
+            <polygon points="370,32 390,8 410,32" />
           </g>
           
           {/* Front Layer - More spaced out, fully opaque */}

@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import TopBar from "@/components/topBar"
 import BottomNav from "@/components/BottomNav"
+import { colours } from "@/styles/colours"
 
 import "./globals.css";
 
@@ -23,12 +24,16 @@ export default function RootLayout({
         <link rel="preconnect" href="https://images.openfoodfacts.net" />
         <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
       </head>
-      <body>
-        <TopBar />
-        <main className="pb-16">
-          {children}
-        </main>
-        <BottomNav />
+      <body >
+        <div style={{ backgroundColor: colours.background.primary }}>
+          <TopBar />
+        </div>
+        <div style={{ backgroundColor: colours.background.secondary }}>
+          <main className="pb-16">
+            {children}
+          </main>
+          <BottomNav />
+        </div>
       </body>
     </html>
   )
