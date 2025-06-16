@@ -6,15 +6,21 @@ interface FilterToggleButtonProps {
   isActive: boolean
   selectedCount: number
   onClick: () => void
+  size?: 'compact' | 'normal'
 }
 
 export default function FilterToggleButton({ 
   isActive, 
   selectedCount, 
-  onClick 
+  onClick,
+  size = 'compact'
 }: FilterToggleButtonProps) {
   const hasSelections = selectedCount > 0
-  const baseClassName = "flex items-center gap-1 py-1 px-2 sm:py-1.5 sm:px-3 rounded-lg shadow border-2 border-black transition-all duration-200"
+  const sizeClasses = size === 'normal' 
+    ? "gap-2 py-2 px-4" 
+    : "gap-1 py-1 px-2 sm:py-1.5 sm:px-3"
+    
+  const baseClassName = `flex items-center ${sizeClasses} rounded-lg shadow-xl border-2 border-black transition-all duration-200`
   const activeRing = isActive || hasSelections ? "ring-1 ring-zinc-200" : ""
   const fullClassName = `${baseClassName} ${activeRing}`.trim()
 
@@ -23,14 +29,17 @@ export default function FilterToggleButton({
     boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
   }
 
+  const iconSize = size === 'normal' ? 18 : 14
+  const textSize = size === 'normal' ? "text-base font-medium" : "text-xs sm:text-sm font-medium"
+
   return (
     <button
       onClick={onClick}
       className={fullClassName}
       style={buttonStyle}
     >
-      <Filter size={14} className="sm:w-4 sm:h-4" style={{ color: '#1f2937' }} />
-      <span className="font-medium text-xs sm:text-sm" style={{ color: '#1f2937' }}>
+      <Filter size={iconSize} className="sm:w-4 sm:h-4" style={{ color: '#1f2937' }} />
+      <span className={textSize} style={{ color: '#1f2937' }}>
         Filter {hasSelections && `(${selectedCount})`}
       </span>
     </button>

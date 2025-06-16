@@ -4,11 +4,11 @@ import { useEffect, useState, useCallback } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import Link from "next/link";
-import { Plus } from "@/components/Icons";
 import { Post } from "@/types/post";
 import PostCard from "@/components/PostCard";
 import PostFilters from "@/components/PostFilters";
 import CreatePostModal from "@/components/CreatePostModal";
+import CreateButton from "@/components/CreateButton";
 import ContentBox from "@/components/ContentBox";
 import { colours } from "@/styles/colours";
 import { useTopBar } from "@/contexts/TopBarContext";
@@ -149,17 +149,14 @@ export default function PostsPage() {
             </div>
             
             {user && (
-              <button
+              <CreateButton
+                user={user}
                 onClick={() => setShowCreateModal(true)}
-                className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition-all duration-200 font-medium text-sm sm:text-base hover:scale-[1.02] hover:shadow-lg"
-                style={{
-                  backgroundColor: colours.button.primary.background,
-                  color: colours.button.primary.text
-                }}
-              >
-                <Plus />
-                <span className="hidden sm:inline">New Post</span>
-              </button>
+                label="Create"
+                showLabelOnMobile={true}
+                className="hover:shadow-lg"
+                ariaLabel="Create New Post"
+              />
             )}
           </div>
           {/* Filters */}

@@ -7,15 +7,21 @@ interface RecentSortButtonProps {
   onClick: () => void
   label?: string
   className?: string
+  size?: 'compact' | 'normal'
 }
 
 export default function RecentSortButton({ 
   isActive, 
   onClick,
   label = "Recent",
-  className = "pl-4 pr-2"
+  className = "pl-4 pr-2",
+  size = 'compact'
 }: RecentSortButtonProps) {
-  const baseClassName = "flex items-center justify-center gap-1 py-1 px-2 sm:py-1.5 sm:px-3 rounded-lg shadow border-2 border-black transition-all duration-200"
+  const sizeClasses = size === 'normal' 
+    ? "gap-2 py-2 px-3" 
+    : "gap-1 py-1 px-2 sm:py-1.5 sm:px-3"
+    
+  const baseClassName = `flex items-center justify-center ${sizeClasses} rounded-lg shadow border-2 border-black transition-all duration-200`
   const activeRing = isActive ? "ring-1 ring-zinc-200" : ""
   const fullClassName = `${baseClassName} ${activeRing} ${className}`.trim()
 
@@ -24,14 +30,17 @@ export default function RecentSortButton({
     boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
   }
 
+  const iconSize = size === 'normal' ? 18 : 14
+  const textSize = size === 'normal' ? "text-base font-medium" : "text-xs sm:text-sm font-medium"
+
   return (
     <button
       onClick={onClick}
       className={fullClassName}
       style={buttonStyle}
     >
-      <Clock size={14} className="sm:w-4 sm:h-4" style={{ color: '#1f2937' }} />
-      <span className="font-medium text-xs sm:text-sm" style={{ color: '#1f2937' }}>
+      <Clock size={iconSize} className="sm:w-4 sm:h-4" style={{ color: '#1f2937' }} />
+      <span className={textSize} style={{ color: '#1f2937' }}>
         {label}
       </span>
     </button>

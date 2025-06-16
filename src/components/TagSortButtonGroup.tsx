@@ -18,10 +18,12 @@ export default function TagSortButtonGroup({
         isActive={sortBy === 'recent'}
         onClick={() => onSortChange('recent')}
         className=""
+        size="compact"
       />
       <PopularSortButton
         isActive={sortBy === 'popular'}
         onClick={() => onSortChange('popular')}
+        size="compact"
       />
     </div>
   )

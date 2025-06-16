@@ -37,18 +37,21 @@ export default function SortButtonGroup({
         isActive={sortBy === 'recent'}
         onClick={() => handleSortChange('recent')}
         label={recentLabel}
+        size="normal"
       />
       <div className="w-3"></div>
       <LowToHighSortButton
         isActive={sortBy === 'low'}
         onClick={() => handleSortChange('low')}
         label={lowLabel}
+        size="normal"
       />
       <div className="w-3"></div>
       <HighToLowSortButton
         isActive={sortBy === 'high'}
         onClick={() => handleSortChange('high')}
         label={highLabel}
+        size="normal"
       />
     </div>
   )
