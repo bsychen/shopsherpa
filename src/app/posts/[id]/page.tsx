@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, MessageCircle, Send, Package, Search, X } from "lucide-react";
+import { MessageCircle, Send, Package, Search, X } from "lucide-react";
 import { Post, Comment } from "@/types/post";
 import { Product } from "@/types/product";
 import PostCard from "@/components/PostCard";
@@ -14,9 +14,12 @@ import CommentItem from "@/components/CommentItem";
 import ContentBox from "@/components/ContentBox";
 import { colours } from "@/styles/colours";
 import LoadingAnimation from "@/components/LoadingSpinner";
+import { useTopBar } from "@/contexts/TopBarContext";
 
 export default function PostPage() {
   const params = useParams();
+  const router = useRouter();
+  const { setTopBarState, resetTopBar } = useTopBar();
   const postId = params.id as string;
   
   const [user, setUser] = useState(null);
@@ -37,6 +40,18 @@ export default function PostPage() {
     });
     return () => unsubscribe();
   }, []);
+
+  // Set up back button in top bar
+  useEffect(() => {
+    setTopBarState({
+      showBackButton: true,
+    });
+
+    // Cleanup when component unmounts
+    return () => {
+      resetTopBar();
+    };
+  }, [setTopBarState, resetTopBar]);
 
   const searchProducts = async (term: string) => {
     try {
@@ -208,14 +223,6 @@ export default function PostPage() {
         <div className="text-center">
           <h1 className="text-xl sm:text-2xl font-bold mb-2" style={{ color: colours.text.primary }}>Post not found</h1>
           <p className="mb-4 text-sm sm:text-base" style={{ color: colours.text.secondary }}>The post you&apos;re looking for doesn&apos;t exist.</p>
-          <Link
-            href="/chats"
-            className="inline-flex items-center gap-2 font-medium text-sm sm:text-base"
-            style={{ color: colours.text.link }}
-          >
-            <ArrowLeft size={16} />
-            Back to Community
-          </Link>
         </div>
       </div>
     );
@@ -224,18 +231,6 @@ export default function PostPage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: colours.background.secondary }}>
       <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
-        {/* Header */}
-        <div className="mb-4 sm:mb-6">
-          <Link 
-            href="/chats" 
-            className="flex items-center mb-3 sm:mb-4"
-            style={{ color: colours.text.link }}
-          >
-            <ArrowLeft size={18} className="mr-2" />
-            <span className="text-sm sm:text-base font-medium">Back to Community</span>
-          </Link>
-        </div>
-
         {/* Post */}
         <ContentBox className="mb-6 sm:mb-8">
           <PostCard

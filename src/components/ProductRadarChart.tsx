@@ -21,25 +21,36 @@ function AnimatedMatchPercent({ percent, hasAllergens = false }: { percent: numb
   const [displayed, setDisplayed] = useState(0);
   const [animatedPercent, setAnimatedPercent] = useState(0);
   const rafRef = useRef<number | null>(null);
+  const startRef = useRef<number | null>(null);
 
   useEffect(() => {
-    let start: number | null = null;
+    startRef.current = null;
     const duration = 900;
+    
     function animate(ts: number) {
-      if (!start) start = ts;
-      const progress = Math.min((ts - start) / duration, 1);
+      if (!startRef.current) startRef.current = ts;
+      const progress = Math.min((ts - startRef.current) / duration, 1);
       const currentPercent = percent * progress;
       setDisplayed(Math.round(currentPercent));
       setAnimatedPercent(currentPercent);
+      
       if (progress < 1) {
         rafRef.current = requestAnimationFrame(animate);
       } else {
         setDisplayed(percent);
         setAnimatedPercent(percent);
+        rafRef.current = null;
       }
     }
+    
     rafRef.current = requestAnimationFrame(animate);
-    return () => rafRef.current && cancelAnimationFrame(rafRef.current);
+    
+    return () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    };
   }, [percent]);
 
   // Color logic - red if allergens are flagged, otherwise based on percentage

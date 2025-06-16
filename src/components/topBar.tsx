@@ -2,11 +2,38 @@
 
 import { colours } from "@/styles/colours";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useTopBar } from "@/contexts/TopBarContext";
+import { BackArrow } from "./Icons";
 
 export default function TopBar() {
+  const router = useRouter();
+  const { topBarState } = useTopBar();
+
+  const handleBackClick = () => {
+    if (topBarState.onBackClick) {
+      topBarState.onBackClick();
+    } else {
+      router.back();
+    }
+  };
+
   return (
     <div className="relative w-full">
       <header className="w-full flex items-center justify-center px-4 py-6 relative z-10" style={{ backgroundColor: colours.card.background }}>
+        {/* Back button - positioned absolutely on the left */}
+        {topBarState.showBackButton && (
+          <button
+            onClick={handleBackClick}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 z-30"
+            style={{
+              color: colours.text.primary,
+            }}
+          >
+            <BackArrow />
+          </button>
+        )}
+
         <div className="flex items-center gap-3 relative z-20">
           <h1
             className="text-xl font-bold tracking-tight select-none"

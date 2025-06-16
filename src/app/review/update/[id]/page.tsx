@@ -8,6 +8,7 @@ import { colours } from "@/styles/colours";
 import ContentBox from "@/components/ContentBox";
 import LoadingAnimation from "@/components/LoadingSpinner";
 import StarIcon from "@/components/Icons";
+import { useTopBar } from "@/contexts/TopBarContext";
 
 export default function UpdateReviewPage() {
   const params = useParams();
@@ -19,6 +20,7 @@ export default function UpdateReviewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const { setTopBarState, resetTopBar } = useTopBar();
 
   useEffect(() => {
     if (!id) return;
@@ -32,6 +34,19 @@ export default function UpdateReviewPage() {
       setLoading(false);
     });
   }, [id]);
+
+  // Set up back button in top bar
+  useEffect(() => {
+    setTopBarState({
+      showBackButton: true,
+      onBackClick: () => router.push(`/review/${id}`)
+    });
+
+    // Cleanup when component unmounts
+    return () => {
+      resetTopBar();
+    };
+  }, [setTopBarState, resetTopBar, router, id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,19 +84,6 @@ export default function UpdateReviewPage() {
     >
       <div className="max-w-md mx-auto pt-10 px-4">
         <ContentBox>
-          <div className="flex items-center mb-6">
-            <a
-              href={review ? `/review/${review.id}` : "#"}
-              className="flex items-center gap-2 text-sm font-medium transition-colors hover:opacity-70"
-              style={{ color: colours.text.link }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg>
-              Back to Review
-            </a>
-          </div>
-          
           <h1 className="text-2xl font-bold mb-6 text-center" style={{ color: colours.text.primary }}>
             Update Your Review
           </h1>

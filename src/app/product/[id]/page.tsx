@@ -5,9 +5,10 @@ import { Product } from "@/types/product"
 import { Review } from "@/types/review"
 import { ReviewSummary } from "@/types/reviewSummary"
 import { getProduct, getProductReviews, getReviewSummary, getBrandById, getProductsWithGenericName, getProductsByBrand, getUserById } from "@/lib/api"
-import Link from "next/link"
 import { onAuthStateChanged, User } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
+import { useRouter } from "next/navigation"
+import { useTopBar } from "@/contexts/TopBarContext"
 import TabbedInfoBox from "@/components/TabbedInfoBox"
 import LoadingAnimation from "@/components/LoadingSpinner";
 import SimilarProducts from "@/components/SimilarProducts";
@@ -98,6 +99,8 @@ function calculateMatchPercentage(
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const router = useRouter();
+  const { setTopBarState, resetTopBar } = useTopBar();
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -194,6 +197,19 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     }
   }, [reviewSummary]);
 
+  // Set up back button in top bar
+  useEffect(() => {
+    setTopBarState({
+      showBackButton: true,
+      onBackClick: () => router.back()
+    });
+
+    // Cleanup when component unmounts
+    return () => {
+      resetTopBar();
+    };
+  }, [setTopBarState, resetTopBar, router]);
+
   // Fetch user preferences when user changes
   useEffect(() => {
     async function fetchUserPreferences() {
@@ -222,6 +238,18 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       setShowAllergenWarning(true);
     }
   }, [product, userPreferences, allergenWarnings, allergenWarningDismissed]);
+
+  // Set up back button in top bar
+  useEffect(() => {
+    setTopBarState({
+      showBackButton: true,
+    });
+
+    // Cleanup when component unmounts
+    return () => {
+      resetTopBar();
+    };
+  }, [setTopBarState, resetTopBar]);
 
   // Handler functions for allergen warning
   const handleAllergenWarningClose = () => {
@@ -321,15 +349,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       <ContentBox className="flex flex-col items-center border relative">
         {/* Header with title, product name and ID */}
         <div className="w-full flex items-center gap-3 mb-4">
-          <Link 
-            href="/" 
-            className="flex items-center flex-shrink-0"
-            style={{ color: colours.text.link }}
-          >
-           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-           </svg>
-          </Link>
           <div className="flex-1 min-w-0">
             <h1 
               className="text-2xl font-bold text-left m-0 p-0 leading-tight truncate"

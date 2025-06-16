@@ -10,6 +10,7 @@ import { colours } from "@/styles/colours";
 import ContentBox from "@/components/ContentBox";
 import LoadingAnimation from "@/components/LoadingSpinner";
 import StarIcon from "@/components/Icons";
+import { useTopBar } from "@/contexts/TopBarContext";
 
 export default function ReviewPage() {
   const params = useParams();
@@ -24,6 +25,7 @@ export default function ReviewPage() {
   const [rating, setRating] = useState(0);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const router = useRouter();
+  const { setTopBarState, resetTopBar } = useTopBar();
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
@@ -45,6 +47,19 @@ export default function ReviewPage() {
       setLoading(false);
     });
   }, [id]);
+
+  // Set up back button in top bar
+  useEffect(() => {
+    setTopBarState({
+      showBackButton: true,
+      onBackClick: () => router.push(`/product/${id}`)
+    });
+
+    // Cleanup when component unmounts
+    return () => {
+      resetTopBar();
+    };
+  }, [setTopBarState, resetTopBar, router, id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,17 +96,7 @@ export default function ReviewPage() {
       style={{ backgroundColor: colours.background.secondary }}
     >
       <div className="max-w-md mx-auto pt-10 px-4">
-        <ContentBox>          <div className="flex items-center mb-4">
-            <a 
-              href={`/product/${id}`} 
-              className="flex items-center"
-              style={{ color: colours.text.link }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg>
-            </a>
-          </div>
+        <ContentBox>
           {product && (
             <div className="mb-4">
               <div 
@@ -129,22 +134,12 @@ export default function ReviewPage() {
           >
             ✓ Review submitted successfully!
           </div>
-          <button
-            className="w-full font-semibold py-3 px-4 rounded-lg transition-all"
-            style={{
-              backgroundColor: colours.button.secondary.background,
-              color: colours.button.secondary.text
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = colours.button.secondary.hover.background;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = colours.button.secondary.background;
-            }}
-            onClick={() => router.push(`/product/${id}`)}
+          <p 
+            className="text-sm"
+            style={{ color: colours.text.secondary }}
           >
-            Back to {product?.productName || 'Product'}
-          </button>
+            Redirecting you back to the product page...
+          </p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">

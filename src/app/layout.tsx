@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import TopBar from "@/components/topBar"
 import BottomNav from "@/components/BottomNav"
 import { colours } from "@/styles/colours"
+import { TopBarProvider } from "@/contexts/TopBarContext"
 
 import "./globals.css";
 
@@ -25,15 +26,17 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
       </head>
       <body >
-        <div style={{ backgroundColor: colours.card.background }}>
-          <TopBar />
-        </div>
-        <div style={{ backgroundColor: colours.background.secondary }}>
-          <main className="pb-16">
-            {children}
-          </main>
-          <BottomNav />
-        </div>
+        <TopBarProvider>
+          <div style={{ backgroundColor: colours.card.background }}>
+            <TopBar />
+          </div>
+          <div style={{ backgroundColor: colours.background.secondary }}>
+            <main className="pb-16">
+              {children}
+            </main>
+            <BottomNav />
+          </div>
+        </TopBarProvider>
       </body>
     </html>
   )

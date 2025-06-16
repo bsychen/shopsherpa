@@ -10,6 +10,7 @@ import { colours } from "@/styles/colours";
 import LoadingAnimation from "@/components/LoadingSpinner";
 import ContentBox from "@/components/ContentBox";
 import StarIcon from "@/components/Icons";
+import { useTopBar } from "@/contexts/TopBarContext";
 
 export default function ReviewPage() {
   const params = useParams();
@@ -20,6 +21,7 @@ export default function ReviewPage() {
   const [username, setUsername] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { setTopBarState, resetTopBar } = useTopBar();
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
@@ -66,6 +68,21 @@ export default function ReviewPage() {
     }
   }, [review, id]);
 
+  // Set up back button in top bar
+  useEffect(() => {
+    if (review) {
+      setTopBarState({
+        showBackButton: true,
+        onBackClick: () => router.push(`/product/${review.productId}`)
+      });
+    }
+
+    // Cleanup when component unmounts
+    return () => {
+      resetTopBar();
+    };
+  }, [setTopBarState, resetTopBar, router, review]);
+
   if (loading) {
     return <LoadingAnimation />;
   }
@@ -85,17 +102,6 @@ export default function ReviewPage() {
     >
       <div className="max-w-md mx-auto pt-10 px-4">
         <ContentBox>
-          <div className="flex items-center mb-4">
-        <a
-          href={productName ? `/product/${review.productId}` : "#"}
-          className="flex items-center"
-          style={{ color: colours.text.link }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-          </svg>
-        </a>
-      </div>
       <div className="mb-2 flex items-center">
         <span 
           className="font-bold text-2xl min-w-[110px]"
