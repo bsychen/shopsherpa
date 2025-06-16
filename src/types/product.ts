@@ -5,6 +5,7 @@ export interface Product{
   brandName: string;
   brandId: string;
   combinedCategory: string[];
+  categoriesTags: string[];
   genericNameLower: string;
   countryOfOriginCode: string;
   alergenInformation: string[];

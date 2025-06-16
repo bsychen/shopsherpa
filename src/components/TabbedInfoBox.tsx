@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Product } from "@/types/product";
 import { ReviewSummary } from "@/types/reviewSummary";
 import PriceSpectrum from "./PriceSpectrum";
@@ -372,15 +373,24 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
                   backgroundColor: `${colours.content.surface}99` // 60% opacity
                 }}
               >
-                <div className="flex items-start gap-4">
+                <Link 
+                  href={`/product/${showMinProduct ? minPriceProduct?.id : maxPriceProduct?.id}`}
+                  className="flex items-start gap-4 hover:opacity-80 transition-opacity"
+                >
                   <div 
-                    className="flex-shrink-0 w-16 h-16 rounded-md shadow-sm border flex items-center justify-center"
+                    className="flex-shrink-0 w-16 h-16 rounded-md shadow-sm border overflow-hidden"
                     style={{ 
                       backgroundColor: colours.content.surface,
                       borderColor: colours.content.border
                     }}
                   >
-                    <span className="text-2xl">{showMinProduct ? '💰' : '💎'}</span>
+                    <Image
+                      src={(showMinProduct ? minPriceProduct?.imageUrl : maxPriceProduct?.imageUrl) || '/placeholder.jpg'}
+                      alt={showMinProduct ? minPriceProduct?.productName || 'Product' : maxPriceProduct?.productName || 'Product'}
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex-grow">
                     <h3 
@@ -390,7 +400,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
                       {showMinProduct ? 'Lowest Price Option' : 'Highest Price Option'}
                     </h3>
                     <h4 
-                      className="font-semibold text-base mb-1"
+                      className="font-semibold text-base mb-1 hover:underline"
                       style={{ color: colours.text.primary }}
                     >
                       {showMinProduct ? minPriceProduct?.productName : maxPriceProduct?.productName}
@@ -412,7 +422,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
                       </span>
                     </div>
                   </div>
-                </div>
+                </Link>
               </div>
             )}
           </div>
