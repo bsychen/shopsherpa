@@ -53,18 +53,10 @@ export default function UserReviewsList({ userId }: UserReviewsListProps) {
             key={review.id}
             style={{
               backgroundColor: colours.card.background,
-              borderColor: colours.card.border,
-              borderWidth: '1px',
-              borderStyle: 'solid',
+              border: `2px solid ${colours.card.border}`,
               opacity: !showAll ? (fadeOpacities[idx] ?? 1) : 1
             }}
-            className="rounded p-3 transition cursor-pointer"
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = colours.card.hover.background;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = colours.card.background;
-            }}
+            className="rounded-xl shadow-xl  p-3 transition cursor-pointer"
           >
             <Link href={`/review/${review.id}`} className="block w-full h-full">
               <div className="flex items-center justify-between">
@@ -88,12 +80,6 @@ export default function UserReviewsList({ userId }: UserReviewsListProps) {
             style={{
               backgroundColor: colours.button.secondary.background,
               color: colours.button.secondary.text,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = colours.button.secondary.hover.background;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = colours.button.secondary.background;
             }}
             onClick={() => setShowAll(true)}
           >

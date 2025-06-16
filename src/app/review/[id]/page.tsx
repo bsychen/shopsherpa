@@ -7,16 +7,20 @@ import { useRouter, useParams } from "next/navigation";
 import { Review } from "@/types/review";
 import { getReview, getProduct, getUserById } from "@/lib/api";
 import { colours } from "@/styles/colours";
+import LoadingAnimation from "@/components/LoadingSpinner";
+import ContentBox from "@/components/ContentBox";
+import StarIcon from "@/components/Icons";
+import { useTopBar } from "@/contexts/TopBarContext";
 
 export default function ReviewPage() {
   const params = useParams();
   const id = params?.id as string;
   const [user, setUser] = useState<User | null>(null);
   const [review, setReview] = useState<Review | null>(null);
-  const [productName, setProductName] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { setTopBarState, resetTopBar } = useTopBar();
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
@@ -49,9 +53,7 @@ export default function ReviewPage() {
 
   useEffect(() => {
     if (!id || !review) return;
-    getProduct(review.productId).then((product) => {
-      setProductName(product?.productName || "");
-    });
+    getProduct(review.productId).then(() => {});
     // Fetch username from userId (unless anonymous)
     if (review.userId && !review.isAnonymous) {
       getUserById(review.userId).then((user) => {
@@ -63,12 +65,23 @@ export default function ReviewPage() {
     }
   }, [review, id]);
 
+  // Set up back button in top bar
+  useEffect(() => {
+    if (review) {
+      setTopBarState({
+        showBackButton: true,
+        onBackClick: () => router.push(`/product/${review.productId}`)
+      });
+    }
+
+    // Cleanup when component unmounts
+    return () => {
+      resetTopBar();
+    };
+  }, [setTopBarState, resetTopBar, router, review]);
+
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-40">
-        <span className="text-gray-500">Loading...</span>
-      </div>
-    );
+    return <LoadingAnimation />;
   }
 
   if (!review) {
@@ -81,24 +94,11 @@ export default function ReviewPage() {
 
   return (
     <div 
-      className="max-w-md mx-auto mt-10 rounded-xl shadow p-8"
-      style={{
-        backgroundColor: colours.card.background,
-        border: `1px solid ${colours.card.border}`
-      }}
+      className="min-h-screen"
+      style={{ backgroundColor: colours.background.secondary }}
     >
-      <div className="flex items-center mb-4">
-        <a
-          href={productName ? `/product/${review.productId}` : "#"}
-          className="flex items-center hover:underline"
-          style={{ color: colours.text.link }}
-        >
-          <span className="mr-2 text-2xl">&#8592;</span>
-          <span className="font-semibold">
-            Go back to {productName || "..."}
-          </span>
-        </a>
-      </div>
+      <div className="max-w-md mx-auto pt-10 px-4">
+        <ContentBox>
       <div className="mb-2 flex items-center">
         <span 
           className="font-bold text-2xl min-w-[110px]"
@@ -118,13 +118,13 @@ export default function ReviewPage() {
           {[1, 2, 3, 4, 5].map((star) => (
             <span
               key={star}
-              className={`text-2xl ${
+              className={`inline-block ${
                 review.rating >= star ? "" : "opacity-30"
               }`}
               role="img"
               aria-label="star"
             >
-              ⭐
+              <StarIcon size={20} />
             </span>
           ))}
         </span>
@@ -161,8 +161,6 @@ export default function ReviewPage() {
               color: colours.status.error.text,
               border: `1px solid ${colours.status.error.border}`
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colours.button.danger.hover.background}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colours.status.error.background}
           >
             Delete
           </button>
@@ -174,8 +172,6 @@ export default function ReviewPage() {
               color: colours.status.info.text,
               border: `1px solid ${colours.status.info.border}`
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.hover.background}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colours.status.info.background}
           >
             Edit
           </button>
@@ -187,6 +183,8 @@ export default function ReviewPage() {
       >
         <div>Review ID: {review.id}</div>
         <div>Product ID: {review.productId}</div>
+      </div>
+        </ContentBox>
       </div>
     </div>
   );

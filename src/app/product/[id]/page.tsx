@@ -1,83 +1,38 @@
 "use client"
 
-import { useState, useEffect, use, Suspense, lazy } from "react"
+import { useState, useEffect, use, Suspense, lazy, useMemo } from "react"
 import { Product } from "@/types/product"
 import { Review } from "@/types/review"
 import { ReviewSummary } from "@/types/reviewSummary"
 import { getProduct, getProductReviews, getReviewSummary, getBrandById, getProductsWithGenericName, getProductsByBrand, getUserById } from "@/lib/api"
-import Link from "next/link"
-import Image from "next/image"
 import { onAuthStateChanged, User } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
-import { useRef } from "react";
+import { useRouter } from "next/navigation"
+import { useTopBar } from "@/contexts/TopBarContext"
 import TabbedInfoBox from "@/components/TabbedInfoBox"
 import LoadingAnimation from "@/components/LoadingSpinner";
 import SimilarProducts from "@/components/SimilarProducts";
 import ProductsByBrand from "@/components/ProductsByBrand";
 import ProductReviews from "@/components/ProductReviews";
+import AllergenWarning from "@/components/AllergenWarning";
+import ContentBox from "@/components/ContentBox";
 import { UserProfile } from "@/types/user";
 import { colours } from "@/styles/colours";
 import { 
   getAllergenInfoFromCode, 
   getAllergenTagClasses, 
+  getAllergenTagStyles,
   formatAllergenDisplay 
 } from "@/utils/allergens";
 import {
   getCountryInfoFromCode,
   getCountryTagClasses,
+  getCountryTagStyles,
   formatCountryDisplay
 } from "@/utils/countries";
 
 // Lazy load heavy components
 const ProductRadarChart = lazy(() => import("@/components/ProductRadarChart"));
-
-function AnimatedMatchPercent({ percent, small }: { percent: number, small?: boolean }) {
-  const [displayed, setDisplayed] = useState(0);
-  const rafRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    let start: number | null = null;
-    const duration = 900;
-    function animate(ts: number) {
-      if (!start) start = ts;
-      const progress = Math.min((ts - start) / duration, 1);
-      setDisplayed(Math.round(percent * progress));
-      if (progress < 1) {
-        rafRef.current = requestAnimationFrame(animate);
-      } else {
-        setDisplayed(percent);
-      }
-    }
-    rafRef.current = requestAnimationFrame(animate);
-    return () => rafRef.current && cancelAnimationFrame(rafRef.current);
-  }, [percent]);
-
-  // Color logic
-  const color = displayed >= 70
-    ? { text: colours.score.high }
-    : displayed >= 50
-    ? { text: colours.score.medium }
-    : { text: colours.score.low };
-
-  return (
-    <span
-      className={`relative flex flex-col items-center justify-center ml-2 ${small ? 'min-w-[40px] min-h-[40px]' : 'min-w-[64px] min-h-[64px]'}`}
-    >
-      <span
-        className={`font-bold ${small ? 'text-base' : 'text-xl'}`}
-        style={{ color: color.text, pointerEvents: 'none', userSelect: 'none' }}
-      >
-        {displayed}%
-      </span>
-      <span 
-        className={`block font-medium mt-1 text-center ${small ? 'text-[10px]' : 'text-xs'}`}
-        style={{ color: colours.text.secondary }}
-      >
-        match
-      </span>
-    </span>
-  );
-}
 
 // Helper function to calculate quartiles
 const calculateQuartile = (arr: number[], q: number) => {
@@ -94,7 +49,6 @@ const calculateQuartile = (arr: number[], q: number) => {
 };
 
 function getQuartileScore(price: number, q1: number, q3: number): number {
-  console.log("Calculating quartile score for price:", price, "Q1:", q1, "Q3:", q3);
   if (!price || q1 === q3) return 3; // Default score for invalid data
   if (price <= q1) return 5;
   if (price >= q3) return 1;
@@ -145,6 +99,8 @@ function calculateMatchPercentage(
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const router = useRouter();
+  const { setTopBarState, resetTopBar, setNavigating } = useTopBar();
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -157,10 +113,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [seeMoreClicked, setSeeMoreClicked] = useState(false);
   const [filter, setFilter] = useState<{ score: number | null }>({ score: null });
   const [refreshing, setRefreshing] = useState(false);
-  const [sortBy, setSortBy] = useState<'recent' | 'critical' | 'favourable'>('recent');
-  const [sortOpen, setSortOpen] = useState(false);
-  const [imageDropdownOpen, setImageDropdownOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>("Price");
+  const [sortBy, setSortBy] = useState<'recent' | 'low' | 'high'>('recent');
+  const [activeTab, setActiveTab] = useState<string>("");
   const [brandRating, setBrandRating] = useState<number>(3);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [brandProducts, setBrandProducts] = useState<Product[]>([]);
@@ -172,6 +126,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     median: number;
     q3: number;
   }>({ min: 0, max: 0, q1: 0, median: 0, q3: 0 });
+  const [showAllergenWarning, setShowAllergenWarning] = useState(false);
+  const [allergenWarningDismissed, setAllergenWarningDismissed] = useState(false);
   
   // Calculate all radar chart scores
   const priceScore = product ? getQuartileScore(product.price || 0, priceStats.q1, priceStats.q3) : 3;
@@ -194,14 +150,16 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     ) : null;
   
   // Check for allergen matches
-  const allergenWarnings = userPreferences?.allergens && product?.alergenInformation ? 
-    userPreferences.allergens.filter(userAllergen => 
-      product.alergenInformation?.some(productAllergen => {
-        // Convert product allergen codes to lowercase format for comparison
-        const normalizedProductAllergen = productAllergen.trim().toLowerCase().replace(/^en:/, '');
-        return normalizedProductAllergen === userAllergen.toLowerCase();
-      })
-    ) : [];
+  const allergenWarnings = useMemo(() => {
+    return userPreferences?.allergens && product?.alergenInformation ? 
+      userPreferences.allergens.filter(userAllergen => 
+        product.alergenInformation?.some(productAllergen => {
+          // Convert product allergen codes to lowercase format for comparison
+          const normalizedProductAllergen = productAllergen.trim().toLowerCase().replace(/^en:/, '');
+          return normalizedProductAllergen === userAllergen.toLowerCase();
+        })
+      ) : [];
+  }, [userPreferences?.allergens, product?.alergenInformation]);
 
   useEffect(() => {
     setLoading(true);
@@ -220,18 +178,18 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         // Fetch similar products based on genericName
         if (productData.genericNameLower) {
           const similar = await getProductsWithGenericName(productData.genericNameLower);
-          console.log('Similar products:', similar);
           // Filter out the current product and limit to 8 products
           setSimilarProducts(similar.filter(p => p.id !== id).slice(0, 8));
         }
       }
       setLoading(false);
+      setNavigating(false); // Clear navigation loading state
     });
     getProductReviews(id).then(data => setReviews(data || []));
     getReviewSummary(id).then(setReviewSummary);
     const unsub = onAuthStateChanged(auth, setUser);
     return () => unsub();
-  }, [id]);
+  }, [id, setNavigating]);
 
   useEffect(() => {
     if (reviewSummary) {
@@ -239,6 +197,19 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       setTimeout(() => setAnimatedQuality(reviewSummary.averageRating), 50);
     }
   }, [reviewSummary]);
+
+  // Set up back button in top bar
+  useEffect(() => {
+    setTopBarState({
+      showBackButton: true,
+      onBackClick: () => router.back()
+    });
+
+    // Cleanup when component unmounts
+    return () => {
+      resetTopBar();
+    };
+  }, [setTopBarState, resetTopBar, router]);
 
   // Fetch user preferences when user changes
   useEffect(() => {
@@ -261,6 +232,35 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     }
     fetchUserPreferences();
   }, [user]);
+
+  // Show allergen warning when product and user preferences are loaded
+  useEffect(() => {
+    if (product && userPreferences && allergenWarnings && allergenWarnings.length > 0 && !allergenWarningDismissed) {
+      setShowAllergenWarning(true);
+    }
+  }, [product, userPreferences, allergenWarnings, allergenWarningDismissed]);
+
+  // Set up back button in top bar
+  useEffect(() => {
+    setTopBarState({
+      showBackButton: true,
+    });
+
+    // Cleanup when component unmounts
+    return () => {
+      resetTopBar();
+    };
+  }, [setTopBarState, resetTopBar]);
+
+  // Handler functions for allergen warning
+  const handleAllergenWarningClose = () => {
+    setShowAllergenWarning(false);
+  };
+
+  const handleAllergenWarningProceed = () => {
+    setAllergenWarningDismissed(true);
+    setShowAllergenWarning(false);
+  };
 
   useEffect(() => {
     async function fetchUsernames() {
@@ -334,149 +334,43 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   return (
     <div 
-      className="flex flex-col items-center justify-center min-h-[60vh] p-4"
+      className="flex flex-col items-center justify-center min-h-[60vh] p-4 "
       style={{ backgroundColor: colours.background.secondary }}
     >
-      <div 
-        className="w-full max-w-xl rounded-lg shadow p-6 flex flex-col items-center border relative"
-        style={{ 
-          backgroundColor: colours.content.surface,
-          borderColor: colours.content.border
-        }}
-      >
-        <div className="absolute left-6 top-6">
-          <Link 
-            href="/" 
-            className="flex items-center hover:underline"
-            style={{ color: colours.text.link }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = colours.text.linkHover
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = colours.text.link
-            }}
-          >
-            <span className="mr-2 text-2xl">&#8592;</span>
-            <span className="font-semibold">Go back home</span>
-          </Link>
-        </div>
-        {/* Product Info Card */}
-        <div 
-          className="w-full flex flex-row items-center justify-between mt-10 mb-4 border rounded-lg p-4 shadow-sm"
-          style={{ 
-            backgroundColor: colours.content.surfaceSecondary,
-            borderColor: colours.content.border
-          }}
-        >
-          <div className="flex flex-row items-center gap-4 w-full">
-            <div className="flex flex-col items-start gap-1 flex-1 min-w-0">
-              <button
-                className="w-full text-left focus:outline-none"
-                onClick={() => setImageDropdownOpen((v) => !v)}
-                aria-expanded={imageDropdownOpen}
-                aria-controls="product-image-dropdown"
-                style={{ background: 'none', border: 'none', padding: 0 }}
-              >
-                <h1 
-                  className="text-2xl font-bold text-left m-0 p-0 leading-tight truncate max-w-[320px] md:max-w-[520px]"
-                  style={{ color: colours.text.primary }}
-                >
-                  {product.productName}
-                  <span 
-                    className="ml-2 align-middle inline-block text-base"
-                    style={{ color: colours.text.secondary }}
-                  >
-                    {imageDropdownOpen ? '▲' : '▼'}
-                  </span>
-                </h1>
-                <span 
-                  className="text-xs mt-0.5 truncate max-w-[260px] md:max-w-[420px]"
-                  style={{ color: colours.text.secondary }}
-                >
-                  Product ID: {product.id}
-                </span>
-              </button>
-              {imageDropdownOpen && product.imageUrl && (
-                <div id="product-image-dropdown" className="mt-3 w-full flex justify-center">
-                  <Image
-                    src={product.imageUrl}
-                    alt={product.productName}
-                    width={128}
-                    height={128}
-                    className="object-contain rounded border h-24 w-24 md:h-32 md:w-32 shadow"
-                    style={{ 
-                      borderColor: colours.content.border,
-                      backgroundColor: colours.content.surfaceSecondary,
-                      boxShadow: '0 1px 8px rgba(0,0,0,0.08)'
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-            <div className="flex flex-col items-end justify-center min-w-[48px] md:min-w-[64px] flex-shrink-0">
-              {matchPercentage !== null ? (
-                <AnimatedMatchPercent percent={matchPercentage} small />
-              ) : (
-                <span className="relative flex flex-col items-center justify-center ml-2 min-w-[40px] min-h-[40px]">
-                  <span 
-                    className="font-bold text-base"
-                    style={{ color: colours.text.secondary }}
-                  >
-                    --
-                  </span>
-                  <span 
-                    className="block font-medium mt-1 text-center text-[10px]"
-                    style={{ color: colours.text.secondary }}
-                  >
-                    match
-                  </span>
-                </span>
-              )}
-            </div>
+      {/* Allergen Warning Modal */}
+      {showAllergenWarning && (
+        <AllergenWarning 
+          allergenWarnings={allergenWarnings}
+                isVisible={showAllergenWarning}
+                onClose={handleAllergenWarningClose}
+                onProceed={handleAllergenWarningProceed}
+        />
+      )}
+      {/* Main Product Card */}
+      <ContentBox className="flex flex-col items-center border relative">
+        {/* Header with title, product name and ID */}
+        <div className="w-full flex items-center gap-3 mb-4">
+          <div className="flex-1 min-w-0">
+            <h1 
+              className="text-2xl font-bold text-left m-0 p-0 leading-tight truncate"
+              style={{ color: colours.text.primary }}
+            >
+              {product.productName}
+            </h1>
+            <span 
+              className="text-xs mt-0.5 truncate block"
+              style={{ color: colours.text.secondary }}
+            >
+              Product ID: {product.id}
+            </span>
           </div>
         </div>
         
-        {/* Allergen Warning Banner */}
-        {allergenWarnings && allergenWarnings.length > 0 && (
-          <div className="w-full max-w-xl mb-4">
-            <div 
-              className="border rounded-lg p-3 flex items-start gap-3"
-              style={{ 
-                backgroundColor: colours.status.error.background,
-                borderColor: colours.status.error.border
-              }}
-            >
-              <div className="flex-shrink-0 mt-0.5">
-                <span 
-                  className="text-xl"
-                  style={{ color: colours.status.error.icon }}
-                >
-                  ⚠️
-                </span>
-              </div>
-              <div className="flex-1">
-                <h3 
-                  className="font-semibold text-sm mb-1"
-                  style={{ color: colours.status.error.text }}
-                >
-                  Allergen Warning
-                </h3>
-                <p 
-                  className="text-sm"
-                  style={{ color: colours.status.error.text }}
-                >
-                  This product contains allergens that match your profile: {allergenWarnings.map(allergen => allergen.replace(/-/g, ' ')).join(', ')}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Spider Web Diagram Box */}
         <div className="w-full max-w-xl flex flex-col items-center mb-4">
-          <div className="flex items-center justify-center w-full" style={{ minHeight: 220, minWidth: 0 }}>
+          <div className="flex items-center justify-center w-full" style={{ minHeight: 280, minWidth: 0 }}>
             <Suspense fallback={<div className="flex items-center justify-center w-full h-52">
-              <LoadingAnimation />
+              <LoadingAnimation size="medium" />
             </div>}>
               <ProductRadarChart
                 activeTab={activeTab}
@@ -486,6 +380,9 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 nutritionScore={nutritionScore}
                 sustainabilityScore={sustainabilityScore}
                 brandScore={brandScore}
+                matchPercentage={matchPercentage}
+                allergenWarnings={allergenWarnings}
+                onAllergenWarningClick={() => setShowAllergenWarning(true)}
               />
             </Suspense>
           </div>
@@ -517,7 +414,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                     <span
                       key={`allergen-${idx}`}
                       className={getAllergenTagClasses()}
-                      style={{ whiteSpace: 'nowrap' }}
+                      style={{ ...getAllergenTagStyles(), whiteSpace: 'nowrap' }}
                     >
                       {formatAllergenDisplay(allergenInfo)}
                     </span>
@@ -531,7 +428,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                     <span
                       key="country-origin"
                       className={getCountryTagClasses()}
-                      style={{ whiteSpace: 'nowrap' }}
+                      style={{ ...getCountryTagStyles(), whiteSpace: 'nowrap' }}
                     >
                       {formatCountryDisplay(countryInfo)}
                     </span>
@@ -545,20 +442,12 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   return (
                     <span
                       key={`label-${idx}`}
-                      className="inline-block border text-sm px-3 py-1.5 rounded-full font-semibold shadow-sm transition"
+                      className="inline-block border-2 text-sm px-3 py-1.5 rounded-full font-semibold shadow-sm transition"
                       style={{ 
                         whiteSpace: 'nowrap',
                         backgroundColor: colours.tag.default.background,
                         borderColor: colours.tag.default.border,
                         color: colours.tag.default.text
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = colours.tag.default.hover.background
-                        e.currentTarget.style.color = colours.tag.default.hover.text
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = colours.tag.default.background
-                        e.currentTarget.style.color = colours.tag.default.text
                       }}
                     >
                       {`${map.emoji} ${map.title}`}
@@ -569,7 +458,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             </div>
           )}
         </div>
-        
+       </ContentBox>
+
         {/* Similar Products Section */}
         <SimilarProducts 
           products={similarProducts}
@@ -596,12 +486,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           setFilter={setFilter}
           sortBy={sortBy}
           setSortBy={setSortBy}
-          sortOpen={sortOpen}
-          setSortOpen={setSortOpen}
           setRefreshing={setRefreshing}
         />
       </div>
-    </div>
+             
   );
 }
 

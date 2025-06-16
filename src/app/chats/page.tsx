@@ -4,12 +4,14 @@ import { useEffect, useState, useCallback } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus } from "@/components/Icons";
 import { Post } from "@/types/post";
 import PostCard from "@/components/PostCard";
 import PostFilters from "@/components/PostFilters";
 import CreatePostModal from "@/components/CreatePostModal";
+import ContentBox from "@/components/ContentBox";
 import { colours } from "@/styles/colours";
+import { useTopBar } from "@/contexts/TopBarContext";
 
 export default function PostsPage() {
   const [user, setUser] = useState(null);
@@ -17,10 +19,11 @@ export default function PostsPage() {
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [creatingPost, setCreatingPost] = useState(false);
+  const { setNavigating } = useTopBar();
   
   // Filter states
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'trending'>('recent');
+  const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -51,8 +54,9 @@ export default function PostsPage() {
       console.error('Error fetching posts:', error);
     } finally {
       setLoading(false);
+      setNavigating(false); // Clear navigation loading state
     }
-  }, [selectedTags, sortBy, searchTerm]);
+  }, [selectedTags, sortBy, searchTerm, setNavigating]);
 
   useEffect(() => {
     fetchPosts();
@@ -126,60 +130,53 @@ export default function PostsPage() {
 
   return (
     <div 
-      className="min-h-screen"
+      className="min-h-screen opacity-0 animate-fade-in"
       style={{ backgroundColor: colours.background.secondary }}
     >
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Link 
-              href="/" 
-              className="flex items-center hover:underline"
-              style={{ color: colours.text.link }}
-            >
-              <span className="mr-2 text-2xl">&#8592;</span>
-              <span className="font-semibold">Go back home</span>
-            </Link>
-            <h1 
-              className="text-3xl font-bold"
-              style={{ color: colours.text.primary }}
-            >
-              ShopSmart Community
-            </h1>
-          </div>
-          
-          {user && (
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-medium"
-              style={{
-                backgroundColor: colours.button.primary.background,
-                color: colours.button.primary.text
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.hover.background}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.background}
-            >
-              <Plus size={20} />
-              Create Post
-            </button>
-          )}
-        </div>
-
+      <div className="max-w-2xl mx-auto p-6">
+        
         {/* Filters */}
-        <PostFilters
-          selectedTags={selectedTags}
-          sortBy={sortBy}
-          searchTerm={searchTerm}
-          onTagsChange={setSelectedTags}
-          onSortChange={setSortBy}
-          onSearchChange={setSearchTerm}
-        />
+        <ContentBox className="opacity-0 animate-slide-in-bottom" style={{ animationDelay: '100ms' }}>
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <div>
+              <h1 
+                className="text-2xl sm:text-3xl font-bold"
+                style={{ color: colours.text.primary }}
+              >
+                Community
+              </h1>
+            </div>
+            
+            {user && (
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition-all duration-200 font-medium text-sm sm:text-base hover:scale-[1.02] hover:shadow-lg"
+                style={{
+                  backgroundColor: colours.button.primary.background,
+                  color: colours.button.primary.text
+                }}
+              >
+                <Plus />
+                <span className="hidden sm:inline">New Post</span>
+              </button>
+            )}
+          </div>
+          {/* Filters */}
+          <PostFilters
+            selectedTags={selectedTags}
+            sortBy={sortBy}
+            searchTerm={searchTerm}
+            onTagsChange={setSelectedTags}
+            onSortChange={setSortBy}
+            onSearchChange={setSearchTerm}
+          />
+        </ContentBox>
 
         {/* Posts */}
-        <div className="space-y-6">
+        <div className="space-y-2 opacity-0 animate-slide-in-bottom" style={{ animationDelay: '200ms' }}>
           {loading ? (
-            <div className="text-center py-12">
+            <ContentBox className="text-center py-12 animate-scale-in">
               <div 
                 className="animate-spin rounded-full h-12 w-12 mx-auto"
                 style={{ 
@@ -189,14 +186,14 @@ export default function PostsPage() {
                 }}
               ></div>
               <p 
-                className="mt-4"
-                style={{ color: colours.text.secondary }}
+                className="mt-4 animate-fade-in"
+                style={{ color: colours.text.secondary, animationDelay: '300ms' }}
               >
                 Loading posts...
               </p>
-            </div>
+            </ContentBox>
           ) : posts.length === 0 ? (
-            <div className="text-center py-12">
+            <ContentBox className="text-center py-12">
               <div 
                 className="mb-4"
                 style={{ color: colours.text.muted }}
@@ -228,39 +225,42 @@ export default function PostsPage() {
                     backgroundColor: colours.button.primary.background,
                     color: colours.button.primary.text
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.hover.background}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colours.button.primary.background}
-                >
+                  >
                   Create First Post
                 </button>
               )}
-            </div>
+            </ContentBox>
           ) : (
-            posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                currentUserId={user?.uid}
-                onLike={handleLike}
-                onDislike={handleDislike}
-              />
+            posts.map((post, index) => (
+              <ContentBox key={post.id} className="opacity-0 animate-slide-in-bottom" style={{ animationDelay: `${300 + index * 50}ms` }}>
+                <PostCard
+                  post={post}
+                  currentUserId={user?.uid}
+                  onLike={handleLike}
+                  onDislike={handleDislike}
+                />
+              </ContentBox>
             ))
           )}
         </div>
 
         {/* Auth prompt for non-logged in users */}
         {!user && (
-          <div className="text-center py-8">
-            <p className="text-gray-600 mb-4">
+          <ContentBox className="text-center py-6 sm:py-8 mt-4 opacity-0 animate-slide-in-bottom" style={{ animationDelay: '300ms' }}>
+            <p className="text-sm sm:text-base mb-4" style={{ color: colours.text.secondary }}>
               Join the ShopSmart community to create posts and interact with others!
             </p>
             <Link
               href="/auth"
-              className="inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="inline-flex items-center px-4 py-2 sm:px-6 sm:py-2 rounded-lg transition-colors font-medium text-sm sm:text-base"
+              style={{
+                backgroundColor: colours.button.primary.background,
+                color: colours.button.primary.text
+              }}
             >
               Sign In to Get Started
             </Link>
-          </div>
+          </ContentBox>
         )}
 
         {/* Create Post Modal */}

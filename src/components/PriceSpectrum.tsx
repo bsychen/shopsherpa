@@ -72,21 +72,15 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
     return 5 + ((price - priceStats.min) / (priceStats.max - priceStats.min)) * 90;
   };
 
-  console.log('Price Spectrum:', {
-    productPrice,
-    priceStats,
-    scaledPrice: scale(productPrice),
-  });
-
   // Calculate the position of the current product's price
   const currentPosition = scale(productPrice);
   const colors = getPositionColor(productPrice, priceStats.q1, priceStats.q3);
 
   return (
-    <div className="w-full mb-4">
-      <div className="relative w-full h-24">
+    <div className="w-full mb-2">
+      <div className="relative w-full h-16">
         {/* Main horizontal line - Split into three segments */}
-        <div className="absolute h-1.5 flex top-[75%] left-[5%] right-[5%] -translate-y-1/2">
+        <div className="absolute h-1.5 flex top-[60%] left-[5%] right-[5%] -translate-y-1/2">
           <div 
             className="h-full rounded-l-full"
             style={{ 
@@ -114,7 +108,7 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
         <div 
           className="absolute h-1 w-0.5 z-[2]"
           style={{
-            top: '75%',
+            top: '60%',
             left: `${scale(priceStats.median)}%`,
             transform: 'translate(-50%, -50%)',
             backgroundColor: colours.score.medium // Yellow for median line
@@ -125,13 +119,13 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
         <div 
           className="absolute flex flex-col items-center z-20 animate-slide-in-pointer"
           style={{
-            top: '8px',
+            top: '-5%', 
             left: `${currentPosition}%`,
             transform: 'translateX(-50%)'
           }}
         >
           {/* Product box with shadow and border */}
-          <div className="rounded-md shadow-sm px-2 py-1 mb-1" style={{
+          <div className="rounded-md shadow-xl px-2 py-1 mb-1" style={{
             backgroundColor: colors.bg,
             border: `1px solid ${colors.border}`
           }}>
@@ -141,17 +135,17 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
           </div>
           {/* Triangle pointer */}
           <div 
-            className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px]"
+            className="w-0 h-0 border-l-[6px] shadow-xl border-l-transparent border-r-[6px] border-r-transparent border-t-[6px]"
             style={{ borderTopColor: colors.border }}
           />
         </div>          
         {/* Price labels with buttons */}
         <div className="absolute -bottom-6 left-[0%]">
           <button 
-            className="rounded-md shadow-sm px-2 py-1 text-xs font-medium transition-colors hover:opacity-80"
+            className="rounded-md shadow-xl px-2 py-1 text-xs font-medium transition-colors"
             style={{
               backgroundColor: colours.status.success.background,
-              border: `1px solid ${colours.status.success.border}`,
+              border: `2px solid ${colours.status.success.border}`,
               color: colours.status.success.text
             }}
             onClick={onMinClick}
@@ -161,10 +155,10 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
         </div>
         <div className="absolute -bottom-6 right-[0%]">
           <button 
-            className="rounded-md shadow-sm px-2 py-1 text-xs font-medium transition-colors hover:opacity-80"
+            className="rounded-md shadow-xl px-2 py-1 text-xs font-medium transition-colors"
             style={{
               backgroundColor: colours.status.error.background,
-              border: `1px solid ${colours.status.error.border}`,
+              border: `2px solid ${colours.status.error.border}`,
               color: colours.status.error.text
             }}
             onClick={onMaxClick}

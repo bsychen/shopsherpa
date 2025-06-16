@@ -6,7 +6,9 @@ import { UserProfile } from '@/types/user';
 import { 
   getAllergenInfo, 
   formatAllergenDisplay,
-  AVAILABLE_ALLERGENS 
+  AVAILABLE_ALLERGENS,
+  getRemovableAllergenTagClasses,
+  getRemovableAllergenTagStyles
 } from '@/utils/allergens';
 import { colours } from '@/styles/colours';
 
@@ -14,9 +16,17 @@ interface AllergenManagerProps {
   userProfile: UserProfile;
   onAllergensUpdate: (allergens: string[]) => Promise<void>;
   isUpdating?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
-export default function AllergenManager({ userProfile, onAllergensUpdate, isUpdating = false }: AllergenManagerProps) {
+export default function AllergenManager({ 
+  userProfile, 
+  onAllergensUpdate, 
+  isUpdating = false, 
+  className = '', 
+  style = {} 
+}: AllergenManagerProps) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [localAllergens, setLocalAllergens] = useState<string[]>(userProfile.allergens || []);
 
@@ -54,26 +64,20 @@ export default function AllergenManager({ userProfile, onAllergensUpdate, isUpda
   };
 
   return (
-    <div className="rounded-xl shadow p-6 transition-all duration-500 ease-in-out" style={{ backgroundColor: colours.card.background }}>
+    <div 
+      className={`transition-all duration-500 ease-in-out ${className}`}
+      style={style}>
       {/* Header with title and edit button */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold" style={{ color: colours.text.primary }}>Allergens</h2>
+      <div className="flex items-center justify-between mb-2">
+        <h1 className="text-lg font-semibold" style={{ color: colours.text.primary }}>Allergens</h1>
         <button
           onClick={toggleEditMode}
           disabled={isUpdating}
-          className="px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 disabled:opacity-50 flex items-center gap-2"
+          className="px-3 py-2 text-sm solid font-medium rounded-lg shadow-xl transition-colors duration-200 disabled:opacity-50 flex items-center gap-2"
           style={{ 
             color: colours.button.edit.text,
             backgroundColor: colours.button.edit.background,
-            border: `1px solid ${colours.content.border}`
-          }}
-          onMouseEnter={(e) => {
-            if (!isUpdating) {
-              e.currentTarget.style.backgroundColor = colours.button.edit.hover.background;
-            }
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = colours.button.edit.background;
+            border: `2px solid ${colours.card.border}`
           }}
         >
           {isEditMode ? (
@@ -97,14 +101,10 @@ export default function AllergenManager({ userProfile, onAllergensUpdate, isUpda
           return (
             <div
               key={allergen}
-              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm transition-all duration-200 hover:opacity-80 ${
+              className={`${getRemovableAllergenTagClasses()} ${
                 isEditMode ? 'pr-1' : ''
               }`}
-              style={{
-                backgroundColor: colours.status.error.background,
-                color: colours.status.error.text,
-                border: `1px solid ${colours.status.error.border}`
-              }}
+              style={getRemovableAllergenTagStyles()}
             >
               <span>
                 {allergenInfo ? formatAllergenDisplay(allergenInfo) : allergen}
@@ -113,8 +113,8 @@ export default function AllergenManager({ userProfile, onAllergensUpdate, isUpda
                 <button
                   onClick={() => handleRemoveAllergen(allergen)}
                   disabled={isUpdating}
-                  className="ml-1 font-bold text-sm leading-none disabled:opacity-50 w-5 h-5 flex items-center justify-center rounded-full hover:opacity-70 transition-colors duration-150"
-                  style={{ color: colours.status.error.text }}
+                  className="ml-1 font-bold text-sm leading-none disabled:opacity-50 w-5 h-5 flex items-center justify-center rounded-full transition-colors duration-150"
+                  style={{ color: colours.status.error.border }}
                   aria-label={`Remove ${allergen} allergen`}
                 >
                   ×
@@ -150,11 +150,11 @@ export default function AllergenManager({ userProfile, onAllergensUpdate, isUpda
                     key={allergenOption.dbKey}
                     onClick={() => handleAddAllergen(allergenOption.dbKey)}
                     disabled={isUpdating}
-                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm transition-all duration-200 disabled:opacity-50 opacity-0 animate-fade-in hover:opacity-80`}
+                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm transition-all duration-200 disabled:opacity-50 opacity-0 animate-fade-in`}
                     style={{ 
                       backgroundColor: colours.tag.default.background,
                       color: colours.tag.default.text,
-                      border: `1px solid ${colours.tag.default.border}`,
+                      border: `2px solid ${colours.tag.default.border}`,
                       animationDelay: isEditMode ? `${index * 50}ms` : '0ms',
                       animationFillMode: 'forwards'
                     }}

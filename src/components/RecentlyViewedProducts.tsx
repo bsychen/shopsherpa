@@ -42,16 +42,10 @@ const RecentlyViewedProducts = ({ userId }: { userId: string }) => {
                         style={{
                             backgroundColor: colours.card.background,
                             borderColor: colours.card.border,
-                            borderWidth: '1px',
+                            borderWidth: '2px',
                             borderStyle: 'solid'
                         }}
-                        className="rounded p-3 transition cursor-pointer"
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = colours.card.hover.background;
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = colours.card.background;
-                        }}
+                        className="rounded-xl shadow-xl p-3 transition cursor-pointer"
                     >
                         <Link
                             href={`/product/${product.id}`}
@@ -74,12 +68,6 @@ const RecentlyViewedProducts = ({ userId }: { userId: string }) => {
                         style={{
                             backgroundColor: colours.button.secondary.background,
                             color: colours.button.secondary.text,
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = colours.button.secondary.hover.background;
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = colours.button.secondary.background;
                         }}
                         onClick={() => setShowAll(true)}
                     >

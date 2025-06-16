@@ -7,6 +7,10 @@ import { useRouter, useParams } from "next/navigation";
 import { getProduct, createReview } from "@/lib/api";
 import { Product } from "@/types/product";
 import { colours } from "@/styles/colours";
+import ContentBox from "@/components/ContentBox";
+import LoadingAnimation from "@/components/LoadingSpinner";
+import StarIcon from "@/components/Icons";
+import { useTopBar } from "@/contexts/TopBarContext";
 
 export default function ReviewPage() {
   const params = useParams();
@@ -21,6 +25,7 @@ export default function ReviewPage() {
   const [rating, setRating] = useState(0);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const router = useRouter();
+  const { setTopBarState, resetTopBar } = useTopBar();
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
@@ -42,6 +47,19 @@ export default function ReviewPage() {
       setLoading(false);
     });
   }, [id]);
+
+  // Set up back button in top bar
+  useEffect(() => {
+    setTopBarState({
+      showBackButton: true,
+      onBackClick: () => router.push(`/product/${id}`)
+    });
+
+    // Cleanup when component unmounts
+    return () => {
+      resetTopBar();
+    };
+  }, [setTopBarState, resetTopBar, router, id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,123 +83,134 @@ export default function ReviewPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-40">
-        <span style={{ color: colours.text.muted }}>Loading...</span>
-      </div>
-    );
+    return <LoadingAnimation />;
   }
 
   if (!user) {
-    return (
-      <div className="flex justify-center items-center h-40">
-        <span style={{ color: colours.text.muted }}>Loading...</span>
-      </div>
-    );
+    return <LoadingAnimation />;
   }
 
   return (
     <div 
-      className="max-w-md mx-auto mt-10 rounded-xl shadow p-8"
-      style={{
-        backgroundColor: colours.card.background,
-        border: `1px solid ${colours.card.border}`
-      }}
+      className="min-h-screen"
+      style={{ backgroundColor: colours.background.secondary }}
     >
-      <div className="flex items-center mb-4">
-        <a 
-          href={`/product/${id}`} 
-          className="flex items-center hover:underline"
-          style={{ color: colours.text.link }}
-        >
-          <span className="mr-2 text-2xl">&#8592;</span>
-          <span className="font-semibold">Go back to {product?.productName || 'product'}</span>
-        </a>
-      </div>
-      {product && (
-        <div className="mb-4">
-          <div 
-            className="text-lg font-semibold mb-1"
-            style={{ color: colours.text.primary }}
-          >
-            {product.productName}
-          </div>
-          <div style={{ color: colours.text.secondary }}>
-            What you should be paying: 
-            <span 
-              className="font-bold"
-              style={{ color: colours.score.high }}
-            >
-              £{product.price?.toFixed(2)}
-            </span>
-          </div>
-        </div>
-      )}
-      <h1 
-        className="text-2xl font-bold mb-4"
-        style={{ color: colours.text.primary }}
-      >
-        Write a Review
-      </h1>
-      {submitSuccess ? (
-        <>
-          <div 
-            className="text-lg mb-4"
-            style={{ color: colours.status.success.text }}
-          >
-            Review submitted!
-          </div>
-          <button
-            className="w-full font-semibold py-2 px-4 rounded transition"
-            style={{
-              backgroundColor: colours.button.secondary.background,
-              color: colours.button.secondary.text
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = colours.button.secondary.hover.background;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = colours.button.secondary.background;
-            }}
-            onClick={() => router.push(`/product/${id}`)}
-          >
-            Back to {product?.productName || 'Product'}
-          </button>
-        </>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+      <div className="max-w-md mx-auto pt-10 px-4">
+        <ContentBox>
+          {product && (
             <div className="mb-4">
               <div 
-                className="mb-2 font-semibold"
+                className="text-lg font-semibold mb-1"
                 style={{ color: colours.text.primary }}
               >
-                Quality:
+                {product.productName}
               </div>
-              <div className="flex space-x-2">
+              <div style={{ color: colours.text.secondary }}>
+                What you should be paying: 
+                <span 
+                  className="font-bold"
+                  style={{ color: colours.score.high }}
+                >
+                  £{product.price?.toFixed(2)}
+                </span>
+              </div>
+            </div>
+          )}
+          <h1 
+            className="text-2xl font-bold mb-4"
+            style={{ color: colours.text.primary }}
+          >
+            Write a Review
+          </h1>
+      {submitSuccess ? (
+        <div className="text-center space-y-4">
+          <div 
+            className="p-4 rounded-lg text-lg font-medium"
+            style={{ 
+              backgroundColor: colours.status.success.background,
+              color: colours.status.success.text,
+              border: `1px solid ${colours.status.success.border}`
+            }}
+          >
+            ✓ Review submitted successfully!
+          </div>
+          <p 
+            className="text-sm"
+            style={{ color: colours.text.secondary }}
+          >
+            Redirecting you back to the product page...
+          </p>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <div className="mb-6">
+              <label 
+                className="block text-sm font-medium mb-3"
+                style={{ color: colours.text.primary }}
+              >
+                Rating
+              </label>
+              <div className="flex space-x-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     type="button"
                     key={star}
-                    className={`text-2xl transition-colors ${rating >= star ? '' : 'opacity-30'}`}
+                    className={`transition-all hover:scale-110 ${rating >= star ? '' : 'opacity-30'}`}
                     onClick={() => setRating(star)}
                     aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
                   >
-                    ⭐
+                    <StarIcon size={28} />
                   </button>
                 ))}
               </div>
             </div>
-            <div className="mb-4">
-              <label className="flex items-center space-x-2">
+            
+            <div className="mb-6">
+              <label 
+                className="block text-sm font-medium mb-3"
+                style={{ color: colours.text.primary }}
+              >
+                Review
+              </label>
+              <textarea
+                className="w-full min-h-[120px] rounded-lg p-3 focus:outline-none focus:ring-2 transition-all"
+                style={{
+                  backgroundColor: colours.input.background,
+                  borderColor: colours.input.border,
+                  borderWidth: '1px',
+                  borderStyle: 'solid',
+                  color: colours.input.text
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.boxShadow = colours.input.focus.ring;
+                  e.currentTarget.style.borderColor = colours.input.focus.border;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.borderColor = colours.input.border;
+                }}
+                value={reviewText}
+                onChange={e => setReviewText(e.target.value)}
+                required
+                maxLength={1000}
+                placeholder="Share your thoughts about this product... What did you like? What could be improved?"
+              />
+              <div className="mt-1 text-xs" style={{ color: colours.text.muted }}>
+                {reviewText.length}/1000 characters
+              </div>
+            </div>
+            
+            <div className="mb-6">
+              <label className="flex items-center space-x-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={isAnonymous}
                   onChange={(e) => setIsAnonymous(e.target.checked)}
+                  className="rounded w-4 h-4"
                   style={{
                     accentColor: colours.button.primary.background
                   }}
-                  className="rounded"
                 />
                 <span 
                   className="text-sm"
@@ -191,61 +220,43 @@ export default function ReviewPage() {
                 </span>
               </label>
             </div>
-            <textarea
-              className="w-full min-h-[100px] rounded p-2 focus:outline-none"
-              style={{
-                backgroundColor: colours.input.background,
-                borderColor: colours.input.border,
-                borderWidth: '1px',
-                borderStyle: 'solid',
-                color: colours.input.text
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.boxShadow = colours.input.focus.ring;
-                e.currentTarget.style.borderColor = colours.input.focus.border;
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.boxShadow = 'none';
-                e.currentTarget.style.borderColor = colours.input.border;
-              }}
-              value={reviewText}
-              onChange={e => setReviewText(e.target.value)}
-              required
-              maxLength={1000}
-              placeholder="Share your thoughts about this product..."
-            />
           </div>
           {submitError && (
             <div 
-              className="text-sm"
-              style={{ color: colours.status.error.text }}
+              className="p-3 rounded-lg text-sm"
+              style={{ 
+                backgroundColor: colours.status.error.background,
+                color: colours.status.error.text,
+                border: `1px solid ${colours.status.error.border}`
+              }}
             >
               {submitError}
             </div>
           )}
           <button
             type="submit"
-            className="w-full font-semibold py-2 px-4 rounded transition disabled:opacity-60"
+            className="w-full font-semibold py-3 px-4 rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             style={{
               backgroundColor: colours.button.primary.background,
               color: colours.button.primary.text
             }}
+            disabled={submitting || rating === 0}
             onMouseEnter={(e) => {
-              if (!submitting) {
+              if (!submitting && rating > 0) {
                 e.currentTarget.style.backgroundColor = colours.button.primary.hover.background;
               }
             }}
             onMouseLeave={(e) => {
-              if (!submitting) {
+              if (!submitting && rating > 0) {
                 e.currentTarget.style.backgroundColor = colours.button.primary.background;
               }
             }}
-            disabled={submitting}
           >
             {submitting ? "Submitting..." : "Submit Review"}
           </button>
-        </form>
-      )}
+        </form>          )}
+        </ContentBox>
+      </div>
     </div>
   );
 }

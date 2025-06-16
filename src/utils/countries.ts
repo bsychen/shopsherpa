@@ -1,3 +1,5 @@
+import { colours } from "@/styles/colours";
+
 export interface CountryInfo {
   title: string;
   emoji: string;
@@ -105,9 +107,33 @@ export function getCountryInfoFromCode(countryCode: string): CountryInfo | null 
 
 /**
  * Get the CSS classes for country tags - consistent styling across the app
+ * Uses the indigo color scheme from colours.tags.countries
  */
 export function getCountryTagClasses(): string {
-  return "inline-block bg-blue-100 border border-blue-300 text-blue-700 text-sm px-3 py-1.5 rounded-full font-semibold shadow-sm hover:bg-blue-200 hover:text-blue-900 transition";
+  return "inline-block text-sm px-3 py-1.5 rounded-full font-medium shadow-sm transition-all duration-200";
+}
+
+/**
+ * Get the inline styles for country tags using colours.tags.countries
+ */
+export function getCountryTagStyles() {
+  return {
+    backgroundColor: `${colours.tags.countries.background}20`, // 20% opacity for lighter background
+    borderColor: colours.tags.countries.border,
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    color: colours.tags.countries.border, // Use border color for text for better contrast
+  };
+}
+
+/**
+ * Get the hover styles for country tags
+ */
+export function getCountryTagHoverStyles() {
+  return {
+    backgroundColor: `${colours.tags.countries.background}30`, // 30% opacity for hover
+    color: colours.tags.countries.background,
+  };
 }
 
 /**

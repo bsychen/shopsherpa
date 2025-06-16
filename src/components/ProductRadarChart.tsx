@@ -11,36 +11,115 @@ import {
   Legend,
   ChartOptions,
 } from "chart.js";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { colours } from "@/styles/colours";
+import AllergenWarningIcon from "./AllergenWarningIcon";
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
-// --- Constants for colors, borders, SVGs ---
+function AnimatedMatchPercent({ percent, hasAllergens = false }: { percent: number, hasAllergens?: boolean }) {
+  const [displayed, setDisplayed] = useState(0);
+  const [animatedPercent, setAnimatedPercent] = useState(0);
+  const rafRef = useRef<number | null>(null);
+  const startRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    startRef.current = null;
+    const duration = 900;
+    
+    function animate(ts: number) {
+      if (!startRef.current) startRef.current = ts;
+      const progress = Math.min((ts - startRef.current) / duration, 1);
+      const currentPercent = percent * progress;
+      setDisplayed(Math.round(currentPercent));
+      setAnimatedPercent(currentPercent);
+      
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(animate);
+      } else {
+        setDisplayed(percent);
+        setAnimatedPercent(percent);
+        rafRef.current = null;
+      }
+    }
+    
+    rafRef.current = requestAnimationFrame(animate);
+    
+    return () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    };
+  }, [percent]);
+
+  // Color logic - red if allergens are flagged, otherwise based on percentage
+  const color = hasAllergens 
+    ? { text: `${colours.status.error.background}80` }
+    : displayed >= 70
+    ? { text: colours.score.high }
+    : displayed >= 50
+    ? { text: colours.score.medium }
+    : { text: colours.score.low };
+
+  return (
+    <span className="relative flex flex-col items-center justify-center min-w-[70px] min-h-[70px]">
+      {/* Ring animation background */}
+      <svg width="70" height="70" viewBox="0 0 70 70" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
+        <circle
+          cx="35" cy="35" r="30"
+          fill="none"
+          stroke={color.text}
+          strokeWidth="6"
+          strokeDasharray={Math.PI * 2 * 30}
+          strokeDashoffset={Math.PI * 2 * 30 * (1 - (animatedPercent / 100))}
+          strokeLinecap="round"
+          style={{
+            transform: 'rotate(-90deg)',
+            transformOrigin: 'center center',
+          }}
+        />
+      </svg>
+      <span
+        className="font-bold text-lg relative z-10"
+        style={{ color: color.text, pointerEvents: 'none', userSelect: 'none' }}
+      >
+        {displayed}%
+      </span>
+      <span 
+        className="block font-medium text-center text-xs relative z-10"
+        style={{ color: colours.text.secondary, marginTop: '-2px' }}
+      >
+        match
+      </span>
+    </span>
+  );
+}
+
 const BUTTON_CONFIG: Record<string, { color: string; border: string; svg: string }> = {
   Price: {
-    color: "bg-yellow-100",
-    border: "border-yellow-200",
+    color: colours.categories.price.background,
+    border: colours.categories.price.border,
     svg: "/pound-svgrepo-com.svg",
   },
   Quality: {
-    color: "bg-red-100",
-    border: "border-red-200",
+    color: colours.categories.quality.background,
+    border: colours.categories.quality.border,
     svg: "/quality-supervision-svgrepo-com.svg",
   },
   Nutrition: {
-    color: "bg-blue-100",
-    border: "border-blue-200",
+    color: colours.categories.nutrition.background,
+    border: colours.categories.nutrition.border,
     svg: "/meal-svgrepo-com.svg",
   },
   Sustainability: {
-    color: "bg-lime-100",
-    border: "border-green-200",
+    color: colours.categories.sustainability.background,
+    border: colours.categories.sustainability.border,
     svg: "/leaf-svgrepo-com.svg",
   },
   Brand: {
-    color: "bg-purple-100",
-    border: "border-purple-200",
+    color: colours.categories.brand.background,
+    border: colours.categories.brand.border,
     svg: "/prices-svgrepo-com.svg",
   },
 };
@@ -56,6 +135,9 @@ export default function ProductRadarChart({
   nutritionScore = 2,
   sustainabilityScore = 3,
   brandScore = 3,
+  matchPercentage = null,
+  allergenWarnings = [],
+  onAllergenWarningClick,
 }: {
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -64,7 +146,11 @@ export default function ProductRadarChart({
   nutritionScore?: number;
   sustainabilityScore?: number;
   brandScore?: number;
+  matchPercentage?: number | null;
+  allergenWarnings?: string[];
+  onAllergenWarningClick?: () => void;
 }) {
+  // Initialize allergen expanded state based on whether allergens exist
   const radarData = [
     priceScore,
     qualityScore,
@@ -80,8 +166,8 @@ export default function ProductRadarChart({
       {
         label: "Product Attributes",
         data: radarData,
-        backgroundColor: `${colours.chart.primary}80`, // 50% opacity
-        borderColor: colours.chart.primary,
+        backgroundColor: `${colours.chart.primary}80`,
+        borderColor: `${colours.chart.grid}80`,
         borderWidth: 2,
         pointBackgroundColor: colours.chart.primary,
       },
@@ -96,13 +182,12 @@ export default function ProductRadarChart({
         min: 0,
         max: 5,
         ticks: { stepSize: 1, display: false },
-        grid: { color: colours.chart.grid },
+        grid: { color: "#9CA3AF" },
         pointLabels: { color: colours.chart.text, font: { size: 16 } },
       },
     },
   };
 
-  // Layout constants
   // Layout constants
   const containerSize = 260;
   const btnBase = 40;
@@ -116,14 +201,31 @@ export default function ProductRadarChart({
   const angleStep = (2 * Math.PI) / LABELS.length;
   const offset = 1.2;
   const verticalShift = 14;
-  // Animation state
   const [showButtons, setShowButtons] = useState(false);
 
-  useEffect(() => { setShowButtons(true); }, []);
+  useEffect(() => { 
+    setShowButtons(true);
+  }, []);
 
-  // --- Render ---
   return (
-    <div className="relative flex items-center justify-center" style={{ width: containerSize, height: containerSize }}>
+    <div className="relative">
+      {/* Main content container */}
+      <div className="flex flex-col items-center gap-4">
+        {/* Radar Chart Container */}
+        <div className="relative flex items-center justify-center" style={{ width: containerSize, height: containerSize }}>
+          {/* Match Percentage in top right corner with allergen warning icon */}
+          {matchPercentage !== null && (
+            <div className="absolute top-2 right-2 z-10">
+              <AnimatedMatchPercent 
+                percent={matchPercentage} 
+                hasAllergens={allergenWarnings && allergenWarnings.length > 0}
+              />
+              <AllergenWarningIcon 
+                hasAllergens={allergenWarnings && allergenWarnings.length > 0}
+                onClick={() => onAllergenWarningClick?.()}
+              />
+            </div>
+          )}
       {/* Radar Chart */}
       <div className="absolute left-0 top-0 w-full h-full flex items-center justify-center pointer-events-none">
         <Radar data={chartData} options={options} style={{ maxHeight: 240, maxWidth: 240 }} />
@@ -139,7 +241,7 @@ export default function ProductRadarChart({
           <button
             key={label}
             type="button"
-            className={`absolute flex items-center justify-center rounded-xl shadow border ${config.color} ${config.border} ${activeTab === label ? "ring-2 ring-zinc-200 scale-110" : ""}`}
+            className={`absolute flex items-center justify-center rounded-xl shadow-xl border-2 border-black ${config.color} ${activeTab === label ? "ring-2 ring-zinc-200 scale-110" : ""}`}
             style={{
               left: x,
               top: y,
@@ -152,10 +254,19 @@ export default function ProductRadarChart({
               transform: showButtons ? (activeTab === label ? "scale(1.10)" : "scale(1)") : "scale(0.5)",
               transition: "transform 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.45s cubic-bezier(0.4,0,0.2,1)",
               transitionDelay: delay,
+              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
             }}
             tabIndex={-1}
             aria-label={label}
-            onClick={() => setActiveTab(label)}
+            onClick={() => {
+              if (activeTab === label) {
+                // If clicking the already active tab, clear the selection
+                setActiveTab("");
+              } else {
+                // If clicking a different tab, set it as active
+                setActiveTab(label);
+              }
+            }}
           >
             <Image
               src={config.svg}
@@ -168,6 +279,8 @@ export default function ProductRadarChart({
           </button>
         );
       })}
+      </div>
+      </div>
     </div>
   );
 }

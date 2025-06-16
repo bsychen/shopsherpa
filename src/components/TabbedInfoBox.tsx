@@ -4,6 +4,7 @@ import { Product } from "@/types/product";
 import { ReviewSummary } from "@/types/reviewSummary";
 import PriceSpectrum from "./PriceSpectrum";
 import { colours } from "@/styles/colours";
+import StarIcon from "./Icons";
 
 const TAB_ICONS: Record<string, React.ReactNode> = {
   Price: <Image src="/pound-svgrepo-com.svg" alt="Price" width={24} height={24} className="w-6 h-6" />,
@@ -49,9 +50,12 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   const tabRefs = useRef([]);
   const [barStyle, setBarStyle] = useState({ left: 0, width: 0 });
   const contentRef = useRef(null);
-  const [boxHeight, setBoxHeight] = useState();
+  const [boxHeight, setBoxHeight] = useState<number | undefined>();
   const [showMinProduct, setShowMinProduct] = useState(false);
   const [showMaxProduct, setShowMaxProduct] = useState(false);
+  
+  // Derived state: collapsed when activeTab is empty
+  const isCollapsed = activeTab === "";
 
   // Convert nutrition grade to score (A=5, B=4, C=3, D=2, E=1, unknown=2)
   function getNutritionScore(grade: string): number {
@@ -66,7 +70,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   }
 
   // Animation trigger function
-  const triggerAnimation = (tab) => {
+  const triggerAnimation = (tab: string) => {
     if (tab === "Quality") {
       setAnimatedQuality(0);
       setTimeout(() => setAnimatedQuality(reviewSummary?.averageRating || 0), 50);
@@ -85,6 +89,11 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   // Update sliding bar position/width on tab change or window resize
   useEffect(() => {
     const updateBar = () => {
+      if (activeTab === "") {
+        setBarStyle({ left: 0, width: 0 });
+        return;
+      }
+      
       const idx = tabs.indexOf(activeTab);
       const btn = tabRefs.current[idx];
       if (btn) {
@@ -103,52 +112,84 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
 
   // Update box height on content change
   useEffect(() => {
-    // Update the height calculation to better handle product details
-    if (contentRef.current) {
+    if (isCollapsed) {
+      // When collapsed, only show the tabs height (no margin below)
+      setBoxHeight(30); // Just the tab height without bottom margin
+    } else if (contentRef.current) {
+      // When expanded, calculate content height
       const newHeight = contentRef.current.scrollHeight;
       
       // Use requestAnimationFrame to ensure smooth height transition
       requestAnimationFrame(() => {
-        setBoxHeight(newHeight);
+        setBoxHeight(newHeight + 50); // Add tab height
       });
     }
-  }, [activeTab, product, reviewSummary, showMinProduct, showMaxProduct]);
+  }, [activeTab, product, reviewSummary, showMinProduct, showMaxProduct, isCollapsed]);
 
   useEffect(() => {
-    triggerAnimation(activeTab);
+    if (!isCollapsed && activeTab !== "") {
+      triggerAnimation(activeTab);
+    }
     // eslint-disable-next-line
   }, [activeTab, reviewSummary]);
+
+  // Trigger animation when activeTab changes externally (e.g., from radar chart)
+  useEffect(() => {
+    if (activeTab !== "") {
+      triggerAnimation(activeTab);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   const min = priceStats.min;
   const max = priceStats.max;
 
+  // Get category background color based on active tab
+  const getCategoryBackground = () => {
+    if (isCollapsed || !activeTab) {
+      return colours.content.surfaceSecondary;
+    }
+    
+    const categoryMap: Record<string, string> = {
+      'Price': '#fef3c7', // yellow-100
+      'Quality': '#fee2e2', // red-100  
+      'Nutrition': '#dbeafe', // blue-100
+      'Sustainability': '#ecfccb', // lime-100
+      'Brand': '#f3e8ff', // purple-100
+    };
+    
+    return categoryMap[activeTab] || colours.content.surfaceSecondary;
+  };
+
   return (
     <div
-      className="w-full max-w-xl mt-4 rounded-xl shadow p-4 transition-colors duration-300"
+      className="w-full max-w-xl mt-4 rounded-2xl shadow-lg border-2 border-black p-3 transition-colors duration-300"
       style={{
-        backgroundColor: colours.content.surfaceSecondary,
-        border: `1px solid ${colours.content.border}`,
-        height: boxHeight ? boxHeight + 90 : undefined,
-        minHeight: 210,
-        transition: "height 0.4s cubic-bezier(0.4,0,0.2,1), background 0.3s",
+        backgroundColor: getCategoryBackground(),
+        border: `2px solid ${colours.content.border}`,
+        height: boxHeight ? boxHeight + 32 : undefined,
+        minHeight: isCollapsed ? 40 : 210,
+        transition: "height 0.4s cubic-bezier(0.4,0,0.2,1), background-color 0.3s ease",
         position: "relative"
       }}
     >
       {/* Tab Headers */}
       <div 
-        className="flex mb-4 border-b justify-center gap-2 relative"
-        style={{ borderColor: colours.content.border }}
+        className={`flex ${isCollapsed ? 'mb-0' : 'mb-4'} ${!isCollapsed ? 'border-b' : ''} justify-center gap-2 relative`}
+        style={{ borderColor: isCollapsed ? 'transparent' : colours.content.border }}
       >
-        {/* Sliding Grey Bar */}
-        <div
-          className="absolute bottom-0 h-1 rounded transition-all duration-300"
-          style={{
-            left: barStyle.left,
-            width: barStyle.width,
-            backgroundColor: colours.ui.neutral.border,
-            transition: "left 0.35s cubic-bezier(0.4,0,0.2,1), width 0.35s cubic-bezier(0.4,0,0.2,1)",
-          }}
-        />
+        {/* Sliding  Bar - only show when expanded */}
+        {!isCollapsed && (
+          <div
+            className="absolute bottom-0 h-1 rounded transition-all duration-300"
+            style={{
+              left: barStyle.left,
+              width: barStyle.width,
+              backgroundColor: '#000000',
+              transition: "left 0.35s cubic-bezier(0.4,0,0.2,1), width 0.35s cubic-bezier(0.4,0,0.2,1)",
+            }}
+          />
+        )}
         {tabs.map((tab, i) => (
           <button
             key={tab}
@@ -158,19 +199,15 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
               color: activeTab === tab ? colours.text.link : colours.text.secondary,
               minWidth: 44
             }}
-            onMouseEnter={(e) => {
-              if (activeTab !== tab) {
-                e.currentTarget.style.color = colours.text.primary
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== tab) {
-                e.currentTarget.style.color = colours.text.secondary
-              }
-            }}
             onClick={() => {
-              setActiveTab(tab);
-              triggerAnimation(tab);
+              if (activeTab === tab && !isCollapsed) {
+                // If clicking the active tab while expanded, collapse by clearing activeTab
+                setActiveTab("");
+              } else {
+                // If clicking a different tab or expanding from collapsed state
+                setActiveTab(tab);
+                triggerAnimation(tab);
+              }
             }}
             aria-label={tab}
           >
@@ -179,18 +216,19 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
         ))}
       </div>
       {/* Content area */}
-      <div 
-        ref={contentRef} 
-        className="relative px-4 pb-4"
-        style={{ 
-          opacity: 1, 
-          transition: 'opacity 0.2s ease-in-out, height 0.3s ease-in-out'
-        }}
-      >
+      {!isCollapsed && (
+        <div 
+          ref={contentRef} 
+          className="relative px-4 pb-4"
+          style={{ 
+            opacity: 1, 
+            transition: 'opacity 0.2s ease-in-out, height 0.3s ease-in-out'
+          }}
+        >
         {activeTab === "Price" && reviewSummary && (
           <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
             <h2 
-              className="text-lg font-bold mb-2 self-start"
+              className="text-lg font-bold mb-1 self-start"
               style={{ color: colours.text.primary }}
             >
               Price Range
@@ -277,13 +315,13 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
         )}
         {activeTab === "Quality" && reviewSummary && (
           <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
-            <h2 
-              className="text-lg font-bold mb-2 self-start"
-              style={{ color: colours.text.primary }}
-            >
-              Quality
-            </h2>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="w-full flex items-center gap-3 mb-4">
+              <h2 
+                className="text-lg font-bold mb-2 self-start"
+                style={{ color: colours.text.primary }}
+              >
+                Reviews
+              </h2>
               <span className="relative inline-block w-12 h-12 align-middle">
                 <svg width="48" height="48" viewBox="0 0 48 48" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
                   <circle
@@ -301,7 +339,9 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
                     }}
                   />
                 </svg>
-                <span className="relative z-10 flex items-center justify-center w-12 h-12 text-3xl">🍎</span>
+                <span className="relative z-10 flex items-center justify-center w-12 h-12 text-3xl">
+                  <StarIcon size={24}/>
+                </span>
               </span>
               <span 
                 className="ml-1 text-xs"
@@ -310,47 +350,57 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
                 Avg Score: {reviewSummary.averageRating?.toFixed(2)}
               </span>
             </div>
+            
+            <div className="flex items-center gap-2 mb-2">
+              
+            </div>
             <div className="w-full">
               <div 
-                className="font-semibold mb-1 text-xs md:text-base"
+                className="font-semibold mb-3 text-xs md:text-base"
                 style={{ color: colours.text.primary }}
               >
-                Quality
+                Rating Distribution
               </div>
-              <div className="flex flex-col gap-1 h-auto w-full">
-                {[5,4,3,2,1].map(star => (
-                  <div
-                    key={star}
-                    className="flex items-center mb-0.5 w-full group focus:outline-none"
-                  >
-                    <span 
-                      className="text-[10px] w-5 text-right mr-1"
-                      style={{ color: colours.text.primary }}
-                    >
-                      {star}★
-                    </span>
+              <div className="flex items-end justify-center gap-2 h-32 w-full px-4">
+                {[1,2,3,4,5].map(star => {
+                  const count = Number(reviewSummary.ratingDistribution?.[star] || 0);
+                  const maxCount = Math.max(...[1,2,3,4,5].map(s => Number(reviewSummary.ratingDistribution?.[s] || 0)));
+                  const height = maxCount > 0 ? Math.max(8, (count / maxCount) * 100) : 8;
+                  
+                  return (
                     <div
-                      className="rounded h-3 transition-all duration-700 animate-bar-grow"
-                      style={{ 
-                        width: `${Math.max(6, Number(reviewSummary.ratingDistribution?.[star] || 0) * 12)}px`, 
-                        transition: 'width 0.7s cubic-bezier(0.4,0,0.2,1)',
-                        backgroundColor: colours.score.medium
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = colours.score.high
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = colours.score.medium
-                      }}
-                    />
-                    <span 
-                      className="text-[10px] ml-1"
-                      style={{ color: colours.text.secondary }}
+                      key={star}
+                      className="flex flex-col items-center group focus:outline-none"
                     >
-                      {String(reviewSummary.ratingDistribution?.[star] || 0)}
-                    </span>
-                  </div>
-                ))}
+                      <span 
+                        className="text-[10px] mb-1"
+                        style={{ color: colours.text.secondary }}
+                      >
+                        {count}
+                      </span>
+                      <div
+                        className="rounded w-6 transition-all duration-700 animate-bar-grow"
+                        style={{ 
+                          height: `${height}px`, 
+                          transition: 'height 0.7s cubic-bezier(0.4,0,0.2,1), background-color 0.3s ease',
+                          backgroundColor: colours.score.medium
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = colours.score.high
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = colours.score.medium
+                        }}
+                      />
+                      <span 
+                        className="text-[10px] mt-1 flex items-center"
+                        style={{ color: colours.text.primary }}
+                      >
+                        {star}<StarIcon size={8} className="ml-0.5" />
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -515,7 +565,8 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
             </div>
           </div>
         )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
