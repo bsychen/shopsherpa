@@ -11,6 +11,7 @@ import ContentBox from "@/components/ContentBox";
 import LoadingAnimation from "@/components/LoadingSpinner";
 import StarIcon from "@/components/Icons";
 import { useTopBar } from "@/contexts/TopBarContext";
+import Image from "next/image";
 
 export default function ReviewPage() {
   const params = useParams();
@@ -96,26 +97,42 @@ export default function ReviewPage() {
       style={{ backgroundColor: colours.background.secondary }}
     >
       <div className="max-w-md mx-auto pt-10 px-4">
-        <ContentBox>
-          {product && (
-            <div className="mb-4">
-              <div 
-                className="text-lg font-semibold mb-1"
-                style={{ color: colours.text.primary }}
-              >
-                {product.productName}
-              </div>
-              <div style={{ color: colours.text.secondary }}>
-                What you should be paying: 
-                <span 
-                  className="font-bold"
-                  style={{ color: colours.score.high }}
+        {/* Product Information Card */}
+        {product && (
+          <ContentBox className="mb-4">
+            <div className="flex items-center space-x-4">
+              <Image
+                src={product.imageUrl || "/placeholder.jpg"}
+                alt={product.productName}
+                width={60}
+                height={60}
+                className="w-15 h-15 object-contain rounded-lg"
+              />
+              <div className="flex-1">
+                <h2 
+                  className="text-lg font-semibold mb-1"
+                  style={{ color: colours.text.primary }}
                 >
-                  £{product.price?.toFixed(2)}
-                </span>
+                  {product.productName}
+                </h2>
+                <p 
+                  className="text-sm mb-1"
+                  style={{ color: colours.text.secondary }}
+                >
+                  {product.brandName || 'Unknown Brand'}
+                </p>
+                <p 
+                  className="text-xs font-mono"
+                  style={{ color: colours.text.muted }}
+                >
+                  Product ID: {id}
+                </p>
               </div>
             </div>
-          )}
+          </ContentBox>
+        )}
+        
+        <ContentBox>
           <h1 
             className="text-2xl font-bold mb-4"
             style={{ color: colours.text.primary }}
@@ -145,13 +162,7 @@ export default function ReviewPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <div className="mb-6">
-              <label 
-                className="block text-sm font-medium mb-3"
-                style={{ color: colours.text.primary }}
-              >
-                Rating
-              </label>
-              <div className="flex space-x-1">
+              <div className="flex items-center justify-center space-x-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     type="button"
@@ -160,7 +171,7 @@ export default function ReviewPage() {
                     onClick={() => setRating(star)}
                     aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
                   >
-                    <StarIcon size={28} />
+                    <StarIcon size={40} />
                   </button>
                 ))}
               </div>
