@@ -16,8 +16,8 @@ const colourMap = {
     grey: '#BFC7B5',
     indigo: '#103A5D',
     darkIndigo: '#0A2A4B',
-    cyan: '#3B9C87'
-
+    cyan: '#3B9C87',
+    babyBlue: '#A2DFF7',
 }
 
 // Common component color patterns

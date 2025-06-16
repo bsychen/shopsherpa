@@ -12,8 +12,8 @@ import {
   Legend,
   ChartOptions,
 } from "chart.js";
-import { Pencil } from 'lucide-react';
 import { UserProfile } from '@/types/user';
+import EditButton from './EditButton';
 import Image from 'next/image';
 import { colours } from '@/styles/colours';
 
@@ -273,20 +273,13 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
       <div className="flex flex-col items-center">
         <div className="relative flex items-center justify-center" style={{ width: containerSize + 12, height: containerSize }}>
           {/* Edit Button - positioned in top right */}
-          {!isEditMode && (
-            <button
-              onClick={() => setIsEditMode(true)}
-              className="absolute top-0 right-0 z-10 px-3 py-2 text-sm solid font-medium rounded-lg shadow-xl transition-colors duration-200 disabled:opacity-50 flex items-center gap-2"
-              style={{ 
-                color: colours.button.edit.text,
-                backgroundColor: colours.button.edit.background,
-                border: `2px solid ${colours.card.border}`
-              }}
-            >
-              <Pencil size={16} />
-              Edit
-            </button>
-          )}
+          <div className="absolute top-0 right-0 z-10">
+            <EditButton
+              isEditMode={isEditMode}
+              onToggle={isEditMode ? (hasChanges ? handleSaveChanges : handleCancelEdit) : () => setIsEditMode(true)}
+              disabled={isUpdating}
+            />
+          </div>
           
           {/* Radar Chart */}
           <div className="absolute left-0 top-0 w-full h-full flex items-center justify-center pointer-events-none">
@@ -431,18 +424,6 @@ export default function PreferencesRadarChart({ userProfile, onPreferencesUpdate
                 Reset
               </button>
             )}
-            <button
-              onClick={handleSaveChanges}
-              disabled={isUpdating || !hasChanges}
-              className="px-4 py-2 text-sm rounded-xl shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
-              style={{
-                backgroundColor: hasChanges ? `${colours.button.primary.background}70` : colours.button.secondary.background,
-                border: hasChanges ? `2px solid ${colours.button.primary.background}`: null,
-                color: hasChanges ? colours.button.primary.text : colours.button.secondary.text
-              }}
-            >
-              {isUpdating ? 'Saving...' : 'Save Changes'}
-            </button>
           </div>
         </div>
       )}

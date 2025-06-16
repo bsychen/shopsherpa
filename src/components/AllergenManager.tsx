@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Pencil, Check } from 'lucide-react';
 import { UserProfile } from '@/types/user';
+import EditButton from './EditButton';
 import { 
   getAllergenInfo, 
   formatAllergenDisplay,
@@ -70,28 +70,11 @@ export default function AllergenManager({
       {/* Header with title and edit button */}
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-lg font-semibold" style={{ color: colours.text.primary }}>Allergens</h1>
-        <button
-          onClick={toggleEditMode}
+        <EditButton
+          isEditMode={isEditMode}
+          onToggle={toggleEditMode}
           disabled={isUpdating}
-          className="px-3 py-2 text-sm solid font-medium rounded-lg shadow-xl transition-colors duration-200 disabled:opacity-50 flex items-center gap-2"
-          style={{ 
-            color: colours.button.edit.text,
-            backgroundColor: colours.button.edit.background,
-            border: `2px solid ${colours.card.border}`
-          }}
-        >
-          {isEditMode ? (
-            <>
-              <Check size={16} />
-              Done
-            </>
-          ) : (
-            <>
-              <Pencil size={16} />
-              Edit
-            </>
-          )}
-        </button>
+        />
       </div>
 
       {/* Current Allergens */}
