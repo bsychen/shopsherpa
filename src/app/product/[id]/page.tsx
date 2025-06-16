@@ -350,7 +350,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         <div className="w-full max-w-xl flex flex-col items-center mb-4">
           <div className="flex items-center justify-center w-full" style={{ minHeight: 280, minWidth: 0 }}>
             <Suspense fallback={<div className="flex items-center justify-center w-full h-52">
-              <LoadingAnimation />
+              <LoadingAnimation size="medium" />
             </div>}>
               <ProductRadarChart
                 activeTab={activeTab}

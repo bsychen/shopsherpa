@@ -1,24 +1,55 @@
 import { colours } from '@/styles/colours';
 
-export default function LoadingAnimation() {
+interface LoadingAnimationProps {
+  size?: 'small' | 'medium' | 'large';
+  className?: string;
+}
+
+export default function LoadingAnimation({ size = 'large', className }: LoadingAnimationProps) {
+  const sizeClasses = {
+    small: {
+      container: 'w-24 h-24',
+      spinner: 'w-8 h-8',
+      icon: 'w-4 h-4',
+      text: 'text-sm'
+    },
+    medium: {
+      container: 'w-32 h-32',
+      spinner: 'w-12 h-12',
+      icon: 'w-6 h-6',
+      text: 'text-base'
+    },
+    large: {
+      container: 'w-48 h-48',
+      spinner: 'w-16 h-16',
+      icon: 'w-8 h-8',
+      text: 'text-lg'
+    }
+  };
+
+  const classes = sizeClasses[size];
+  
   return (
-    <div className="flex flex-col items-center justify-start pt-20 min-h-[600px] p-4" style={{ backgroundColor: colours.background.secondary }}>
+    <div className={`flex flex-col items-center ${size === 'large' ? 'justify-start pt-20 min-h-screen' : 'justify-center'} p-4 ${className || ''}`} style={{ backgroundColor: size === 'large' ? colours.background.secondary : 'transparent' }}>
       <div className="flex flex-col items-center">
-        <div className="relative w-48 h-48 mb-4 flex flex-col items-center justify-center">
-          {/* Circle background to encapsulate everything */}
+        <div className={`relative ${classes.container} mb-4 flex flex-col items-center justify-center`}>
+          {/* Circle background to create hole effect */}
           <div
-            className="absolute inset-0 w-48 h-48 rounded-full drop-shadow-lg"
-            style={{ backgroundColor: colours.background.primary }}
+            className={`absolute inset-0 ${classes.container} rounded-full`}
+            style={{ 
+              backgroundColor: colours.background.primary,
+              boxShadow: 'inset 0 8px 20px rgba(0, 0, 0, 0.3), inset 0 4px 12px rgba(0, 0, 0, 0.2)'
+            }}
           />
-          <div className="relative w-16 h-16 flex items-center justify-center z-10 mb-4">
+          <div className={`relative ${classes.spinner} flex items-center justify-center z-10 mb-4`}>
           <div className="absolute inset-0 w-full h-full border-4 rounded-full animate-spin" style={{ borderColor: colours.spinner.border, borderTopColor: colours.spinner.borderTop }} />
-          <span className="relative flex items-center justify-center w-8 h-8" style={{ top: '-2px',  left: '-2px', position: 'relative' }}>
+          <span className="relative flex items-center justify-center" style={{ top: '-2px',  left: '-2px', position: 'relative' }}>
             {/* Inline SVG for shopping cart */}
             <svg
               viewBox="0 0 960 960"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              className="w-8 h-8"
+              className={classes.icon}
               style={{ color: colours.spinner.trolley }}
             >
               <path
@@ -28,7 +59,7 @@ export default function LoadingAnimation() {
             </svg>
           </span>
           </div>
-          <div className="relative text-lg font-semibold tracking-wide z-10" style={{ color: colours.text.secondary }}>
+          <div className={`relative ${classes.text} font-semibold tracking-wide z-10`} style={{ color: colours.text.secondary }}>
             Loading...
           </div>
         </div>
