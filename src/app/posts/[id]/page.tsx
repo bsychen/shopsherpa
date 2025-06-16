@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, query, where, onSnapshot, orderBy, doc, addDoc, serverTimestamp, updateDoc, increment, arrayUnion, arrayRemove } from "firebase/firestore";
+import { collection, query, where, onSnapshot, doc, addDoc, serverTimestamp, updateDoc, increment, arrayUnion, arrayRemove } from "firebase/firestore";
 import { auth, db } from "@/lib/firebaseClient";
 import Link from "next/link";
 import Image from "next/image";

@@ -99,7 +99,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
     };
 
     fetchBrandReviewSummaries();
-  }, [brandProducts, product.id]);
+  }, [brandProducts, product]);
 
   // Calculate brand statistics from brandProducts
   const calculateBrandStats = useMemo(() => {
