@@ -76,6 +76,11 @@ export default function ReviewPage() {
       setReviewText("");
       setRating(0);
       setIsAnonymous(false);
+      
+      // Redirect back to product page after a short delay
+      setTimeout(() => {
+        router.push(`/product/${id}`);
+      }, 2000);
     } catch (err) {
       setSubmitError((err as Error).message || "Unknown error");
     } finally {
@@ -151,12 +156,15 @@ export default function ReviewPage() {
           >
             ✓ Review submitted successfully!
           </div>
-          <p 
-            className="text-sm"
-            style={{ color: colours.text.secondary }}
-          >
-            Redirecting you back to the product page...
-          </p>
+          <div className="flex flex-col items-center space-y-3">
+            <LoadingAnimation size="small"/>
+            <p 
+              className="text-sm"
+              style={{ color: colours.text.secondary }}
+            >
+              Taking you back to product...
+            </p>
+          </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -242,20 +250,10 @@ export default function ReviewPage() {
             type="submit"
             className="w-full font-semibold py-3 px-4 rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             style={{
-              backgroundColor: colours.button.primary.background,
+              backgroundColor: colours.button.success.background,
               color: colours.button.primary.text
             }}
             disabled={submitting || rating === 0}
-            onMouseEnter={(e) => {
-              if (!submitting && rating > 0) {
-                e.currentTarget.style.backgroundColor = colours.button.primary.hover.background;
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!submitting && rating > 0) {
-                e.currentTarget.style.backgroundColor = colours.button.primary.background;
-              }
-            }}
           >
             {submitting ? "Submitting..." : "Submit Review"}
           </button>
