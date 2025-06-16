@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/firebaseAdmin";
 import { Product } from '@/types/product';
-import { getBrand } from '../../brands/name/route';
+import { getBrand } from '@/lib/brandUtils';
 
 async function fetchProductData(id: string){
   const fields = [
