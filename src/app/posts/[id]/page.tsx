@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import Link from "next/link";
@@ -18,7 +18,6 @@ import { useTopBar } from "@/contexts/TopBarContext";
 
 export default function PostPage() {
   const params = useParams();
-  const router = useRouter();
   const { setTopBarState, resetTopBar } = useTopBar();
   const postId = params.id as string;
   

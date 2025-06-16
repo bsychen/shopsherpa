@@ -17,7 +17,6 @@ export default function ReviewPage() {
   const id = params?.id as string;
   const [user, setUser] = useState<User | null>(null);
   const [review, setReview] = useState<Review | null>(null);
-  const [productName, setProductName] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -54,8 +53,8 @@ export default function ReviewPage() {
 
   useEffect(() => {
     if (!id || !review) return;
-    getProduct(review.productId).then((product) => {
-      setProductName(product?.productName || "");
+    getProduct(review.productId).then(() => {
+      // No need to set productName as it's not used in the component
     });
     // Fetch username from userId (unless anonymous)
     if (review.userId && !review.isAnonymous) {
