@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import AuthForm from '@/components/authForm';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebaseClient';
+import { colours } from '@/styles/colours';
 
 export default function LoginPage() {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -28,9 +29,16 @@ export default function LoginPage() {
   }, [router]);
 
   return (
-    <AuthForm
-      mode={mode}
-      onToggleMode={() => setMode(mode === 'login' ? 'signup' : 'login')}
-    />
+    <div 
+      className="min-h-screen"
+      style={{ backgroundColor: colours.background.secondary }}
+    >
+      <div className="max-w-md mx-auto pt-10 px-4">
+        <AuthForm
+          mode={mode}
+          onToggleMode={() => setMode(mode === 'login' ? 'signup' : 'login')}
+        />
+      </div>
+    </div>
   );
 }
