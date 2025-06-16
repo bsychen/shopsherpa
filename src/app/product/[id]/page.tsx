@@ -189,7 +189,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     getReviewSummary(id).then(setReviewSummary);
     const unsub = onAuthStateChanged(auth, setUser);
     return () => unsub();
-  }, [id]);
+  }, [id, setNavigating]);
 
   useEffect(() => {
     if (reviewSummary) {

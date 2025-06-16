@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { colours } from "@/styles/colours";
 import { useTopBar } from "@/contexts/TopBarContext";

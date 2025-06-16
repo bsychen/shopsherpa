@@ -58,7 +58,7 @@ export default function ProfilePage() {
         setLoading(false);
         setNavigating(false); // Clear navigation loading state
       });
-  }, [firebaseUser]);
+  }, [firebaseUser, setNavigating]);
 
   const handleLogout = async () => {
     await signOut(auth);

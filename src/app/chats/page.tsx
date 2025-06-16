@@ -56,7 +56,7 @@ export default function PostsPage() {
       setLoading(false);
       setNavigating(false); // Clear navigation loading state
     }
-  }, [selectedTags, sortBy, searchTerm]);
+  }, [selectedTags, sortBy, searchTerm, setNavigating]);
 
   useEffect(() => {
     fetchPosts();
