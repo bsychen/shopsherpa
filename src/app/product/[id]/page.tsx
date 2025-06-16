@@ -4,7 +4,7 @@ import { useState, useEffect, use, Suspense, lazy, useMemo } from "react"
 import { Product } from "@/types/product"
 import { Review } from "@/types/review"
 import { ReviewSummary } from "@/types/reviewSummary"
-import { getProduct, getProductReviews, getReviewSummary, getBrandById, getProductsWithGenericName, getProductsByBrand, getUserById, getSimilarProductsByCategories } from "@/lib/api"
+import { getProduct, getProductReviews, getReviewSummary, getBrandById, getProductsByBrand, getUserById, getSimilarProductsByCategories } from "@/lib/api"
 import { onAuthStateChanged, User } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
 import { useRouter } from "next/navigation"
@@ -152,7 +152,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [showAllergenWarning, setShowAllergenWarning] = useState(false);
   const [allergenWarningDismissed, setAllergenWarningDismissed] = useState(false);
 
-  const sameProducts = [...similarProducts.filter(p => p.categoriesTags.includes(product.categoriesTags[product.categoriesTags.length - 1])), product];
+  const sameProducts = useMemo(() => {
+    if (!product) return [];
+    return [...similarProducts.filter(p => p.categoriesTags.includes(product.categoriesTags[product.categoriesTags.length - 1])), product];
+  }, [similarProducts, product]);
   
   // Calculate all radar chart scores
   const priceScore = product ? getQuartileScore(product.price || 0, priceStats.q1, priceStats.q3) : 3;
@@ -320,7 +323,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   // Calculate price statistics when similar products change
   useEffect(() => {
-    if (!product || !similarProducts.length) return;
+    if (!product || !(sameProducts.length - 1)) return;
     
     const getPrice = (p: Product) => p.price || p.expectedPrice || 0;
     const prices = [...sameProducts.map(getPrice), getPrice(product)].filter(p => p > 0);
@@ -334,7 +337,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         q3: calculateQuartile(prices, 0.75)
       });
     }
-  }, [similarProducts, product]);
+  }, [sameProducts, product]);
 
   if (loading) {
     return <LoadingAnimation />;
