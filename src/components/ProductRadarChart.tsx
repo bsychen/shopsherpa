@@ -13,7 +13,6 @@ import {
 } from "chart.js";
 import { useState, useEffect, useRef } from "react";
 import { colours } from "@/styles/colours";
-import AllergenWarningIcon from "./AllergenWarningIcon";
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
@@ -55,7 +54,7 @@ function AnimatedMatchPercent({ percent, hasAllergens = false }: { percent: numb
 
   // Color logic - red if allergens are flagged, otherwise based on percentage
   const color = hasAllergens 
-    ? { text: `${colours.status.error.background}80` }
+    ? { text: colours.status.error.background }
     : displayed >= 70
     ? { text: colours.score.high }
     : displayed >= 50
@@ -137,7 +136,6 @@ export default function ProductRadarChart({
   brandScore = 3,
   matchPercentage = null,
   allergenWarnings = [],
-  onAllergenWarningClick,
 }: {
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -213,16 +211,12 @@ export default function ProductRadarChart({
       <div className="flex flex-col items-center gap-4">
         {/* Radar Chart Container */}
         <div className="relative flex items-center justify-center" style={{ width: containerSize, height: containerSize }}>
-          {/* Match Percentage in top right corner with allergen warning icon */}
+          {/* Match Percentage in top right corner */}
           {matchPercentage !== null && (
             <div className="absolute top-2 right-2 z-10">
               <AnimatedMatchPercent 
                 percent={matchPercentage} 
                 hasAllergens={allergenWarnings && allergenWarnings.length > 0}
-              />
-              <AllergenWarningIcon 
-                hasAllergens={allergenWarnings && allergenWarnings.length > 0}
-                onClick={() => onAllergenWarningClick?.()}
               />
             </div>
           )}
