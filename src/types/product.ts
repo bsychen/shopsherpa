@@ -18,6 +18,23 @@ export interface Product{
   combinedNutritionGrade: string;
   expectedPrice: number;
   labels: string[];
+  // Nutrition macros per 100g
+  nutritionMacros: {
+    energy?: number; // kcal per 100g
+    proteins?: number; // g per 100g
+    carbohydrates?: number; // g per 100g
+    sugars?: number; // g per 100g
+    fat?: number; // g per 100g
+    saturatedFat?: number; // g per 100g
+    fiber?: number; // g per 100g
+    sodium?: number; // g per 100g
+  };
+  // Sustainability/eco information
+  ecoInformation: {
+    ecoscore?: string; // A-E grade
+    ecoscoreScore?: number; // 0-100 score
+    packagingInfo?: string[]; // packaging materials/info
+  };
 }
 
 export interface ProductSearchResult {

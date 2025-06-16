@@ -10,6 +10,7 @@ async function fetchProductData(id: string){
     "brands_tags",
     "categories_properties",
     "categories_properties_tags",
+    "categories_tags",
     "categories_fr",
     "generic_name",
     "generic_name_en",
@@ -32,9 +33,24 @@ async function fetchProductData(id: string){
     "nutrition_score_beverage",
     "main_category",
     "main_category_fr",
-    "traces_tags",
     "labels",
     "labels_tags",
+    // Nutrition macros per 100g
+    "nutriments",
+    "energy-kcal_100g",
+    "proteins_100g", 
+    "carbohydrates_100g",
+    "sugars_100g",
+    "fat_100g",
+    "saturated-fat_100g",
+    "fiber_100g",
+    "sodium_100g",
+    // Sustainability/eco information
+    "ecoscore_grade",
+    "ecoscore_score",
+    "ecoscore_data",
+    "packaging_tags",
+    "packaging_materials_tags",
   ];
   const fieldsParam = fields.join(',');
   const res = await fetch(`https://world.openfoodfacts.net/api/v2/product/${id}?fields=${encodeURIComponent(fieldsParam)}`);
@@ -103,6 +119,30 @@ async function fetchProductData(id: string){
       ...(data.product.labels ? [data.product.labels] : []),
       ...(data.product.labels_tags || [])
     ])],
+    // Nutrition macros per 100g (filter out undefined values)
+    nutritionMacros: Object.fromEntries(
+      Object.entries({
+        energy: data.product.nutriments?.['energy-kcal_100g'] ? parseFloat(data.product.nutriments['energy-kcal_100g']) : undefined,
+        proteins: data.product.nutriments?.proteins_100g ? parseFloat(data.product.nutriments.proteins_100g) : undefined,
+        carbohydrates: data.product.nutriments?.carbohydrates_100g ? parseFloat(data.product.nutriments.carbohydrates_100g) : undefined,
+        sugars: data.product.nutriments?.sugars_100g ? parseFloat(data.product.nutriments.sugars_100g) : undefined,
+        fat: data.product.nutriments?.fat_100g ? parseFloat(data.product.nutriments.fat_100g) : undefined,
+        saturatedFat: data.product.nutriments?.['saturated-fat_100g'] ? parseFloat(data.product.nutriments['saturated-fat_100g']) : undefined,
+        fiber: data.product.nutriments?.fiber_100g ? parseFloat(data.product.nutriments.fiber_100g) : undefined,
+        sodium: data.product.nutriments?.sodium_100g ? parseFloat(data.product.nutriments.sodium_100g) : undefined,
+      }).filter(([_, value]) => value !== undefined)
+    ),
+    // Sustainability/eco information (filter out undefined values)
+    ecoInformation: Object.fromEntries(
+      Object.entries({
+        ecoscore: data.product.ecoscore_grade || undefined,
+        ecoscoreScore: data.product.ecoscore_data?.score ? parseFloat(data.product.ecoscore_data.score) : undefined,
+        packagingInfo: [...new Set([
+          ...(data.product.packaging_tags || []),
+          ...(data.product.packaging_materials_tags || [])
+        ])],
+      }).filter(([_, value]) => value !== undefined)
+    ),
   };
 }
 

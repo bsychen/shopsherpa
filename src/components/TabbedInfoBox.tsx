@@ -173,7 +173,19 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
       setTimeout(() => setAnimatedBrand(calculateBrandStats?.overallScore || brandRating), 50);
     } else if (tab === "Sustainability") {
       setAnimatedSustainability(0);
-      setTimeout(() => setAnimatedSustainability(product?.sustainbilityScore || 3), 50);
+      // Use the same logic as in the main page
+      let sustainabilityScore = 3;
+      if (product?.ecoInformation?.ecoscoreScore !== undefined) {
+        sustainabilityScore = Math.max(1, Math.min(5, Math.round((product.ecoInformation.ecoscoreScore / 100) * 5)));
+      } else if (product?.ecoInformation?.ecoscore && product.ecoInformation.ecoscore !== 'not-applicable') {
+        const gradeScores: Record<string, number> = {
+          'a': 5, 'b': 4, 'c': 3, 'd': 2, 'e': 1
+        };
+        sustainabilityScore = gradeScores[product.ecoInformation.ecoscore.toLowerCase()] || 3;
+      } else {
+        sustainabilityScore = product?.sustainbilityScore || 3;
+      }
+      setTimeout(() => setAnimatedSustainability(sustainabilityScore), 50);
     } else if (tab === "Nutrition") {
       setAnimatedNutrition(0);
       setTimeout(() => setAnimatedNutrition(getNutritionScore(product?.combinedNutritionGrade || '')), 50);
@@ -507,51 +519,116 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
             >
               Nutrition
             </h2>
-            <div className="flex flex-col items-center justify-center gap-2">
-              <span className="relative inline-block w-24 h-24 align-middle">
-                <svg width="96" height="96" viewBox="0 0 96 96" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
-                  <circle
-                    cx="48" cy="48" r="40"
-                    fill="none"
-                    stroke={(() => {
-                      const score = animatedNutrition;
-                      if (score <= 2) return colours.score.low;
-                      if (score <= 3) return colours.score.medium;
-                      return colours.score.high;
-                    })()}
-                    strokeWidth="8"
-                    strokeDasharray={Math.PI * 2 * 40}
-                    strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedNutrition / 5))}
-                    strokeLinecap="round"
-                    style={{
-                      transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1), stroke 0.7s cubic-bezier(0.4,0,0.2,1)',
-                      transform: 'rotate(-90deg)',
-                      transformOrigin: 'center center',
-                    }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span 
-                    className="text-4xl font-bold"
-                    style={{
-                      color: (() => {
+            <div className="flex flex-col items-center justify-center gap-4 w-full">
+              {/* Nutrition Grade Circle */}
+              <div className="flex flex-col items-center gap-2">
+                <span className="relative inline-block w-24 h-24 align-middle">
+                  <svg width="96" height="96" viewBox="0 0 96 96" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
+                    <circle
+                      cx="48" cy="48" r="40"
+                      fill="none"
+                      stroke={(() => {
                         const score = animatedNutrition;
                         if (score <= 2) return colours.score.low;
                         if (score <= 3) return colours.score.medium;
                         return colours.score.high;
-                      })()
-                    }}
+                      })()}
+                      strokeWidth="8"
+                      strokeDasharray={Math.PI * 2 * 40}
+                      strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedNutrition / 5))}
+                      strokeLinecap="round"
+                      style={{
+                        transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1), stroke 0.7s cubic-bezier(0.4,0,0.2,1)',
+                        transform: 'rotate(-90deg)',
+                        transformOrigin: 'center center',
+                      }}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span 
+                      className="text-4xl font-bold"
+                      style={{
+                        color: (() => {
+                          const score = animatedNutrition;
+                          if (score <= 2) return colours.score.low;
+                          if (score <= 3) return colours.score.medium;
+                          return colours.score.high;
+                        })()
+                      }}
+                    >
+                      {product.combinedNutritionGrade?.toUpperCase() || '?'}
+                    </span>
+                  </div>
+                </span>
+                <span 
+                  className="text-sm font-medium"
+                  style={{ color: colours.text.secondary }}
+                >
+                  Nutrition Grade
+                </span>
+              </div>
+
+              {/* Nutrition Macros per 100g */}
+              {product.nutritionMacros && Object.values(product.nutritionMacros).some(value => value !== undefined) && (
+                <div className="w-full mt-4">
+                  <h3 
+                    className="text-md font-semibold mb-3 text-center"
+                    style={{ color: colours.text.primary }}
                   >
-                    {product.combinedNutritionGrade?.toUpperCase() || '?'}
-                  </span>
+                    Nutrition Facts (per 100g)
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3 w-full max-w-sm mx-auto">
+                    {product.nutritionMacros.energy !== undefined && (
+                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Energy</span>
+                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.energy} kcal</span>
+                      </div>
+                    )}
+                    {product.nutritionMacros.proteins !== undefined && (
+                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Protein</span>
+                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.proteins}g</span>
+                      </div>
+                    )}
+                    {product.nutritionMacros.carbohydrates !== undefined && (
+                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Carbs</span>
+                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.carbohydrates}g</span>
+                      </div>
+                    )}
+                    {product.nutritionMacros.sugars !== undefined && (
+                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Sugars</span>
+                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.sugars}g</span>
+                      </div>
+                    )}
+                    {product.nutritionMacros.fat !== undefined && (
+                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Fat</span>
+                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.fat}g</span>
+                      </div>
+                    )}
+                    {product.nutritionMacros.saturatedFat !== undefined && (
+                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Sat. Fat</span>
+                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.saturatedFat}g</span>
+                      </div>
+                    )}
+                    {product.nutritionMacros.fiber !== undefined && (
+                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Fiber</span>
+                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.fiber}g</span>
+                      </div>
+                    )}
+                    {product.nutritionMacros.sodium !== undefined && (
+                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Sodium</span>
+                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{(product.nutritionMacros.sodium * 1000).toFixed(0)}mg</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </span>
-              <span 
-                className="text-sm font-medium"
-                style={{ color: colours.text.secondary }}
-              >
-                Nutrition Grade
-              </span>
+              )}
             </div>
           </div>
         )}
@@ -674,54 +751,138 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
             >
               Sustainability
             </h2>
-            <div className="flex flex-col items-center justify-center gap-2">
-              <span className="relative inline-block w-24 h-24 align-middle">
-                <svg width="96" height="96" viewBox="0 0 96 96" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
-                  <circle
-                    cx="48" cy="48" r="40"
-                    fill="none"
-                    stroke={colours.chart.secondary}
-                    strokeWidth="8"
-                    strokeDasharray={Math.PI * 2 * 40}
-                    strokeDashoffset={Math.PI * 2 * 40}
-                    strokeLinecap="round"
-                    style={{
-                      transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
-                      transform: 'rotate(-90deg)',
-                      transformOrigin: 'center center',
-                    }}
-                  />
-                  <circle
-                    cx="48" cy="48" r="40"
-                    fill="none"
-                    stroke={colours.score.high}
-                    strokeWidth="8"
-                    strokeDasharray={Math.PI * 2 * 40}
-                    strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedSustainability / 5))}
-                    strokeLinecap="round"
-                    style={{
-                      transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
-                      transform: 'rotate(-90deg)',
-                      transformOrigin: 'center center',
-                    }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-4xl">🌱</span>
-                  <span 
-                    className="text-2xl font-bold"
+            <div className="flex flex-col items-center justify-center gap-4 w-full">
+              {/* Sustainability Score Circle */}
+              <div className="flex flex-col items-center gap-2">
+                <span className="relative inline-block w-24 h-24 align-middle">
+                  <svg width="96" height="96" viewBox="0 0 96 96" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
+                    <circle
+                      cx="48" cy="48" r="40"
+                      fill="none"
+                      stroke={colours.chart.secondary}
+                      strokeWidth="8"
+                      strokeDasharray={Math.PI * 2 * 40}
+                      strokeDashoffset={Math.PI * 2 * 40}
+                      strokeLinecap="round"
+                      style={{
+                        transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
+                        transform: 'rotate(-90deg)',
+                        transformOrigin: 'center center',
+                      }}
+                    />
+                    <circle
+                      cx="48" cy="48" r="40"
+                      fill="none"
+                      stroke={colours.score.high}
+                      strokeWidth="8"
+                      strokeDasharray={Math.PI * 2 * 40}
+                      strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedSustainability / 5))}
+                      strokeLinecap="round"
+                      style={{
+                        transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
+                        transform: 'rotate(-90deg)',
+                        transformOrigin: 'center center',
+                      }}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-4xl">🌱</span>
+                    <span 
+                      className="text-2xl font-bold"
+                      style={{ color: colours.text.primary }}
+                    >
+                      {animatedSustainability}
+                    </span>
+                  </div>
+                </span>
+                <span 
+                  className="text-sm font-medium"
+                  style={{ color: colours.text.secondary }}
+                >
+                  Sustainability Score
+                </span>
+              </div>
+
+              {/* Eco Information */}
+              {product.ecoInformation && (
+                <div className="w-full mt-4">
+                  <h3 
+                    className="text-md font-semibold mb-3 text-center"
                     style={{ color: colours.text.primary }}
                   >
-                    {animatedSustainability}
-                  </span>
+                    Environmental Impact
+                  </h3>
+                  <div className="space-y-3 w-full max-w-sm mx-auto">
+                    {/* Eco Score */}
+                    {(product.ecoInformation.ecoscore || product.ecoInformation.ecoscoreScore !== undefined) && (
+                      <div className="flex justify-between items-center p-3 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">🌍</span>
+                          <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Eco Score</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {product.ecoInformation.ecoscore && (
+                            <span 
+                              className="text-lg font-bold px-2 py-1 rounded"
+                              style={{ 
+                                color: colours.text.primary,
+                                backgroundColor: product.ecoInformation.ecoscore === 'a' ? colours.score.high :
+                                                product.ecoInformation.ecoscore === 'b' ? colours.score.medium :
+                                                product.ecoInformation.ecoscore === 'c' ? colours.score.medium :
+                                                colours.score.low
+                              }}
+                            >
+                              {product.ecoInformation.ecoscore.toUpperCase()}
+                            </span>
+                          )}
+                          {product.ecoInformation.ecoscoreScore !== undefined && (
+                            <span className="text-sm font-bold" style={{ color: colours.text.primary }}>
+                              {product.ecoInformation.ecoscoreScore}/100
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Packaging Information */}
+                    {product.ecoInformation.packagingInfo && product.ecoInformation.packagingInfo.length > 0 && (
+                      <div className="p-3 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xl">📦</span>
+                          <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Packaging</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {product.ecoInformation.packagingInfo.slice(0, 5).map((item, index) => (
+                            <span 
+                              key={index}
+                              className="text-xs px-2 py-1 rounded-full"
+                              style={{ 
+                                backgroundColor: colours.tag.default.background,
+                                color: colours.tag.default.text,
+                                fontSize: '10px'
+                              }}
+                            >
+                              {item.replace(/^en:/, '').replace(/-/g, ' ')}
+                            </span>
+                          ))}
+                          {product.ecoInformation.packagingInfo.length > 5 && (
+                            <span 
+                              className="text-xs px-2 py-1 rounded-full"
+                              style={{ 
+                                backgroundColor: colours.tag.default.background,
+                                color: colours.tag.default.text,
+                                fontSize: '10px'
+                              }}
+                            >
+                              +{product.ecoInformation.packagingInfo.length - 5} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </span>
-              <span 
-                className="text-sm font-medium"
-                style={{ color: colours.text.secondary }}
-              >
-                Sustainability Score
-              </span>
+              )}
             </div>
           </div>
         )}
