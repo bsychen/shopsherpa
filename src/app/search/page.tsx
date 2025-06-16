@@ -11,6 +11,8 @@ import { colours } from "@/styles/colours";
 import { ProductSearchResult } from "@/types/product";
 import RecentlyViewedProducts from "@/components/RecentlyViewedProducts";
 import ContentBox from "@/components/ContentBox";
+import LoadingAnimation from "@/components/LoadingSpinner";
+import { useTopBar } from "@/contexts/TopBarContext";
 
 // Debounce hook
 function useDebounce(value: string, delay: number) {
@@ -35,7 +37,7 @@ const SearchResult = memo(({ product, onSelect }: { product: ProductSearchResult
     <Link
       href={`/product/${product.id}`}
       onClick={onSelect}
-      className="block p-3 transition cursor-pointer border-b last:border-b-0"
+      className="block p-3 transition cursor-pointer border-b last:border-b-0 hover:scale-[1.02] duration-200"
       style={{ 
         borderColor: colours.content.border
       }}
@@ -65,8 +67,10 @@ export default function ProductSearch() {
   const [isLoading, setIsLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
+  const [pageLoading, setPageLoading] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const router = useRouter();
+  const { setNavigating } = useTopBar();
   
   const debouncedQuery = useDebounce(query, 500); // Increased debounce delay
 
@@ -77,6 +81,16 @@ export default function ProductSearch() {
     });
     return () => unsub();
   }, []);
+
+  // Simulate initial page load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPageLoading(false);
+      setNavigating(false); // Clear navigation loading state
+    }, 500); // Small delay to ensure smooth navigation experience
+    
+    return () => clearTimeout(timer);
+  }, [setNavigating]);
 
   const handleSearch = useCallback(async (searchQuery: string) => {
     if (!searchQuery.trim()) {
@@ -150,14 +164,18 @@ export default function ProductSearch() {
     setQuery("");
   };
 
+  if (pageLoading) {
+    return <LoadingAnimation />;
+  }
+
   return (
     <div 
-      className="relative max-w-xl mx-auto p-6 flex flex-col items-center min-h-[600px]"
+      className="relative max-w-2xl mx-auto p-6 flex flex-col items-center min-h-[600px] opacity-0 animate-fade-in"
       style={{
         backgroundColor: colours.background.secondary,
       }}
     >
-    <ContentBox className="flex flex-col border relative">
+    <ContentBox className="opacity-0 animate-slide-in-bottom" style={{ animationDelay: '100ms' }}>
         <h1 
           className="text-2xl font-bold mb-4"
           style={{ color: colours.text.primary }}
@@ -173,11 +191,12 @@ export default function ProductSearch() {
               placeholder="Search for a product..."
               onChange={handleInputChange}
               value={query}
-              className="flex-1 min-w-0 px-4 py-2 sm:px-5 sm:py-3 rounded-lg shadow-xl border-2 border-black focus:outline-none shadow-md transition-all duration-200 focus:scale-[1.03] text-base sm:text-lg"
+              className="flex-1 min-w-0 px-4 py-2 sm:px-5 sm:py-3 rounded-lg shadow-xl border-2 border-black focus:outline-none shadow-md transition-all duration-200 focus:scale-[1.02] text-base sm:text-lg opacity-0 animate-slide-in-left"
               style={{
                 backgroundColor: colours.input.background,
                 border: `2px solid ${colours.input.border}`,
-                color: colours.input.text
+                color: colours.input.text,
+                animationDelay: '50ms'
               }}
               onFocus={(e) => {
                 e.target.style.borderColor = colours.input.focus.border;
@@ -191,10 +210,11 @@ export default function ProductSearch() {
             <button
               onClick={handleManualSearch}
               disabled={isLoading}
-              className="flex-shrink-0 px-4 py-2 sm:px-6 sm:py-3 rounded-lg shadow-xl border-2 border-black shadow-sm transition-colors font-bold text-base sm:text-lg shadow-md focus:outline-none flex items-center justify-center"
+              className="flex-shrink-0 px-4 py-2 sm:px-6 sm:py-3 rounded-lg shadow-xl border-2 border-black shadow-sm transition-all duration-200 font-bold text-base sm:text-lg shadow-md focus:outline-none flex items-center justify-center hover:scale-105 opacity-0 animate-slide-in-right"
               style={{
                 backgroundColor: `${colours.button.primary.background}80`,
-                color: colours.button.primary.text
+                color: colours.button.primary.text,
+                animationDelay: '100ms'
               }}
               onFocus={(e) => e.currentTarget.style.boxShadow = colours.input.focus.ring}
               onBlur={(e) => e.currentTarget.style.boxShadow = 'none'}
@@ -220,7 +240,7 @@ export default function ProductSearch() {
         </div>
       {/* Search Results Dropdown */}
       {showDropdown && (
-        <div className="w-full mb-4">
+        <div className="w-full mb-4 animate-scale-in">
           <div 
             className="w-full bg-white rounded-lg shadow-lg border z-10 max-h-60 overflow-y-auto"
             style={{
@@ -237,12 +257,13 @@ export default function ProductSearch() {
               </div>
             ) : results.length > 0 ? (
               <>
-                {(showAll ? results : results.slice(0, 5)).map((product) => (
-                  <SearchResult 
-                    key={product.id} 
-                    product={product} 
-                    onSelect={handleProductSelect}
-                  />
+                {(showAll ? results : results.slice(0, 5)).map((product, index) => (
+                  <div key={product.id} className="opacity-0 animate-slide-in-left" style={{ animationDelay: `${index * 30 + 150}ms` }}>
+                    <SearchResult 
+                      product={product} 
+                      onSelect={handleProductSelect}
+                    />
+                  </div>
                 ))}
                 {!showAll && results.length > 5 && (
                   <div className="p-2 text-center">
@@ -262,7 +283,7 @@ export default function ProductSearch() {
       )}
       </ContentBox>
 
-      <ContentBox className="flex flex-col items-center border relative">
+      <ContentBox className="opacity-0 animate-slide-in-bottom" style={{ animationDelay: '200ms' }}>
         {/* Barcode Scanner */}
         <div className="w-full flex flex-col">
           <h1 
@@ -287,17 +308,15 @@ export default function ProductSearch() {
       
       {/* Recently Viewed Products */}
       {firebaseUser && (
-        <div className="w-full">
-          <ContentBox variant="secondary" className="items-center">
-            <h2
-              className="text-xl font-bold mb-4"
-              style={{ color: colours.text.secondary }}
-            >
-              Recently Viewed Products
-            </h2>
-            <RecentlyViewedProducts userId={firebaseUser.uid} />
-          </ContentBox>
-        </div>
+        <ContentBox variant="secondary" className="opacity-0 animate-slide-in-bottom" style={{ animationDelay: '300ms' }}>
+          <h2
+            className="text-xl font-bold mb-4"
+            style={{ color: colours.text.secondary }}
+          >
+            Recently Viewed Products
+          </h2>
+          <RecentlyViewedProducts userId={firebaseUser.uid} />
+        </ContentBox>
       )}
     </div>
   );

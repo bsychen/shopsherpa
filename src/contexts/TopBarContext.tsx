@@ -5,17 +5,20 @@ import React, { createContext, useContext, useState, ReactNode, useCallback, use
 interface TopBarState {
   showBackButton: boolean;
   onBackClick?: () => void;
+  isNavigating: boolean;
 }
 
 interface TopBarContextType {
   topBarState: TopBarState;
   setTopBarState: (state: Partial<TopBarState>) => void;
   resetTopBar: () => void;
+  setNavigating: (isNavigating: boolean) => void;
 }
 
 const defaultState: TopBarState = {
   showBackButton: false,
   onBackClick: undefined,
+  isNavigating: false,
 };
 
 const TopBarContext = createContext<TopBarContextType | undefined>(undefined);
@@ -31,11 +34,16 @@ export function TopBarProvider({ children }: { children: ReactNode }) {
     setTopBarStateInternal(defaultState);
   }, []);
 
+  const setNavigating = useCallback((isNavigating: boolean) => {
+    setTopBarStateInternal(prev => ({ ...prev, isNavigating }));
+  }, []);
+
   const contextValue = useMemo(() => ({
     topBarState,
     setTopBarState,
-    resetTopBar
-  }), [topBarState, setTopBarState, resetTopBar]);
+    resetTopBar,
+    setNavigating
+  }), [topBarState, setTopBarState, resetTopBar, setNavigating]);
 
   return (
     <TopBarContext.Provider value={contextValue}>

@@ -13,6 +13,7 @@ import ContentBox from "@/components/ContentBox";
 import Image from "next/image";
 import { colours } from "@/styles/colours";
 import LoadingAnimation from "@/components/LoadingSpinner";
+import { useTopBar } from "@/contexts/TopBarContext";
 
 export default function ProfilePage() {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
@@ -21,6 +22,7 @@ export default function ProfilePage() {
   const [showReviews, setShowReviews] = useState(false);
   const [isUpdatingPreferences, setIsUpdatingPreferences] = useState(false);
   const router = useRouter();
+  const { setNavigating } = useTopBar();
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
@@ -52,7 +54,10 @@ export default function ProfilePage() {
           allergens: Array.isArray(userData?.allergens) ? userData.allergens : [],
         });
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        setNavigating(false); // Clear navigation loading state
+      });
   }, [firebaseUser]);
 
   const handleLogout = async () => {
@@ -136,13 +141,13 @@ export default function ProfilePage() {
 
   return (
     <div 
-      className="max-w-4xl mx-auto p-6 space-y-6"
+      className="max-w-2xl mx-auto p-6 space-y-2 opacity-0 animate-fade-in"
       style={{
         backgroundColor: colours.background.secondary
       }}
     >
       {/* User Profile Card */}
-      <ContentBox size="xl">
+      <ContentBox className="opacity-0 animate-slide-in-bottom" style={{ animationDelay: '100ms' }}>
         <h1 
           className="text-2xl font-bold"
           style={{ color: colours.text.primary }}
@@ -158,7 +163,7 @@ export default function ProfilePage() {
         {user && user.userId && (
         <>
           {/* Shopping Preferences Section - Always Visible */}
-          <div className="mt-4">
+          <div className="">
             <h2 
               className="text-lg font-semibold mb-4"
               style={{ color: colours.text.secondary }}
@@ -177,61 +182,61 @@ export default function ProfilePage() {
 
       {/* Allergen Management Section - Separate Box */}
       {user && user.userId && (
-        <AllergenManager 
-          userProfile={user}
-          onAllergensUpdate={handleAllergensUpdate}
-          isUpdating={isUpdatingPreferences}
-        />
+        <ContentBox className="opacity-0 animate-slide-in-bottom" style={{ animationDelay: '200ms' }}>
+          <AllergenManager 
+            userProfile={user}
+            onAllergensUpdate={handleAllergensUpdate}
+            isUpdating={isUpdatingPreferences}
+          />
+        </ContentBox>
       )}
 
-      {/* Dropdown Sections */}
+      {/* User Reviews Section */}
       {user && user.userId && (
-        <div className="space-y-2">
-            {/* User Reviews Section */}
-            <ContentBox variant="secondary" className="transition-all duration-300">
-              <button
-                className="w-full flex items-center justify-between text-lg font-semibold mb-2 focus:outline-none"
-                style={{ color: colours.text.secondary }}
-                onClick={() => setShowReviews((v) => !v)}
-                aria-expanded={showReviews}
-              >
-                <span>Your Reviews</span>
-                <Image 
-                  src="/down-arrow.svg" 
-                  alt="Toggle arrow" 
-                  width={16} 
-                  height={16} 
-                  className={`transform transition-transform duration-300 ease-in-out ${showReviews ? 'rotate-180' : ''}`}
-                />
-              </button>
-              <div 
-                className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                  showReviews ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                }`}
-              >
-                <div className={`transition-all duration-300 delay-150 ${
-                  showReviews ? 'transform translate-y-0 opacity-100' : 'transform -translate-y-2 opacity-0'
-                }`}>
-                  <div className={`${showReviews ? 'animate-fade-in' : ''}`} style={{ animationDelay: '200ms' }}>
-                    <UserReviewsList userId={user.userId} />
-                  </div>
-                </div>
+        <ContentBox variant="secondary" className="transition-all mt-4 duration-300 opacity-0 animate-slide-in-bottom" style={{ animationDelay: '300ms' }}>
+          <button
+            className="w-full flex items-center justify-between text-lg font-semibold focus:outline-none"
+            style={{ color: colours.text.secondary }}
+            onClick={() => setShowReviews((v) => !v)}
+            aria-expanded={showReviews}
+          >
+            <span>Your Reviews</span>
+            <Image 
+              src="/down-arrow.svg" 
+              alt="Toggle arrow" 
+              width={16} 
+              height={16} 
+              className={`transform transition-transform duration-300 ease-in-out ${showReviews ? 'rotate-180' : ''}`}
+            />
+          </button>
+          <div 
+            className={`overflow-hidden transition-all duration-500 ease-in-out ${
+              showReviews ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+            }`}
+          >
+            <div className={`transition-all duration-300 delay-150 ${
+              showReviews ? 'transform translate-y-0 opacity-100' : 'transform -translate-y-2 opacity-0'
+            }`}>
+              <div className={`${showReviews ? 'animate-fade-in' : ''}`} style={{ animationDelay: '200ms' }}>
+                <UserReviewsList userId={user.userId} />
               </div>
-            </ContentBox>
+            </div>
           </div>
-        )}
+        </ContentBox>
+      )}
 
         <button
           onClick={handleLogout}
-          className="rounded-xl shadow-xl text-white font-semibold py-2 px-4 rounded transition"
+          className="rounded-xl shadow-xl text-white font-semibold py-2 px-4 rounded transition-all duration-200 hover:scale-[1.02] hover:shadow-2xl opacity-0 animate-slide-in-bottom"
           style={{
             backgroundColor: colours.status.error.background,
-            border: `2px solid ${colours.status.error.border}`
+            border: `2px solid ${colours.status.error.border}`,
+            animationDelay: '400ms'
           }}
         >
           Log out
         </button>
-        <div className="mt-4 text-xs text-grey-400 text-left">
+        <div className="mt-4 text-xs text-grey-400 text-left opacity-0 animate-fade-in" style={{ animationDelay: '500ms' }}>
           User ID: {user.userId}
         </div>
       </div>

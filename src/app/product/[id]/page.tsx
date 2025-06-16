@@ -100,7 +100,7 @@ function calculateMatchPercentage(
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const { setTopBarState, resetTopBar } = useTopBar();
+  const { setTopBarState, resetTopBar, setNavigating } = useTopBar();
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -183,6 +183,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         }
       }
       setLoading(false);
+      setNavigating(false); // Clear navigation loading state
     });
     getProductReviews(id).then(data => setReviews(data || []));
     getReviewSummary(id).then(setReviewSummary);

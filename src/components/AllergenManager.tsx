@@ -16,9 +16,17 @@ interface AllergenManagerProps {
   userProfile: UserProfile;
   onAllergensUpdate: (allergens: string[]) => Promise<void>;
   isUpdating?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
-export default function AllergenManager({ userProfile, onAllergensUpdate, isUpdating = false }: AllergenManagerProps) {
+export default function AllergenManager({ 
+  userProfile, 
+  onAllergensUpdate, 
+  isUpdating = false, 
+  className = '', 
+  style = {} 
+}: AllergenManagerProps) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [localAllergens, setLocalAllergens] = useState<string[]>(userProfile.allergens || []);
 
@@ -57,11 +65,8 @@ export default function AllergenManager({ userProfile, onAllergensUpdate, isUpda
 
   return (
     <div 
-      className="rounded-xl shadow-lg p-6 transition-all duration-500 ease-in-out" 
-      style={{ 
-        backgroundColor: colours.card.background,
-        border: `2px solid ${colours.card.border}`
-      }}>
+      className={`transition-all duration-500 ease-in-out ${className}`}
+      style={style}>
       {/* Header with title and edit button */}
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-lg font-semibold" style={{ color: colours.text.primary }}>Allergens</h1>

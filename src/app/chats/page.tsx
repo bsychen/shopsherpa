@@ -11,6 +11,7 @@ import PostFilters from "@/components/PostFilters";
 import CreatePostModal from "@/components/CreatePostModal";
 import ContentBox from "@/components/ContentBox";
 import { colours } from "@/styles/colours";
+import { useTopBar } from "@/contexts/TopBarContext";
 
 export default function PostsPage() {
   const [user, setUser] = useState(null);
@@ -18,6 +19,7 @@ export default function PostsPage() {
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [creatingPost, setCreatingPost] = useState(false);
+  const { setNavigating } = useTopBar();
   
   // Filter states
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -52,6 +54,7 @@ export default function PostsPage() {
       console.error('Error fetching posts:', error);
     } finally {
       setLoading(false);
+      setNavigating(false); // Clear navigation loading state
     }
   }, [selectedTags, sortBy, searchTerm]);
 
@@ -127,13 +130,13 @@ export default function PostsPage() {
 
   return (
     <div 
-      className="min-h-screen"
+      className="min-h-screen opacity-0 animate-fade-in"
       style={{ backgroundColor: colours.background.secondary }}
     >
-      <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+      <div className="max-w-2xl mx-auto p-6">
         
         {/* Filters */}
-        <ContentBox className="mb-4">
+        <ContentBox className="opacity-0 animate-slide-in-bottom" style={{ animationDelay: '100ms' }}>
           {/* Header */}
           <div className="flex items-center justify-between mb-4 sm:mb-6">
             <div>
@@ -148,7 +151,7 @@ export default function PostsPage() {
             {user && (
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition-colors font-medium text-sm sm:text-base"
+                className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition-all duration-200 font-medium text-sm sm:text-base hover:scale-[1.02] hover:shadow-lg"
                 style={{
                   backgroundColor: colours.button.primary.background,
                   color: colours.button.primary.text
@@ -171,9 +174,9 @@ export default function PostsPage() {
         </ContentBox>
 
         {/* Posts */}
-        <div className="space-y-2">
+        <div className="space-y-2 opacity-0 animate-slide-in-bottom" style={{ animationDelay: '200ms' }}>
           {loading ? (
-            <ContentBox className="text-center py-12">
+            <ContentBox className="text-center py-12 animate-scale-in">
               <div 
                 className="animate-spin rounded-full h-12 w-12 mx-auto"
                 style={{ 
@@ -183,8 +186,8 @@ export default function PostsPage() {
                 }}
               ></div>
               <p 
-                className="mt-4"
-                style={{ color: colours.text.secondary }}
+                className="mt-4 animate-fade-in"
+                style={{ color: colours.text.secondary, animationDelay: '300ms' }}
               >
                 Loading posts...
               </p>
@@ -228,8 +231,8 @@ export default function PostsPage() {
               )}
             </ContentBox>
           ) : (
-            posts.map((post) => (
-              <ContentBox key={post.id} className="mb-2">
+            posts.map((post, index) => (
+              <ContentBox key={post.id} className="opacity-0 animate-slide-in-bottom" style={{ animationDelay: `${300 + index * 50}ms` }}>
                 <PostCard
                   post={post}
                   currentUserId={user?.uid}
@@ -243,7 +246,7 @@ export default function PostsPage() {
 
         {/* Auth prompt for non-logged in users */}
         {!user && (
-          <ContentBox className="text-center py-6 sm:py-8 mt-4">
+          <ContentBox className="text-center py-6 sm:py-8 mt-4 opacity-0 animate-slide-in-bottom" style={{ animationDelay: '300ms' }}>
             <p className="text-sm sm:text-base mb-4" style={{ color: colours.text.secondary }}>
               Join the ShopSmart community to create posts and interact with others!
             </p>

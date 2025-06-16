@@ -4,6 +4,7 @@ import TopBar from "@/components/topBar"
 import BottomNav from "@/components/BottomNav"
 import { colours } from "@/styles/colours"
 import { TopBarProvider } from "@/contexts/TopBarContext"
+import NavigationLoader from "@/components/NavigationLoader"
 
 import "./globals.css";
 
@@ -34,6 +35,7 @@ export default function RootLayout({
       </head>
       <body >
         <TopBarProvider>
+          <NavigationLoader />
           <div style={{ backgroundColor: colours.card.background }}>
             <TopBar />
           </div>

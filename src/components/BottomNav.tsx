@@ -2,11 +2,27 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { colours } from "@/styles/colours";
+import { useTopBar } from "@/contexts/TopBarContext";
 
 const BottomNav = () => {
   const pathname = usePathname();
+  const router = useRouter();
+  const { setNavigating } = useTopBar();
+
+  const handleNavClick = (href: string) => {
+    if (pathname !== href) {
+      setNavigating(true);
+      
+      // Fallback to clear navigation state after 3 seconds in case of issues
+      setTimeout(() => {
+        setNavigating(false);
+      }, 3000);
+      
+      router.push(href);
+    }
+  };
 
   const navItems = [
     {
@@ -192,9 +208,9 @@ const BottomNav = () => {
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
-            <Link
+            <button
               key={item.href}
-              href={item.href}
+              onClick={() => handleNavClick(item.href)}
               className="flex flex-col items-center justify-center flex-1 py-2 transition-colors duration-200"
               style={{
                 color: isActive ? colours.button.primary.background : colours.text.primary,
@@ -206,7 +222,7 @@ const BottomNav = () => {
               <span className="text-xs font-medium">
                 {item.label}
               </span>
-            </Link>
+            </button>
           );
         })}
       </div>

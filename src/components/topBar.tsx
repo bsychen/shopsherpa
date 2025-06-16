@@ -19,13 +19,13 @@ export default function TopBar() {
   };
 
   return (
-    <div className="relative w-full">
-      <header className="w-full flex items-center justify-center px-4 py-6 relative z-10" style={{ backgroundColor: colours.card.background }}>
+    <div className="relative w-full z-50">
+      <header className="w-full flex items-center justify-center px-4 py-6 relative z-50" style={{ backgroundColor: colours.card.background }}>
         {/* Back button - positioned absolutely on the left */}
         {topBarState.showBackButton && (
           <button
             onClick={handleBackClick}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 z-30"
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 z-50"
             style={{
               color: colours.text.primary,
             }}
