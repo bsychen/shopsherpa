@@ -12,6 +12,7 @@ import LoadingAnimation from "@/components/LoadingSpinner";
 import StarIcon from "@/components/Icons";
 import { useTopBar } from "@/contexts/TopBarContext";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function ReviewPage() {
   const params = useParams();
