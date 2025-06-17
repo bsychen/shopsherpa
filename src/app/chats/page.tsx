@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/lib/firebaseClient";
+import { collection, query, onSnapshot, orderBy, limit, doc, addDoc, serverTimestamp, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { auth, db } from "@/lib/firebaseClient";
 import Link from "next/link";
 import { Post } from "@/types/post";
 import PostCard from "@/components/PostCard";
@@ -26,11 +27,30 @@ export default function PostsPage() {
   const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Real-time states
+  const [isRealTimeActive, setIsRealTimeActive] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
+  const [newlyAddedPosts, setNewlyAddedPosts] = useState<Set<string>>(new Set());
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
     });
     return () => unsubscribe();
+  }, []);
+
+  // Monitor online/offline status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
   }, []);
 
   const fetchPosts = useCallback(async () => {
@@ -58,9 +78,139 @@ export default function PostsPage() {
     }
   }, [selectedTags, sortBy, searchTerm, setNavigating]);
 
+  // Set up real-time listener for posts
   useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
+    if (!isOnline) {
+      // If offline, fallback to API call
+      fetchPosts();
+      return;
+    }
+
+    let unsubscribe: (() => void) | null = null;
+
+    const setupRealTimeListener = async () => {
+      try {
+        const postsRef = collection(db, 'posts');
+        let postsQuery;
+
+        // Build query based on filters
+        if (selectedTags.length > 0) {
+          // If we have tag filters, we need to handle them specially
+          // For now, fallback to API for complex filters
+          fetchPosts();
+          return;
+        }
+
+        if (searchTerm) {
+          // If we have search term, fallback to API
+          fetchPosts();
+          return;
+        }
+
+        // Simple query for real-time updates (no complex filters)
+        if (sortBy === 'recent') {
+          postsQuery = query(
+            postsRef,
+            orderBy('createdAt', 'desc'),
+            limit(20)
+          );
+        } else {
+          // For 'popular' sort, fallback to API as it requires complex logic
+          fetchPosts();
+          return;
+        }
+
+        unsubscribe = onSnapshot(postsQuery, async (snapshot) => {
+          setIsRealTimeActive(true);
+          const postsData = await Promise.all(
+            snapshot.docs.map(async (docSnapshot) => {
+              const data = docSnapshot.data();
+              let linkedProduct = null;
+
+              // Fetch linked product details if exists
+              if (data.linkedProductId) {
+                try {
+                  const response = await fetch(`/api/products/${data.linkedProductId}`);
+                  if (response.ok) {
+                    const productData = await response.json();
+                    linkedProduct = {
+                      id: data.linkedProductId,
+                      name: productData?.productName,
+                      imageUrl: productData?.imageUrl,
+                    };
+                  }
+                } catch (error) {
+                  console.error('Error fetching linked product:', error);
+                }
+              }
+
+              return {
+                id: docSnapshot.id,
+                title: data.title,
+                content: data.content,
+                authorId: data.authorId,
+                authorName: data.authorName,
+                tags: data.tags || [],
+                linkedProductId: data.linkedProductId,
+                linkedProduct,
+                likes: data.likes || [],
+                dislikes: data.dislikes || [],
+                commentCount: data.commentCount || 0,
+                createdAt: data.createdAt?.toDate?.() ? data.createdAt.toDate().toISOString() : data.createdAt,
+                updatedAt: data.updatedAt?.toDate?.() ? data.updatedAt.toDate().toISOString() : data.updatedAt,
+              } as Post;
+            })
+          );
+
+          // Filter out optimistic updates and merge with real data
+          setPosts(prevPosts => {
+            const tempPosts = prevPosts.filter(p => p.id.startsWith('temp-'));
+            const realPosts = postsData;
+            
+            // Detect new posts for animation
+            const prevPostIds = new Set(prevPosts.map(p => p.id));
+            const newPostIds = realPosts
+              .filter(p => !prevPostIds.has(p.id) && !p.id.startsWith('temp-'))
+              .map(p => p.id);
+            
+            if (newPostIds.length > 0) {
+              setNewlyAddedPosts(prev => new Set([...prev, ...newPostIds]));
+              // Remove animation class after animation duration
+              setTimeout(() => {
+                setNewlyAddedPosts(prev => {
+                  const updated = new Set(prev);
+                  newPostIds.forEach(id => updated.delete(id));
+                  return updated;
+                });
+              }, 1000); // Remove animation after 1 second
+            }
+            
+            return [...realPosts, ...tempPosts];
+          });
+          setLoading(false);
+          setNavigating(false);
+        }, (error) => {
+          console.error('Error in posts listener:', error);
+          setIsRealTimeActive(false);
+          // Fallback to API call if real-time fails
+          fetchPosts();
+        });
+
+      } catch (error) {
+        console.error('Error setting up real-time listener:', error);
+        fetchPosts();
+      }
+    };
+
+    setupRealTimeListener();
+
+    return () => {
+      setIsRealTimeActive(false);
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [selectedTags, sortBy, searchTerm, isOnline, fetchPosts, setNavigating]);
 
   const handleCreatePost = async (postData: {
     title: string;
@@ -71,49 +221,85 @@ export default function PostsPage() {
     if (!user) return;
 
     setCreatingPost(true);
-    try {
-      const response = await fetch('/api/posts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...postData,
-          authorId: user.uid,
-          authorName: user.displayName || user.email,
-        }),
-      });
+    
+    // Create optimistic post
+    const optimisticPost: Post = {
+      id: `temp-${Date.now()}`,
+      title: postData.title,
+      content: postData.content,
+      authorId: user.uid,
+      authorName: user.displayName || user.email || 'Anonymous',
+      tags: postData.tags,
+      linkedProductId: postData.linkedProductId,
+      linkedProduct: undefined, // Will be fetched if needed
+      likes: [],
+      dislikes: [],
+      commentCount: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
 
-      if (response.ok) {
-        const newPost = await response.json();
-        setPosts([newPost, ...posts]);
-        setShowCreateModal(false);
-      }
+    // Add optimistic post to UI
+    setPosts(prev => [optimisticPost, ...prev]);
+    setShowCreateModal(false);
+
+    try {
+      // Add post to Firestore
+      const postDoc = {
+        title: postData.title,
+        content: postData.content,
+        authorId: user.uid,
+        authorName: user.displayName || user.email,
+        tags: postData.tags,
+        linkedProductId: postData.linkedProductId || null,
+        likes: [],
+        dislikes: [],
+        commentCount: 0,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      };
+
+      await addDoc(collection(db, 'posts'), postDoc);
+
     } catch (error) {
       console.error('Error creating post:', error);
+      // Remove optimistic post on error
+      setPosts(prev => prev.filter(p => p.id !== optimisticPost.id));
+      setShowCreateModal(true); // Reopen modal on error
     } finally {
       setCreatingPost(false);
     }
   };
 
   const handlePostAction = async (postId: string, action: string) => {
-    if (!user) return;
+    if (!user || postId.startsWith('temp-')) return;
 
     try {
-      const response = await fetch(`/api/posts/${postId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action,
-          userId: user.uid,
-        }),
-      });
-
-      if (response.ok) {
-        // Refresh posts to get updated like/dislike counts
-        fetchPosts();
+      const postRef = doc(db, 'posts', postId);
+      
+      switch (action) {
+        case 'like':
+          await updateDoc(postRef, {
+            likes: arrayUnion(user.uid),
+            dislikes: arrayRemove(user.uid),
+          });
+          break;
+        case 'dislike':
+          await updateDoc(postRef, {
+            dislikes: arrayUnion(user.uid),
+            likes: arrayRemove(user.uid),
+          });
+          break;
+        case 'unlike':
+          await updateDoc(postRef, {
+            likes: arrayRemove(user.uid),
+          });
+          break;
+        case 'undislike':
+          await updateDoc(postRef, {
+            dislikes: arrayRemove(user.uid),
+          });
+          break;
       }
     } catch (error) {
       console.error('Error updating post:', error);
@@ -139,13 +325,26 @@ export default function PostsPage() {
         <ContentBox className="opacity-0 animate-slide-in-bottom" style={{ animationDelay: '100ms' }}>
           {/* Header */}
           <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <div>
+            <div className="flex items-center gap-4">
               <h1 
                 className="text-2xl sm:text-3xl font-bold"
                 style={{ color: colours.text.primary }}
               >
                 Community
               </h1>
+              {/* Live/Offline Status Indicator */}
+              {isRealTimeActive && isOnline && (
+                <div className="flex items-center gap-1 text-xs" style={{ color: colours.status.success.text }}>
+                  <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: colours.status.success.text }}></div>
+                  <span>Live</span>
+                </div>
+              )}
+              {!isOnline && (
+                <div className="flex items-center gap-1 text-xs" style={{ color: colours.status.warning.text }}>
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colours.status.warning.text }}></div>
+                  <span>Offline</span>
+                </div>
+              )}
             </div>
             
             {user && (
@@ -229,14 +428,28 @@ export default function PostsPage() {
             </ContentBox>
           ) : (
             posts.map((post, index) => (
-              <ContentBox key={post.id} className="opacity-0 animate-slide-in-bottom" style={{ animationDelay: `${300 + index * 50}ms` }}>
-                <PostCard
-                  post={post}
-                  currentUserId={user?.uid}
-                  onLike={handleLike}
-                  onDislike={handleDislike}
-                />
-              </ContentBox>
+              <div
+                key={post.id}
+                className={`transition-all duration-1000 ease-out ${
+                  newlyAddedPosts.has(post.id)
+                    ? 'animate-slide-in-top opacity-100 transform translate-y-0'
+                    : 'opacity-100 transform translate-y-0'
+                }`}
+                style={{
+                  animation: newlyAddedPosts.has(post.id) 
+                    ? 'slideInTop 0.8s ease-out, highlightNew 2s ease-out' 
+                    : undefined,
+                }}
+              >
+                <ContentBox className="opacity-0 animate-slide-in-bottom" style={{ animationDelay: `${300 + index * 50}ms` }}>
+                  <PostCard
+                    post={post}
+                    currentUserId={user?.uid}
+                    onLike={handleLike}
+                    onDislike={handleDislike}
+                  />
+                </ContentBox>
+              </div>
             ))
           )}
         </div>

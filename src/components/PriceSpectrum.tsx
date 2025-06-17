@@ -52,7 +52,7 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
   const productPrice = getPrice(product);
 
   // If no real prices available, show simple message
-  if (productPrice === 0) {
+  if (productPrice === 0 && priceStats.min === 0 && priceStats.max === 0) {
     return (
       <div className="w-full h-24 flex items-center justify-center text-sm" style={{ 
         color: colours.text.secondary
@@ -62,12 +62,32 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
     );
   }
 
+  // If current product has no price but we have price statistics, show different message
+  if (productPrice === 0 && (priceStats.min > 0 || priceStats.max > 0)) {
+    return (
+      <div className="w-full h-24 flex flex-col items-center justify-center text-sm" style={{ 
+        color: colours.text.secondary
+      }}>
+        <div>Price not available for this product</div>
+        <div className="mt-1 text-xs">
+          Similar products range: £{priceStats.min.toFixed(2)} - £{priceStats.max.toFixed(2)}
+        </div>
+      </div>
+    );
+  }
+
+  // Ensure we have valid price range for scaling
+  const minPrice = Math.max(priceStats.min, 0.01); // Avoid division by zero
+  const maxPrice = Math.max(priceStats.max, productPrice, 0.01);
+
   // Convert prices to position percentages for visualization, accounting for 5% padding on each side
   const scale = (price: number) => {
-    if (price === priceStats.min) return 5; // Align with left edge of spectrum
-    if (price === priceStats.max) return 95; // Align with right edge of spectrum
+    if (price === minPrice) return 5; // Align with left edge of spectrum
+    if (price === maxPrice) return 95; // Align with right edge of spectrum
     // Scale between 5% and 95% for other values
-    return 5 + ((price - priceStats.min) / (priceStats.max - priceStats.min)) * 90;
+    const range = maxPrice - minPrice;
+    if (range === 0) return 50; // If all prices are the same, center it
+    return 5 + ((price - minPrice) / range) * 90;
   };
 
   // Calculate the position of the current product's price
@@ -148,7 +168,7 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
             }}
             onClick={onMinClick}
           >
-            £{priceStats.min.toFixed(2)}
+            £{minPrice.toFixed(2)}
           </button>
         </div>
         <div className="absolute -bottom-4 right-[0%]">
@@ -161,7 +181,7 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
             }}
             onClick={onMaxClick}
           >
-            £{priceStats.max.toFixed(2)}
+            £{maxPrice.toFixed(2)}
           </button>
         </div>
       </div>

@@ -8,7 +8,7 @@ import { colours } from "@/styles/colours";
 
 interface PriceTabContentProps {
   product: Product;
-  reviewSummary: ReviewSummary;
+  reviewSummary?: ReviewSummary | null;
   priceStats: {
     min: number;
     max: number;

@@ -54,9 +54,8 @@ const SearchResult = memo(({ product, onSelect }: { product: ProductSearchResult
         style={{ color: colours.text.muted }}
       >
         <span className="font-semibold">
-           {product.brandName}
+          {product.brandName}
         </span>
-       
       </div>
     </Link>
   );
