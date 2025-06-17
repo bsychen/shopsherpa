@@ -26,7 +26,6 @@ interface PriceTabContentProps {
 
 const PriceTabContent: React.FC<PriceTabContentProps> = ({
   product,
-  reviewSummary,
   priceStats,
   maxPriceProduct,
   minPriceProduct,

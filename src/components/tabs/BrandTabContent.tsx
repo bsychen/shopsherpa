@@ -18,7 +18,6 @@ interface BrandTabContentProps {
 }
 
 const BrandTabContent: React.FC<BrandTabContentProps> = ({
-  product,
   animatedBrand,
   calculateBrandStats,
 }) => {

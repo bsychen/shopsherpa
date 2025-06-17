@@ -9,7 +9,6 @@ interface SustainabilityTabContentProps {
 
 const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
   product,
-  animatedSustainability,
 }) => {
   return (
     <div className="w-full flex flex-col items-center opacity-0 animate-fade-in px-1" style={{ animationDelay: '0.05s' }}>
