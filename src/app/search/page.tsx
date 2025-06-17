@@ -78,7 +78,7 @@ export default function ProductSearch() {
   
   const debouncedQuery = useDebounce(query, 500); // Increased debounce delay
 
-  // Filter cameras to select exactly one back camera and one front camera
+  // Filter cameras to select only back camera (prefer ultrawide if available)
   const filterCameras = async (devices: MediaDeviceInfo[]): Promise<MediaDeviceInfo[]> => {
     const backCameras: MediaDeviceInfo[] = [];
     const frontCameras: MediaDeviceInfo[] = [];
@@ -175,7 +175,7 @@ export default function ProductSearch() {
       }
     }
     
-    // Build final camera selection: exactly one back and one front camera
+    // Build final camera selection: only one back camera
     const filtered: MediaDeviceInfo[] = [];
     
     // Select the best back camera (prefer ultrawide if available, otherwise first back camera)
@@ -196,30 +196,20 @@ export default function ProductSearch() {
       selectedBackCamera = backCameras[0];
     }
     
-    // Select front camera
-    let selectedFrontCamera: MediaDeviceInfo | null = null;
-    if (frontCameras.length > 0) {
-      selectedFrontCamera = frontCameras[0];
+    // If no back camera available, fallback to front camera
+    if (!selectedBackCamera && frontCameras.length > 0) {
+      selectedBackCamera = frontCameras[0];
     }
     
-    // Add cameras to filtered array (back camera first for default)
+    // Add selected camera to filtered array
     if (selectedBackCamera) {
       filtered.push(selectedBackCamera);
-    }
-    if (selectedFrontCamera) {
-      filtered.push(selectedFrontCamera);
     }
     
     // Mobile device fallback: if no cameras were categorized properly
     if (filtered.length === 0 && devices.length > 0) {
-      if (devices.length >= 2) {
-        // Assume first is back, second is front
-        filtered.push(devices[0]); // Back camera (usually)
-        filtered.push(devices[1]); // Front camera (usually)
-      } else {
-        // Only one camera available
-        filtered.push(devices[0]);
-      }
+      // Use the first camera available (usually back camera on mobile)
+      filtered.push(devices[0]);
     }
     
     return filtered;
@@ -334,20 +324,6 @@ export default function ProductSearch() {
       }
     };
   }, []);
-
-  const flipCamera = () => {
-    if (filteredCameras.length > 1) {
-      // Stop current camera before switching
-      if (cameraControlsRef.current) {
-        cameraControlsRef.current.stop();
-        cameraControlsRef.current = null;
-      }
-      
-      setCurrentCameraIndex((prevIndex) => 
-        (prevIndex + 1) % filteredCameras.length
-      );
-    }
-  };
 
   const handleManualSearch = () => {
     handleSearch(query);
@@ -471,7 +447,7 @@ export default function ProductSearch() {
           >
             Scan a Barcode
           </h1>
-          <div className="relative">
+          <div>
             <div 
               className="rounded-lg overflow-hidden shadow-xl mb-4 w-full max-w-xs flex items-center justify-center aspect-video"
               style={{ 
@@ -481,35 +457,6 @@ export default function ProductSearch() {
             >
               <video ref={videoRef} className="w-full h-auto" />
             </div>
-            {/* Flip Camera Button */}
-            {filteredCameras.length > 1 && (
-              <button
-                onClick={flipCamera}
-                className="absolute top-2 right-2 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
-                style={{
-                  backgroundColor: colours.content.surface,
-                  border: `1px solid ${colours.card.border}`,
-                  color: colours.text.primary
-                }}
-                title="Flip Camera"
-              >
-                <svg 
-                  width="20" 
-                  height="20" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                >
-                  <path d="M3 6h4l2-2h6l2 2h4a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z"/>
-                  <circle cx="12" cy="13" r="3"/>
-                  <path d="M16 6l2-2"/>
-                  <path d="M16 6l-2-2"/>
-                </svg>
-              </button>
-            )}
           </div>
         </div>
       </ContentBox>
