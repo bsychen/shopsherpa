@@ -53,7 +53,10 @@ const SearchResult = memo(({ product, onSelect }: { product: ProductSearchResult
         className="text-xs"
         style={{ color: colours.text.muted }}
       >
-        ID: {product.id}
+        <span className="font-semibold">
+           {product.brandName}
+        </span>
+       
       </div>
     </Link>
   );
