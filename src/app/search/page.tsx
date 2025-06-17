@@ -78,7 +78,7 @@ export default function ProductSearch() {
   
   const debouncedQuery = useDebounce(query, 500); // Increased debounce delay
 
-  // Filter cameras to only include back, front, and ultrawide
+  // Filter cameras to select exactly one back camera and one front camera
   const filterCameras = async (devices: MediaDeviceInfo[]): Promise<MediaDeviceInfo[]> => {
     const backCameras: MediaDeviceInfo[] = [];
     const frontCameras: MediaDeviceInfo[] = [];
@@ -122,51 +122,46 @@ export default function ProductSearch() {
           const label = device.label.toLowerCase();
           const facingMode = settings.facingMode || capabilities.facingMode;
           
-          // Categorize cameras
-          if (facingMode === 'environment' || 
-              label.includes('back') || 
-              label.includes('rear') ||
-              (!label.includes('front') && !label.includes('selfie') && devices.indexOf(device) === 0)) {
-            backCameras.push(device);
-          }
-          else if (facingMode === 'user' || 
-                   label.includes('front') || 
-                   label.includes('selfie')) {
+          // Categorize cameras with more specific filtering
+          if (facingMode === 'user' || 
+              label.includes('front') || 
+              label.includes('selfie')) {
             frontCameras.push(device);
           }
           else if (label.includes('ultra') || 
                    label.includes('wide') ||
                    label.includes('0.5')) {
             ultrawideCameras.push(device);
+          }
+          else if (facingMode === 'environment' || 
+                   label.includes('back') || 
+                   label.includes('rear') ||
+                   (!label.includes('front') && !label.includes('selfie'))) {
+            backCameras.push(device);
           }
         } else {
           // Fallback: use label-based filtering without stream access
           const label = device.label.toLowerCase();
-          if (label.includes('back') || 
-              label.includes('rear') ||
-              (!label.includes('front') && !label.includes('selfie') && devices.indexOf(device) === 0)) {
-            backCameras.push(device);
-          }
-          else if (label.includes('front') || 
-                   label.includes('selfie')) {
+          if (label.includes('front') || 
+              label.includes('selfie')) {
             frontCameras.push(device);
           }
           else if (label.includes('ultra') || 
                    label.includes('wide') ||
                    label.includes('0.5')) {
             ultrawideCameras.push(device);
+          }
+          else if (label.includes('back') || 
+                   label.includes('rear') ||
+                   (!label.includes('front') && !label.includes('selfie'))) {
+            backCameras.push(device);
           }
         }
       } catch {
         // If we can't get capabilities, use label-based filtering
         const label = device.label.toLowerCase();
-        if (label.includes('back') || 
-            label.includes('rear') ||
-            (!label.includes('front') && !label.includes('selfie') && devices.indexOf(device) === 0)) {
-          backCameras.push(device);
-        }
-        else if (label.includes('front') || 
-                 label.includes('selfie')) {
+        if (label.includes('front') || 
+            label.includes('selfie')) {
           frontCameras.push(device);
         }
         else if (label.includes('ultra') || 
@@ -174,48 +169,57 @@ export default function ProductSearch() {
                  label.includes('0.5')) {
           ultrawideCameras.push(device);
         }
-      }
-    }
-    
-    // Build filtered array with back camera first, then front, then ultrawide
-    const filtered: MediaDeviceInfo[] = [];
-    
-    // Add back cameras first (prioritize main back camera)
-    if (backCameras.length > 0) {
-      filtered.push(backCameras[0]); // Main back camera
-    }
-    
-    // Add front camera second
-    if (frontCameras.length > 0) {
-      filtered.push(frontCameras[0]); // Main front camera
-    }
-    
-    // Add ultrawide camera third (if available)
-    if (ultrawideCameras.length > 0) {
-      filtered.push(ultrawideCameras[0]); // First ultrawide camera
-    }
-    
-    // Mobile device fallback: if no cameras were categorized properly
-    if (filtered.length === 0 && devices.length >= 2 && !permissionGranted) {
-      // On mobile, typically the first device is back camera, second is front
-      filtered.push(devices[0]); // Back camera (usually)
-      if (devices.length > 1) {
-        filtered.push(devices[1]); // Front camera (usually)
-      }
-      
-      // Only add one more camera if it might be ultrawide
-      for (let i = 2; i < devices.length; i++) {
-        const label = devices[i].label.toLowerCase();
-        if (label.includes('ultra') || label.includes('wide') || label.includes('0.5')) {
-          filtered.push(devices[i]);
-          break; // Only add one additional camera
+        else {
+          backCameras.push(device);
         }
       }
     }
     
-    // Final fallback: if no cameras matched our criteria, fall back to first available camera
+    // Build final camera selection: exactly one back and one front camera
+    const filtered: MediaDeviceInfo[] = [];
+    
+    // Select the best back camera (prefer ultrawide if available, otherwise first back camera)
+    let selectedBackCamera: MediaDeviceInfo | null = null;
+    if (ultrawideCameras.length > 0) {
+      // Check if ultrawide is actually a back camera
+      const ultrawideBackCamera = ultrawideCameras.find(camera => {
+        const label = camera.label.toLowerCase();
+        return !label.includes('front') && !label.includes('selfie');
+      });
+      if (ultrawideBackCamera) {
+        selectedBackCamera = ultrawideBackCamera;
+      }
+    }
+    
+    // If no ultrawide back camera, use regular back camera
+    if (!selectedBackCamera && backCameras.length > 0) {
+      selectedBackCamera = backCameras[0];
+    }
+    
+    // Select front camera
+    let selectedFrontCamera: MediaDeviceInfo | null = null;
+    if (frontCameras.length > 0) {
+      selectedFrontCamera = frontCameras[0];
+    }
+    
+    // Add cameras to filtered array (back camera first for default)
+    if (selectedBackCamera) {
+      filtered.push(selectedBackCamera);
+    }
+    if (selectedFrontCamera) {
+      filtered.push(selectedFrontCamera);
+    }
+    
+    // Mobile device fallback: if no cameras were categorized properly
     if (filtered.length === 0 && devices.length > 0) {
-      filtered.push(devices[0]);
+      if (devices.length >= 2) {
+        // Assume first is back, second is front
+        filtered.push(devices[0]); // Back camera (usually)
+        filtered.push(devices[1]); // Front camera (usually)
+      } else {
+        // Only one camera available
+        filtered.push(devices[0]);
+      }
     }
     
     return filtered;
