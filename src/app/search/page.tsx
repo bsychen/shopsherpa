@@ -69,6 +69,8 @@ export default function ProductSearch() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [pageLoading, setPageLoading] = useState(true);
+  const [currentCameraIndex, setCurrentCameraIndex] = useState(0);
+  const [availableCameras, setAvailableCameras] = useState<MediaDeviceInfo[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
   const router = useRouter();
   const { setNavigating } = useTopBar();
@@ -129,10 +131,13 @@ export default function ProductSearch() {
     const startCamera = async () => {
       try {
         const devices = await BrowserMultiFormatReader.listVideoInputDevices();
+        setAvailableCameras(devices);
+        
         if (devices.length > 0 && videoRef.current && active) {
+          const selectedDevice = devices[currentCameraIndex] || devices[0];
           const codeReader = new BrowserMultiFormatReader();
           controls = await codeReader.decodeFromVideoDevice(
-            devices[0].deviceId,
+            selectedDevice.deviceId,
             videoRef.current,
             (result, _err, c) => {
               if (result && active) {
@@ -156,7 +161,15 @@ export default function ProductSearch() {
       clearTimeout(timer);
       if (controls) controls.stop();
     };
-  }, [router, pageLoading]);
+  }, [router, pageLoading, currentCameraIndex]);
+
+  const flipCamera = () => {
+    if (availableCameras.length > 1) {
+      setCurrentCameraIndex((prevIndex) => 
+        (prevIndex + 1) % availableCameras.length
+      );
+    }
+  };
 
   const handleManualSearch = () => {
     handleSearch(query);
@@ -280,14 +293,45 @@ export default function ProductSearch() {
           >
             Scan a Barcode
           </h1>
-          <div 
-            className="rounded-lg overflow-hidden shadow-xl mb-4 w-full max-w-xs flex items-center justify-center aspect-video"
-            style={{ 
-              backgroundColor: colours.content.surface,
-              border: `2px solid ${colours.card.border}`
-            }}
-          >
-            <video ref={videoRef} className="w-full h-auto" />
+          <div className="relative">
+            <div 
+              className="rounded-lg overflow-hidden shadow-xl mb-4 w-full max-w-xs flex items-center justify-center aspect-video"
+              style={{ 
+                backgroundColor: colours.content.surface,
+                border: `2px solid ${colours.card.border}`
+              }}
+            >
+              <video ref={videoRef} className="w-full h-auto" />
+            </div>
+            {/* Flip Camera Button */}
+            {availableCameras.length > 1 && (
+              <button
+                onClick={flipCamera}
+                className="absolute top-2 right-2 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                style={{
+                  backgroundColor: colours.content.surface,
+                  border: `1px solid ${colours.card.border}`,
+                  color: colours.text.primary
+                }}
+                title="Flip Camera"
+              >
+                <svg 
+                  width="20" 
+                  height="20" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M3 6h4l2-2h6l2 2h4a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z"/>
+                  <circle cx="12" cy="13" r="3"/>
+                  <path d="M16 6l2-2"/>
+                  <path d="M16 6l-2-2"/>
+                </svg>
+              </button>
+            )}
           </div>
         </div>
       </ContentBox>
