@@ -415,10 +415,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   {product.productName}
                 </h1>
                 <span 
-                  className="text-xs mt-0.5 truncate block"
-                  style={{ color: colours.text.secondary }}
+                  className="text-m mt-0.5 truncate block font-semibold"
+                  style={{ color: colours.text.muted }}
                 >
-                  Product ID: {product.id}
+                  {product.brandName}
                 </span>
               </div>
             </div>
