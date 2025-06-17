@@ -32,11 +32,11 @@ export default function LikeButton({
         disabled ? 'cursor-not-allowed opacity-50' : ''
       }`}
       style={{
-        backgroundColor: '#f1f5fb',
-        color: isLiked ? colours.status.success.text : colours.text.primary
+        backgroundColor: isLiked ? colours.status.success.background: colours.button.primary.background,
+        color: colours.button.primary.text
       }}
     >
-      <ThumbsUp size={iconSize} className={isLiked ? 'fill-current' : ''} />
+      <ThumbsUp size={iconSize}/>
       <span>{likeCount}</span>
     </button>
   );

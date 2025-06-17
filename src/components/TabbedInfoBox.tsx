@@ -1,12 +1,16 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { Product } from "@/types/product";
 import { ReviewSummary } from "@/types/reviewSummary";
-import PriceSpectrum from "./PriceSpectrum";
 import { colours } from "@/styles/colours";
-import StarIcon from "./Icons";
 import { getReviewSummary } from "@/lib/api";
+import {
+  PriceTabContent,
+  QualityTabContent,
+  NutritionTabContent,
+  SustainabilityTabContent,
+  BrandTabContent
+} from "./tabs";
 
 const TAB_ICONS: Record<string, React.ReactNode> = {
   Price: <Image src="/pound-svgrepo-com.svg" alt="Price" width={24} height={24} className="w-6 h-6" />,
@@ -248,9 +252,6 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
-  const min = priceStats.min;
-  const max = priceStats.max;
-
   // Get category background color based on active tab
   const getCategoryBackground = () => {
     if (isCollapsed || !activeTab) {
@@ -332,570 +333,62 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
             transition: 'opacity 0.2s ease-in-out, height 0.3s ease-in-out'
           }}
         >
-        {activeTab === "Price" && reviewSummary && (
-          <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
-            <h2 
-              className="text-lg font-bold mb-1 self-start"
-              style={{ color: colours.text.primary }}
-            >
-              Price Range
-            </h2>
-            {(
-              <div className="w-full opacity-0 animate-slide-in-bottom" style={{ animationDelay: '0.15s' }}>
-                <PriceSpectrum 
-                  product={product} 
-                  priceStats={priceStats}
-                  onMinClick={() => {
-                    if (showMinProduct) {
-                      setShowMinProduct(false);
-                    } else {
-                      setShowMinProduct(true);
-                      setShowMaxProduct(false);
-                    }
-                  }}
-                  onMaxClick={() => {
-                    if (showMaxProduct) {
-                      setShowMaxProduct(false);
-                    } else {
-                      setShowMaxProduct(true);
-                      setShowMinProduct(false);
-                    }
-                  }}
-                />
-              </div>
-            )}
-            {/* Product Details Section */}
-            {(showMinProduct || showMaxProduct) && (
-              <div 
-                className="w-full mt-12 p-4 rounded-lg opacity-0 animate-slide-in-bottom" 
-                style={{ 
-                  animationDelay: '0.25s',
-                  backgroundColor: `${colours.content.surface}99` // 60% opacity
-                }}
-              >
-                <Link 
-                  href={`/product/${showMinProduct ? minPriceProduct?.id : maxPriceProduct?.id}`}
-                  className="flex items-start gap-4 hover:opacity-80 transition-opacity"
-                >
-                  <div 
-                    className="flex-shrink-0 w-16 h-16 rounded-md shadow-sm border overflow-hidden"
-                    style={{ 
-                      backgroundColor: colours.content.surface,
-                      borderColor: colours.content.border
-                    }}
-                  >
-                    <Image
-                      src={(showMinProduct ? minPriceProduct?.imageUrl : maxPriceProduct?.imageUrl) || '/placeholder.jpg'}
-                      alt={showMinProduct ? minPriceProduct?.productName || 'Product' : maxPriceProduct?.productName || 'Product'}
-                      width={64}
-                      height={64}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="flex-grow">
-                    <h3 
-                      className="font-medium text-sm mb-1"
-                      style={{ color: colours.text.primary }}
-                    >
-                      {showMinProduct ? 'Lowest Price Option' : 'Highest Price Option'}
-                    </h3>
-                    <h4 
-                      className="font-semibold text-base mb-1 hover:underline"
-                      style={{ color: colours.text.primary }}
-                    >
-                      {showMinProduct ? minPriceProduct?.productName : maxPriceProduct?.productName}
-                    </h4>
-                    <p 
-                      className="text-sm mb-2"
-                      style={{ color: colours.text.secondary }}
-                    >
-                      {showMinProduct ? minPriceProduct?.brandName : maxPriceProduct?.brandName}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <span 
-                        className="font-medium"
-                        style={{ 
-                          color: showMinProduct ? colours.score.high : colours.score.low
-                        }}
-                      >
-                        £{showMinProduct ? min.toFixed(2) : max.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              </div>
-            )}
-          </div>
+          {activeTab === "Price" && reviewSummary && (
+            <PriceTabContent
+              product={product}
+              reviewSummary={reviewSummary}
+              priceStats={priceStats}
+              maxPriceProduct={maxPriceProduct}
+              minPriceProduct={minPriceProduct}
+              showMinProduct={showMinProduct}
+              showMaxProduct={showMaxProduct}
+              onMinProductClick={() => {
+                if (showMinProduct) {
+                  setShowMinProduct(false);
+                } else {
+                  setShowMinProduct(true);
+                  setShowMaxProduct(false);
+                }
+              }}
+              onMaxProductClick={() => {
+                if (showMaxProduct) {
+                  setShowMaxProduct(false);
+                } else {
+                  setShowMaxProduct(true);
+                  setShowMinProduct(false);
+                }
+              }}
+            />
+          )}
           
+          {activeTab === "Quality" && reviewSummary && (
+            <QualityTabContent
+              reviewSummary={reviewSummary}
+              animatedQuality={animatedQuality}
+            />
+          )}
           
-        )}
-        {activeTab === "Quality" && reviewSummary && (
-          <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
-            <div className="w-full flex items-center gap-3 mb-4">
-              <h2 
-                className="text-lg font-bold mb-2 self-start"
-                style={{ color: colours.text.primary }}
-              >
-                Reviews
-              </h2>
-              <span className="relative inline-block w-12 h-12 align-middle">
-                <svg width="48" height="48" viewBox="0 0 48 48" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
-                  <circle
-                    cx="24" cy="24" r="20"
-                    fill="none"
-                    stroke={colours.score.medium}
-                    strokeWidth="5"
-                    strokeDasharray={Math.PI * 2 * 20}
-                    strokeDashoffset={Math.PI * 2 * 20 * (1 - (animatedQuality / 5))}
-                    strokeLinecap="round"
-                    style={{
-                      transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
-                      transform: 'rotate(-90deg)',
-                      transformOrigin: 'center center',
-                    }}
-                  />
-                </svg>
-                <span className="relative z-10 flex items-center justify-center w-12 h-12 text-3xl">
-                  <StarIcon size={24}/>
-                </span>
-              </span>
-              <span 
-                className="ml-1 text-xs"
-                style={{ color: colours.text.secondary }}
-              >
-                Avg Score: {reviewSummary.averageRating?.toFixed(2)}
-              </span>
-            </div>
-            
-            <div className="flex items-center gap-2 mb-2">
-              
-            </div>
-            <div className="w-full">
-              <div 
-                className="font-semibold mb-3 text-xs md:text-base"
-                style={{ color: colours.text.primary }}
-              >
-                Rating Distribution
-              </div>
-              <div className="flex items-end justify-center gap-2 h-32 w-full px-4">
-                {[1,2,3,4,5].map(star => {
-                  const count = Number(reviewSummary.ratingDistribution?.[star] || 0);
-                  const maxCount = Math.max(...[1,2,3,4,5].map(s => Number(reviewSummary.ratingDistribution?.[s] || 0)));
-                  const height = maxCount > 0 ? Math.max(8, (count / maxCount) * 100) : 8;
-                  
-                  return (
-                    <div
-                      key={star}
-                      className="flex flex-col items-center group focus:outline-none"
-                    >
-                      <span 
-                        className="text-[10px] mb-1"
-                        style={{ color: colours.text.secondary }}
-                      >
-                        {count}
-                      </span>
-                      <div
-                        className="rounded w-6 transition-all duration-700 animate-bar-grow"
-                        style={{ 
-                          height: `${height}px`, 
-                          transition: 'height 0.7s cubic-bezier(0.4,0,0.2,1), background-color 0.3s ease',
-                          backgroundColor: colours.score.medium
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = colours.score.high
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = colours.score.medium
-                        }}
-                      />
-                      <span 
-                        className="text-[10px] mt-1 flex items-center"
-                        style={{ color: colours.text.primary }}
-                      >
-                        {star}<StarIcon size={8} className="ml-0.5" />
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-        {activeTab === "Nutrition" && product && (
-          <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
-            <h2 
-              className="text-lg font-bold mb-2 self-start"
-              style={{ color: colours.text.primary }}
-            >
-              Nutrition
-            </h2>
-            <div className="flex flex-col items-center justify-center gap-4 w-full">
-              {/* Nutrition Grade Circle */}
-              <div className="flex flex-col items-center gap-2">
-                <span className="relative inline-block w-24 h-24 align-middle">
-                  <svg width="96" height="96" viewBox="0 0 96 96" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
-                    <circle
-                      cx="48" cy="48" r="40"
-                      fill="none"
-                      stroke={(() => {
-                        const score = animatedNutrition;
-                        if (score <= 2) return colours.score.low;
-                        if (score <= 3) return colours.score.medium;
-                        return colours.score.high;
-                      })()}
-                      strokeWidth="8"
-                      strokeDasharray={Math.PI * 2 * 40}
-                      strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedNutrition / 5))}
-                      strokeLinecap="round"
-                      style={{
-                        transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1), stroke 0.7s cubic-bezier(0.4,0,0.2,1)',
-                        transform: 'rotate(-90deg)',
-                        transformOrigin: 'center center',
-                      }}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span 
-                      className="text-4xl font-bold"
-                      style={{
-                        color: (() => {
-                          const score = animatedNutrition;
-                          if (score <= 2) return colours.score.low;
-                          if (score <= 3) return colours.score.medium;
-                          return colours.score.high;
-                        })()
-                      }}
-                    >
-                      {product.combinedNutritionGrade?.toUpperCase() || '?'}
-                    </span>
-                  </div>
-                </span>
-                <span 
-                  className="text-sm font-medium"
-                  style={{ color: colours.text.secondary }}
-                >
-                  Nutrition Grade
-                </span>
-              </div>
-
-              {/* Nutrition Macros per 100g */}
-              {product.nutritionMacros && Object.values(product.nutritionMacros).some(value => value !== undefined) && (
-                <div className="w-full mt-4">
-                  <h3 
-                    className="text-md font-semibold mb-3 text-center"
-                    style={{ color: colours.text.primary }}
-                  >
-                    Nutrition Facts (per 100g)
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3 w-full max-w-sm mx-auto">
-                    {product.nutritionMacros.energy !== undefined && (
-                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Energy</span>
-                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.energy} kcal</span>
-                      </div>
-                    )}
-                    {product.nutritionMacros.proteins !== undefined && (
-                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Protein</span>
-                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.proteins}g</span>
-                      </div>
-                    )}
-                    {product.nutritionMacros.carbohydrates !== undefined && (
-                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Carbs</span>
-                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.carbohydrates}g</span>
-                      </div>
-                    )}
-                    {product.nutritionMacros.sugars !== undefined && (
-                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Sugars</span>
-                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.sugars}g</span>
-                      </div>
-                    )}
-                    {product.nutritionMacros.fat !== undefined && (
-                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Fat</span>
-                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.fat}g</span>
-                      </div>
-                    )}
-                    {product.nutritionMacros.saturatedFat !== undefined && (
-                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Sat. Fat</span>
-                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.saturatedFat}g</span>
-                      </div>
-                    )}
-                    {product.nutritionMacros.fiber !== undefined && (
-                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Fiber</span>
-                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.fiber}g</span>
-                      </div>
-                    )}
-                    {product.nutritionMacros.sodium !== undefined && (
-                      <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                        <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Sodium</span>
-                        <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{(product.nutritionMacros.sodium * 1000).toFixed(0)}mg</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-        {activeTab === "Brand" && product && (
-          <div className="w-full flex flex-col opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
-            <h2 
-              className="text-lg font-bold mb-4 self-start"
-              style={{ color: colours.text.primary }}
-            >
-              Brand Performance
-            </h2>
-            <div className="flex items-center gap-6">
-              {/* Brand Score Circle - Smaller and on the left */}
-              <div className="flex flex-col items-center">
-                <span className="relative inline-block w-16 h-16 align-middle">
-                  <svg width="64" height="64" viewBox="0 0 64 64" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
-                    <circle
-                      cx="32" cy="32" r="28"
-                      fill="none"
-                      stroke={colours.chart.primary}
-                      strokeWidth="6"
-                      strokeDasharray={Math.PI * 2 * 28}
-                      strokeDashoffset={Math.PI * 2 * 28 * (1 - (animatedBrand / 5))}
-                      strokeLinecap="round"
-                      style={{
-                        transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
-                        transform: 'rotate(-90deg)',
-                        transformOrigin: 'center center',
-                      }}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-2xl">🏢</span>
-                    <span 
-                      className="text-lg font-bold"
-                      style={{ color: colours.text.primary }}
-                    >
-                      {animatedBrand}
-                    </span>
-                  </div>
-                </span>
-                <span 
-                  className="text-xs font-medium mt-1 text-center"
-                  style={{ color: colours.text.secondary }}
-                >
-                  Brand Score
-                </span>
-              </div>
-
-              {/* Brand Stats Bar Graph - On the right */}
-              <div className="flex-1">
-                <div 
-                  className="text-sm font-medium mb-3"
-                  style={{ color: colours.text.primary }}
-                >
-                  Average Performance
-                </div>
-                <div className="space-y-3">
-                  {calculateBrandStats ? [
-                    { label: 'Price', value: calculateBrandStats.price, color: '#ECCC36' }, // colourMap.yellow for price
-                    { label: 'Quality', value: calculateBrandStats.quality, color: '#D24330' }, // colourMap.red for quality
-                    { label: 'Nutrition', value: calculateBrandStats.nutrition, color: '#3b82f6' }, // blue for nutrition
-                    { label: 'Sustainability', value: calculateBrandStats.sustainability, color: '#309563' } // colourMap.green for sustainability
-                  ].map((stat, index) => (
-                    <div key={stat.label} className="flex items-center gap-3">
-                      <span 
-                        className="text-xs font-medium w-20 text-right"
-                        style={{ color: colours.text.secondary }}
-                      >
-                        {stat.label}
-                      </span>
-                      <div className="flex-1 max-w-24">
-                        <div 
-                          className="flex items-center h-4 rounded-full overflow-hidden"
-                          style={{ backgroundColor: colours.content.surfaceSecondary }}
-                        >
-                          <div
-                            className="h-full rounded-full transition-all duration-1000 ease-out opacity-0 animate-fade-in"
-                            style={{
-                              width: `${(stat.value / 5) * 100}%`,
-                              backgroundColor: stat.color,
-                              animationDelay: `${0.3 + index * 0.1}s`
-                            }}
-                          />
-                        </div>
-                      </div>
-                      <span 
-                        className="text-xs font-medium w-8"
-                        style={{ color: colours.text.primary }}
-                      >
-                        {stat.value.toFixed(1)}
-                      </span>
-                    </div>
-                  )) : (
-                    <div 
-                      className="text-sm text-center py-4"
-                      style={{ color: colours.text.secondary }}
-                    >
-                      Not enough brand data available
-                    </div>
-                  )}
-                </div>
-                {calculateBrandStats && (
-                  <div 
-                    className="text-xs mt-3 text-center"
-                    style={{ color: colours.text.secondary }}
-                  >
-                    Based on {calculateBrandStats.productCount} products
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-        {activeTab === "Sustainability" && product && (
-          <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
-            <h2 
-              className="text-lg font-bold mb-2 self-start"
-              style={{ color: colours.text.primary }}
-            >
-              Sustainability
-            </h2>
-            <div className="flex flex-col items-center justify-center gap-4 w-full">
-              {/* Sustainability Score Circle */}
-              <div className="flex flex-col items-center gap-2">
-                <span className="relative inline-block w-24 h-24 align-middle">
-                  <svg width="96" height="96" viewBox="0 0 96 96" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
-                    <circle
-                      cx="48" cy="48" r="40"
-                      fill="none"
-                      stroke={colours.chart.secondary}
-                      strokeWidth="8"
-                      strokeDasharray={Math.PI * 2 * 40}
-                      strokeDashoffset={Math.PI * 2 * 40}
-                      strokeLinecap="round"
-                      style={{
-                        transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
-                        transform: 'rotate(-90deg)',
-                        transformOrigin: 'center center',
-                      }}
-                    />
-                    <circle
-                      cx="48" cy="48" r="40"
-                      fill="none"
-                      stroke={colours.score.high}
-                      strokeWidth="8"
-                      strokeDasharray={Math.PI * 2 * 40}
-                      strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedSustainability / 5))}
-                      strokeLinecap="round"
-                      style={{
-                        transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
-                        transform: 'rotate(-90deg)',
-                        transformOrigin: 'center center',
-                      }}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-4xl">🌱</span>
-                    <span 
-                      className="text-2xl font-bold"
-                      style={{ color: colours.text.primary }}
-                    >
-                      {animatedSustainability}
-                    </span>
-                  </div>
-                </span>
-                <span 
-                  className="text-sm font-medium"
-                  style={{ color: colours.text.secondary }}
-                >
-                  Sustainability Score
-                </span>
-              </div>
-
-              {/* Eco Information */}
-              {product.ecoInformation && (
-                <div className="w-full mt-4">
-                  <h3 
-                    className="text-md font-semibold mb-3 text-center"
-                    style={{ color: colours.text.primary }}
-                  >
-                    Environmental Impact
-                  </h3>
-                  <div className="space-y-3 w-full max-w-sm mx-auto">
-                    {/* Eco Score */}
-                    {(product.ecoInformation.ecoscore || product.ecoInformation.ecoscoreScore !== undefined) && (
-                      <div className="flex justify-between items-center p-3 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">🌍</span>
-                          <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Eco Score</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {product.ecoInformation.ecoscore && (
-                            <span 
-                              className="text-lg font-bold px-2 py-1 rounded"
-                              style={{ 
-                                color: colours.text.primary,
-                                backgroundColor: product.ecoInformation.ecoscore === 'a' ? colours.score.high :
-                                                product.ecoInformation.ecoscore === 'b' ? colours.score.medium :
-                                                product.ecoInformation.ecoscore === 'c' ? colours.score.medium :
-                                                colours.score.low
-                              }}
-                            >
-                              {product.ecoInformation.ecoscore.toUpperCase()}
-                            </span>
-                          )}
-                          {product.ecoInformation.ecoscoreScore !== undefined && (
-                            <span className="text-sm font-bold" style={{ color: colours.text.primary }}>
-                              {product.ecoInformation.ecoscoreScore}/100
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Packaging Information */}
-                    {product.ecoInformation.packagingInfo && product.ecoInformation.packagingInfo.length > 0 && (
-                      <div className="p-3 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-xl">📦</span>
-                          <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Packaging</span>
-                        </div>
-                        <div className="flex flex-wrap gap-1">
-                          {product.ecoInformation.packagingInfo.slice(0, 5).map((item, index) => (
-                            <span 
-                              key={index}
-                              className="text-xs px-2 py-1 rounded-full"
-                              style={{ 
-                                backgroundColor: colours.tag.default.background,
-                                color: colours.tag.default.text,
-                                fontSize: '10px'
-                              }}
-                            >
-                              {item.replace(/^en:/, '').replace(/-/g, ' ')}
-                            </span>
-                          ))}
-                          {product.ecoInformation.packagingInfo.length > 5 && (
-                            <span 
-                              className="text-xs px-2 py-1 rounded-full"
-                              style={{ 
-                                backgroundColor: colours.tag.default.background,
-                                color: colours.tag.default.text,
-                                fontSize: '10px'
-                              }}
-                            >
-                              +{product.ecoInformation.packagingInfo.length - 5} more
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+          {activeTab === "Nutrition" && product && (
+            <NutritionTabContent
+              product={product}
+              animatedNutrition={animatedNutrition}
+            />
+          )}
+          
+          {activeTab === "Sustainability" && product && (
+            <SustainabilityTabContent
+              product={product}
+              animatedSustainability={animatedSustainability}
+            />
+          )}
+          
+          {activeTab === "Brand" && product && (
+            <BrandTabContent
+              product={product}
+              animatedBrand={animatedBrand}
+              calculateBrandStats={calculateBrandStats}
+            />
+          )}
         </div>
       )}
     </div>
