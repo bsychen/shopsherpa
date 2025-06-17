@@ -48,12 +48,16 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
               style={{
                 borderColor: (() => {
                   const score = animatedNutrition;
+                  const grade = product.combinedNutritionGrade;
+                  if (!grade) return colours.text.muted; // Grey for missing nutriscore
                   if (score <= 2) return colours.score.low;
                   if (score <= 3) return colours.score.medium;
                   return colours.score.high;
                 })(),
                 backgroundColor: (() => {
                   const score = animatedNutrition;
+                  const grade = product.combinedNutritionGrade;
+                  if (!grade) return colours.text.muted + '20'; // Grey for missing nutriscore
                   if (score <= 2) return colours.score.low + '20'; // 20% opacity
                   if (score <= 3) return colours.score.medium + '20';
                   return colours.score.high + '20';
@@ -67,6 +71,8 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                     fill="none"
                     stroke={(() => {
                       const score = animatedNutrition;
+                      const grade = product.combinedNutritionGrade;
+                      if (!grade) return colours.text.muted; // Grey for missing nutriscore
                       if (score <= 2) return colours.score.low;
                       if (score <= 3) return colours.score.medium;
                       return colours.score.high;
@@ -88,13 +94,15 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                     style={{
                       color: (() => {
                         const score = animatedNutrition;
+                        const grade = product.combinedNutritionGrade;
+                        if (!grade) return colours.text.muted; // Grey for missing nutriscore
                         if (score <= 2) return colours.score.low;
                         if (score <= 3) return colours.score.medium;
                         return colours.score.high;
                       })()
                     }}
                   >
-                    {product.combinedNutritionGrade?.toUpperCase() || '?'}
+                    {product.combinedNutritionGrade?.toUpperCase() || '--'}
                   </span>
                 </div>
               </span>

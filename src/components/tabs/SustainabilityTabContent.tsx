@@ -33,7 +33,7 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
               className="text-lg font-medium"
               style={{ color: colours.text.primary }}
             >
-              Sustainability Score
+              Eco Score
             </span>
             <span 
               className="text-[10px]"
@@ -47,16 +47,18 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
               className="relative w-20 h-20 rounded-full border-2 border-dashed flex items-center justify-center"
               style={{
                 borderColor: (() => {
-                  const score = animatedSustainability;
-                  if (score <= 2) return colours.score.low;
-                  if (score <= 3) return colours.score.medium;
-                  return colours.score.high;
+                  const ecoscore = product.ecoInformation?.ecoscore;
+                  if (!ecoscore || ecoscore === 'not-applicable') return colours.text.muted; // Grey for missing/not-applicable
+                  if (ecoscore === 'e' || ecoscore === 'd') return colours.score.low;
+                  if (ecoscore === 'c') return colours.score.medium;
+                  return colours.score.high; // a, b grades
                 })(),
                 backgroundColor: (() => {
-                  const score = animatedSustainability;
-                  if (score <= 2) return colours.score.low + '20'; // 20% opacity
-                  if (score <= 3) return colours.score.medium + '20';
-                  return colours.score.high + '20';
+                  const ecoscore = product.ecoInformation?.ecoscore;
+                  if (!ecoscore || ecoscore === 'not-applicable') return colours.text.muted + '20'; // Grey for missing/not-applicable
+                  if (ecoscore === 'e' || ecoscore === 'd') return colours.score.low + '20';
+                  if (ecoscore === 'c') return colours.score.medium + '20';
+                  return colours.score.high + '20'; // a, b grades
                 })(),
               }}
             >
@@ -66,14 +68,20 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
                     cx="32" cy="32" r="24"
                     fill="none"
                     stroke={(() => {
-                      const score = animatedSustainability;
-                      if (score <= 2) return colours.score.low;
-                      if (score <= 3) return colours.score.medium;
-                      return colours.score.high;
+                      const ecoscore = product.ecoInformation?.ecoscore;
+                      if (!ecoscore || ecoscore === 'not-applicable') return colours.text.muted; // Grey for missing/not-applicable
+                      if (ecoscore === 'e' || ecoscore === 'd') return colours.score.low;
+                      if (ecoscore === 'c') return colours.score.medium;
+                      return colours.score.high; // a, b grades
                     })()}
                     strokeWidth="4"
                     strokeDasharray={Math.PI * 2 * 24}
-                    strokeDashoffset={Math.PI * 2 * 24 * (1 - (animatedSustainability / 5))}
+                    strokeDashoffset={Math.PI * 2 * 24 * (1 - (() => {
+                      const ecoscore = product.ecoInformation?.ecoscore;
+                      if (!ecoscore || ecoscore === 'not-applicable') return 0; // No fill for missing/not-applicable
+                      const gradeToScore = { 'a': 5, 'b': 4, 'c': 3, 'd': 2, 'e': 1 };
+                      return (gradeToScore[ecoscore.toLowerCase()] || 0) / 5;
+                    })())}
                     strokeLinecap="round"
                     style={{
                       transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1), stroke 0.7s cubic-bezier(0.4,0,0.2,1)',
@@ -87,14 +95,19 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
                     className="text-lg font-bold"
                     style={{
                       color: (() => {
-                        const score = animatedSustainability;
-                        if (score <= 2) return colours.score.low;
-                        if (score <= 3) return colours.score.medium;
-                        return colours.score.high;
+                        const ecoscore = product.ecoInformation?.ecoscore;
+                        if (!ecoscore || ecoscore === 'not-applicable') return colours.text.muted; // Grey for missing/not-applicable
+                        if (ecoscore === 'e' || ecoscore === 'd') return colours.score.low;
+                        if (ecoscore === 'c') return colours.score.medium;
+                        return colours.score.high; // a, b grades
                       })()
                     }}
                   >
-                    {animatedSustainability}
+                    {(() => {
+                      const ecoscore = product.ecoInformation?.ecoscore;
+                      if (!ecoscore || ecoscore === 'not-applicable') return '--';
+                      return ecoscore.toUpperCase();
+                    })()}
                   </span>
                 </div>
               </span>
@@ -123,37 +136,6 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
           {product.ecoInformation ? (
             <div className="w-full">
               <div className="space-y-3 w-full">
-              {/* Eco Score */}
-              {(product.ecoInformation.ecoscore || product.ecoInformation.ecoscoreScore !== undefined) && (
-                <div className="flex justify-between items-center p-3 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">🌍</span>
-                    <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Eco Score</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {product.ecoInformation.ecoscore && (
-                      <span 
-                        className="text-lg font-bold px-2 py-1 rounded"
-                        style={{ 
-                          color: colours.text.primary,
-                          backgroundColor: product.ecoInformation.ecoscore === 'a' ? colours.score.high :
-                                          product.ecoInformation.ecoscore === 'b' ? colours.score.medium :
-                                          product.ecoInformation.ecoscore === 'c' ? colours.score.medium :
-                                          colours.score.low
-                        }}
-                      >
-                        {product.ecoInformation.ecoscore.toUpperCase()}
-                      </span>
-                    )}
-                    {product.ecoInformation.ecoscoreScore !== undefined && (
-                      <span className="text-sm font-bold" style={{ color: colours.text.primary }}>
-                        {product.ecoInformation.ecoscoreScore}/100
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-
               {/* Packaging Information */}
               {product.ecoInformation.packagingInfo && product.ecoInformation.packagingInfo.length > 0 && (
                 <div className="p-3 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
