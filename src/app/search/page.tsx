@@ -12,6 +12,7 @@ import { ProductSearchResult } from "@/types/product";
 import RecentlyViewedProducts from "@/components/RecentlyViewedProducts";
 import ContentBox from "@/components/ContentBox";
 import LoadingAnimation from "@/components/LoadingSpinner";
+import SearchButton from "@/components/SearchButton";
 import { useTopBar } from "@/contexts/TopBarContext";
 
 // Debounce hook
@@ -185,9 +186,9 @@ export default function ProductSearch() {
         backgroundColor: colours.background.secondary,
       }}
     >
-    <ContentBox className="opacity-0 animate-slide-in-bottom" style={{ animationDelay: '100ms' }}>
+    <ContentBox className="opacity-0 items-center animate-slide-in-bottom" style={{ animationDelay: '100ms' }}>
         <h1 
-          className="text-2xl font-bold mb-4"
+          className="text-2xl text-center font-bold mb-4"
           style={{ color: colours.text.primary }}
         >
           Search for a Product
@@ -217,35 +218,12 @@ export default function ProductSearch() {
                 e.target.style.boxShadow = 'none';
               }}
             />
-            <button
+            <SearchButton
               onClick={handleManualSearch}
-              disabled={isLoading}
-              className="flex-shrink-0 px-4 py-2 sm:px-6 sm:py-3 rounded-lg shadow-xl border-2 border-black shadow-sm transition-all duration-200 font-bold text-base sm:text-lg shadow-md focus:outline-none flex items-center justify-center hover:scale-105 opacity-0 animate-slide-in-right"
-              style={{
-                backgroundColor: `${colours.button.primary.background}80`,
-                color: colours.button.primary.text,
-                animationDelay: '100ms'
-              }}
-              onFocus={(e) => e.currentTarget.style.boxShadow = colours.input.focus.ring}
-              onBlur={(e) => e.currentTarget.style.boxShadow = 'none'}
-              aria-label="Search"
-            >
-              {isLoading ? (
-                <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke='#0C4038'
-                  strokeWidth="2.4"
-                >
-                  <circle cx="11" cy="11" r="7" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-              )}
-            </button>
+              isLoading={isLoading}
+              className="opacity-0 animate-slide-in-right"
+              style={{ animationDelay: '100ms' }}
+            />
           </div>
         </div>
       {/* Search Results Dropdown */}
@@ -295,7 +273,7 @@ export default function ProductSearch() {
 
       <ContentBox className="opacity-0 animate-slide-in-bottom" style={{ animationDelay: '200ms' }}>
         {/* Barcode Scanner */}
-        <div className="w-full flex flex-col">
+        <div className="w-full flex items-center flex-col">
           <h1 
             className="text-2xl font-bold mb-4"
             style={{ color: colours.text.primary }}

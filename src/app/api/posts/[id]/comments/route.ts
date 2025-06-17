@@ -11,7 +11,8 @@ export async function GET(
     
     // Remove orderBy to avoid composite index requirement
     const commentsRef = db.collection('comments')
-      .where('postId', '==', id);
+      .where('postId', '==', id)
+      .orderBy('createdAt', 'asc'); // Sorting by createdAt
 
     const snapshot = await commentsRef.get();
     const comments = await Promise.all(
@@ -50,7 +51,7 @@ export async function GET(
     comments.sort((a, b) => {
       const aTime = a.createdAt.getTime();
       const bTime = b.createdAt.getTime();
-      return aTime - bTime;
+      return bTime - aTime; // Changed from aTime - bTime to bTime - aTime for newest first
     });
 
     return NextResponse.json(comments);

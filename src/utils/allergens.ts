@@ -80,7 +80,7 @@ export function getAllergenInfoFromCode(allergenCode: string): AllergenInfo | nu
  * Uses the same color scheme as the allergen warning modal
  */
 export function getAllergenTagClasses(): string {
-  return "inline-block text-sm px-3 py-1.5 rounded-full font-medium shadow-sm transition-all duration-200";
+  return "inline-block text-sm px-3 py-1.5 rounded-full font-medium shadow-lg transition-all duration-200";
 }
 
 /**

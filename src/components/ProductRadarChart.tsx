@@ -180,7 +180,7 @@ export default function ProductRadarChart({
         min: 0,
         max: 5,
         ticks: { stepSize: 1, display: false },
-        grid: { color: "#9CA3AF" },
+        grid: { color: "#D1D5DB" },
         pointLabels: { color: colours.chart.text, font: { size: 16 } },
       },
     },
@@ -197,8 +197,8 @@ export default function ProductRadarChart({
   const center = containerSize / 2;
   const LABELS = ["Price", "Quality", "Nutrition", "Sustainability", "Brand"];
   const angleStep = (2 * Math.PI) / LABELS.length;
-  const offset = 1.2;
-  const verticalShift = 14;
+  const offset = 1.3; 
+  const verticalShift = 14.5; // Moved back to 14 to restore original position
   const [showButtons, setShowButtons] = useState(false);
 
   useEffect(() => { 
@@ -213,7 +213,7 @@ export default function ProductRadarChart({
         <div className="relative flex items-center justify-center" style={{ width: containerSize, height: containerSize }}>
           {/* Match Percentage in top right corner */}
           {matchPercentage !== null && (
-            <div className="absolute top-2 right-2 z-10">
+            <div className="absolute -top-3 right-0 z-10">
               <AnimatedMatchPercent 
                 percent={matchPercentage} 
                 hasAllergens={allergenWarnings && allergenWarnings.length > 0}
@@ -228,49 +228,79 @@ export default function ProductRadarChart({
       {LABELS.map((label, i) => {
         const angle = -Math.PI / 2 + i * angleStep;
         const x = center + buttonRadius * Math.cos(angle) * offset - btnBase / 2;
-        const y = center + buttonRadius * Math.sin(angle) * offset - btnBase / 2 + verticalShift;
+        let y = center + buttonRadius * Math.sin(angle) * offset - btnBase / 2 + verticalShift;
+        
+        // Move Price button slightly higher to get it out of the way
+        if (label === "Price") {
+          y -= 8; // Move 8px higher
+        }
+        
         const config = BUTTON_CONFIG[label] || { color: DEFAULT_BTN_COLOR, border: DEFAULT_BTN_BORDER, svg: DEFAULT_BTN_SVG };
         const delay = `${i * 80}ms`;
+        
+        // Calculate label position (below the button, better centered)
+        const labelX = center + buttonRadius * Math.cos(angle) * offset;
+        const labelY = y + btnBase + 4; // 4px below the button (closer than before)
+        
         return (
-          <button
-            key={label}
-            type="button"
-            className={`absolute flex items-center justify-center rounded-xl shadow-xl border-2 border-black ${config.color} ${activeTab === label ? "ring-2 ring-zinc-200 scale-110" : ""}`}
-            style={{
-              left: x,
-              top: y,
-              width: btnBase,
-              height: btnBase,
-              zIndex: 2,
-              pointerEvents: "auto",
-              padding: 0,
-              opacity: showButtons ? 1 : 0,
-              transform: showButtons ? (activeTab === label ? "scale(1.10)" : "scale(1)") : "scale(0.5)",
-              transition: "transform 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.45s cubic-bezier(0.4,0,0.2,1)",
-              transitionDelay: delay,
-              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-            }}
-            tabIndex={-1}
-            aria-label={label}
-            onClick={() => {
-              if (activeTab === label) {
-                // If clicking the already active tab, clear the selection
-                setActiveTab("");
-              } else {
-                // If clicking a different tab, set it as active
-                setActiveTab(label);
-              }
-            }}
-          >
-            <Image
-              src={config.svg}
-              alt={label}
-              width={20}
-              height={20}
-              className="w-5 h-5 filter grayscale brightness-0 invert-0"
-              style={{ filter: "grayscale(1) brightness(0.6)" }}
-            />
-          </button>
+          <div key={label}>
+            <button
+              type="button"
+              className={`absolute flex items-center justify-center rounded-xl shadow-xl border-2 border-black ${config.color} ${activeTab === label ? "ring-2 ring-zinc-200 scale-110" : ""}`}
+              style={{
+                left: x,
+                top: y,
+                width: btnBase,
+                height: btnBase,
+                zIndex: 2,
+                pointerEvents: "auto",
+                padding: 0,
+                opacity: showButtons ? 1 : 0,
+                transform: showButtons ? (activeTab === label ? "scale(1.10)" : "scale(1)") : "scale(0.5)",
+                transition: "transform 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.45s cubic-bezier(0.4,0,0.2,1)",
+                transitionDelay: delay,
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+              }}
+              tabIndex={-1}
+              aria-label={label}
+              onClick={() => {
+                if (activeTab === label) {
+                  // If clicking the already active tab, clear the selection
+                  setActiveTab("");
+                } else {
+                  // If clicking a different tab, set it as active
+                  setActiveTab(label);
+                }
+              }}
+            >
+              <Image
+                src={config.svg}
+                alt={label}
+                width={20}
+                height={20}
+                className="w-5 h-5 filter grayscale brightness-0 invert-0"
+                style={{ filter: "grayscale(1) brightness(0.6)" }}
+              />
+            </button>
+            
+            {/* Label text underneath the button */}
+            <span
+              className="absolute text-xs font-medium pointer-events-none"
+              style={{
+                left: labelX,
+                top: labelY,
+                color: colours.text.secondary,
+                opacity: showButtons ? 1 : 0,
+                transform: `translateX(-50%) ${showButtons ? "scale(1)" : "scale(0.5)"}`, // Center horizontally with translateX(-50%)
+                transition: "transform 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.45s cubic-bezier(0.4,0,0.2,1)",
+                transitionDelay: delay,
+                zIndex: 1,
+                whiteSpace: 'nowrap', // Prevent text wrapping
+              }}
+            >
+              {label}
+            </span>
+          </div>
         );
       })}
       </div>

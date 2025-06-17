@@ -11,6 +11,8 @@ import ContentBox from "@/components/ContentBox";
 import LoadingAnimation from "@/components/LoadingSpinner";
 import StarIcon from "@/components/Icons";
 import { useTopBar } from "@/contexts/TopBarContext";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function ReviewPage() {
   const params = useParams();
@@ -75,6 +77,11 @@ export default function ReviewPage() {
       setReviewText("");
       setRating(0);
       setIsAnonymous(false);
+      
+      // Redirect back to product page after a short delay
+      setTimeout(() => {
+        router.push(`/product/${id}`);
+      }, 2000);
     } catch (err) {
       setSubmitError((err as Error).message || "Unknown error");
     } finally {
@@ -95,27 +102,45 @@ export default function ReviewPage() {
       className="min-h-screen"
       style={{ backgroundColor: colours.background.secondary }}
     >
-      <div className="max-w-md mx-auto pt-10 px-4">
-        <ContentBox>
-          {product && (
-            <div className="mb-4">
-              <div 
-                className="text-lg font-semibold mb-1"
-                style={{ color: colours.text.primary }}
-              >
-                {product.productName}
-              </div>
-              <div style={{ color: colours.text.secondary }}>
-                What you should be paying: 
-                <span 
-                  className="font-bold"
-                  style={{ color: colours.score.high }}
+      <div className="max-w-md mx-auto pt-10 px-4 space-y-4">
+        {/* Product Information Card */}
+        {product && (
+          <ContentBox className="opacity-0 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <div className="flex items-center space-x-4">
+              <Image
+                src={product.imageUrl || "/placeholder.jpg"}
+                alt={product.productName}
+                width={60}
+                height={60}
+                className="w-15 h-15 object-contain rounded-lg"
+              />
+              <div className="flex-1">
+                <Link href={`/product/${id}`}>
+                  <h2 
+                    className="text-lg font-semibold mb-1 hover:underline cursor-pointer transition-all"
+                    style={{ color: colours.text.link }}
+                  >
+                    {product.productName}
+                  </h2>
+                </Link>
+                <p 
+                  className="text-sm mb-1"
+                  style={{ color: colours.text.secondary }}
                 >
-                  £{product.price?.toFixed(2)}
-                </span>
+                  {product.brandName || 'Unknown Brand'}
+                </p>
+                <p 
+                  className="text-xs font-mono"
+                  style={{ color: colours.text.muted }}
+                >
+                  Product ID: {id}
+                </p>
               </div>
             </div>
-          )}
+          </ContentBox>
+        )}
+        
+        <ContentBox className="opacity-0 animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <h1 
             className="text-2xl font-bold mb-4"
             style={{ color: colours.text.primary }}
@@ -134,24 +159,21 @@ export default function ReviewPage() {
           >
             ✓ Review submitted successfully!
           </div>
-          <p 
-            className="text-sm"
-            style={{ color: colours.text.secondary }}
-          >
-            Redirecting you back to the product page...
-          </p>
+          <div className="flex flex-col items-center space-y-3">
+            <LoadingAnimation size="small"/>
+            <p 
+              className="text-sm"
+              style={{ color: colours.text.secondary }}
+            >
+              Taking you back to product...
+            </p>
+          </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <div className="mb-6">
-              <label 
-                className="block text-sm font-medium mb-3"
-                style={{ color: colours.text.primary }}
-              >
-                Rating
-              </label>
-              <div className="flex space-x-1">
+            <div className="mb-6 opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+              <div className="flex items-center justify-center space-x-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     type="button"
@@ -160,19 +182,13 @@ export default function ReviewPage() {
                     onClick={() => setRating(star)}
                     aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
                   >
-                    <StarIcon size={28} />
+                    <StarIcon size={40} filled={rating >= star} />
                   </button>
                 ))}
               </div>
             </div>
             
-            <div className="mb-6">
-              <label 
-                className="block text-sm font-medium mb-3"
-                style={{ color: colours.text.primary }}
-              >
-                Review
-              </label>
+            <div className="mb-6 opacity-0 animate-fade-in" style={{ animationDelay: '0.4s' }}>
               <textarea
                 className="w-full min-h-[120px] rounded-lg p-3 focus:outline-none focus:ring-2 transition-all"
                 style={{
@@ -201,7 +217,7 @@ export default function ReviewPage() {
               </div>
             </div>
             
-            <div className="mb-6">
+            <div className="mb-6 opacity-0 animate-fade-in" style={{ animationDelay: '0.5s' }}>
               <label className="flex items-center space-x-3 cursor-pointer">
                 <input
                   type="checkbox"
@@ -223,7 +239,7 @@ export default function ReviewPage() {
           </div>
           {submitError && (
             <div 
-              className="p-3 rounded-lg text-sm"
+              className="p-3 rounded-lg text-sm opacity-0 animate-fade-in"
               style={{ 
                 backgroundColor: colours.status.error.background,
                 color: colours.status.error.text,
@@ -235,26 +251,18 @@ export default function ReviewPage() {
           )}
           <button
             type="submit"
-            className="w-full font-semibold py-3 px-4 rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full font-semibold py-3 px-4 rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed opacity-0 animate-fade-in"
             style={{
-              backgroundColor: colours.button.primary.background,
-              color: colours.button.primary.text
+              backgroundColor: colours.button.success.background,
+              color: colours.button.primary.text,
+              animationDelay: '0.6s'
             }}
             disabled={submitting || rating === 0}
-            onMouseEnter={(e) => {
-              if (!submitting && rating > 0) {
-                e.currentTarget.style.backgroundColor = colours.button.primary.hover.background;
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!submitting && rating > 0) {
-                e.currentTarget.style.backgroundColor = colours.button.primary.background;
-              }
-            }}
           >
             {submitting ? "Submitting..." : "Submit Review"}
           </button>
-        </form>          )}
+        </form>
+      )}
         </ContentBox>
       </div>
     </div>

@@ -110,7 +110,7 @@ export function getCountryInfoFromCode(countryCode: string): CountryInfo | null 
  * Uses the indigo color scheme from colours.tags.countries
  */
 export function getCountryTagClasses(): string {
-  return "inline-block text-sm px-3 py-1.5 rounded-full font-medium shadow-sm transition-all duration-200";
+  return "inline-block text-sm px-3 py-1.5 rounded-full font-medium shadow-lg transition-all duration-200";
 }
 
 /**
@@ -118,7 +118,7 @@ export function getCountryTagClasses(): string {
  */
 export function getCountryTagStyles() {
   return {
-    backgroundColor: `${colours.tags.countries.background}20`, // 20% opacity for lighter background
+    backgroundColor: colours.tags.countries.background, // 20% opacity for lighter background
     borderColor: colours.tags.countries.border,
     borderWidth: '2px',
     borderStyle: 'solid',

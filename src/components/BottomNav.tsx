@@ -212,7 +212,7 @@ const BottomNav = () => {
               onClick={() => handleNavClick(item.href)}
               className="flex flex-col items-center justify-center flex-1 py-2 transition-colors duration-200"
               style={{
-                color: isActive ? colours.button.primary.background : colours.text.primary,
+                color: isActive ? colours.button.success.background : colours.text.primary,
               }}
             >
               <div className="mb-1">

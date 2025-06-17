@@ -5,7 +5,7 @@
 const colourMap = {
     red: '#D24330',
     darkRed: '#A02A1D',
-    yellow: '#ECCC36',
+    yellow: '#E2C149',
     darkYellow: '#BFA02A',
     lightGreen: '#63a088',
     green: '#309563',
@@ -16,8 +16,8 @@ const colourMap = {
     grey: '#BFC7B5',
     indigo: '#103A5D',
     darkIndigo: '#0A2A4B',
-    cyan: '#3B9C87'
-
+    cyan: '#3B9C87',
+    babyBlue: '#f1f5fb',
 }
 
 // Common component color patterns
@@ -59,7 +59,7 @@ export const colours = {
   // Button styles
   button: {
     primary: {
-      background: colourMap.green,
+      background: colourMap.babyBlue,
       text: colourMap.white,
       hover: {
         background: colourMap.darkTeal,
@@ -95,7 +95,7 @@ export const colours = {
       }
     },
     edit: {
-      background: colourMap.white,
+      background: colourMap.babyBlue,
       text: colourMap.darkTeal,
       hover: {
         background: colourMap.lightGreen,
@@ -165,8 +165,8 @@ export const colours = {
   // Tag styles
   tag: {
     default: {
-      background: colourMap.lightGreen,
-      border: colourMap.green,
+      background: `${colourMap.lightGreen}20`,
+      border: colourMap.lightGreen,
       text: colourMap.darkTeal,
       hover: {
         background: colourMap.yellow,
@@ -269,7 +269,7 @@ export const colours = {
   },
 
   bargraph: {
-    background: colourMap.white,
+    background: colourMap.babyBlue,
     price: {
       background: colourMap.green,
       border: colourMap.green,
@@ -294,8 +294,8 @@ export const colours = {
 
   tags: {
     countries: {
-      border: colourMap.darkIndigo,
-      background: colourMap.indigo,
+      border: colourMap.indigo,
+      background: colourMap.babyBlue,
       text: colourMap.white,
     }
   },

@@ -15,6 +15,7 @@ import SimilarProducts from "@/components/SimilarProducts";
 import ProductsByBrand from "@/components/ProductsByBrand";
 import ProductReviews from "@/components/ProductReviews";
 import AllergenWarning from "@/components/AllergenWarning";
+import AllergenWarningIcon from "@/components/AllergenWarningIcon";
 import ContentBox from "@/components/ContentBox";
 import { UserProfile } from "@/types/user";
 import { colours } from "@/styles/colours";
@@ -378,23 +379,31 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         {/* Header with title, product name and ID */}
         <div className="w-full flex items-center gap-3 mb-4">
           <div className="flex-1 min-w-0">
-            <h1 
-              className="text-2xl font-bold text-left m-0 p-0 leading-tight truncate"
-              style={{ color: colours.text.primary }}
-            >
-              {product.productName}
-            </h1>
-            <span 
-              className="text-xs mt-0.5 truncate block"
-              style={{ color: colours.text.secondary }}
-            >
-              Product ID: {product.id}
-            </span>
+            <div className="flex items-start gap-2">
+              <AllergenWarningIcon 
+                hasAllergens={allergenWarnings && allergenWarnings.length > 0}
+                onClick={() => setShowAllergenWarning(true)}
+              />
+              <div className="flex-1 min-w-0">
+                <h1 
+                  className="text-2xl font-bold text-left m-0 p-0 leading-tight truncate"
+                  style={{ color: colours.text.primary }}
+                >
+                  {product.productName}
+                </h1>
+                <span 
+                  className="text-xs mt-0.5 truncate block"
+                  style={{ color: colours.text.secondary }}
+                >
+                  Product ID: {product.id}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
         
         {/* Spider Web Diagram Box */}
-        <div className="w-full max-w-xl flex flex-col items-center mb-4">
+        <div className="w-full max-w-xl flex flex-col items-center mb-8">
           <div className="flex items-center justify-center w-full" style={{ minHeight: 280, minWidth: 0 }}>
             <Suspense fallback={<div className="flex items-center justify-center w-full h-52">
               <LoadingAnimation size="medium" />
@@ -470,7 +479,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   return (
                     <span
                       key={`label-${idx}`}
-                      className="inline-block border-2 text-sm px-3 py-1.5 rounded-full font-semibold shadow-sm transition"
+                      className="inline-block border-2 text-sm px-3 py-1.5 rounded-full font-semibold shadow-lg transition"
                       style={{ 
                         whiteSpace: 'nowrap',
                         backgroundColor: colours.tag.default.background,

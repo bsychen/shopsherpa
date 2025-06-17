@@ -35,6 +35,7 @@ export default function PostPage() {
   const [showCommentProductSearch, setShowCommentProductSearch] = useState(false);
   const [isRealTimeActive, setIsRealTimeActive] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
+  const [newlyAddedComments, setNewlyAddedComments] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -161,17 +162,36 @@ export default function PostPage() {
         })
       );
 
-      // Sort comments by createdAt in JavaScript
+      // Sort comments by createdAt in JavaScript (newest first)
       commentsData.sort((a, b) => {
         const aTime = new Date(a.createdAt).getTime();
         const bTime = new Date(b.createdAt).getTime();
-        return aTime - bTime;
+        return bTime - aTime; // Changed from aTime - bTime to bTime - aTime for newest first
       });
 
       // Filter out optimistic updates and merge with real data
       setComments(prevComments => {
         const tempComments = prevComments.filter(c => c.id.startsWith('temp-'));
         const realComments = commentsData;
+        
+        // Detect new comments for animation
+        const prevCommentIds = new Set(prevComments.map(c => c.id));
+        const newCommentIds = realComments
+          .filter(c => !prevCommentIds.has(c.id) && !c.id.startsWith('temp-'))
+          .map(c => c.id);
+        
+        if (newCommentIds.length > 0) {
+          setNewlyAddedComments(prev => new Set([...prev, ...newCommentIds]));
+          // Remove animation class after animation duration
+          setTimeout(() => {
+            setNewlyAddedComments(prev => {
+              const updated = new Set(prev);
+              newCommentIds.forEach(id => updated.delete(id));
+              return updated;
+            });
+          }, 1000); // Remove animation after 1 second
+        }
+        
         return [...realComments, ...tempComments];
       });
       setLoadingComments(false);
@@ -411,27 +431,31 @@ export default function PostPage() {
           {user ? (
             <form onSubmit={handleSubmitComment} className="mb-4 sm:mb-6">
               <div className="flex gap-3">
-                <div className="flex-shrink-0">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: colours.tag.default.background }}>
-                    <span className="font-medium text-sm" style={{ color: colours.tag.default.text }}>
-                      {(user.displayName || user.email || '').charAt(0).toUpperCase()}
+                <div className="flex-1">
+                  <div className="relative">
+                    <textarea
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      className="w-full px-3 py-2 pr-20 shadow-lg rounded-lg resize-none border-2 border-black"
+                      style={{
+                        backgroundColor: colours.input.background,
+                        color: colours.input.text
+                      }}
+                      rows={3}
+                      placeholder="Share your thoughts..."
+                      maxLength={500}
+                    />
+                    {/* Character count inside textarea */}
+                    <span 
+                      className="absolute bottom-3 right-2 text-xs pointer-events-none px-2 py-1 rounded"
+                      style={{ 
+                        color: colours.text.muted,
+                        backgroundColor: colours.input.background,
+                      }}
+                    >
+                      {newComment.length}/500
                     </span>
                   </div>
-                </div>
-                <div className="flex-1">
-                  <textarea
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg resize-none"
-                    style={{
-                      border: `1px solid ${colours.card.border}`,
-                      backgroundColor: colours.input.background,
-                      color: colours.input.text
-                    }}
-                    rows={3}
-                    placeholder="Share your thoughts..."
-                    maxLength={500}
-                  />
                   
                   {/* Product Linking for Comments */}
                   <div className="mt-2">
@@ -475,7 +499,7 @@ export default function PostPage() {
                     )}
 
                     {showCommentProductSearch && !selectedCommentProduct && (
-                      <div className="relative mb-3">
+                      <div className="relative mb-2">
                         <div className="relative">
                           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2" size={16} style={{ color: colours.text.muted }} />
                           <input
@@ -537,31 +561,16 @@ export default function PostPage() {
                     )}
                   </div>
 
-                  <div className="flex justify-between items-center mt-3">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs px-2 py-1 rounded-full" style={{ 
-                        color: colours.text.muted,
-                        backgroundColor: colours.background.secondary
-                      }}>
-                        {newComment.length}/500
-                      </span>
+                  <div className="flex justify-between items-center mt-2">
+                    <div className="flex items-center">
                       {!selectedCommentProduct && (
                         <button
                           type="button"
                           onClick={() => setShowCommentProductSearch(!showCommentProductSearch)}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                            showCommentProductSearch ? 'shadow-sm' : ''
-                          }`}
+                          className="flex items-center gap-2 px-3 py-2 shadow-xl rounded-xl border-2 border-black text-xs font-medium transition-all"
                           style={{
-                            backgroundColor: showCommentProductSearch 
-                              ? colours.button.primary.background 
-                              : colours.tag.default.background,
-                            color: showCommentProductSearch 
-                              ? colours.button.primary.text 
-                              : colours.text.secondary,
-                            border: `1px solid ${showCommentProductSearch 
-                              ? colours.button.primary.background 
-                              : colours.tag.default.border}`
+                            backgroundColor: '#f1f5fb',
+                            color: colours.text.primary
                           }}
                         >
                           <Package size={14} />
@@ -572,21 +581,21 @@ export default function PostPage() {
                     <button
                       type="submit"
                       disabled={!newComment.trim() || submittingComment}
-                      className="flex items-center justify-center w-10 h-10 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl border-2 shadow-xl border-black text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:border-dotted transition-all"
                       style={{
-                        backgroundColor: colours.button.primary.background,
-                        color: colours.button.primary.text
+                        backgroundColor: '#f1f5fb',
+                        color: colours.text.primary
                       }}
-                      title={submittingComment ? 'Posting...' : 'Post Comment'}
                     >
-                      <Send size={16} />
+                      <Send size={14} />
+                      <span>{submittingComment ? 'Posting...' : 'Post Comment'}</span>
                     </button>
                   </div>
                 </div>
               </div>
             </form>
           ) : (
-            <div className="mb-6 p-4 rounded-lg text-center" style={{ backgroundColor: colours.background.secondary }}>
+            <div className="mb- p-4 rounded-lg text-center" style={{ backgroundColor: colours.background.secondary }}>
               <p className="mb-2" style={{ color: colours.text.secondary }}>Sign in to join the conversation</p>
               <Link
                 href="/auth"
@@ -606,20 +615,34 @@ export default function PostPage() {
             </div>
           ) : comments.length === 0 ? (
             <div className="text-center py-8">
-              <MessageCircle size={48} className="mx-auto mb-3" style={{ color: colours.text.muted }} />
+              <MessageCircle size={48} className="mx-auto mb-2" style={{ color: colours.text.muted }} />
               <p style={{ color: colours.text.secondary }}>No comments yet. Be the first to share your thoughts!</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-1">
               {comments.map((comment) => (
-                <CommentItem
+                <div
                   key={comment.id}
-                  comment={comment}
-                  currentUserId={user?.uid}
-                  onLike={handleCommentLike}
-                  onDislike={handleCommentDislike}
-                  depth={0}
-                />
+                  className={`transition-all duration-1000 ease-out ${
+                    newlyAddedComments.has(comment.id)
+                      ? 'animate-slide-in-top opacity-100 transform translate-y-0'
+                      : 'opacity-100 transform translate-y-0'
+                  }`}
+                  style={{
+                    animation: newlyAddedComments.has(comment.id) 
+                      ? 'slideInTop 0.8s ease-out, highlightNew 2s ease-out' 
+                      : undefined,
+                    borderRadius: '0.75rem'
+                  }}
+                >
+                  <CommentItem
+                    comment={comment}
+                    currentUserId={user?.uid}
+                    onLike={handleCommentLike}
+                    onDislike={handleCommentDislike}
+                    depth={0}
+                  />
+                </div>
               ))}
             </div>
           )}

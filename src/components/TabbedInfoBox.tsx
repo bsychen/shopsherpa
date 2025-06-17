@@ -270,7 +270,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
 
   return (
     <div
-      className="w-full max-w-xl mt-4 rounded-2xl shadow-lg border-2 border-black p-3 transition-colors duration-300"
+      className="w-full max-w-xl mt-8 rounded-2xl shadow-lg border-2 border-black p-3 transition-colors duration-300"
       style={{
         backgroundColor: getCategoryBackground(),
         border: `2px solid ${colours.content.border}`,

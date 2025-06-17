@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { onAuthStateChanged, User as FirebaseUser, signOut } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,7 @@ import type { UserProfile } from "@/types/user";
 import UserReviewsList from "@/components/UserReviewsList";
 import PreferencesRadarChart from "@/components/PreferencesRadarChart";
 import AllergenManager from "@/components/AllergenManager";
+import EditButton from "@/components/EditButton";
 import ContentBox from "@/components/ContentBox";
 import Image from "next/image";
 import { colours } from "@/styles/colours";
@@ -21,6 +22,8 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [showReviews, setShowReviews] = useState(false);
   const [isUpdatingPreferences, setIsUpdatingPreferences] = useState(false);
+  const [isPreferencesEditMode, setIsPreferencesEditMode] = useState(false);
+  const preferencesRadarRef = useRef<{ saveChanges: () => Promise<void>; hasChanges: boolean } | null>(null);
   const router = useRouter();
   const { setNavigating } = useTopBar();
 
@@ -164,16 +167,37 @@ export default function ProfilePage() {
         <>
           {/* Shopping Preferences Section - Always Visible */}
           <div className="">
-            <h2 
-              className="text-lg font-semibold mb-4"
-              style={{ color: colours.text.secondary }}
-            >
-              Shopping Preferences
-            </h2>
+            <div className="flex items-center mt-4 justify-between mb-4">
+              <h2 
+                className="text-xl font-semibold"
+                style={{ color: colours.text.secondary }}
+              >
+                Preferences
+              </h2>
+              <EditButton
+                isEditMode={isPreferencesEditMode}
+                onToggle={async () => {
+                  if (isPreferencesEditMode) {
+                    // If in edit mode and there are changes, save them
+                    if (preferencesRadarRef.current?.hasChanges) {
+                      await preferencesRadarRef.current.saveChanges();
+                    }
+                    setIsPreferencesEditMode(false);
+                  } else {
+                    setIsPreferencesEditMode(true);
+                  }
+                }}
+                disabled={isUpdatingPreferences}
+              />
+            </div>
             <PreferencesRadarChart 
+              ref={preferencesRadarRef}
               userProfile={user}
               onPreferencesUpdate={handlePreferencesUpdate}
               isUpdating={isUpdatingPreferences}
+              isEditMode={isPreferencesEditMode}
+              onSaveChanges={() => setIsPreferencesEditMode(false)}
+              onCancelEdit={() => setIsPreferencesEditMode(false)}
             />
           </div>
         </>
@@ -236,9 +260,6 @@ export default function ProfilePage() {
         >
           Log out
         </button>
-        <div className="mt-4 text-xs text-grey-400 text-left opacity-0 animate-fade-in" style={{ animationDelay: '500ms' }}>
-          User ID: {user.userId}
-        </div>
       </div>
   );
 }

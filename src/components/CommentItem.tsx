@@ -1,10 +1,12 @@
 "use client";
 
-import { ThumbsUp, ThumbsDown, Reply, Clock, ExternalLink } from 'lucide-react';
+import { Reply, Clock, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 import { Comment } from '@/types/post';
 import { formatDate } from '@/utils/dateUtils';
 import { colours } from '@/styles/colours';
+import LikeButton from './LikeButton';
+import DislikeButton from './DislikeButton';
 
 interface CommentItemProps {
   comment: Comment;
@@ -50,21 +52,21 @@ export default function CommentItem({
 
   return (
     <div 
-      className="pl-4 pb-4"
+      className={`pb-4 ${depth > 0 ? 'pl-4' : ''}`}
       style={{ 
-        marginLeft: `${marginLeft}px`,
-        borderLeft: `2px solid ${colours.card.border}`
+        marginLeft: `${marginLeft}px`
       }}
     >
-      <div className="rounded-lg p-4" style={{ backgroundColor: colours.background.secondary }}>
+      <div 
+        className="rounded-xl shadow-lg p-4" 
+        style={{ 
+          backgroundColor: colours.tags.countries.background,
+          border: `2px solid ${colours.card.border}`,
+        }}
+      >
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: colours.tag.default.background }}>
-              <span className="font-medium text-sm" style={{ color: colours.tag.default.text }}>
-                {comment.authorName.charAt(0).toUpperCase()}
-              </span>
-            </div>
             <div>
               <span className="font-medium text-sm" style={{ color: colours.text.primary }}>
                 {comment.authorName}
@@ -116,42 +118,32 @@ export default function CommentItem({
         {/* Actions */}
         <div className="flex items-center gap-4">
           {/* Like Button */}
-          <button
-            onClick={handleLike}
+          <LikeButton
+            isLiked={hasLiked}
+            likeCount={likeCount}
+            onLike={handleLike}
             disabled={!currentUserId}
-            className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors ${!currentUserId ? 'cursor-not-allowed opacity-50' : ''}`}
-            style={{
-              backgroundColor: hasLiked ? colours.status.success.background : colours.interactive.hover.background,
-              color: hasLiked ? colours.status.success.text : colours.text.secondary
-            }}
-          >
-            <ThumbsUp size={12} />
-            <span>{likeCount}</span>
-          </button>
+            size="sm"
+          />
 
           {/* Dislike Button */}
-          <button
-            onClick={handleDislike}
+          <DislikeButton
+            isDisliked={hasDisliked}
+            dislikeCount={dislikeCount}
+            onDislike={handleDislike}
             disabled={!currentUserId}
-            className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors ${!currentUserId ? 'cursor-not-allowed opacity-50' : ''}`}
-            style={{
-              backgroundColor: hasDisliked ? colours.status.error.background : colours.interactive.hover.background,
-              color: hasDisliked ? colours.status.error.text : colours.text.secondary
-            }}
-          >
-            <ThumbsDown size={12} />
-            <span>{dislikeCount}</span>
-          </button>
+            size="sm"
+          />
 
           {/* Reply Button */}
           {onReply && depth < maxDepth && (
             <button
               onClick={handleReply}
               disabled={!currentUserId}
-              className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors ${!currentUserId ? 'cursor-not-allowed opacity-50' : ''}`}
+              className={`flex items-center gap-1 px-2 py-1 rounded-full border-2 border-black text-xs transition-colors ${!currentUserId ? 'cursor-not-allowed opacity-50' : ''}`}
               style={{
-                backgroundColor: colours.interactive.hover.background,
-                color: colours.text.secondary
+                backgroundColor: '#f1f5fb',
+                color: colours.text.primary
               }}
             >
               <Reply size={12} />
