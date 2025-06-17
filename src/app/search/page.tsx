@@ -71,12 +71,77 @@ export default function ProductSearch() {
   const [pageLoading, setPageLoading] = useState(true);
   const [currentCameraIndex, setCurrentCameraIndex] = useState(0);
   const [availableCameras, setAvailableCameras] = useState<MediaDeviceInfo[]>([]);
+  const [filteredCameras, setFilteredCameras] = useState<MediaDeviceInfo[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
   const cameraControlsRef = useRef<{ stop: () => void } | null>(null);
   const router = useRouter();
   const { setNavigating } = useTopBar();
   
   const debouncedQuery = useDebounce(query, 500); // Increased debounce delay
+
+  // Filter cameras to only include back, front, and ultrawide
+  const filterCameras = async (devices: MediaDeviceInfo[]): Promise<MediaDeviceInfo[]> => {
+    const filtered: MediaDeviceInfo[] = [];
+    
+    for (const device of devices) {
+      try {
+        // Get camera capabilities to determine facing mode
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { deviceId: device.deviceId }
+        });
+        
+        const track = stream.getVideoTracks()[0];
+        const capabilities = track.getCapabilities();
+        const settings = track.getSettings();
+        
+        // Stop the stream immediately
+        stream.getTracks().forEach(track => track.stop());
+        
+        // Check for facing mode or camera type in label
+        const label = device.label.toLowerCase();
+        const facingMode = settings.facingMode || capabilities.facingMode;
+        
+        // Include back camera (main camera)
+        if (facingMode === 'environment' || 
+            label.includes('back') || 
+            label.includes('rear') ||
+            (!label.includes('front') && !label.includes('selfie') && devices.indexOf(device) === 0)) {
+          filtered.push(device);
+        }
+        // Include front camera
+        else if (facingMode === 'user' || 
+                 label.includes('front') || 
+                 label.includes('selfie')) {
+          filtered.push(device);
+        }
+        // Include ultrawide camera
+        else if (label.includes('ultra') || 
+                 label.includes('wide') ||
+                 label.includes('0.5')) {
+          filtered.push(device);
+        }
+      } catch (error) {
+        // If we can't get capabilities, use label-based filtering
+        const label = device.label.toLowerCase();
+        if (label.includes('back') || 
+            label.includes('rear') || 
+            label.includes('front') || 
+            label.includes('selfie') ||
+            label.includes('ultra') || 
+            label.includes('wide') ||
+            (!label.includes('front') && devices.indexOf(device) === 0)) {
+          filtered.push(device);
+        }
+      }
+    }
+    
+    // If no cameras matched our criteria, fall back to first available camera
+    if (filtered.length === 0 && devices.length > 0) {
+      filtered.push(devices[0]);
+    }
+    
+    return filtered;
+  };
 
   // Auth state listener
   useEffect(() => {
@@ -133,8 +198,12 @@ export default function ProductSearch() {
         const devices = await BrowserMultiFormatReader.listVideoInputDevices();
         setAvailableCameras(devices);
         
-        if (devices.length > 0 && videoRef.current && active) {
-          const selectedDevice = devices[currentCameraIndex] || devices[0];
+        // Filter cameras to only include desired types
+        const filtered = await filterCameras(devices);
+        setFilteredCameras(filtered);
+        
+        if (filtered.length > 0 && videoRef.current && active) {
+          const selectedDevice = filtered[currentCameraIndex] || filtered[0];
           const codeReader = new BrowserMultiFormatReader();
           const controls = await codeReader.decodeFromVideoDevice(
             selectedDevice.deviceId,
@@ -179,7 +248,7 @@ export default function ProductSearch() {
   }, []);
 
   const flipCamera = () => {
-    if (availableCameras.length > 1) {
+    if (filteredCameras.length > 1) {
       // Stop current camera before switching
       if (cameraControlsRef.current) {
         cameraControlsRef.current.stop();
@@ -187,7 +256,7 @@ export default function ProductSearch() {
       }
       
       setCurrentCameraIndex((prevIndex) => 
-        (prevIndex + 1) % availableCameras.length
+        (prevIndex + 1) % filteredCameras.length
       );
     }
   };
@@ -325,7 +394,7 @@ export default function ProductSearch() {
               <video ref={videoRef} className="w-full h-auto" />
             </div>
             {/* Flip Camera Button */}
-            {availableCameras.length > 1 && (
+            {filteredCameras.length > 1 && (
               <button
                 onClick={flipCamera}
                 className="absolute top-2 right-2 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
