@@ -70,7 +70,6 @@ export default function ProductSearch() {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [currentCameraIndex, setCurrentCameraIndex] = useState(0);
-  const [availableCameras, setAvailableCameras] = useState<MediaDeviceInfo[]>([]);
   const [filteredCameras, setFilteredCameras] = useState<MediaDeviceInfo[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
   const cameraControlsRef = useRef<{ stop: () => void } | null>(null);
@@ -120,7 +119,7 @@ export default function ProductSearch() {
                  label.includes('0.5')) {
           filtered.push(device);
         }
-      } catch (error) {
+      } catch {
         // If we can't get capabilities, use label-based filtering
         const label = device.label.toLowerCase();
         if (label.includes('back') || 
@@ -196,7 +195,6 @@ export default function ProductSearch() {
     const startCamera = async () => {
       try {
         const devices = await BrowserMultiFormatReader.listVideoInputDevices();
-        setAvailableCameras(devices);
         
         // Filter cameras to only include desired types
         const filtered = await filterCameras(devices);
