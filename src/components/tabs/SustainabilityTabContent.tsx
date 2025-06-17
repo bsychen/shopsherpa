@@ -105,7 +105,7 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
                     {(() => {
                       const ecoscore = product.ecoInformation?.ecoscore;
                       if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') return '--';
-                      return ecoscore.toUpperCase();
+                      return ecoscore.replace('-plus', '+').toUpperCase();
                     })()}
                   </span>
                 </div>
