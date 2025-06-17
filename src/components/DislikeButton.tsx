@@ -32,12 +32,13 @@ export default function DislikeButton({
         disabled ? 'cursor-not-allowed opacity-50' : ''
       }`}
       style={{
-        backgroundColor: '#f1f5fb',
-        color: isDisliked ? colours.status.error.text : colours.text.primary
+        backgroundColor: isDisliked ? `${colours.status.error.background}60`: colours.button.primary.background,
+        borderColor: isDisliked ? colours.status.error.border : colours.button.primary.text,
+        color: isDisliked ? colours.status.error.border : colours.button.primary.text
       }}
     >
-      <ThumbsDown size={iconSize} className={isDisliked ? 'fill-current' : ''} />
-      <span>{dislikeCount}</span>
+      <ThumbsDown size={iconSize} />
+      <span>{dislikeCount}</span> 
     </button>
   );
 }

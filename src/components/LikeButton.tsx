@@ -32,7 +32,7 @@ export default function LikeButton({
         disabled ? 'cursor-not-allowed opacity-50' : ''
       }`}
       style={{
-        backgroundColor: isLiked ? colours.status.success.background: colours.button.primary.background,
+        backgroundColor: isLiked ? `${colours.status.success.border}60`: colours.button.primary.background,
         color: colours.button.primary.text
       }}
     >
