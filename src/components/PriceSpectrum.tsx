@@ -146,12 +146,13 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
         
         {/* Current product marker */}
         <div 
-          className={`absolute flex flex-col items-center z-20 ${animatePointer ? 'animate-slide-in-pointer' : 'opacity-0'}`}
+          className={`absolute flex flex-col items-center z-20 ${animatePointer ? 'animate-slide-in-pointer-from-center' : 'opacity-0'}`}
           style={{
             top: '-5%', 
-            left: `${currentPosition}%`,
-            transform: animatePointer ? 'translateX(-50%)' : 'translateX(-200%) translateX(-50%)'
-          }}
+            left: animatePointer ? `${currentPosition}%` : '50%',
+            transform: 'translateX(-50%)',
+            '--final-position': `${currentPosition}%`
+          } as React.CSSProperties & { '--final-position': string }}
         >
           {/* Product box with shadow and border */}
           <div className="rounded-full shadow-lg px-2 py-1 mb-1 border-2 border-black" style={{

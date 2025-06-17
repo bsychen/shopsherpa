@@ -7,7 +7,7 @@ import { ReviewSummary } from "@/types/reviewSummary"
 import { getProduct, getProductReviews, getReviewSummary, getBrandById, getProductsByBrand, getUserById, getSimilarProductsByCategories } from "@/lib/api"
 import { onAuthStateChanged, User } from "firebase/auth"
 import { auth, db } from "@/lib/firebaseClient"
-import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore"
+import { collection, query, where, onSnapshot, orderBy as _orderBy } from "firebase/firestore"
 import { useRouter } from "next/navigation"
 import { useTopBar } from "@/contexts/TopBarContext"
 import TabbedInfoBox from "@/components/TabbedInfoBox"
@@ -712,8 +712,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           sortBy={sortBy}
           setSortBy={setSortBy}
           setRefreshing={setRefreshing}
-          isRealTimeActive={isRealTimeActive}
-          isOnline={isOnline}
+          _isRealTimeActive={isRealTimeActive}
+          _isOnline={isOnline}
           newlyAddedReviews={newlyAddedReviews}
         />
       </div>

@@ -28,7 +28,7 @@ export default function PostsPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Real-time states
-  const [isRealTimeActive, setIsRealTimeActive] = useState(false);
+  const [_isRealTimeActive, setIsRealTimeActive] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [newlyAddedPosts, setNewlyAddedPosts] = useState<Set<string>>(new Set());
 

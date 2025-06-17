@@ -33,8 +33,8 @@ export default function PostPage() {
   const [commentProducts, setCommentProducts] = useState<Product[]>([]);
   const [selectedCommentProduct, setSelectedCommentProduct] = useState<Product | null>(null);
   const [showCommentProductSearch, setShowCommentProductSearch] = useState(false);
-  const [isRealTimeActive, setIsRealTimeActive] = useState(false);
-  const [isOnline, setIsOnline] = useState(true);
+  const [_isRealTimeActive, setIsRealTimeActive] = useState(false);
+  const [_isOnline, setIsOnline] = useState(true);
   const [newlyAddedComments, setNewlyAddedComments] = useState<Set<string>>(new Set());
 
   useEffect(() => {

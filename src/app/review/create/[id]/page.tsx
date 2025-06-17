@@ -5,7 +5,7 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { auth, db } from "@/lib/firebaseClient";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useRouter, useParams } from "next/navigation";
-import { getProduct, createReview } from "@/lib/api";
+import { getProduct, createReview as _createReview } from "@/lib/api";
 import { Product } from "@/types/product";
 import { colours } from "@/styles/colours";
 import ContentBox from "@/components/ContentBox";

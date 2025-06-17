@@ -8,7 +8,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { Review } from "@/types/review";
 import { Product } from "@/types/product";
-import { getReview, getProduct, getUserById, updateReview } from "@/lib/api";
+import { getReview, getProduct, getUserById, updateReview as _updateReview } from "@/lib/api";
 import { colours } from "@/styles/colours";
 import LoadingAnimation from "@/components/LoadingSpinner";
 import ContentBox from "@/components/ContentBox";
@@ -105,7 +105,7 @@ export default function ReviewPage() {
     try {
       // Update review directly in Firestore for real-time updates
       const reviewRef = doc(db, 'reviews', review.id);
-      const updateData: any = {
+      const updateData: { [key: string]: number | Date | string } = {
         rating: localRating,
         updatedAt: new Date(),
       };

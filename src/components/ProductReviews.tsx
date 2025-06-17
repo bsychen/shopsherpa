@@ -24,8 +24,8 @@ interface ProductReviewsProps {
   sortBy: 'recent' | 'low' | 'high'
   setSortBy: (sortBy: 'recent' | 'low' | 'high') => void
   setRefreshing: (refreshing: boolean) => void
-  isRealTimeActive?: boolean
-  isOnline?: boolean
+  _isRealTimeActive?: boolean
+  _isOnline?: boolean
   newlyAddedReviews?: Set<string>
 }
 
@@ -44,8 +44,8 @@ export default function ProductReviews({
   sortBy,
   setSortBy,
   setRefreshing,
-  isRealTimeActive = false,
-  isOnline = true,
+  _isRealTimeActive = false,
+  _isOnline = true,
   newlyAddedReviews = new Set()
 }: ProductReviewsProps) {
   const filteredReviews = filter.score !== null
