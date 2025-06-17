@@ -12,75 +12,96 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
   animatedSustainability,
 }) => {
   return (
-    <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
+    <div className="w-full flex flex-col items-center opacity-0 animate-fade-in px-1" style={{ animationDelay: '0.05s' }}>
       <h2 
         className="text-lg font-bold mb-2 self-start"
         style={{ color: colours.text.primary }}
       >
         Sustainability
       </h2>
-      <div className="flex flex-col items-center justify-center gap-4 w-full">
-        {/* Sustainability Score Circle */}
-        <div className="flex flex-col items-center gap-2">
-          <span className="relative inline-block w-24 h-24 align-middle">
-            <svg width="96" height="96" viewBox="0 0 96 96" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
-              <circle
-                cx="48" cy="48" r="40"
-                fill="none"
-                stroke={colours.chart.secondary}
-                strokeWidth="8"
-                strokeDasharray={Math.PI * 2 * 40}
-                strokeDashoffset={Math.PI * 2 * 40}
-                strokeLinecap="round"
-                style={{
-                  transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
-                  transform: 'rotate(-90deg)',
-                  transformOrigin: 'center center',
-                }}
-              />
-              <circle
-                cx="48" cy="48" r="40"
-                fill="none"
-                stroke={colours.score.high}
-                strokeWidth="8"
-                strokeDasharray={Math.PI * 2 * 40}
-                strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedSustainability / 5))}
-                strokeLinecap="round"
-                style={{
-                  transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1)',
-                  transform: 'rotate(-90deg)',
-                  transformOrigin: 'center center',
-                }}
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-4xl">🌱</span>
-              <span 
-                className="text-2xl font-bold"
-                style={{ color: colours.text.primary }}
-              >
-                {animatedSustainability}
+      {/* Sustainability Score Card */}
+      <div 
+        className="w-full p-3 sm:p-4 rounded-xl border-2 mb-4"
+        style={{ 
+          backgroundColor: '#f1f5fb', // baby blue
+          borderColor: colours.content.border
+        }}
+      >
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col flex-1 min-w-0">
+            <span 
+              className="text-lg font-medium"
+              style={{ color: colours.text.primary }}
+            >
+              Sustainability Score
+            </span>
+            <span 
+              className="text-[10px]"
+              style={{ color: colours.text.muted }}
+            >
+              Environmental impact rating
+            </span>
+          </div>
+          <div className="flex-shrink-0">
+            <div 
+              className="relative w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center"
+              style={{
+                borderColor: colours.score.high,
+                backgroundColor: colours.score.high + '20', // 20% opacity
+              }}
+            >
+              <span className="relative inline-block w-12 h-12 align-middle">
+                <svg width="48" height="48" viewBox="0 0 48 48" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
+                  <circle
+                    cx="24" cy="24" r="18"
+                    fill="none"
+                    stroke={colours.score.high}
+                    strokeWidth="3"
+                    strokeDasharray={Math.PI * 2 * 18}
+                    strokeDashoffset={Math.PI * 2 * 18 * (1 - (animatedSustainability / 5))}
+                    strokeLinecap="round"
+                    style={{
+                      transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1), stroke 0.7s cubic-bezier(0.4,0,0.2,1)',
+                      transform: 'rotate(-90deg)',
+                      transformOrigin: 'center center',
+                    }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-lg">🌱</span>
+                  <span 
+                    className="text-xs font-bold"
+                    style={{ color: colours.score.high }}
+                  >
+                    {animatedSustainability}
+                  </span>
+                </div>
               </span>
             </div>
-          </span>
-          <span 
-            className="text-sm font-medium"
-            style={{ color: colours.text.secondary }}
-          >
-            Sustainability Score
-          </span>
+          </div>
         </div>
+      </div>
 
-        {/* Eco Information */}
-        {product.ecoInformation && (
-          <div className="w-full mt-4">
-            <h3 
-              className="text-md font-semibold mb-3 text-center"
+      {/* Environmental Impact Card */}
+      <div 
+        className="w-full p-3 sm:p-4 rounded-xl border-2"
+        style={{ 
+          backgroundColor: '#f1f5fb', // baby blue
+          borderColor: colours.content.border
+        }}
+      >
+        <div className="w-full min-w-0">
+          <div className="flex items-baseline gap-2 mb-3">
+            <span 
+              className="text-lg font-medium"
               style={{ color: colours.text.primary }}
             >
               Environmental Impact
-            </h3>
-            <div className="space-y-3 w-full max-w-sm mx-auto">
+            </span>
+          </div>
+          {product.ecoInformation ? (
+            <div className="w-full">
+              <div className="space-y-3 w-full">
               {/* Eco Score */}
               {(product.ecoInformation.ecoscore || product.ecoInformation.ecoscoreScore !== undefined) && (
                 <div className="flex justify-between items-center p-3 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
@@ -148,9 +169,17 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
                   </div>
                 </div>
               )}
+              </div>
             </div>
-          </div>
-        )}
+          ) : (
+            <div 
+              className="text-sm text-center py-4"
+              style={{ color: colours.text.secondary }}
+            >
+              No environmental information available
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
