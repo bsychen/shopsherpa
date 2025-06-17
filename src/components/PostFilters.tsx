@@ -65,6 +65,8 @@ export default function PostFilters({
     onSortChange('recent');
   };
 
+  const hasActiveFilters = selectedTags.length > 0 || searchTerm.length > 0 || sortBy !== 'recent';
+
   return (
     <div>
       {/* Search Bar */}
@@ -193,6 +195,23 @@ export default function PostFilters({
               {tagSearch && (
                 <p className="text-xs">Try a different search term</p>
               )}
+            </div>
+          )}
+
+          {/* Clear All Filters Button */}
+          {hasActiveFilters && (
+            <div className="pt-4 mt-4" style={{ borderTop: `1px solid ${colours.card.border}` }}>
+              <button
+                onClick={clearAllFilters}
+                className="w-full px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                style={{
+                  backgroundColor: colours.status.error.background,
+                  color: colours.status.error.border,
+                  border: `2px solid ${colours.status.error.border}`
+                }}
+              >
+                Clear All Filters
+              </button>
             </div>
           )}
         </div>
