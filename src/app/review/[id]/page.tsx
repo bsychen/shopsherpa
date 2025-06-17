@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "@/lib/firebaseClient";
+import { auth, db } from "@/lib/firebaseClient";
+import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { Review } from "@/types/review";
 import { Product } from "@/types/product";
-import { getReview, getProduct, getUserById, updateReview } from "@/lib/api";
+import { getReview, getProduct, getUserById, updateReview as _updateReview } from "@/lib/api";
 import { colours } from "@/styles/colours";
 import LoadingAnimation from "@/components/LoadingSpinner";
 import ContentBox from "@/components/ContentBox";
@@ -102,21 +103,27 @@ export default function ReviewPage() {
     
     setIsUpdating(true);
     try {
-      const result = await updateReview(review.id, localRating, localReviewText);
-      if (result.success) {
-        // Update the review state with new values
-        setReview(prev => prev ? {
-          ...prev,
-          rating: localRating,
-          reviewText: localReviewText || undefined
-        } : null);
-        setIsEditMode(false);
-      } else {
-        alert(result.error || "Failed to update review");
-        // Reset local state on failure
-        setLocalRating(review.rating);
-        setLocalReviewText(review.reviewText || "");
+      // Update review directly in Firestore for real-time updates
+      const reviewRef = doc(db, 'reviews', review.id);
+      const updateData: { [key: string]: number | Date | string } = {
+        rating: localRating,
+        updatedAt: new Date(),
+      };
+      
+      if (localReviewText.trim()) {
+        updateData.reviewText = localReviewText.trim();
       }
+
+      await updateDoc(reviewRef, updateData);
+      
+      // Update the local review state with new values
+      setReview(prev => prev ? {
+        ...prev,
+        rating: localRating,
+        reviewText: localReviewText || undefined
+      } : null);
+      setIsEditMode(false);
+      
     } catch (error) {
       console.error('Error updating review:', error);
       alert("Failed to update review");
@@ -278,11 +285,14 @@ export default function ReviewPage() {
                 <DeleteButton
                   onClick={async () => {
                     if (confirm("Are you sure you want to delete this review?")) {
-                      const res = await import("@/lib/api").then(m => m.deleteReview(review.id));
-                      if (res.success) {
+                      try {
+                        // Delete review directly from Firestore for real-time updates
+                        const reviewRef = doc(db, 'reviews', review.id);
+                        await deleteDoc(reviewRef);
                         router.push(`/product/${review.productId}`);
-                      } else {
-                        alert(res.error || "Failed to delete review");
+                      } catch (error) {
+                        console.error('Error deleting review:', error);
+                        alert("Failed to delete review");
                       }
                     }
                   }}

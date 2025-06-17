@@ -33,8 +33,8 @@ export default function PostPage() {
   const [commentProducts, setCommentProducts] = useState<Product[]>([]);
   const [selectedCommentProduct, setSelectedCommentProduct] = useState<Product | null>(null);
   const [showCommentProductSearch, setShowCommentProductSearch] = useState(false);
-  const [isRealTimeActive, setIsRealTimeActive] = useState(false);
-  const [isOnline, setIsOnline] = useState(true);
+  const [_isRealTimeActive, setIsRealTimeActive] = useState(false);
+  const [_isOnline, setIsOnline] = useState(true);
   const [newlyAddedComments, setNewlyAddedComments] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -420,18 +420,6 @@ export default function PostPage() {
             <h2 className="text-lg sm:text-xl font-bold" style={{ color: colours.text.primary }}>
               Comments ({comments.length})
             </h2>
-            {isRealTimeActive && isOnline && (
-              <div className="flex items-center gap-1 text-xs" style={{ color: colours.status.success.text }}>
-                <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: colours.status.success.text }}></div>
-                <span>Live</span>
-              </div>
-            )}
-            {!isOnline && (
-              <div className="flex items-center gap-1 text-xs" style={{ color: colours.status.warning.text }}>
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colours.status.warning.text }}></div>
-                <span>Offline</span>
-              </div>
-            )}
           </div>
 
           {/* Comment Form */}

@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect, use, Suspense, lazy, useMemo } from "react"
+import { useState, useEffect, use, Suspense, lazy, useMemo, useCallback } from "react"
 import { Product } from "@/types/product"
 import { Review } from "@/types/review"
 import { ReviewSummary } from "@/types/reviewSummary"
 import { getProduct, getProductReviews, getReviewSummary, getBrandById, getProductsByBrand, getUserById, getSimilarProductsByCategories } from "@/lib/api"
 import { onAuthStateChanged, User } from "firebase/auth"
-import { auth } from "@/lib/firebaseClient"
+import { auth, db } from "@/lib/firebaseClient"
+import { collection, query, where, onSnapshot, orderBy as _orderBy } from "firebase/firestore"
 import { useRouter } from "next/navigation"
 import { useTopBar } from "@/contexts/TopBarContext"
 import TabbedInfoBox from "@/components/TabbedInfoBox"
@@ -153,6 +154,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [showAllergenWarning, setShowAllergenWarning] = useState(false);
   const [allergenWarningDismissed, setAllergenWarningDismissed] = useState(false);
 
+  // Real-time states for reviews
+  const [isRealTimeActive, setIsRealTimeActive] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
+  const [newlyAddedReviews, setNewlyAddedReviews] = useState<Set<string>>(new Set());
+
   const sameProducts = useMemo(() => {
     if (!product) return [];
     return [...similarProducts.filter(p => p.categoriesTags.includes(product.categoriesTags[product.categoriesTags.length - 1])), product];
@@ -163,7 +169,59 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const qualityScore = reviewSummary?.averageRating || 3;
   const nutritionScore = product ? getNutritionScore(product.combinedNutritionGrade || '') : 2;
   const sustainabilityScore = product ? getSustainabilityScore(product) : 3;
-  const brandScore = brandRating;
+  
+  // Calculate client-side brand score using the same logic as TabbedInfoBox
+  const clientSideBrandScore = useMemo(() => {
+    if (!brandProducts.length || !product) return brandRating;
+
+    // Include current product in calculations
+    const allBrandProducts = [...brandProducts, product];
+
+    // Price statistics (use quartile-based scoring like the main product)
+    const prices = allBrandProducts.map(p => p.price || 0).filter(p => p > 0);
+    let priceScore = 3; // default
+    if (prices.length > 0) {
+      const sortedPrices = [...prices].sort((a, b) => a - b);
+      const q1 = sortedPrices[Math.floor(sortedPrices.length * 0.25)] || sortedPrices[0];
+      const q3 = sortedPrices[Math.floor(sortedPrices.length * 0.75)] || sortedPrices[sortedPrices.length - 1];
+      const averagePrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+      
+      // Lower prices get higher scores
+      if (averagePrice <= q1) priceScore = 5;
+      else if (averagePrice >= q3) priceScore = 2;
+      else priceScore = 4 - ((averagePrice - q1) / (q3 - q1)) * 2; // Scale between 2-4
+    }
+
+    // Quality statistics (based on review summary averages)
+    let qualityScore = brandRating; // fallback to brandRating if no review data
+    if (reviewSummary?.averageRating) {
+      qualityScore = reviewSummary.averageRating;
+    }
+
+    // Nutrition statistics
+    const nutritionScores = allBrandProducts.map(p => getNutritionScore(p.combinedNutritionGrade || ''));
+    const averageNutrition = nutritionScores.length > 0 
+      ? nutritionScores.reduce((a, b) => a + b, 0) / nutritionScores.length 
+      : 2;
+
+    // Sustainability statistics
+    const sustainabilityScores = allBrandProducts.map(p => getSustainabilityScore(p));
+    const averageSustainability = sustainabilityScores.length > 0
+      ? sustainabilityScores.reduce((a, b) => a + b, 0) / sustainabilityScores.length
+      : 3;
+
+    // Calculate overall brand score as average of all components
+    const roundedPrice = Math.round(priceScore * 10) / 10;
+    const roundedQuality = Math.round(qualityScore * 10) / 10;
+    const roundedNutrition = Math.round(averageNutrition * 10) / 10;
+    const roundedSustainability = Math.round(averageSustainability * 10) / 10;
+    
+    const overallBrandScore = Math.round(((roundedPrice + roundedQuality + roundedNutrition + roundedSustainability) / 4) * 10) / 10;
+
+    return overallBrandScore;
+  }, [brandProducts, product, brandRating, reviewSummary]);
+  
+  const brandScore = clientSideBrandScore;
   
   // Calculate match percentage based on user preferences
   const matchPercentage = userPreferences && userPreferences.pricePreference !== undefined ? 
@@ -213,11 +271,118 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       setLoading(false);
       setNavigating(false); // Clear navigation loading state
     });
-    getProductReviews(id).then(data => setReviews(data || []));
     getReviewSummary(id).then(setReviewSummary);
     const unsub = onAuthStateChanged(auth, setUser);
     return () => unsub();
   }, [id, setNavigating]);
+
+  // Monitor online/offline status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Fallback function to fetch reviews via API
+  const fetchReviews = useCallback(async () => {
+    try {
+      const reviewsData = await getProductReviews(id);
+      setReviews(reviewsData || []);
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    }
+  }, [id]);
+
+  // Set up real-time listener for reviews
+  useEffect(() => {
+    if (!id) return;
+
+    if (!isOnline) {
+      // If offline, fallback to API call
+      fetchReviews();
+      return;
+    }
+
+    const reviewsRef = collection(db, 'reviews');
+    // Remove orderBy to avoid composite index requirement - we'll sort in JavaScript
+    const reviewsQuery = query(
+      reviewsRef,
+      where('productId', '==', id)
+    );
+
+    const unsubscribe = onSnapshot(reviewsQuery, (snapshot) => {
+      setIsRealTimeActive(true);
+      const reviewsData = snapshot.docs.map((docSnapshot) => {
+        const data = docSnapshot.data();
+        return {
+          id: docSnapshot.id,
+          createdAt: data.createdAt?.toDate?.() ? data.createdAt.toDate() : data.createdAt,
+          productId: data.productId,
+          reviewText: data.reviewText,
+          rating: data.rating,
+          userId: data.userId,
+          isAnonymous: data.isAnonymous || false,
+        } as Review;
+      });
+
+      // Sort reviews by createdAt in JavaScript (newest first)
+      reviewsData.sort((a, b) => {
+        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return bTime - aTime; // Newest first
+      });
+
+      // Filter out optimistic updates and merge with real data
+      setReviews(prevReviews => {
+        const realReviews = reviewsData;
+        
+        // Get all real review contents to match against optimistic ones
+        const realReviewContents = new Set(realReviews.map(r => (r.reviewText || '').trim()));
+        
+        // Keep only temp reviews that don't have a matching real review yet
+        const tempReviews = prevReviews.filter(r => 
+          r.id.startsWith('temp-') && !realReviewContents.has((r.reviewText || '').trim())
+        );
+        
+        // Detect new reviews for animation (only real reviews that weren't in previous state)
+        const prevRealReviewIds = new Set(prevReviews.filter(r => !r.id.startsWith('temp-')).map(r => r.id));
+        const newReviewIds = realReviews
+          .filter(r => !prevRealReviewIds.has(r.id))
+          .map(r => r.id);
+        
+        if (newReviewIds.length > 0) {
+          setNewlyAddedReviews(prev => new Set([...prev, ...newReviewIds]));
+          // Remove animation class after animation duration
+          setTimeout(() => {
+            setNewlyAddedReviews(prev => {
+              const updated = new Set(prev);
+              newReviewIds.forEach(id => updated.delete(id));
+              return updated;
+            });
+          }, 1000); // Remove animation after 1 second
+        }
+        
+        return [...realReviews, ...tempReviews];
+      });
+    }, (error) => {
+      console.error('Error in reviews listener:', error);
+      setIsRealTimeActive(false);
+      // Fallback to API call if real-time fails
+      fetchReviews();
+    });
+
+    return () => {
+      setIsRealTimeActive(false);
+      unsubscribe();
+    };
+  }, [id, isOnline, fetchReviews]);
 
   useEffect(() => {
     if (reviewSummary) {
@@ -547,6 +712,9 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           sortBy={sortBy}
           setSortBy={setSortBy}
           setRefreshing={setRefreshing}
+          _isRealTimeActive={isRealTimeActive}
+          _isOnline={isOnline}
+          newlyAddedReviews={newlyAddedReviews}
         />
       </div>
              

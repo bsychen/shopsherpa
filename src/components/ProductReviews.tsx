@@ -24,6 +24,9 @@ interface ProductReviewsProps {
   sortBy: 'recent' | 'low' | 'high'
   setSortBy: (sortBy: 'recent' | 'low' | 'high') => void
   setRefreshing: (refreshing: boolean) => void
+  _isRealTimeActive?: boolean
+  _isOnline?: boolean
+  newlyAddedReviews?: Set<string>
 }
 
 export default function ProductReviews({
@@ -40,7 +43,10 @@ export default function ProductReviews({
   setFilter,
   sortBy,
   setSortBy,
-  setRefreshing
+  setRefreshing,
+  _isRealTimeActive = false,
+  _isOnline = true,
+  newlyAddedReviews = new Set()
 }: ProductReviewsProps) {
   const filteredReviews = filter.score !== null
     ? reviews.filter(r => r.rating === filter.score)
@@ -114,13 +120,24 @@ export default function ProductReviews({
                     opacity = 1 - idx * 0.3
                   }
                   return (
-                    <li key={review.id} style={{ opacity }}>
+                    <li 
+                      key={review.id} 
+                      style={{ opacity }}
+                      className={`transition-all duration-1000 ease-out ${
+                        newlyAddedReviews.has(review.id)
+                          ? 'animate-slide-in-top opacity-100 transform translate-y-0'
+                          : 'opacity-100 transform translate-y-0'
+                      }`}
+                    >
                       <Link 
                         href={`/review/${review.id}`} 
                         className="block rounded-xl shadow border-2 border-black shadow-xl p-4 transition cursor-pointe bg-slate-100r"
                         style={{ 
                           backgroundColor: '#f1f5f9',
-                          borderColor: colours.content.border
+                          borderColor: colours.content.border,
+                          animation: newlyAddedReviews.has(review.id) 
+                            ? 'slideInTop 0.8s ease-out, highlightNew 2s ease-out' 
+                            : undefined,
                         }}
                       >
                         <div 

@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "@/lib/firebaseClient";
+import { auth, db } from "@/lib/firebaseClient";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useRouter, useParams } from "next/navigation";
-import { getProduct, createReview } from "@/lib/api";
+import { getProduct, createReview as _createReview } from "@/lib/api";
 import { Product } from "@/types/product";
 import { colours } from "@/styles/colours";
 import ContentBox from "@/components/ContentBox";
@@ -68,11 +69,23 @@ export default function ReviewPage() {
     setSubmitting(true);
     setSubmitError("");
     setSubmitSuccess(false);
+    
     try {
       if (!user?.uid) throw new Error("User not authenticated");
       if (!rating) throw new Error("Please select a rating");
 
-      await createReview(id, user.uid, reviewText, rating, isAnonymous);
+      // Create review directly in Firestore for real-time updates
+      const reviewData = {
+        productId: id,
+        userId: user.uid,
+        reviewText: reviewText || undefined,
+        rating: rating,
+        isAnonymous: isAnonymous,
+        createdAt: serverTimestamp(),
+      };
+
+      await addDoc(collection(db, 'reviews'), reviewData);
+      
       setSubmitSuccess(true);
       setReviewText("");
       setRating(0);
@@ -82,8 +95,10 @@ export default function ReviewPage() {
       setTimeout(() => {
         router.push(`/product/${id}`);
       }, 2000);
+      
     } catch (err) {
-      setSubmitError((err as Error).message || "Unknown error");
+      console.error('Error creating review:', err);
+      setSubmitError((err as Error).message || "Failed to submit review");
     } finally {
       setSubmitting(false);
     }

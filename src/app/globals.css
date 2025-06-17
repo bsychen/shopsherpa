@@ -102,6 +102,49 @@
   }
 }
 
+@keyframes slide-in-pointer {
+  0% {
+    transform: translateX(-300%) translateX(-50%);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+    transform: translateX(-10%) translateX(-50%);
+  }
+  80% {
+    transform: translateX(5%) translateX(-50%);
+  }
+  100% {
+    transform: translateX(-50%);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-pointer-from-center {
+  0% {
+    left: 50%;
+    opacity: 0;
+    transform: translateX(-50%) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.1);
+  }
+  100% {
+    left: var(--final-position);
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+.animate-slide-in-pointer {
+  animation: slide-in-pointer 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.animate-slide-in-pointer-from-center {
+  animation: slide-in-pointer-from-center 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
 /* Hide scrollbar but maintain functionality */
 .hide-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */

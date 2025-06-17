@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product } from '@/types/product';
 import { colours } from '@/styles/colours';
 
@@ -46,6 +46,17 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
   onMinClick,
   onMaxClick,
 }) => {
+  const [animatePointer, setAnimatePointer] = useState(false);
+
+  // Trigger animation when component mounts or product changes
+  useEffect(() => {
+    setAnimatePointer(false);
+    const timer = setTimeout(() => {
+      setAnimatePointer(true);
+    }, 100); // Small delay to ensure clean animation start
+
+    return () => clearTimeout(timer);
+  }, [product.id]); // Re-animate when product changes
 
   // Calculate the statistics for the boxplot
   const getPrice = (p: Product) => p.price || p.expectedPrice || 0;
@@ -135,12 +146,13 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
         
         {/* Current product marker */}
         <div 
-          className="absolute flex flex-col items-center z-20 animate-slide-in-pointer"
+          className={`absolute flex flex-col items-center z-20 ${animatePointer ? 'animate-slide-in-pointer-from-center' : 'opacity-0'}`}
           style={{
             top: '-5%', 
-            left: `${currentPosition}%`,
-            transform: 'translateX(-50%)'
-          }}
+            left: animatePointer ? `${currentPosition}%` : '50%',
+            transform: 'translateX(-50%)',
+            '--final-position': `${currentPosition}%`
+          } as React.CSSProperties & { '--final-position': string }}
         >
           {/* Product box with shadow and border */}
           <div className="rounded-full shadow-lg px-2 py-1 mb-1 border-2 border-black" style={{

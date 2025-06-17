@@ -28,7 +28,7 @@ export default function PostsPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Real-time states
-  const [isRealTimeActive, setIsRealTimeActive] = useState(false);
+  const [_isRealTimeActive, setIsRealTimeActive] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [newlyAddedPosts, setNewlyAddedPosts] = useState<Set<string>>(new Set());
 
@@ -325,27 +325,12 @@ export default function PostsPage() {
         <ContentBox className="opacity-0 animate-slide-in-bottom" style={{ animationDelay: '100ms' }}>
           {/* Header */}
           <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <div className="flex items-center gap-4">
-              <h1 
-                className="text-2xl sm:text-3xl font-bold"
-                style={{ color: colours.text.primary }}
-              >
-                Community
-              </h1>
-              {/* Live/Offline Status Indicator */}
-              {isRealTimeActive && isOnline && (
-                <div className="flex items-center gap-1 text-xs" style={{ color: colours.status.success.text }}>
-                  <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: colours.status.success.text }}></div>
-                  <span>Live</span>
-                </div>
-              )}
-              {!isOnline && (
-                <div className="flex items-center gap-1 text-xs" style={{ color: colours.status.warning.text }}>
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colours.status.warning.text }}></div>
-                  <span>Offline</span>
-                </div>
-              )}
-            </div>
+            <h1 
+              className="text-2xl sm:text-3xl font-bold"
+              style={{ color: colours.text.primary }}
+            >
+              Community
+            </h1>
             
             {user && (
               <CreateButton
