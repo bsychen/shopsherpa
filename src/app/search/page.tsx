@@ -82,42 +82,75 @@ export default function ProductSearch() {
   const filterCameras = async (devices: MediaDeviceInfo[]): Promise<MediaDeviceInfo[]> => {
     const filtered: MediaDeviceInfo[] = [];
     
+    // First, try to get proper camera permissions to ensure device labels are available
+    let permissionGranted = false;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      stream.getTracks().forEach(track => track.stop());
+      permissionGranted = true;
+      
+      // Re-enumerate devices after permission is granted to get proper labels
+      const devicesWithLabels = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devicesWithLabels.filter(device => device.kind === 'videoinput');
+      
+      // Use the devices with proper labels if available
+      if (videoDevices.length > 0) {
+        devices = videoDevices;
+      }
+    } catch {
+      // Permission denied or not available, continue with existing devices
+    }
+    
     for (const device of devices) {
       try {
-        // Get camera capabilities to determine facing mode
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { deviceId: device.deviceId }
-        });
-        
-        const track = stream.getVideoTracks()[0];
-        const capabilities = track.getCapabilities();
-        const settings = track.getSettings();
-        
-        // Stop the stream immediately
-        stream.getTracks().forEach(track => track.stop());
-        
-        // Check for facing mode or camera type in label
-        const label = device.label.toLowerCase();
-        const facingMode = settings.facingMode || capabilities.facingMode;
-        
-        // Include back camera (main camera)
-        if (facingMode === 'environment' || 
-            label.includes('back') || 
-            label.includes('rear') ||
-            (!label.includes('front') && !label.includes('selfie') && devices.indexOf(device) === 0)) {
-          filtered.push(device);
-        }
-        // Include front camera
-        else if (facingMode === 'user' || 
-                 label.includes('front') || 
-                 label.includes('selfie')) {
-          filtered.push(device);
-        }
-        // Include ultrawide camera
-        else if (label.includes('ultra') || 
-                 label.includes('wide') ||
-                 label.includes('0.5')) {
-          filtered.push(device);
+        // Get camera capabilities to determine facing mode (only if permission granted)
+        if (permissionGranted) {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { deviceId: device.deviceId }
+          });
+          
+          const track = stream.getVideoTracks()[0];
+          const capabilities = track.getCapabilities();
+          const settings = track.getSettings();
+          
+          // Stop the stream immediately
+          stream.getTracks().forEach(track => track.stop());
+          
+          // Check for facing mode or camera type in label
+          const label = device.label.toLowerCase();
+          const facingMode = settings.facingMode || capabilities.facingMode;
+          
+          // Include back camera (main camera)
+          if (facingMode === 'environment' || 
+              label.includes('back') || 
+              label.includes('rear') ||
+              (!label.includes('front') && !label.includes('selfie') && devices.indexOf(device) === 0)) {
+            filtered.push(device);
+          }
+          // Include front camera
+          else if (facingMode === 'user' || 
+                   label.includes('front') || 
+                   label.includes('selfie')) {
+            filtered.push(device);
+          }
+          // Include ultrawide camera
+          else if (label.includes('ultra') || 
+                   label.includes('wide') ||
+                   label.includes('0.5')) {
+            filtered.push(device);
+          }
+        } else {
+          // Fallback: use label-based filtering without stream access
+          const label = device.label.toLowerCase();
+          if (label.includes('back') || 
+              label.includes('rear') || 
+              label.includes('front') || 
+              label.includes('selfie') ||
+              label.includes('ultra') || 
+              label.includes('wide') ||
+              (!label.includes('front') && devices.indexOf(device) === 0)) {
+            filtered.push(device);
+          }
         }
       } catch {
         // If we can't get capabilities, use label-based filtering
@@ -130,6 +163,24 @@ export default function ProductSearch() {
             label.includes('wide') ||
             (!label.includes('front') && devices.indexOf(device) === 0)) {
           filtered.push(device);
+        }
+      }
+    }
+    
+    // Mobile device fallback: if we have multiple devices but filtering returned few,
+    // and no permissions were granted, include more devices
+    if (filtered.length < 2 && devices.length >= 2 && !permissionGranted) {
+      // On mobile, typically the first device is back camera, second is front
+      filtered.length = 0; // Clear filtered array
+      filtered.push(devices[0]); // Back camera (usually)
+      if (devices.length > 1) {
+        filtered.push(devices[1]); // Front camera (usually)
+      }
+      // Add any additional cameras that might be ultrawide
+      for (let i = 2; i < devices.length; i++) {
+        const label = devices[i].label.toLowerCase();
+        if (label.includes('ultra') || label.includes('wide') || label.includes('0.5')) {
+          filtered.push(devices[i]);
         }
       }
     }
