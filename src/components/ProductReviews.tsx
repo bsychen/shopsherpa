@@ -24,6 +24,9 @@ interface ProductReviewsProps {
   sortBy: 'recent' | 'low' | 'high'
   setSortBy: (sortBy: 'recent' | 'low' | 'high') => void
   setRefreshing: (refreshing: boolean) => void
+  isRealTimeActive?: boolean
+  isOnline?: boolean
+  newlyAddedReviews?: Set<string>
 }
 
 export default function ProductReviews({
@@ -40,7 +43,10 @@ export default function ProductReviews({
   setFilter,
   sortBy,
   setSortBy,
-  setRefreshing
+  setRefreshing,
+  isRealTimeActive = false,
+  isOnline = true,
+  newlyAddedReviews = new Set()
 }: ProductReviewsProps) {
   const filteredReviews = filter.score !== null
     ? reviews.filter(r => r.rating === filter.score)
@@ -65,12 +71,27 @@ export default function ProductReviews({
         className="mb-2"
       >
         <div className="flex items-center justify-between w-full mb-2">
-          <h2 
-            className="text-xl font-semibold"
-            style={{ color: colours.text.primary }}
-          >
-            Reviews
-          </h2>
+          <div className="flex items-center gap-4">
+            <h2 
+              className="text-xl font-semibold"
+              style={{ color: colours.text.primary }}
+            >
+              Reviews
+            </h2>
+            {/* Live/Offline Status Indicator */}
+            {isRealTimeActive && isOnline && (
+              <div className="flex items-center gap-1 text-xs" style={{ color: colours.status.success.text }}>
+                <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: colours.status.success.text }}></div>
+                <span>Live</span>
+              </div>
+            )}
+            {!isOnline && (
+              <div className="flex items-center gap-1 text-xs" style={{ color: colours.status.warning.text }}>
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colours.status.warning.text }}></div>
+                <span>Offline</span>
+              </div>
+            )}
+          </div>
           <CreateReviewButton user={user} productId={productId} />
         </div>
         <SortButtonGroup 
@@ -114,13 +135,24 @@ export default function ProductReviews({
                     opacity = 1 - idx * 0.3
                   }
                   return (
-                    <li key={review.id} style={{ opacity }}>
+                    <li 
+                      key={review.id} 
+                      style={{ opacity }}
+                      className={`transition-all duration-1000 ease-out ${
+                        newlyAddedReviews.has(review.id)
+                          ? 'animate-slide-in-top opacity-100 transform translate-y-0'
+                          : 'opacity-100 transform translate-y-0'
+                      }`}
+                    >
                       <Link 
                         href={`/review/${review.id}`} 
                         className="block rounded-xl shadow border-2 border-black shadow-xl p-4 transition cursor-pointe bg-slate-100r"
                         style={{ 
                           backgroundColor: '#f1f5f9',
-                          borderColor: colours.content.border
+                          borderColor: colours.content.border,
+                          animation: newlyAddedReviews.has(review.id) 
+                            ? 'slideInTop 0.8s ease-out, highlightNew 2s ease-out' 
+                            : undefined,
                         }}
                       >
                         <div 
