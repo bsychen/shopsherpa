@@ -35,6 +35,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showProductSearch, setShowProductSearch] = useState(false);
+  const [showTags, setShowTags] = useState(false);
 
   useEffect(() => {
     if (searchTerm.length > 2) {
@@ -98,8 +99,8 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
 
   return (
     <div 
-      className="fixed inset-0 flex items-center justify-center z-50 p-4" 
-      style={{ backgroundColor: `${colours.text.primary}80` }} // 50% opacity
+      className="fixed inset-0 flex items-start justify-center z-[9999] p-4 pt-4" 
+      style={{ backgroundColor: 'transparent' }}
     >
       <ContentBox className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
 
@@ -108,7 +109,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
             <button
               onClick={onClose}
               className="p-2 rounded-full"
-              style={{ backgroundColor: colours.interactive.hover.background }}
+              style={{ backgroundColor: 'transparent' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.opacity = '0.7';
               }}
@@ -184,33 +185,49 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
 
             {/* Linked Product */}
             <div>
-              <div className="flex items-center justify-between mb-3">
-                <label className="block text-sm font-medium" style={{ color: colours.text.primary }}>
-                  Link a Product (Optional)
-                </label>
-                {!selectedProduct && (
+              <div className="flex items-center justify-end mb-3">
+                <div className="flex gap-2">
                   <button
                     type="button"
-                    onClick={() => setShowProductSearch(!showProductSearch)}
+                    onClick={() => setShowTags(!showTags)}
                     className={`flex items-center gap-2 px-3 py-2 shadow-xl rounded-xl text-xs font-medium transition-all ${
-                      showProductSearch ? 'shadow-sm' : ''
+                      showTags ? 'shadow-sm' : ''
                     }`}
                     style={{
-                      backgroundColor: showProductSearch 
+                      backgroundColor: showTags 
                         ? colours.button.primary.background 
                         : colours.tag.default.background,
-                      color: showProductSearch 
+                      color: showTags 
                         ? colours.button.primary.text 
                         : colours.text.secondary,
-                      border: `1px solid ${showProductSearch 
-                        ? colours.button.primary.background 
-                        : colours.tag.default.border}`
+                      border: `2px solid ${colours.button.primary.text}`
                     }}
                   >
-                    <Package size={14} />
-                    {showProductSearch ? 'Hide Product Search' : 'Link Product'}
+                    <Tag size={14} />
+                    {showTags ? 'Hide Tags' : 'Tags'}
                   </button>
-                )}
+                  {!selectedProduct && (
+                    <button
+                      type="button"
+                      onClick={() => setShowProductSearch(!showProductSearch)}
+                      className={`flex items-center gap-2 px-3 py-2 shadow-xl rounded-xl text-xs font-medium transition-all ${
+                        showProductSearch ? 'shadow-sm' : ''
+                      }`}
+                      style={{
+                        backgroundColor: showProductSearch 
+                          ? colours.button.primary.background 
+                          : colours.tag.default.background,
+                        color: showProductSearch 
+                          ? colours.button.primary.text 
+                          : colours.text.secondary,
+                        border: `2px solid ${colours.button.primary.text}`
+                      }}
+                    >
+                      <Package size={14} />
+                      {showProductSearch ? 'Hide Product Search' : 'Link Product'}
+                    </button>
+                  )}
+                </div>
               </div>
               
               {selectedProduct && (
@@ -322,17 +339,10 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
             </div>
 
             {/* Tags */}
-            <div>
-              <label 
-                className="block text-sm font-medium mb-2"
-                style={{ color: colours.text.primary }}
-              >
-                Tags (Max 5)
-              </label>
-              
-              {/* Selected Tags */}
-              {selectedTags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-3">
+            {/* Always show selected tags */}
+            {selectedTags.length > 0 && (
+              <div className="mb-3">
+                <div className="flex flex-wrap gap-2">
                   {selectedTags.map((tag) => (
                     <span
                       key={tag}
@@ -361,101 +371,113 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
                     </span>
                   ))}
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Add Custom Tag */}
-              <div className="flex gap-2 mb-3">
-                <input
-                  type="text"
-                  value={customTag}
-                  onChange={(e) => setCustomTag(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomTag())}
-                  className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2"
-                  style={{
-                    backgroundColor: colours.input.background,
-                    borderColor: colours.input.border,
-                    color: colours.input.text
-                  }}
-                  onFocus={(e) => {
-                    e.currentTarget.style.borderColor = colours.input.focus.border;
-                    e.currentTarget.style.boxShadow = colours.input.focus.ring;
-                  }}
-                  onBlur={(e) => {
-                    e.currentTarget.style.borderColor = colours.input.border;
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                  placeholder="Add custom tag..."
-                  maxLength={20}
-                />
-                <button
-                  type="button"
-                  onClick={addCustomTag}
-                  className="px-4 py-2 rounded-lg"
-                  style={{
-                    backgroundColor: colours.button.secondary.background,
-                    color: colours.button.secondary.text
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!customTag.trim() || selectedTags.length >= 5) return;
-                    e.currentTarget.style.backgroundColor = colours.button.secondary.hover.background;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = colours.button.secondary.background;
-                  }}
-                  disabled={!customTag.trim() || selectedTags.length >= 5}
+            {/* Show tag adding interface only when showTags is true */}
+            {showTags && (
+              <div>
+                <label 
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: colours.text.primary }}
                 >
-                  Add
-                </button>
-              </div>
+                  Tags (Max 5)
+                </label>
 
-              {/* Predefined Tags */}
-              <div className="space-y-3">
-                {Object.entries(PREDEFINED_TAGS).map(([category, tags]) => (
-                  <div key={category}>
-                    <h4 
-                      className="text-sm font-medium mb-2 capitalize"
-                      style={{ color: colours.text.primary }}
-                    >
-                      {category.replace('-', ' ')}
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {tags.map((tag) => (
-                        <button
-                          key={tag}
-                          type="button"
-                          onClick={() => addTag(tag)}
-                          className="px-3 py-1 rounded-full text-sm border transition-colors"
-                          style={{
-                            backgroundColor: selectedTags.includes(tag) 
-                              ? colours.tag.primary.background 
-                              : colours.tag.default.background,
-                            color: selectedTags.includes(tag)
-                              ? colours.tag.primary.text
-                              : colours.tag.default.text,
-                            borderColor: selectedTags.includes(tag)
-                              ? colours.tag.primary.border
-                              : colours.tag.default.border
-                          }}
-                          onMouseEnter={(e) => {
-                            if (!selectedTags.includes(tag) && selectedTags.length < 5) {
-                              e.currentTarget.style.backgroundColor = colours.tag.default.hover.background;
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!selectedTags.includes(tag)) {
-                              e.currentTarget.style.backgroundColor = colours.tag.default.background;
-                            }
-                          }}
-                          disabled={selectedTags.includes(tag) || selectedTags.length >= 5}
-                        >
-                          {tag}
-                        </button>
-                      ))}
+                {/* Add Custom Tag */}
+                <div className="flex gap-2 mb-3">
+                  <input
+                    type="text"
+                    value={customTag}
+                    onChange={(e) => setCustomTag(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomTag())}
+                    className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2"
+                    style={{
+                      backgroundColor: colours.input.background,
+                      borderColor: colours.input.border,
+                      color: colours.input.text
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = colours.input.focus.border;
+                      e.currentTarget.style.boxShadow = colours.input.focus.ring;
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = colours.input.border;
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                    placeholder="Add custom tag..."
+                    maxLength={20}
+                  />
+                  <button
+                    type="button"
+                    onClick={addCustomTag}
+                    className="px-4 py-2 rounded-lg"
+                    style={{
+                      backgroundColor: colours.button.secondary.background,
+                      color: colours.button.secondary.text
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!customTag.trim() || selectedTags.length >= 5) return;
+                      e.currentTarget.style.backgroundColor = colours.button.secondary.hover.background;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = colours.button.secondary.background;
+                    }}
+                    disabled={!customTag.trim() || selectedTags.length >= 5}
+                  >
+                    Add
+                  </button>
+                </div>
+
+                {/* Predefined Tags */}
+                <div className="space-y-3">
+                  {Object.entries(PREDEFINED_TAGS).map(([category, tags]) => (
+                    <div key={category}>
+                      <h4 
+                        className="text-sm font-medium mb-2 capitalize"
+                        style={{ color: colours.text.primary }}
+                      >
+                        {category.replace('-', ' ')}
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {tags.map((tag) => (
+                          <button
+                            key={tag}
+                            type="button"
+                            onClick={() => addTag(tag)}
+                            className="px-3 py-1 rounded-full text-sm border transition-colors"
+                            style={{
+                              backgroundColor: selectedTags.includes(tag) 
+                                ? colours.tag.primary.background 
+                                : colours.tag.default.background,
+                              color: selectedTags.includes(tag)
+                                ? colours.tag.primary.text
+                                : colours.tag.default.text,
+                              borderColor: selectedTags.includes(tag)
+                                ? colours.tag.primary.border
+                                : colours.tag.default.border
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!selectedTags.includes(tag) && selectedTags.length < 5) {
+                                e.currentTarget.style.backgroundColor = colours.tag.default.hover.background;
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!selectedTags.includes(tag)) {
+                                e.currentTarget.style.backgroundColor = colours.tag.default.background;
+                              }
+                            }}
+                            disabled={selectedTags.includes(tag) || selectedTags.length >= 5}
+                          >
+                            {tag}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex gap-3 pt-4">
               <button
@@ -464,14 +486,8 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
                 className="flex-1 px-4 py-2 border rounded-lg"
                 style={{
                   backgroundColor: colours.button.ghost.background,
-                  borderColor: colours.content.border,
+                  border: `2px solid ${colours.button.primary.text}`,
                   color: colours.button.ghost.text
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = colours.button.ghost.hover.background;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = colours.button.ghost.background;
                 }}
               >
                 Cancel
@@ -482,17 +498,8 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
                 className="flex-1 px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   backgroundColor: colours.button.primary.background,
-                  color: colours.button.primary.text
-                }}
-                onMouseEnter={(e) => {
-                  if (!e.currentTarget.disabled) {
-                    e.currentTarget.style.backgroundColor = colours.button.primary.hover.background;
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!e.currentTarget.disabled) {
-                    e.currentTarget.style.backgroundColor = colours.button.primary.background;
-                  }
+                  color: colours.button.primary.text,
+                  border: `2px solid ${colours.button.primary.text}`
                 }}
               >
                 {isLoading ? 'Creating...' : 'Create Post'}
