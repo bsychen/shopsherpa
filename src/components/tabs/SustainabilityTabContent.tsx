@@ -124,46 +124,42 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
         }}
       >
         <div className="w-full min-w-0">
-          
-          {product.ecoInformation ? (
+          <div className="flex items-baseline gap-2 mb-3">
+            <span 
+              className="text-lg font-medium"
+              style={{ color: colours.text.primary }}
+            >
+              Packaging Info
+            </span>
+          </div>
+          {product.ecoInformation && product.ecoInformation.packagingInfo && product.ecoInformation.packagingInfo.length > 0 ? (
             <div className="w-full">
-              <div className="space-y-3 w-full">
-              {/* Packaging Information */}
-              {product.ecoInformation.packagingInfo && product.ecoInformation.packagingInfo.length > 0 && (
-                <div className="p-3 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xl">📦</span>
-                    <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Packaging</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {product.ecoInformation.packagingInfo.slice(0, 5).map((item, index) => (
-                      <span 
-                        key={index}
-                        className="text-xs px-2 py-1 rounded-full"
-                        style={{ 
-                          backgroundColor: colours.tag.default.background,
-                          color: colours.tag.default.text,
-                          fontSize: '10px'
-                        }}
-                      >
-                        {item.replace(/^en:/, '').replace(/-/g, ' ')}
-                      </span>
-                    ))}
-                    {product.ecoInformation.packagingInfo.length > 5 && (
-                      <span 
-                        className="text-xs px-2 py-1 rounded-full"
-                        style={{ 
-                          backgroundColor: colours.tag.default.background,
-                          color: colours.tag.default.text,
-                          fontSize: '10px'
-                        }}
-                      >
-                        +{product.ecoInformation.packagingInfo.length - 5} more
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
+              <div className="flex flex-wrap gap-1.5 pb-2 break-words">
+                {product.ecoInformation.packagingInfo.slice(0, 8).map((item, index) => (
+                  <span 
+                    key={index}
+                    className="text-xs px-2 py-1 rounded-full border-2 shadow-lg"
+                    style={{ 
+                      backgroundColor: '#ffffff',
+                      color: colours.text.primary,
+                      borderColor: colours.content.border + 'CC' // 80% opacity
+                    }}
+                  >
+                    {item.replace(/^en:/, '').replace(/-/g, ' ').replace(/_/g, ' ')}
+                  </span>
+                ))}
+                {product.ecoInformation.packagingInfo.length > 8 && (
+                  <span 
+                    className="text-xs px-2 py-1 rounded-full border-2 shadow-lg"
+                    style={{ 
+                      backgroundColor: '#ffffff',
+                      color: colours.text.primary,
+                      borderColor: colours.content.border + 'CC' // 80% opacity
+                    }}
+                  >
+                    +{product.ecoInformation.packagingInfo.length - 8} more
+                  </span>
+                )}
               </div>
             </div>
           ) : (
@@ -171,7 +167,7 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
               className="text-sm text-center py-4"
               style={{ color: colours.text.secondary }}
             >
-              No environmental information available
+              No packaging information available
             </div>
           )}
         </div>
