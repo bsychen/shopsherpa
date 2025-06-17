@@ -192,7 +192,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
                   <button
                     type="button"
                     onClick={() => setShowProductSearch(!showProductSearch)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                    className={`flex items-center gap-2 px-3 py-2 shadow-xl rounded-xl text-xs font-medium transition-all ${
                       showProductSearch ? 'shadow-sm' : ''
                     }`}
                     style={{

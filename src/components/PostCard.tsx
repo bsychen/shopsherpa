@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from 'react';
-import { MessageCircle, ThumbsDown, ThumbsUp, Tag, ExternalLink, Clock } from 'lucide-react';
+import { MessageCircle, Tag, ExternalLink, Clock } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Post } from '@/types/post';
 import { formatDate } from '@/utils/dateUtils';
 import { colours } from '@/styles/colours';
+import LikeButton from './LikeButton';
+import DislikeButton from './DislikeButton';
 
 interface PostCardProps {
   post: Post;
@@ -78,7 +80,8 @@ export default function PostCard({
               className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs"
               style={{ 
                 backgroundColor: colours.tag.default.background,
-                color: colours.tag.default.text
+                color: colours.tag.default.text,
+                border: `1px solid ${colours.tag.default.border}`
               }}
             >
               <Tag size={10} />
@@ -141,40 +144,28 @@ export default function PostCard({
       <div className="flex items-center justify-between pt-3 sm:pt-4" style={{ borderTop: `1px solid ${colours.card.border}` }}>
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Like Button */}
-          <button
-            onClick={handleLike}
+          <LikeButton
+            isLiked={hasLiked}
+            likeCount={likeCount}
+            onLike={handleLike}
             disabled={!currentUserId}
-            className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-full transition-colors text-xs sm:text-sm ${!currentUserId ? 'cursor-not-allowed opacity-50' : ''}`}
-            style={{
-              backgroundColor: hasLiked ? colours.status.success.background : colours.interactive.hover.background,
-              color: hasLiked ? colours.status.success.text : colours.text.secondary
-            }}
-          >
-            <ThumbsUp size={14} />
-            <span className="font-medium">{likeCount}</span>
-          </button>
+          />
 
           {/* Dislike Button */}
-          <button
-            onClick={handleDislike}
+          <DislikeButton
+            isDisliked={hasDisliked}
+            dislikeCount={dislikeCount}
+            onDislike={handleDislike}
             disabled={!currentUserId}
-            className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-full transition-colors text-xs sm:text-sm ${!currentUserId ? 'cursor-not-allowed opacity-50' : ''}`}
-            style={{
-              backgroundColor: hasDisliked ? colours.status.error.background : colours.interactive.hover.background,
-              color: hasDisliked ? colours.status.error.text : colours.text.secondary
-            }}
-          >
-            <ThumbsDown size={14} />
-            <span className="font-medium">{dislikeCount}</span>
-          </button>
+          />
 
           {/* Comments */}
           <Link
             href={`/posts/${post.id}`}
-            className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-full transition-colors hover:opacity-70 text-xs sm:text-sm"
+            className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-full border-2 border-black transition-colors hover:opacity-70 text-xs sm:text-sm"
             style={{ 
-              backgroundColor: colours.interactive.hover.background,
-              color: colours.text.secondary 
+              backgroundColor: '#f1f5fb',
+              color: colours.text.primary 
             }}
           >
             <MessageCircle size={14} />
