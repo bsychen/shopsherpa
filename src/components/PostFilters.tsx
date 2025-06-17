@@ -65,8 +65,6 @@ export default function PostFilters({
     onSortChange('recent');
   };
 
-  const hasActiveFilters = selectedTags.length > 0 || searchTerm.length > 0 || sortBy !== 'recent';
-
   return (
     <div>
       {/* Search Bar */}

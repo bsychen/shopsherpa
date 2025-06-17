@@ -1,7 +1,6 @@
 "use client"
 
 import { TrendingDown } from "lucide-react"
-import SortButton from "./SortButton"
 
 interface LowToHighSortButtonProps {
   isActive: boolean

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Radar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -17,6 +17,11 @@ import Image from 'next/image';
 import { colours } from '@/styles/colours';
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
+
+export interface PreferencesRadarChartHandle {
+  saveChanges: () => Promise<void>;
+  hasChanges: boolean;
+}
 
 interface PreferencesRadarChartProps {
   userProfile: UserProfile;
@@ -75,15 +80,14 @@ const BUTTON_CONFIG: Record<string, { color: string; border: string; svg: string
 const DEFAULT_BTN_COLOR = "bg-zinc-100";
 const DEFAULT_BTN_BORDER = "border-zinc-200";
 
-export default function PreferencesRadarChart({ 
+const PreferencesRadarChart = forwardRef<PreferencesRadarChartHandle, PreferencesRadarChartProps>(({ 
   userProfile, 
   onPreferencesUpdate, 
   isUpdating = false,
   isEditMode = false,
-  onToggleEditMode,
   onSaveChanges,
   onCancelEdit
-}: PreferencesRadarChartProps) {
+}, ref) => {
   const [isClosing, setIsClosing] = useState(false); // New state for animation
   const [localPreferences, setLocalPreferences] = useState(() => {
     const prefs: Record<string, number> = {};
@@ -263,6 +267,12 @@ export default function PreferencesRadarChart({
       setIsClosing(false);
     }, 300);
   };
+
+  // Expose functions to parent component via ref
+  useImperativeHandle(ref, () => ({
+    saveChanges: handleSaveChanges,
+    hasChanges
+  }));
 
   // Prepare radar chart data
   const radarData = [
@@ -492,7 +502,7 @@ export default function PreferencesRadarChart({
             <button
               onClick={handleCancelEdit}
               disabled={isUpdating}
-              className="px-4 py-2 text-sm rounded-xl shadow-xl disabled:opacity-50  transition-opacity"
+              className="px-4 py-2 text-sm rounded-xl shadow-xl disabled:opacity-50 transition-opacity"
               style={{ 
                 color: colours.status.error.border,
                 backgroundColor: `${colours.status.error.background}70`,
@@ -520,4 +530,8 @@ export default function PreferencesRadarChart({
       </div>
     </div>
   );
-}
+});
+
+PreferencesRadarChart.displayName = 'PreferencesRadarChart';
+
+export default PreferencesRadarChart;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { onAuthStateChanged, User as FirebaseUser, signOut } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import { useRouter } from "next/navigation";
@@ -23,6 +23,7 @@ export default function ProfilePage() {
   const [showReviews, setShowReviews] = useState(false);
   const [isUpdatingPreferences, setIsUpdatingPreferences] = useState(false);
   const [isPreferencesEditMode, setIsPreferencesEditMode] = useState(false);
+  const preferencesRadarRef = useRef<{ saveChanges: () => Promise<void>; hasChanges: boolean } | null>(null);
   const router = useRouter();
   const { setNavigating } = useTopBar();
 
@@ -175,8 +176,12 @@ export default function ProfilePage() {
               </h2>
               <EditButton
                 isEditMode={isPreferencesEditMode}
-                onToggle={() => {
+                onToggle={async () => {
                   if (isPreferencesEditMode) {
+                    // If in edit mode and there are changes, save them
+                    if (preferencesRadarRef.current?.hasChanges) {
+                      await preferencesRadarRef.current.saveChanges();
+                    }
                     setIsPreferencesEditMode(false);
                   } else {
                     setIsPreferencesEditMode(true);
@@ -186,6 +191,7 @@ export default function ProfilePage() {
               />
             </div>
             <PreferencesRadarChart 
+              ref={preferencesRadarRef}
               userProfile={user}
               onPreferencesUpdate={handlePreferencesUpdate}
               isUpdating={isUpdatingPreferences}
