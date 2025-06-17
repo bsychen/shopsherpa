@@ -80,7 +80,9 @@ export default function ProductSearch() {
 
   // Filter cameras to only include back, front, and ultrawide
   const filterCameras = async (devices: MediaDeviceInfo[]): Promise<MediaDeviceInfo[]> => {
-    const filtered: MediaDeviceInfo[] = [];
+    const backCameras: MediaDeviceInfo[] = [];
+    const frontCameras: MediaDeviceInfo[] = [];
+    const ultrawideCameras: MediaDeviceInfo[] = [];
     
     // First, try to get proper camera permissions to ensure device labels are available
     let permissionGranted = false;
@@ -120,72 +122,98 @@ export default function ProductSearch() {
           const label = device.label.toLowerCase();
           const facingMode = settings.facingMode || capabilities.facingMode;
           
-          // Include back camera (main camera)
+          // Categorize cameras
           if (facingMode === 'environment' || 
               label.includes('back') || 
               label.includes('rear') ||
               (!label.includes('front') && !label.includes('selfie') && devices.indexOf(device) === 0)) {
-            filtered.push(device);
+            backCameras.push(device);
           }
-          // Include front camera
           else if (facingMode === 'user' || 
                    label.includes('front') || 
                    label.includes('selfie')) {
-            filtered.push(device);
+            frontCameras.push(device);
           }
-          // Include ultrawide camera
           else if (label.includes('ultra') || 
                    label.includes('wide') ||
                    label.includes('0.5')) {
-            filtered.push(device);
+            ultrawideCameras.push(device);
           }
         } else {
           // Fallback: use label-based filtering without stream access
           const label = device.label.toLowerCase();
           if (label.includes('back') || 
-              label.includes('rear') || 
-              label.includes('front') || 
-              label.includes('selfie') ||
-              label.includes('ultra') || 
-              label.includes('wide') ||
-              (!label.includes('front') && devices.indexOf(device) === 0)) {
-            filtered.push(device);
+              label.includes('rear') ||
+              (!label.includes('front') && !label.includes('selfie') && devices.indexOf(device) === 0)) {
+            backCameras.push(device);
+          }
+          else if (label.includes('front') || 
+                   label.includes('selfie')) {
+            frontCameras.push(device);
+          }
+          else if (label.includes('ultra') || 
+                   label.includes('wide') ||
+                   label.includes('0.5')) {
+            ultrawideCameras.push(device);
           }
         }
       } catch {
         // If we can't get capabilities, use label-based filtering
         const label = device.label.toLowerCase();
         if (label.includes('back') || 
-            label.includes('rear') || 
-            label.includes('front') || 
-            label.includes('selfie') ||
-            label.includes('ultra') || 
-            label.includes('wide') ||
-            (!label.includes('front') && devices.indexOf(device) === 0)) {
-          filtered.push(device);
+            label.includes('rear') ||
+            (!label.includes('front') && !label.includes('selfie') && devices.indexOf(device) === 0)) {
+          backCameras.push(device);
+        }
+        else if (label.includes('front') || 
+                 label.includes('selfie')) {
+          frontCameras.push(device);
+        }
+        else if (label.includes('ultra') || 
+                 label.includes('wide') ||
+                 label.includes('0.5')) {
+          ultrawideCameras.push(device);
         }
       }
     }
     
-    // Mobile device fallback: if we have multiple devices but filtering returned few,
-    // and no permissions were granted, include more devices
-    if (filtered.length < 2 && devices.length >= 2 && !permissionGranted) {
+    // Build filtered array with back camera first, then front, then ultrawide
+    const filtered: MediaDeviceInfo[] = [];
+    
+    // Add back cameras first (prioritize main back camera)
+    if (backCameras.length > 0) {
+      filtered.push(backCameras[0]); // Main back camera
+    }
+    
+    // Add front camera second
+    if (frontCameras.length > 0) {
+      filtered.push(frontCameras[0]); // Main front camera
+    }
+    
+    // Add ultrawide camera third (if available)
+    if (ultrawideCameras.length > 0) {
+      filtered.push(ultrawideCameras[0]); // First ultrawide camera
+    }
+    
+    // Mobile device fallback: if no cameras were categorized properly
+    if (filtered.length === 0 && devices.length >= 2 && !permissionGranted) {
       // On mobile, typically the first device is back camera, second is front
-      filtered.length = 0; // Clear filtered array
       filtered.push(devices[0]); // Back camera (usually)
       if (devices.length > 1) {
         filtered.push(devices[1]); // Front camera (usually)
       }
-      // Add any additional cameras that might be ultrawide
+      
+      // Only add one more camera if it might be ultrawide
       for (let i = 2; i < devices.length; i++) {
         const label = devices[i].label.toLowerCase();
         if (label.includes('ultra') || label.includes('wide') || label.includes('0.5')) {
           filtered.push(devices[i]);
+          break; // Only add one additional camera
         }
       }
     }
     
-    // If no cameras matched our criteria, fall back to first available camera
+    // Final fallback: if no cameras matched our criteria, fall back to first available camera
     if (filtered.length === 0 && devices.length > 0) {
       filtered.push(devices[0]);
     }
@@ -285,6 +313,13 @@ export default function ProductSearch() {
       }
     };
   }, [router, pageLoading, currentCameraIndex]);
+
+  // Separate effect to initialize camera index when cameras are first detected
+  useEffect(() => {
+    if (filteredCameras.length > 0 && currentCameraIndex !== 0) {
+      setCurrentCameraIndex(0); // Always start with back camera (index 0)
+    }
+  }, [filteredCameras, currentCameraIndex]);
 
   // Cleanup camera when component unmounts
   useEffect(() => {
