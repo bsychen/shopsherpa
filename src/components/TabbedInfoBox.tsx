@@ -333,7 +333,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
             transition: 'opacity 0.2s ease-in-out, height 0.3s ease-in-out'
           }}
         >
-          {activeTab === "Price" && reviewSummary && (
+          {activeTab === "Price" && (
             <PriceTabContent
               product={product}
               reviewSummary={reviewSummary}

@@ -324,18 +324,41 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   // Calculate price statistics when similar products change
   useEffect(() => {
-    if (!product || !(sameProducts.length - 1)) return;
+    if (!product) return;
     
     const getPrice = (p: Product) => p.price || p.expectedPrice || 0;
-    const prices = [...sameProducts.map(getPrice), getPrice(product)].filter(p => p > 0);
-
-    if (prices.length) {
+    const currentProductPrice = getPrice(product);
+    
+    // If we have similar products, include them in the calculation
+    if (sameProducts.length > 1) {
+      const prices = sameProducts.map(getPrice).filter(p => p > 0);
+      
+      if (prices.length > 0) {
+        setPriceStats({
+          min: Math.min(...prices),
+          max: Math.max(...prices),
+          q1: calculateQuartile(prices, 0.25),
+          median: calculateQuartile(prices, 0.5),
+          q3: calculateQuartile(prices, 0.75)
+        });
+      } else if (currentProductPrice > 0) {
+        // If no similar products have prices, use current product as baseline
+        setPriceStats({
+          min: currentProductPrice,
+          max: currentProductPrice,
+          q1: currentProductPrice,
+          median: currentProductPrice,
+          q3: currentProductPrice
+        });
+      }
+    } else if (currentProductPrice > 0) {
+      // If no similar products, use current product as sole data point
       setPriceStats({
-        min: Math.min(...prices),
-        max: Math.max(...prices),
-        q1: calculateQuartile(prices, 0.25),
-        median: calculateQuartile(prices, 0.5),
-        q3: calculateQuartile(prices, 0.75)
+        min: currentProductPrice,
+        max: currentProductPrice,
+        q1: currentProductPrice,
+        median: currentProductPrice,
+        q3: currentProductPrice
       });
     }
   }, [sameProducts, product]);
