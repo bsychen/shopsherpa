@@ -34,13 +34,13 @@ const QualityTabContent: React.FC<QualityTabContentProps> = ({
               className="text-lg font-medium"
               style={{ color: colours.text.primary }}
             >
-              Quality Score
+                Average Score
             </span>
             <span 
               className="text-[10px]"
               style={{ color: colours.text.muted }}
             >
-              Based on user reviews and ratings
+              Based on user review ratings
             </span>
           </div>
           <div className="flex-shrink-0">
@@ -124,17 +124,12 @@ const QualityTabContent: React.FC<QualityTabContentProps> = ({
                       {count}
                     </span>
                     <div
-                      className="rounded w-6 transition-all duration-700 animate-bar-grow"
+                      className="rounded w-6 transition-all duration-700 animate-bar-grow border-2"
                       style={{ 
                         height: `${height}px`, 
                         transition: 'height 0.7s cubic-bezier(0.4,0,0.2,1), background-color 0.3s ease',
-                        backgroundColor: colours.score.medium
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = colours.score.high
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = colours.score.medium
+                        backgroundColor: colours.status.warning.background + '80', // 80% opacity like filled stars
+                        borderColor: colours.status.warning.background,
                       }}
                     />
                     <span 

@@ -6,9 +6,9 @@ import { colours } from '@/styles/colours';
 const getPositionColor = (price: number, q1: number, q3: number) => {
   if (price <= q1) {
     return {
-      bg: colours.status.success.background,
+      bg: `${colours.status.success.border}80`, // Green with transparency
       border: colours.status.success.border,
-      text: colours.status.success.text
+      text: colours.button.success.text
     };
   } else if (price >= q3) {
     return {
@@ -51,13 +51,11 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
   const getPrice = (p: Product) => p.price || p.expectedPrice || 0;
   const productPrice = getPrice(product);
 
-  // If no real prices available, use sample data
+  // If no real prices available, show simple message
   if (productPrice === 0) {
     return (
-      <div className="w-full h-24 flex items-center justify-center text-sm rounded-lg" style={{ 
-        color: colours.text.muted, 
-        backgroundColor: colours.background.secondary,
-        border: `1px solid ${colours.card.border}`
+      <div className="w-full h-24 flex items-center justify-center text-sm" style={{ 
+        color: colours.text.secondary
       }}>
         Price data unavailable
       </div>
@@ -125,9 +123,9 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
           }}
         >
           {/* Product box with shadow and border */}
-          <div className="rounded-md shadow-xl px-2 py-1 mb-1" style={{
+          <div className="rounded-full shadow-lg px-2 py-1 mb-1 border-2 border-black" style={{
             backgroundColor: colors.bg,
-            border: `1px solid ${colors.border}`
+            borderColor: colors.border
           }}>
             <div className="text-xs font-medium whitespace-nowrap" style={{ color: colors.text }}>
               £{productPrice.toFixed(2)}
@@ -135,30 +133,30 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
           </div>
           {/* Triangle pointer */}
           <div 
-            className="w-0 h-0 border-l-[6px] shadow-xl border-l-transparent border-r-[6px] border-r-transparent border-t-[6px]"
+            className="w-0 h-0 border-l-[5px] shadow-lg border-l-transparent border-r-[5px] border-r-transparent border-t-[5px]"
             style={{ borderTopColor: colors.border }}
           />
         </div>          
         {/* Price labels with buttons */}
-        <div className="absolute -bottom-6 left-[0%]">
+        <div className="absolute -bottom-4 left-[0%]">
           <button 
-            className="rounded-md shadow-xl px-2 py-1 text-xs font-medium transition-colors"
+            className="rounded-full shadow-lg px-2 py-1 text-xs font-medium transition-colors border-2 border-dotted"
             style={{
-              backgroundColor: colours.status.success.background,
-              border: `2px solid ${colours.status.success.border}`,
-              color: colours.status.success.text
+              backgroundColor: `${colours.status.success.border}50`, // 30% opacity for transparency
+              borderColor: colours.status.success.border,
+              color: colours.button.success.text
             }}
             onClick={onMinClick}
           >
             £{priceStats.min.toFixed(2)}
           </button>
         </div>
-        <div className="absolute -bottom-6 right-[0%]">
+        <div className="absolute -bottom-4 right-[0%]">
           <button 
-            className="rounded-md shadow-xl px-2 py-1 text-xs font-medium transition-colors"
+            className="rounded-full shadow-lg px-2 py-1 text-xs font-medium transition-colors border-2 border-dotted"
             style={{
-              backgroundColor: colours.status.error.background,
-              border: `2px solid ${colours.status.error.border}`,
+              backgroundColor: `${colours.status.error.background}50`, // 30% opacity for transparency
+              borderColor: colours.status.error.border,
               color: colours.status.error.text
             }}
             onClick={onMaxClick}

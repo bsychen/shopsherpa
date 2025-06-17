@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { Product } from "@/types/product";
 import { colours } from "@/styles/colours";
 
@@ -134,41 +135,71 @@ const BrandTabContent: React.FC<BrandTabContentProps> = ({
             <div className="w-full">
               <div className="space-y-3">
                 {[
-                  { label: 'Price', value: calculateBrandStats.price, color: '#ECCC36' },
-                  { label: 'Quality', value: calculateBrandStats.quality, color: '#D24330' },
-                  { label: 'Nutrition', value: calculateBrandStats.nutrition, color: '#3b82f6' },
-                  { label: 'Sustainability', value: calculateBrandStats.sustainability, color: '#309563' }
-                ].map((stat, index) => (
-                  <div key={stat.label} className="flex items-center gap-3">
-                    <span 
-                      className="text-xs font-medium w-20 text-right"
-                      style={{ color: colours.text.secondary }}
-                    >
-                      {stat.label}
-                    </span>
-                    <div className="flex-1 max-w-24">
-                      <div 
-                        className="flex items-center h-4 rounded-full overflow-hidden"
-                        style={{ backgroundColor: colours.content.surfaceSecondary }}
-                      >
-                        <div
-                          className="h-full rounded-full transition-all duration-1000 ease-out opacity-0 animate-fade-in"
+                  { 
+                    label: 'Price', 
+                    value: calculateBrandStats.price, 
+                    color: '#fef3c7', // yellow-100
+                    svg: '/pound-svgrepo-com.svg' 
+                  },
+                  { 
+                    label: 'Quality', 
+                    value: calculateBrandStats.quality, 
+                    color: '#fee2e2', // red-100
+                    svg: '/quality-supervision-svgrepo-com.svg' 
+                  },
+                  { 
+                    label: 'Nutrition', 
+                    value: calculateBrandStats.nutrition, 
+                    color: '#dbeafe', // blue-100
+                    svg: '/meal-svgrepo-com.svg' 
+                  },
+                  { 
+                    label: 'Sustainability', 
+                    value: calculateBrandStats.sustainability, 
+                    color: '#ecfccb', // lime-100
+                    svg: '/leaf-svgrepo-com.svg' 
+                  }
+                ].map((stat, index) => {
+                  const percentage = ((stat.value - 1) / 4) * 100;
+                  return (
+                    <div key={stat.label} className="flex items-center gap-3">
+                      <Image 
+                        src={stat.svg} 
+                        alt={stat.label} 
+                        width={16} 
+                        height={16} 
+                        className="flex-shrink-0"
+                        style={{ color: colours.text.secondary }}
+                      />
+                      <div className="flex-1">
+                        <div 
+                          className="relative rounded-lg overflow-hidden"
                           style={{
-                            width: `${(stat.value / 5) * 100}%`,
-                            backgroundColor: stat.color,
-                            animationDelay: `${0.3 + index * 0.1}s`
+                            backgroundColor: colours.bargraph.background,
+                            border: `2px dotted ${colours.card.border}30`,
+                            height: '28px',
                           }}
-                        />
+                        >
+                          <div 
+                            className="transition-all duration-1000 ease-out absolute inset-0 rounded-lg opacity-0 animate-fade-in"
+                            style={{ 
+                              width: `${percentage}%`,
+                              backgroundColor: stat.color,
+                              border: `2px solid ${colours.card.border}`,
+                              animationDelay: `${0.3 + index * 0.1}s`
+                            }}
+                          />
+                        </div>
                       </div>
+                      <span 
+                        className="text-xs font-medium w-8 text-right flex-shrink-0"
+                        style={{ color: colours.text.primary }}
+                      >
+                        {stat.value.toFixed(1)}
+                      </span>
                     </div>
-                    <span 
-                      className="text-xs font-medium w-8"
-                      style={{ color: colours.text.primary }}
-                    >
-                      {stat.value.toFixed(1)}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <div 
                 className="text-xs mt-3 text-center"

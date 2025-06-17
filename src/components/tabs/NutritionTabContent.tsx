@@ -49,7 +49,7 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                 borderColor: (() => {
                   const score = animatedNutrition;
                   const grade = product.combinedNutritionGrade;
-                  if (!grade) return colours.text.muted; // Grey for missing nutriscore
+                  if (!grade || grade === 'unknown') return colours.text.muted; // Grey for missing/unknown nutriscore
                   if (score <= 2) return colours.score.low;
                   if (score <= 3) return colours.score.medium;
                   return colours.score.high;
@@ -57,7 +57,7 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                 backgroundColor: (() => {
                   const score = animatedNutrition;
                   const grade = product.combinedNutritionGrade;
-                  if (!grade) return colours.text.muted + '20'; // Grey for missing nutriscore
+                  if (!grade || grade === 'unknown') return colours.text.muted + '20'; // Grey for missing/unknown nutriscore
                   if (score <= 2) return colours.score.low + '20'; // 20% opacity
                   if (score <= 3) return colours.score.medium + '20';
                   return colours.score.high + '20';
@@ -72,14 +72,18 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                     stroke={(() => {
                       const score = animatedNutrition;
                       const grade = product.combinedNutritionGrade;
-                      if (!grade) return colours.text.muted; // Grey for missing nutriscore
+                      if (!grade || grade === 'unknown') return colours.text.muted; // Grey for missing/unknown nutriscore
                       if (score <= 2) return colours.score.low;
                       if (score <= 3) return colours.score.medium;
                       return colours.score.high;
                     })()}
                     strokeWidth="3"
                     strokeDasharray={Math.PI * 2 * 18}
-                    strokeDashoffset={Math.PI * 2 * 18 * (1 - (animatedNutrition / 5))}
+                    strokeDashoffset={Math.PI * 2 * 18 * (1 - (() => {
+                      const grade = product.combinedNutritionGrade;
+                      if (!grade || grade === 'unknown') return 0; // No fill for missing/unknown nutriscore
+                      return animatedNutrition / 5;
+                    })())}
                     strokeLinecap="round"
                     style={{
                       transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1), stroke 0.7s cubic-bezier(0.4,0,0.2,1)',
@@ -95,14 +99,18 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                       color: (() => {
                         const score = animatedNutrition;
                         const grade = product.combinedNutritionGrade;
-                        if (!grade) return colours.text.muted; // Grey for missing nutriscore
+                        if (!grade || grade === 'unknown') return colours.text.muted; // Grey for missing/unknown nutriscore
                         if (score <= 2) return colours.score.low;
                         if (score <= 3) return colours.score.medium;
                         return colours.score.high;
                       })()
                     }}
                   >
-                    {product.combinedNutritionGrade?.toUpperCase() || '--'}
+                    {(() => {
+                      const grade = product.combinedNutritionGrade;
+                      if (!grade || grade === 'unknown') return '--';
+                      return grade.toUpperCase();
+                    })()}
                   </span>
                 </div>
               </span>
