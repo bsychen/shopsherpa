@@ -72,6 +72,7 @@ export default function ProductSearch() {
   const [currentCameraIndex, setCurrentCameraIndex] = useState(0);
   const [availableCameras, setAvailableCameras] = useState<MediaDeviceInfo[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const cameraControlsRef = useRef<{ stop: () => void } | null>(null);
   const router = useRouter();
   const { setNavigating } = useTopBar();
   
@@ -126,7 +127,6 @@ export default function ProductSearch() {
     if (pageLoading) return; // Don't start camera until page is loaded
     
     let active = true;
-    let controls: { stop: () => void } | null = null;
 
     const startCamera = async () => {
       try {
@@ -136,17 +136,19 @@ export default function ProductSearch() {
         if (devices.length > 0 && videoRef.current && active) {
           const selectedDevice = devices[currentCameraIndex] || devices[0];
           const codeReader = new BrowserMultiFormatReader();
-          controls = await codeReader.decodeFromVideoDevice(
+          const controls = await codeReader.decodeFromVideoDevice(
             selectedDevice.deviceId,
             videoRef.current,
             (result, _err, c) => {
               if (result && active) {
                 router.push(`/product/${result.getText()}`);
                 c.stop();
+                cameraControlsRef.current = null;
                 active = false;
               }
             }
           );
+          cameraControlsRef.current = controls;
         }
       } catch (error) {
         console.error('Failed to start camera:', error);
@@ -159,12 +161,31 @@ export default function ProductSearch() {
     return () => {
       active = false;
       clearTimeout(timer);
-      if (controls) controls.stop();
+      if (cameraControlsRef.current) {
+        cameraControlsRef.current.stop();
+        cameraControlsRef.current = null;
+      }
     };
   }, [router, pageLoading, currentCameraIndex]);
 
+  // Cleanup camera when component unmounts
+  useEffect(() => {
+    return () => {
+      if (cameraControlsRef.current) {
+        cameraControlsRef.current.stop();
+        cameraControlsRef.current = null;
+      }
+    };
+  }, []);
+
   const flipCamera = () => {
     if (availableCameras.length > 1) {
+      // Stop current camera before switching
+      if (cameraControlsRef.current) {
+        cameraControlsRef.current.stop();
+        cameraControlsRef.current = null;
+      }
+      
       setCurrentCameraIndex((prevIndex) => 
         (prevIndex + 1) % availableCameras.length
       );
