@@ -12,123 +12,230 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
   animatedNutrition,
 }) => {
   return (
-    <div className="w-full flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: '0.05s' }}>
+    <div className="w-full flex flex-col items-center opacity-0 animate-fade-in px-1" style={{ animationDelay: '0.05s' }}>
       <h2 
         className="text-lg font-bold mb-2 self-start"
         style={{ color: colours.text.primary }}
       >
         Nutrition
       </h2>
-      <div className="flex flex-col items-center justify-center gap-4 w-full">
-        {/* Nutrition Grade Circle */}
-        <div className="flex flex-col items-center gap-2">
-          <span className="relative inline-block w-24 h-24 align-middle">
-            <svg width="96" height="96" viewBox="0 0 96 96" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
-              <circle
-                cx="48" cy="48" r="40"
-                fill="none"
-                stroke={(() => {
+      {/* Nutriscore Card */}
+      <div 
+        className="w-full p-3 sm:p-4 rounded-xl border-2 mb-4"
+        style={{ 
+          backgroundColor: '#f1f5fb', // baby blue
+          borderColor: colours.content.border
+        }}
+      >
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col flex-1 min-w-0">
+            <span 
+              className="text-lg font-medium"
+              style={{ color: colours.text.primary }}
+            >
+              Nutriscore
+            </span>
+            <span 
+              className="text-[10px]"
+              style={{ color: colours.text.muted }}
+            >
+              Certified by the Food Standards Agency
+            </span>
+          </div>
+          <div className="flex-shrink-0">
+            <div 
+              className="relative w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center"
+              style={{
+                borderColor: (() => {
                   const score = animatedNutrition;
                   if (score <= 2) return colours.score.low;
                   if (score <= 3) return colours.score.medium;
                   return colours.score.high;
-                })()}
-                strokeWidth="8"
-                strokeDasharray={Math.PI * 2 * 40}
-                strokeDashoffset={Math.PI * 2 * 40 * (1 - (animatedNutrition / 5))}
-                strokeLinecap="round"
-                style={{
-                  transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1), stroke 0.7s cubic-bezier(0.4,0,0.2,1)',
-                  transform: 'rotate(-90deg)',
-                  transformOrigin: 'center center',
-                }}
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span 
-                className="text-4xl font-bold"
-                style={{
-                  color: (() => {
-                    const score = animatedNutrition;
-                    if (score <= 2) return colours.score.low;
-                    if (score <= 3) return colours.score.medium;
-                    return colours.score.high;
-                  })()
-                }}
-              >
-                {product.combinedNutritionGrade?.toUpperCase() || '?'}
+                })(),
+                backgroundColor: (() => {
+                  const score = animatedNutrition;
+                  if (score <= 2) return colours.score.low + '20'; // 20% opacity
+                  if (score <= 3) return colours.score.medium + '20';
+                  return colours.score.high + '20';
+                })(),
+              }}
+            >
+              <span className="relative inline-block w-12 h-12 align-middle">
+                <svg width="48" height="48" viewBox="0 0 48 48" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
+                  <circle
+                    cx="24" cy="24" r="18"
+                    fill="none"
+                    stroke={(() => {
+                      const score = animatedNutrition;
+                      if (score <= 2) return colours.score.low;
+                      if (score <= 3) return colours.score.medium;
+                      return colours.score.high;
+                    })()}
+                    strokeWidth="3"
+                    strokeDasharray={Math.PI * 2 * 18}
+                    strokeDashoffset={Math.PI * 2 * 18 * (1 - (animatedNutrition / 5))}
+                    strokeLinecap="round"
+                    style={{
+                      transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1), stroke 0.7s cubic-bezier(0.4,0,0.2,1)',
+                      transform: 'rotate(-90deg)',
+                      transformOrigin: 'center center',
+                    }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span 
+                    className="text-xl font-bold"
+                    style={{
+                      color: (() => {
+                        const score = animatedNutrition;
+                        if (score <= 2) return colours.score.low;
+                        if (score <= 3) return colours.score.medium;
+                        return colours.score.high;
+                      })()
+                    }}
+                  >
+                    {product.combinedNutritionGrade?.toUpperCase() || '?'}
+                  </span>
+                </div>
               </span>
             </div>
-          </span>
-          <span 
-            className="text-sm font-medium"
-            style={{ color: colours.text.secondary }}
-          >
-            Nutrition Grade
-          </span>
+          </div>
         </div>
+      </div>
 
-        {/* Nutrition Macros per 100g */}
-        {product.nutritionMacros && Object.values(product.nutritionMacros).some(value => value !== undefined) && (
-          <div className="w-full mt-4">
-            <h3 
-              className="text-md font-semibold mb-3 text-center"
+      {/* Nutrition Information Card */}
+      <div 
+        className="w-full p-3 sm:p-4 rounded-xl border-2"
+        style={{ 
+          backgroundColor: '#f1f5fb', // baby blue
+          borderColor: colours.content.border
+        }}
+      >
+        <div className="w-full min-w-0">
+          <div className="flex items-baseline gap-2 mb-3">
+            <span 
+              className="text-lg font-medium"
               style={{ color: colours.text.primary }}
             >
-              Nutrition Facts (per 100g)
-            </h3>
-            <div className="grid grid-cols-2 gap-3 w-full max-w-sm mx-auto">
+              Nutrition Facts
+            </span>
+            <span 
+              className="text-xs"
+              style={{ color: colours.text.secondary }}
+            >
+              per 100g
+            </span>
+          </div>
+          {product.nutritionMacros && Object.values(product.nutritionMacros).some(value => value !== undefined) ? (
+            <div className="w-full">
+              <div className="flex flex-wrap gap-1.5 pb-2 break-words">
               {product.nutritionMacros.energy !== undefined && (
-                <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                  <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Energy</span>
-                  <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.energy} kcal</span>
-                </div>
+                <span 
+                  className="text-xs px-2 py-1 rounded-full border-2 shadow-lg"
+                  style={{ 
+                    backgroundColor: '#ffffff',
+                    color: colours.text.primary,
+                    borderColor: colours.content.border + 'CC' // 80% opacity
+                  }}
+                >
+                  Energy: {product.nutritionMacros.energy} kcal
+                </span>
               )}
               {product.nutritionMacros.proteins !== undefined && (
-                <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                  <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Protein</span>
-                  <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.proteins}g</span>
-                </div>
+                <span 
+                  className="text-xs px-2 py-1 rounded-full border-2 shadow-lg"
+                  style={{ 
+                    backgroundColor: '#ffffff',
+                    color: colours.text.primary,
+                    borderColor: colours.content.border + 'CC' // 80% opacity
+                  }}
+                >
+                  Protein: {product.nutritionMacros.proteins}g
+                </span>
               )}
               {product.nutritionMacros.carbohydrates !== undefined && (
-                <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                  <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Carbs</span>
-                  <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.carbohydrates}g</span>
-                </div>
+                <span 
+                  className="text-xs px-2 py-1 rounded-full border-2 shadow-lg"
+                  style={{ 
+                    backgroundColor: '#ffffff',
+                    color: colours.text.primary,
+                    borderColor: colours.content.border + 'CC' // 80% opacity
+                  }}
+                >
+                  Carbs: {product.nutritionMacros.carbohydrates}g
+                </span>
               )}
               {product.nutritionMacros.sugars !== undefined && (
-                <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                  <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Sugars</span>
-                  <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.sugars}g</span>
-                </div>
+                <span 
+                  className="text-xs px-2 py-1 rounded-full border-2 shadow-lg"
+                  style={{ 
+                    backgroundColor: '#ffffff',
+                    color: colours.text.primary,
+                    borderColor: colours.content.border + 'CC' // 80% opacity
+                  }}
+                >
+                  Sugars: {product.nutritionMacros.sugars}g
+                </span>
               )}
               {product.nutritionMacros.fat !== undefined && (
-                <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                  <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Fat</span>
-                  <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.fat}g</span>
-                </div>
+                <span 
+                  className="text-xs px-2 py-1 rounded-full border-2 shadow-lg"
+                  style={{ 
+                    backgroundColor: '#ffffff',
+                    color: colours.text.primary,
+                    borderColor: colours.content.border + 'CC' // 80% opacity
+                  }}
+                >
+                  Fat: {product.nutritionMacros.fat}g
+                </span>
               )}
               {product.nutritionMacros.saturatedFat !== undefined && (
-                <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                  <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Sat. Fat</span>
-                  <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.saturatedFat}g</span>
-                </div>
+                <span 
+                  className="text-xs px-2 py-1 rounded-full border-2 shadow-lg"
+                  style={{ 
+                    backgroundColor: '#ffffff',
+                    color: colours.text.primary,
+                    borderColor: colours.content.border + 'CC' // 80% opacity
+                  }}
+                >
+                  Sat. Fat: {product.nutritionMacros.saturatedFat}g
+                </span>
               )}
               {product.nutritionMacros.fiber !== undefined && (
-                <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                  <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Fiber</span>
-                  <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{product.nutritionMacros.fiber}g</span>
-                </div>
+                <span 
+                  className="text-xs px-2 py-1 rounded-full border-2 shadow-lg"
+                  style={{ 
+                    backgroundColor: '#ffffff',
+                    color: colours.text.primary,
+                    borderColor: colours.content.border + 'CC' // 80% opacity
+                  }}
+                >
+                  Fiber: {product.nutritionMacros.fiber}g
+                </span>
               )}
               {product.nutritionMacros.sodium !== undefined && (
-                <div className="flex justify-between items-center p-2 rounded-lg" style={{ backgroundColor: colours.content.surfaceSecondary }}>
-                  <span className="text-sm font-medium" style={{ color: colours.text.secondary }}>Sodium</span>
-                  <span className="text-sm font-bold" style={{ color: colours.text.primary }}>{(product.nutritionMacros.sodium * 1000).toFixed(0)}mg</span>
-                </div>
+                <span 
+                  className="text-xs px-2 py-1 rounded-full border-2 shadow-lg"
+                  style={{ 
+                    backgroundColor: '#ffffff',
+                    color: colours.text.primary,
+                    borderColor: colours.content.border + 'CC' // 80% opacity
+                  }}
+                >
+                  Sodium: {(product.nutritionMacros.sodium * 1000).toFixed(0)}mg
+                </span>
               )}
+              </div>
             </div>
-          </div>
-        )}
+          ) : (
+            <div 
+              className="text-sm text-center py-4"
+              style={{ color: colours.text.secondary }}
+            >
+              No nutrition information available
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
