@@ -69,11 +69,151 @@ export default function ProductSearch() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [pageLoading, setPageLoading] = useState(true);
+  const [currentCameraIndex, setCurrentCameraIndex] = useState(0);
+  const [filteredCameras, setFilteredCameras] = useState<MediaDeviceInfo[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const cameraControlsRef = useRef<{ stop: () => void } | null>(null);
   const router = useRouter();
   const { setNavigating } = useTopBar();
   
   const debouncedQuery = useDebounce(query, 500); // Increased debounce delay
+
+  // Filter cameras to select only back camera (prefer ultrawide if available)
+  const filterCameras = async (devices: MediaDeviceInfo[]): Promise<MediaDeviceInfo[]> => {
+    const backCameras: MediaDeviceInfo[] = [];
+    const frontCameras: MediaDeviceInfo[] = [];
+    const ultrawideCameras: MediaDeviceInfo[] = [];
+    
+    // First, try to get proper camera permissions to ensure device labels are available
+    let permissionGranted = false;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      stream.getTracks().forEach(track => track.stop());
+      permissionGranted = true;
+      
+      // Re-enumerate devices after permission is granted to get proper labels
+      const devicesWithLabels = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devicesWithLabels.filter(device => device.kind === 'videoinput');
+      
+      // Use the devices with proper labels if available
+      if (videoDevices.length > 0) {
+        devices = videoDevices;
+      }
+    } catch {
+      // Permission denied or not available, continue with existing devices
+    }
+    
+    for (const device of devices) {
+      try {
+        // Get camera capabilities to determine facing mode (only if permission granted)
+        if (permissionGranted) {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { deviceId: device.deviceId }
+          });
+          
+          const track = stream.getVideoTracks()[0];
+          const capabilities = track.getCapabilities();
+          const settings = track.getSettings();
+          
+          // Stop the stream immediately
+          stream.getTracks().forEach(track => track.stop());
+          
+          // Check for facing mode or camera type in label
+          const label = device.label.toLowerCase();
+          const facingMode = settings.facingMode || capabilities.facingMode;
+          
+          // Categorize cameras with more specific filtering
+          if (facingMode === 'user' || 
+              label.includes('front') || 
+              label.includes('selfie')) {
+            frontCameras.push(device);
+          }
+          else if (label.includes('ultra') || 
+                   label.includes('wide') ||
+                   label.includes('0.5')) {
+            ultrawideCameras.push(device);
+          }
+          else if (facingMode === 'environment' || 
+                   label.includes('back') || 
+                   label.includes('rear') ||
+                   (!label.includes('front') && !label.includes('selfie'))) {
+            backCameras.push(device);
+          }
+        } else {
+          // Fallback: use label-based filtering without stream access
+          const label = device.label.toLowerCase();
+          if (label.includes('front') || 
+              label.includes('selfie')) {
+            frontCameras.push(device);
+          }
+          else if (label.includes('ultra') || 
+                   label.includes('wide') ||
+                   label.includes('0.5')) {
+            ultrawideCameras.push(device);
+          }
+          else if (label.includes('back') || 
+                   label.includes('rear') ||
+                   (!label.includes('front') && !label.includes('selfie'))) {
+            backCameras.push(device);
+          }
+        }
+      } catch {
+        // If we can't get capabilities, use label-based filtering
+        const label = device.label.toLowerCase();
+        if (label.includes('front') || 
+            label.includes('selfie')) {
+          frontCameras.push(device);
+        }
+        else if (label.includes('ultra') || 
+                 label.includes('wide') ||
+                 label.includes('0.5')) {
+          ultrawideCameras.push(device);
+        }
+        else {
+          backCameras.push(device);
+        }
+      }
+    }
+    
+    // Build final camera selection: only one back camera
+    const filtered: MediaDeviceInfo[] = [];
+    
+    // Select the best back camera (prefer ultrawide if available, otherwise first back camera)
+    let selectedBackCamera: MediaDeviceInfo | null = null;
+    if (ultrawideCameras.length > 0) {
+      // Check if ultrawide is actually a back camera
+      const ultrawideBackCamera = ultrawideCameras.find(camera => {
+        const label = camera.label.toLowerCase();
+        return !label.includes('front') && !label.includes('selfie');
+      });
+      if (ultrawideBackCamera) {
+        selectedBackCamera = ultrawideBackCamera;
+      }
+    }
+    
+    // If no ultrawide back camera, use regular back camera
+    if (!selectedBackCamera && backCameras.length > 0) {
+      selectedBackCamera = backCameras[0];
+    }
+    
+    // If no back camera available, fallback to front camera
+    if (!selectedBackCamera && frontCameras.length > 0) {
+      selectedBackCamera = frontCameras[0];
+    }
+    
+    // Add selected camera to filtered array
+    if (selectedBackCamera) {
+      filtered.push(selectedBackCamera);
+    }
+    
+    // Mobile device fallback: if no cameras were categorized properly
+    if (filtered.length === 0 && devices.length > 0) {
+      // Use the first camera available (usually back camera on mobile)
+      filtered.push(devices[0]);
+    }
+    
+    return filtered;
+  };
 
   // Auth state listener
   useEffect(() => {
@@ -124,24 +264,31 @@ export default function ProductSearch() {
     if (pageLoading) return; // Don't start camera until page is loaded
     
     let active = true;
-    let controls: { stop: () => void } | null = null;
 
     const startCamera = async () => {
       try {
         const devices = await BrowserMultiFormatReader.listVideoInputDevices();
-        if (devices.length > 0 && videoRef.current && active) {
+        
+        // Filter cameras to only include desired types
+        const filtered = await filterCameras(devices);
+        setFilteredCameras(filtered);
+        
+        if (filtered.length > 0 && videoRef.current && active) {
+          const selectedDevice = filtered[currentCameraIndex] || filtered[0];
           const codeReader = new BrowserMultiFormatReader();
-          controls = await codeReader.decodeFromVideoDevice(
-            devices[0].deviceId,
+          const controls = await codeReader.decodeFromVideoDevice(
+            selectedDevice.deviceId,
             videoRef.current,
             (result, _err, c) => {
               if (result && active) {
                 router.push(`/product/${result.getText()}`);
                 c.stop();
+                cameraControlsRef.current = null;
                 active = false;
               }
             }
           );
+          cameraControlsRef.current = controls;
         }
       } catch (error) {
         console.error('Failed to start camera:', error);
@@ -154,9 +301,29 @@ export default function ProductSearch() {
     return () => {
       active = false;
       clearTimeout(timer);
-      if (controls) controls.stop();
+      if (cameraControlsRef.current) {
+        cameraControlsRef.current.stop();
+        cameraControlsRef.current = null;
+      }
     };
-  }, [router, pageLoading]);
+  }, [router, pageLoading, currentCameraIndex]);
+
+  // Separate effect to initialize camera index when cameras are first detected
+  useEffect(() => {
+    if (filteredCameras.length > 0 && currentCameraIndex !== 0) {
+      setCurrentCameraIndex(0); // Always start with back camera (index 0)
+    }
+  }, [filteredCameras, currentCameraIndex]);
+
+  // Cleanup camera when component unmounts
+  useEffect(() => {
+    return () => {
+      if (cameraControlsRef.current) {
+        cameraControlsRef.current.stop();
+        cameraControlsRef.current = null;
+      }
+    };
+  }, []);
 
   const handleManualSearch = () => {
     handleSearch(query);
@@ -280,14 +447,16 @@ export default function ProductSearch() {
           >
             Scan a Barcode
           </h1>
-          <div 
-            className="rounded-lg overflow-hidden shadow-xl mb-4 w-full max-w-xs flex items-center justify-center aspect-video"
-            style={{ 
-              backgroundColor: colours.content.surface,
-              border: `2px solid ${colours.card.border}`
-            }}
-          >
-            <video ref={videoRef} className="w-full h-auto" />
+          <div>
+            <div 
+              className="rounded-lg overflow-hidden shadow-xl mb-4 w-full max-w-xs flex items-center justify-center aspect-video"
+              style={{ 
+                backgroundColor: colours.content.surface,
+                border: `2px solid ${colours.card.border}`
+              }}
+            >
+              <video ref={videoRef} className="w-full h-auto" />
+            </div>
           </div>
         </div>
       </ContentBox>
