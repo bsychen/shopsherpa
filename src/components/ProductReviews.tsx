@@ -71,27 +71,12 @@ export default function ProductReviews({
         className="mb-2"
       >
         <div className="flex items-center justify-between w-full mb-2">
-          <div className="flex items-center gap-4">
-            <h2 
-              className="text-xl font-semibold"
-              style={{ color: colours.text.primary }}
-            >
-              Reviews
-            </h2>
-            {/* Live/Offline Status Indicator */}
-            {isRealTimeActive && isOnline && (
-              <div className="flex items-center gap-1 text-xs" style={{ color: colours.status.success.text }}>
-                <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: colours.status.success.text }}></div>
-                <span>Live</span>
-              </div>
-            )}
-            {!isOnline && (
-              <div className="flex items-center gap-1 text-xs" style={{ color: colours.status.warning.text }}>
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colours.status.warning.text }}></div>
-                <span>Offline</span>
-              </div>
-            )}
-          </div>
+          <h2 
+            className="text-xl font-semibold"
+            style={{ color: colours.text.primary }}
+          >
+            Reviews
+          </h2>
           <CreateReviewButton user={user} productId={productId} />
         </div>
         <SortButtonGroup 
