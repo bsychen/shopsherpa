@@ -171,13 +171,20 @@ export default function PostPage() {
 
       // Filter out optimistic updates and merge with real data
       setComments(prevComments => {
-        const tempComments = prevComments.filter(c => c.id.startsWith('temp-'));
         const realComments = commentsData;
         
-        // Detect new comments for animation
-        const prevCommentIds = new Set(prevComments.map(c => c.id));
+        // Get all real comment contents to match against optimistic ones
+        const realCommentContents = new Set(realComments.map(c => c.content.trim()));
+        
+        // Keep only temp comments that don't have a matching real comment yet
+        const tempComments = prevComments.filter(c => 
+          c.id.startsWith('temp-') && !realCommentContents.has(c.content.trim())
+        );
+        
+        // Detect new comments for animation (only real comments that weren't in previous state)
+        const prevRealCommentIds = new Set(prevComments.filter(c => !c.id.startsWith('temp-')).map(c => c.id));
         const newCommentIds = realComments
-          .filter(c => !prevCommentIds.has(c.id) && !c.id.startsWith('temp-'))
+          .filter(c => !prevRealCommentIds.has(c.id))
           .map(c => c.id);
         
         if (newCommentIds.length > 0) {
