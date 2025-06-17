@@ -60,7 +60,7 @@ export const colours = {
   button: {
     primary: {
       background: colourMap.babyBlue,
-      text: colourMap.white,
+      text: colourMap.darkTeal,
       hover: {
         background: colourMap.darkTeal,
       }
