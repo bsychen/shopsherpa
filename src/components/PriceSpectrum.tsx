@@ -51,13 +51,11 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
   const getPrice = (p: Product) => p.price || p.expectedPrice || 0;
   const productPrice = getPrice(product);
 
-  // If no real prices available, use sample data
+  // If no real prices available, show simple message
   if (productPrice === 0) {
     return (
-      <div className="w-full h-24 flex items-center justify-center text-sm rounded-lg" style={{ 
-        color: colours.text.muted, 
-        backgroundColor: colours.background.secondary,
-        border: `1px solid ${colours.card.border}`
+      <div className="w-full h-24 flex items-center justify-center text-sm" style={{ 
+        color: colours.text.secondary
       }}>
         Price data unavailable
       </div>
@@ -125,27 +123,27 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
           }}
         >
           {/* Product box with shadow and border */}
-          <div className="rounded-full shadow-lg px-1.5 py-0.5 mb-1 border-2 border-black" style={{
+          <div className="rounded-full shadow-lg px-2 py-1 mb-1 border-2 border-black" style={{
             backgroundColor: colors.bg,
             borderColor: colors.border
           }}>
-            <div className="text-[10px] font-medium whitespace-nowrap" style={{ color: colors.text }}>
+            <div className="text-xs font-medium whitespace-nowrap" style={{ color: colors.text }}>
               £{productPrice.toFixed(2)}
             </div>
           </div>
           {/* Triangle pointer */}
           <div 
-            className="w-0 h-0 border-l-[4px] shadow-lg border-l-transparent border-r-[4px] border-r-transparent border-t-[4px]"
+            className="w-0 h-0 border-l-[5px] shadow-lg border-l-transparent border-r-[5px] border-r-transparent border-t-[5px]"
             style={{ borderTopColor: colors.border }}
           />
         </div>          
         {/* Price labels with buttons */}
         <div className="absolute -bottom-4 left-[0%]">
           <button 
-            className="rounded-full shadow-lg px-1.5 py-0.5 text-[10px] font-medium transition-colors border-2 border-black"
+            className="rounded-full shadow-lg px-2 py-1 text-xs font-medium transition-colors border-2 border-dotted"
             style={{
-              backgroundColor: `${colours.status.success.border}80`,
-              border: `2px solid ${colours.status.success.border}`,
+              backgroundColor: `${colours.status.success.border}50`, // 30% opacity for transparency
+              borderColor: colours.status.success.border,
               color: colours.button.success.text
             }}
             onClick={onMinClick}
@@ -155,10 +153,10 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
         </div>
         <div className="absolute -bottom-4 right-[0%]">
           <button 
-            className="rounded-full shadow-lg px-1.5 py-0.5 text-[10px] font-medium transition-colors border-2 border-black"
+            className="rounded-full shadow-lg px-2 py-1 text-xs font-medium transition-colors border-2 border-dotted"
             style={{
-              backgroundColor: colours.status.error.background,
-              border: `2px solid ${colours.status.error.border}`,
+              backgroundColor: `${colours.status.error.background}50`, // 30% opacity for transparency
+              borderColor: colours.status.error.border,
               color: colours.status.error.text
             }}
             onClick={onMaxClick}
