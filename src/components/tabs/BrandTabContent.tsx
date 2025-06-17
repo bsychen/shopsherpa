@@ -55,21 +55,36 @@ const BrandTabContent: React.FC<BrandTabContentProps> = ({
           </div>
           <div className="flex-shrink-0">
             <div 
-              className="relative w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center"
+              className="relative w-20 h-20 rounded-full border-2 border-dashed flex items-center justify-center"
               style={{
-                borderColor: colours.chart.primary,
-                backgroundColor: colours.chart.primary + '20', // 20% opacity
+                borderColor: (() => {
+                  const score = animatedBrand;
+                  if (score <= 2) return colours.score.low;
+                  if (score <= 3) return colours.score.medium;
+                  return colours.score.high;
+                })(),
+                backgroundColor: (() => {
+                  const score = animatedBrand;
+                  if (score <= 2) return colours.score.low + '20'; // 20% opacity
+                  if (score <= 3) return colours.score.medium + '20';
+                  return colours.score.high + '20';
+                })(),
               }}
             >
-              <span className="relative inline-block w-12 h-12 align-middle">
-                <svg width="48" height="48" viewBox="0 0 48 48" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
+              <span className="relative inline-block w-16 h-16 align-middle">
+                <svg width="64" height="64" viewBox="0 0 64 64" className="absolute top-0 left-0" style={{ zIndex: 1 }}>
                   <circle
-                    cx="24" cy="24" r="18"
+                    cx="32" cy="32" r="24"
                     fill="none"
-                    stroke={colours.chart.primary}
-                    strokeWidth="3"
-                    strokeDasharray={Math.PI * 2 * 18}
-                    strokeDashoffset={Math.PI * 2 * 18 * (1 - (animatedBrand / 5))}
+                    stroke={(() => {
+                      const score = animatedBrand;
+                      if (score <= 2) return colours.score.low;
+                      if (score <= 3) return colours.score.medium;
+                      return colours.score.high;
+                    })()}
+                    strokeWidth="4"
+                    strokeDasharray={Math.PI * 2 * 24}
+                    strokeDashoffset={Math.PI * 2 * 24 * (1 - (animatedBrand / 5))}
                     strokeLinecap="round"
                     style={{
                       transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1), stroke 0.7s cubic-bezier(0.4,0,0.2,1)',
@@ -79,10 +94,16 @@ const BrandTabContent: React.FC<BrandTabContentProps> = ({
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-lg">🏢</span>
                   <span 
-                    className="text-xs font-bold"
-                    style={{ color: colours.chart.primary }}
+                    className="text-lg font-bold"
+                    style={{
+                      color: (() => {
+                        const score = animatedBrand;
+                        if (score <= 2) return colours.score.low;
+                        if (score <= 3) return colours.score.medium;
+                        return colours.score.high;
+                      })()
+                    }}
                   >
                     {animatedBrand}
                   </span>

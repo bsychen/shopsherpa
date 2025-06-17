@@ -69,9 +69,8 @@ const QualityTabContent: React.FC<QualityTabContentProps> = ({
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <StarIcon size={20}/>
                   <span 
-                    className="text-xs font-bold mt-0.5"
+                    className="text-xs font-bold"
                     style={{ color: colours.score.medium }}
                   >
                     {reviewSummary.averageRating?.toFixed(1)}
