@@ -225,14 +225,14 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   useEffect(() => {
     if (isCollapsed) {
       // When collapsed, only show the tabs height (no margin below)
-      setBoxHeight(30); // Just the tab height without bottom margin
+      setBoxHeight(28); // Just the tab height without bottom margin
     } else if (contentRef.current) {
       // When expanded, calculate content height
       const newHeight = contentRef.current.scrollHeight;
       
       // Use requestAnimationFrame to ensure smooth height transition
       requestAnimationFrame(() => {
-        setBoxHeight(newHeight + 50); // Add tab height
+        setBoxHeight(newHeight + 40); // Add tab height
       });
     }
   }, [activeTab, product, reviewSummary, showMinProduct, showMaxProduct, isCollapsed, calculateBrandStats]);
@@ -271,19 +271,19 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
 
   return (
     <div
-      className="w-full max-w-xl mt-8 rounded-2xl shadow-lg border-2 border-black p-3 transition-colors duration-300"
+      className="w-full max-w-xl mt-8 rounded-2xl shadow-lg border-2 border-black p-2 transition-colors duration-300"
       style={{
         backgroundColor: getCategoryBackground(),
         border: `2px solid ${colours.content.border}`,
-        height: boxHeight ? boxHeight + 32 : undefined,
-        minHeight: isCollapsed ? 40 : 280,
+        height: boxHeight ? boxHeight + 24 : undefined,
+        minHeight: isCollapsed ? 36 : 260,
         transition: "height 0.4s cubic-bezier(0.4,0,0.2,1), background-color 0.3s ease",
         position: "relative"
       }}
     >
       {/* Tab Headers */}
       <div 
-        className={`flex ${isCollapsed ? 'mb-0' : 'mb-4'} ${!isCollapsed ? 'border-b' : ''} justify-center gap-2 relative`}
+        className={`flex ${isCollapsed ? 'mb-0' : 'mb-2'} ${!isCollapsed ? 'border-b' : ''} justify-center gap-2 relative`}
         style={{ borderColor: isCollapsed ? 'transparent' : colours.content.border }}
       >
         {/* Sliding  Bar - only show when expanded */}
@@ -327,7 +327,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
       {!isCollapsed && (
         <div 
           ref={contentRef} 
-          className="relative px-4 pb-4"
+          className="relative px-3 pb-3"
           style={{ 
             opacity: 1, 
             transition: 'opacity 0.2s ease-in-out, height 0.3s ease-in-out'

@@ -45,7 +45,14 @@ const PriceTabContent: React.FC<PriceTabContentProps> = ({
       >
         Price Range
       </h2>
-      <div className="w-full opacity-0 animate-slide-in-bottom" style={{ animationDelay: '0.15s' }}>
+      <div 
+        className="w-full p-4 sm:p-5 rounded-xl border-2 mb-4 opacity-0 animate-slide-in-bottom" 
+        style={{ 
+          animationDelay: '0.15s',
+          backgroundColor: '#f1f5fb', // baby blue
+          borderColor: colours.content.border
+        }}
+      >
         <PriceSpectrum 
           product={product} 
           priceStats={priceStats}

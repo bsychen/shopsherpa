@@ -6,9 +6,9 @@ import { colours } from '@/styles/colours';
 const getPositionColor = (price: number, q1: number, q3: number) => {
   if (price <= q1) {
     return {
-      bg: colours.status.success.background,
+      bg: `${colours.status.success.border}80`, // Green with transparency
       border: colours.status.success.border,
-      text: colours.status.success.text
+      text: colours.button.success.text
     };
   } else if (price >= q3) {
     return {
@@ -125,37 +125,37 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
           }}
         >
           {/* Product box with shadow and border */}
-          <div className="rounded-md shadow-xl px-2 py-1 mb-1" style={{
+          <div className="rounded-full shadow-lg px-1.5 py-0.5 mb-1 border-2 border-black" style={{
             backgroundColor: colors.bg,
-            border: `1px solid ${colors.border}`
+            borderColor: colors.border
           }}>
-            <div className="text-xs font-medium whitespace-nowrap" style={{ color: colors.text }}>
+            <div className="text-[10px] font-medium whitespace-nowrap" style={{ color: colors.text }}>
               £{productPrice.toFixed(2)}
             </div>
           </div>
           {/* Triangle pointer */}
           <div 
-            className="w-0 h-0 border-l-[6px] shadow-xl border-l-transparent border-r-[6px] border-r-transparent border-t-[6px]"
+            className="w-0 h-0 border-l-[4px] shadow-lg border-l-transparent border-r-[4px] border-r-transparent border-t-[4px]"
             style={{ borderTopColor: colors.border }}
           />
         </div>          
         {/* Price labels with buttons */}
-        <div className="absolute -bottom-6 left-[0%]">
+        <div className="absolute -bottom-4 left-[0%]">
           <button 
-            className="rounded-md shadow-xl px-2 py-1 text-xs font-medium transition-colors"
+            className="rounded-full shadow-lg px-1.5 py-0.5 text-[10px] font-medium transition-colors border-2 border-black"
             style={{
-              backgroundColor: colours.status.success.background,
+              backgroundColor: `${colours.status.success.border}80`,
               border: `2px solid ${colours.status.success.border}`,
-              color: colours.status.success.text
+              color: colours.button.success.text
             }}
             onClick={onMinClick}
           >
             £{priceStats.min.toFixed(2)}
           </button>
         </div>
-        <div className="absolute -bottom-6 right-[0%]">
+        <div className="absolute -bottom-4 right-[0%]">
           <button 
-            className="rounded-md shadow-xl px-2 py-1 text-xs font-medium transition-colors"
+            className="rounded-full shadow-lg px-1.5 py-0.5 text-[10px] font-medium transition-colors border-2 border-black"
             style={{
               backgroundColor: colours.status.error.background,
               border: `2px solid ${colours.status.error.border}`,

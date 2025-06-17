@@ -124,14 +124,7 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
         }}
       >
         <div className="w-full min-w-0">
-          <div className="flex items-baseline gap-2 mb-3">
-            <span 
-              className="text-lg font-medium"
-              style={{ color: colours.text.primary }}
-            >
-              Environmental Impact
-            </span>
-          </div>
+          
           {product.ecoInformation ? (
             <div className="w-full">
               <div className="space-y-3 w-full">
