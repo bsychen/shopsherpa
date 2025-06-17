@@ -169,7 +169,59 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const qualityScore = reviewSummary?.averageRating || 3;
   const nutritionScore = product ? getNutritionScore(product.combinedNutritionGrade || '') : 2;
   const sustainabilityScore = product ? getSustainabilityScore(product) : 3;
-  const brandScore = brandRating;
+  
+  // Calculate client-side brand score using the same logic as TabbedInfoBox
+  const clientSideBrandScore = useMemo(() => {
+    if (!brandProducts.length || !product) return brandRating;
+
+    // Include current product in calculations
+    const allBrandProducts = [...brandProducts, product];
+
+    // Price statistics (use quartile-based scoring like the main product)
+    const prices = allBrandProducts.map(p => p.price || 0).filter(p => p > 0);
+    let priceScore = 3; // default
+    if (prices.length > 0) {
+      const sortedPrices = [...prices].sort((a, b) => a - b);
+      const q1 = sortedPrices[Math.floor(sortedPrices.length * 0.25)] || sortedPrices[0];
+      const q3 = sortedPrices[Math.floor(sortedPrices.length * 0.75)] || sortedPrices[sortedPrices.length - 1];
+      const averagePrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+      
+      // Lower prices get higher scores
+      if (averagePrice <= q1) priceScore = 5;
+      else if (averagePrice >= q3) priceScore = 2;
+      else priceScore = 4 - ((averagePrice - q1) / (q3 - q1)) * 2; // Scale between 2-4
+    }
+
+    // Quality statistics (based on review summary averages)
+    let qualityScore = brandRating; // fallback to brandRating if no review data
+    if (reviewSummary?.averageRating) {
+      qualityScore = reviewSummary.averageRating;
+    }
+
+    // Nutrition statistics
+    const nutritionScores = allBrandProducts.map(p => getNutritionScore(p.combinedNutritionGrade || ''));
+    const averageNutrition = nutritionScores.length > 0 
+      ? nutritionScores.reduce((a, b) => a + b, 0) / nutritionScores.length 
+      : 2;
+
+    // Sustainability statistics
+    const sustainabilityScores = allBrandProducts.map(p => getSustainabilityScore(p));
+    const averageSustainability = sustainabilityScores.length > 0
+      ? sustainabilityScores.reduce((a, b) => a + b, 0) / sustainabilityScores.length
+      : 3;
+
+    // Calculate overall brand score as average of all components
+    const roundedPrice = Math.round(priceScore * 10) / 10;
+    const roundedQuality = Math.round(qualityScore * 10) / 10;
+    const roundedNutrition = Math.round(averageNutrition * 10) / 10;
+    const roundedSustainability = Math.round(averageSustainability * 10) / 10;
+    
+    const overallBrandScore = Math.round(((roundedPrice + roundedQuality + roundedNutrition + roundedSustainability) / 4) * 10) / 10;
+
+    return overallBrandScore;
+  }, [brandProducts, product, brandRating, reviewSummary]);
+  
+  const brandScore = clientSideBrandScore;
   
   // Calculate match percentage based on user preferences
   const matchPercentage = userPreferences && userPreferences.pricePreference !== undefined ? 
