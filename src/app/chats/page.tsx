@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, query, onSnapshot, orderBy, limit, where, doc, addDoc, serverTimestamp, updateDoc, increment, arrayUnion, arrayRemove } from "firebase/firestore";
+import { collection, query, onSnapshot, orderBy, limit, doc, addDoc, serverTimestamp, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 import { auth, db } from "@/lib/firebaseClient";
 import Link from "next/link";
 import { Post } from "@/types/post";
