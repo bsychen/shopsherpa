@@ -124,11 +124,12 @@ const QualityTabContent: React.FC<QualityTabContentProps> = ({
                       {count}
                     </span>
                     <div
-                      className="rounded w-6 transition-all duration-700 animate-bar-grow"
+                      className="rounded w-6 transition-all duration-700 animate-bar-grow border-2"
                       style={{ 
                         height: `${height}px`, 
                         transition: 'height 0.7s cubic-bezier(0.4,0,0.2,1), background-color 0.3s ease',
-                        backgroundColor: colours.score.medium
+                        backgroundColor: colours.status.warning.background + '80', // 80% opacity like filled stars
+                        borderColor: colours.status.warning.background,
                       }}
                     />
                     <span 
