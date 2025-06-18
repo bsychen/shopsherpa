@@ -36,6 +36,16 @@ import {
 // Lazy load heavy components
 const ProductRadarChart = lazy(() => import("@/components/ProductRadarChart"));
 
+// Brand statistics interface
+interface BrandStats {
+  price: number;
+  quality: number;
+  nutrition: number;
+  sustainability: number;
+  overallScore: number;
+  productCount: number;
+}
+
 // Helper function to calculate quartiles
 const calculateQuartile = (arr: number[], q: number) => {
   const sorted = [...arr].sort((a, b) => a - b);
@@ -132,8 +142,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [user, setUser] = useState<User | null>(null);
   const [usernames, setUsernames] = useState<Record<string, string>>({});
   const [reviewSummary, setReviewSummary] = useState<ReviewSummary | null>(null);
-  const [_animatedValue, setAnimatedValue] = useState(0);
-  const [_animatedQuality, setAnimatedQuality] = useState(0);
   const [visibleReviews, setVisibleReviews] = useState(3);
   const [seeMoreClicked, setSeeMoreClicked] = useState(false);
   const [filter, setFilter] = useState<{ score: number | null }>({ score: null });
@@ -153,6 +161,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   }>({ min: 0, max: 0, q1: 0, median: 0, q3: 0 });
   const [showAllergenWarning, setShowAllergenWarning] = useState(false);
   const [allergenWarningDismissed, setAllergenWarningDismissed] = useState(false);
+  const [brandReviewSummaries, setBrandReviewSummaries] = useState<Record<string, ReviewSummary>>({});
+  const [brandStats, setBrandStats] = useState<BrandStats | null>(null);
 
   // Real-time states for reviews
   const [isRealTimeActive, setIsRealTimeActive] = useState(false);
@@ -169,59 +179,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const qualityScore = reviewSummary?.averageRating || 3;
   const nutritionScore = product ? getNutritionScore(product.combinedNutritionGrade || '') : 2;
   const sustainabilityScore = product ? getSustainabilityScore(product) : 3;
-  
-  // Calculate client-side brand score using the same logic as TabbedInfoBox
-  const clientSideBrandScore = useMemo(() => {
-    if (!brandProducts.length || !product) return brandRating;
-
-    // Include current product in calculations
-    const allBrandProducts = [...brandProducts, product];
-
-    // Price statistics (use quartile-based scoring like the main product)
-    const prices = allBrandProducts.map(p => p.price || 0).filter(p => p > 0);
-    let priceScore = 3; // default
-    if (prices.length > 0) {
-      const sortedPrices = [...prices].sort((a, b) => a - b);
-      const q1 = sortedPrices[Math.floor(sortedPrices.length * 0.25)] || sortedPrices[0];
-      const q3 = sortedPrices[Math.floor(sortedPrices.length * 0.75)] || sortedPrices[sortedPrices.length - 1];
-      const averagePrice = prices.reduce((a, b) => a + b, 0) / prices.length;
-      
-      // Lower prices get higher scores
-      if (averagePrice <= q1) priceScore = 5;
-      else if (averagePrice >= q3) priceScore = 2;
-      else priceScore = 4 - ((averagePrice - q1) / (q3 - q1)) * 2; // Scale between 2-4
-    }
-
-    // Quality statistics (based on review summary averages)
-    let qualityScore = brandRating; // fallback to brandRating if no review data
-    if (reviewSummary?.averageRating) {
-      qualityScore = reviewSummary.averageRating;
-    }
-
-    // Nutrition statistics
-    const nutritionScores = allBrandProducts.map(p => getNutritionScore(p.combinedNutritionGrade || ''));
-    const averageNutrition = nutritionScores.length > 0 
-      ? nutritionScores.reduce((a, b) => a + b, 0) / nutritionScores.length 
-      : 2;
-
-    // Sustainability statistics
-    const sustainabilityScores = allBrandProducts.map(p => getSustainabilityScore(p));
-    const averageSustainability = sustainabilityScores.length > 0
-      ? sustainabilityScores.reduce((a, b) => a + b, 0) / sustainabilityScores.length
-      : 3;
-
-    // Calculate overall brand score as average of all components
-    const roundedPrice = Math.round(priceScore * 10) / 10;
-    const roundedQuality = Math.round(qualityScore * 10) / 10;
-    const roundedNutrition = Math.round(averageNutrition * 10) / 10;
-    const roundedSustainability = Math.round(averageSustainability * 10) / 10;
-    
-    const overallBrandScore = Math.round(((roundedPrice + roundedQuality + roundedNutrition + roundedSustainability) / 4) * 10) / 10;
-
-    return overallBrandScore;
-  }, [brandProducts, product, brandRating, reviewSummary]);
-  
-  const brandScore = clientSideBrandScore;
+  const brandScore = brandStats?.overallScore || brandRating;
   
   // Calculate match percentage based on user preferences
   const matchPercentage = userPreferences && userPreferences.pricePreference !== undefined ? 
@@ -384,13 +342,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     };
   }, [id, isOnline, fetchReviews]);
 
-  useEffect(() => {
-    if (reviewSummary) {
-      setTimeout(() => setAnimatedValue(reviewSummary.averageRating), 50);
-      setTimeout(() => setAnimatedQuality(reviewSummary.averageRating), 50);
-    }
-  }, [reviewSummary]);
-
   // Set up back button in top bar
   useEffect(() => {
     setTopBarState({
@@ -528,6 +479,100 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     }
   }, [sameProducts, product]);
 
+  // Fetch review summaries for all brand products
+  useEffect(() => {
+    if (!brandProducts.length || !product) return;
+
+    const fetchBrandReviewSummaries = async () => {
+      const summaries: Record<string, ReviewSummary> = {};
+      
+      // Include current product
+      const allBrandProducts = [...brandProducts, product];
+      
+      try {
+        await Promise.all(
+          allBrandProducts.map(async (brandProduct) => {
+            const summary = await getReviewSummary(brandProduct.id);
+            if (summary) {
+              summaries[brandProduct.id] = summary;
+            }
+          })
+        );
+        setBrandReviewSummaries(summaries);
+      } catch (error) {
+        console.error('Error fetching brand review summaries:', error);
+      }
+    };
+
+    fetchBrandReviewSummaries();
+  }, [brandProducts, product]);
+
+  // Calculate brand statistics when brand products and review summaries change
+  useEffect(() => {
+    if (!brandProducts.length || !product) {
+      setBrandStats(null);
+      return;
+    }
+
+    // Include current product in calculations
+    const allBrandProducts = [...brandProducts, product];
+
+    // Price statistics (use quartile-based scoring like the main product)
+    const prices = allBrandProducts.map(p => p.price || 0).filter(p => p > 0);
+    let priceScore = 3; // default
+    if (prices.length > 0) {
+      const sortedPrices = [...prices].sort((a, b) => a - b);
+      const q1 = sortedPrices[Math.floor(sortedPrices.length * 0.25)] || sortedPrices[0];
+      const q3 = sortedPrices[Math.floor(sortedPrices.length * 0.75)] || sortedPrices[sortedPrices.length - 1];
+      const averagePrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+
+      // Lower prices get higher scores
+      if (q1 == q3) priceScore = 3; // No variation in prices
+      else if (averagePrice < q1) priceScore = 5;
+      else if (averagePrice > q3) priceScore = 2;
+      else priceScore = 4 - ((averagePrice - q1) / (q3 - q1)) * 2; // Scale between 2-4
+    }
+
+    // Quality statistics (based on actual review ratings from all brand products)
+    const reviewRatings = allBrandProducts
+      .map(p => brandReviewSummaries[p.id]?.averageRating)
+      .filter(rating => rating !== undefined && rating > 0);
+    
+    let qualityScore = 3;
+    if (reviewRatings.length > 0) {
+      qualityScore = reviewRatings.reduce((a, b) => a + b, 0) / reviewRatings.length;
+    }
+
+    // Nutrition statistics
+    const nutritionScores = allBrandProducts.map(p => getNutritionScore(p.combinedNutritionGrade || ''));
+    const averageNutrition = nutritionScores.length > 0 
+      ? nutritionScores.reduce((a, b) => a + b, 0) / nutritionScores.length 
+      : 2;
+
+    // Sustainability statistics
+    const sustainabilityScores = allBrandProducts.map(p => getSustainabilityScore(p));
+    const averageSustainability = sustainabilityScores.length > 0
+      ? sustainabilityScores.reduce((a, b) => a + b, 0) / sustainabilityScores.length
+      : 3;
+
+    // Calculate overall brand score as average of all components
+    const roundedPrice = Math.round(priceScore * 10) / 10;
+    const roundedQuality = Math.round(qualityScore * 10) / 10;
+    const roundedNutrition = Math.round(averageNutrition * 10) / 10;
+    const roundedSustainability = Math.round(averageSustainability * 10) / 10;
+    
+    const overallBrandScore = Math.round(((roundedPrice + roundedQuality + roundedNutrition + roundedSustainability) / 4) * 10) / 10;
+
+    setBrandStats({
+      price: roundedPrice,
+      quality: roundedQuality,
+      nutrition: roundedNutrition,
+      sustainability: roundedSustainability,
+      overallScore: overallBrandScore,
+      productCount: allBrandProducts.length
+    });
+  }, [brandProducts, product, brandRating, brandReviewSummaries]);
+
   if (loading) {
     return <LoadingAnimation />;
   }
@@ -616,8 +661,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             setActiveTab={setActiveTab}
             product={product}
             reviewSummary={reviewSummary}
-            brandRating={brandRating}
-            brandProducts={brandProducts}
+            brandStats={brandStats}
             priceStats={priceStats}
             maxPriceProduct={sameProducts.reduce((max, p) => (!max || (p.price || 0) > (max.price || 0)) ? p : max, null)}
             minPriceProduct={sameProducts.reduce((min, p) => (!min || (p.price || 0) < (min.price || 0)) ? p : min, null)}

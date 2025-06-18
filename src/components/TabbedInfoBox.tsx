@@ -3,7 +3,6 @@ import Image from "next/image";
 import { Product } from "@/types/product";
 import { ReviewSummary } from "@/types/reviewSummary";
 import { colours } from "@/styles/colours";
-import { getReviewSummary } from "@/lib/api";
 import {
   PriceTabContent,
   QualityTabContent,
@@ -11,6 +10,16 @@ import {
   SustainabilityTabContent,
   BrandTabContent
 } from "./tabs";
+
+// Brand statistics interface
+interface BrandStats {
+  price: number;
+  quality: number;
+  nutrition: number;
+  sustainability: number;
+  overallScore: number;
+  productCount: number;
+}
 
 const TAB_ICONS: Record<string, React.ReactNode> = {
   Price: <Image src="/pound-svgrepo-com.svg" alt="Price" width={24} height={24} className="w-6 h-6" />,
@@ -25,8 +34,7 @@ interface TabbedInfoBoxProps {
   setActiveTab: (tab: string) => void;
   product: Product;
   reviewSummary: ReviewSummary;
-  brandRating?: number;
-  brandProducts?: Product[];
+  brandStats?: BrandStats | null;
   priceStats?: {
         min: number;
         max: number;
@@ -43,8 +51,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   setActiveTab,
   product,
   reviewSummary,
-  brandRating = 3,
-  brandProducts = [],
+  brandStats = null,
   priceStats = { min: 0, max: 0, q1: 0, median: 0, q3: 0 },
   maxPriceProduct = null,
   minPriceProduct = null,
@@ -54,7 +61,6 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   const [animatedBrand, setAnimatedBrand] = useState(0);
   const [animatedSustainability, setAnimatedSustainability] = useState(0);
   const [animatedNutrition, setAnimatedNutrition] = useState(0);
-  const [brandReviewSummaries, setBrandReviewSummaries] = useState<Record<string, ReviewSummary>>({});
 
   const tabRefs = useRef([]);
   const [barStyle, setBarStyle] = useState({ left: 0, width: 0 });
@@ -78,96 +84,6 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
     return scores[grade.toLowerCase()] || 2;
   }
 
-  // Fetch review summaries for all brand products
-  useEffect(() => {
-    if (!brandProducts.length) return;
-
-    const fetchBrandReviewSummaries = async () => {
-      const summaries: Record<string, ReviewSummary> = {};
-      
-      // Include current product
-      const allBrandProducts = [...brandProducts, product];
-      
-      try {
-        await Promise.all(
-          allBrandProducts.map(async (brandProduct) => {
-            const summary = await getReviewSummary(brandProduct.id);
-            if (summary) {
-              summaries[brandProduct.id] = summary;
-            }
-          })
-        );
-        setBrandReviewSummaries(summaries);
-      } catch (error) {
-        console.error('Error fetching brand review summaries:', error);
-      }
-    };
-
-    fetchBrandReviewSummaries();
-  }, [brandProducts, product]);
-
-  // Calculate brand statistics from brandProducts
-  const calculateBrandStats = useMemo(() => {
-    if (!brandProducts.length) return null;
-
-    // Include current product in calculations
-    const allBrandProducts = [...brandProducts, product];
-
-    // Price statistics (use quartile-based scoring like the main product)
-    const prices = allBrandProducts.map(p => p.price || 0).filter(p => p > 0);
-    let priceScore = 3; // default
-    if (prices.length > 0) {
-      const sortedPrices = [...prices].sort((a, b) => a - b);
-      const q1 = sortedPrices[Math.floor(sortedPrices.length * 0.25)] || sortedPrices[0];
-      const q3 = sortedPrices[Math.floor(sortedPrices.length * 0.75)] || sortedPrices[sortedPrices.length - 1];
-      const averagePrice = prices.reduce((a, b) => a + b, 0) / prices.length;
-      
-      // Lower prices get higher scores
-      if (averagePrice <= q1) priceScore = 5;
-      else if (averagePrice >= q3) priceScore = 2;
-      else priceScore = 4 - ((averagePrice - q1) / (q3 - q1)) * 2; // Scale between 2-4
-    }
-
-    // Quality statistics (based on actual review ratings from all brand products)
-    const reviewRatings = allBrandProducts
-      .map(p => brandReviewSummaries[p.id]?.averageRating)
-      .filter(rating => rating !== undefined && rating > 0);
-    
-    let qualityScore = brandRating; // fallback to brandRating if no review data
-    if (reviewRatings.length > 0) {
-      qualityScore = reviewRatings.reduce((a, b) => a + b, 0) / reviewRatings.length;
-    }
-
-    // Nutrition statistics
-    const nutritionScores = allBrandProducts.map(p => getNutritionScore(p.combinedNutritionGrade || ''));
-    const averageNutrition = nutritionScores.length > 0 
-      ? nutritionScores.reduce((a, b) => a + b, 0) / nutritionScores.length 
-      : 2;
-
-    // Sustainability statistics
-    const sustainabilityScores = allBrandProducts.map(p => p.sustainbilityScore || 3);
-    const averageSustainability = sustainabilityScores.length > 0
-      ? sustainabilityScores.reduce((a, b) => a + b, 0) / sustainabilityScores.length
-      : 3;
-
-    // Calculate overall brand score as average of all components
-    const roundedPrice = Math.round(priceScore * 10) / 10;
-    const roundedQuality = Math.round(qualityScore * 10) / 10;
-    const roundedNutrition = Math.round(averageNutrition * 10) / 10;
-    const roundedSustainability = Math.round(averageSustainability * 10) / 10;
-    
-    const overallBrandScore = Math.round(((roundedPrice + roundedQuality + roundedNutrition + roundedSustainability) / 4) * 10) / 10;
-
-    return {
-      price: roundedPrice,
-      quality: roundedQuality,
-      nutrition: roundedNutrition,
-      sustainability: roundedSustainability,
-      overallScore: overallBrandScore,
-      productCount: allBrandProducts.length
-    };
-  }, [brandProducts, product, brandRating, brandReviewSummaries]);
-
   // Animation trigger function
   const triggerAnimation = (tab: string) => {
     if (tab === "Quality") {
@@ -175,7 +91,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
       setTimeout(() => setAnimatedQuality(reviewSummary?.averageRating || 0), 50);
     } else if (tab === "Brand") {
       setAnimatedBrand(0);
-      setTimeout(() => setAnimatedBrand(calculateBrandStats?.overallScore || brandRating), 50);
+      setTimeout(() => setAnimatedBrand(brandStats?.overallScore || 3), 50);
     } else if (tab === "Sustainability") {
       setAnimatedSustainability(0);
       // Use the same logic as in the main page
@@ -235,7 +151,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
         setBoxHeight(newHeight + 40); // Add tab height
       });
     }
-  }, [activeTab, product, reviewSummary, showMinProduct, showMaxProduct, isCollapsed, calculateBrandStats]);
+  }, [activeTab, product, reviewSummary, showMinProduct, showMaxProduct, isCollapsed, brandStats]);
 
   useEffect(() => {
     if (!isCollapsed && activeTab !== "") {
@@ -386,7 +302,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
             <BrandTabContent
               product={product}
               animatedBrand={animatedBrand}
-              calculateBrandStats={calculateBrandStats}
+              calculateBrandStats={brandStats}
             />
           )}
         </div>
