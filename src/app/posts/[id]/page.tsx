@@ -590,15 +590,22 @@ export default function PostPage() {
               </div>
             </form>
           ) : (
-            <div className="mb- p-4 rounded-lg text-center" style={{ backgroundColor: colours.background.secondary }}>
-              <p className="mb-2" style={{ color: colours.text.secondary }}>Sign in to join the conversation</p>
-              <Link
-                href="/auth"
-                className="font-medium"
-                style={{ color: colours.text.link }}
-              >
-                Sign In
-              </Link>
+            <div 
+              className="mb- p-4 rounded-lg text-center mb-4" 
+              style={{ 
+                backgroundColor: colours.card.background,
+                border: `2px dotted ${colours.button.primary.border}80`,
+              }}>
+              <p className="mb-2" style={{ color: colours.text.secondary }}>
+                <Link
+                  href="/auth"
+                  className="font-medium underline"
+                  style={{ color: colours.text.link }}
+                >
+                  Sign in
+                </Link>
+                {' '}to join the conversation
+              </p>
             </div>
           )}
 

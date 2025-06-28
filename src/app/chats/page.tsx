@@ -447,9 +447,10 @@ export default function PostsPage() {
             </p>
             <Link
               href="/auth"
-              className="inline-flex items-center px-4 py-2 sm:px-6 sm:py-2 rounded-lg transition-colors font-medium text-sm sm:text-base"
+              className="inline-flex items-center px-4 py-2 sm:px-6 sm:py-2 rounded-xl transition-colors font-medium text-sm sm:text-base"
               style={{
                 backgroundColor: colours.button.primary.background,
+                border: `2px solid ${colours.button.primary.border}`,
                 color: colours.button.primary.text
               }}
             >
