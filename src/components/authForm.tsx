@@ -155,16 +155,11 @@ export default function AuthForm({
         
         <button
           type="submit"
-          className="w-full font-semibold py-3 px-4 rounded-lg transition-all"
+          className="w-full rounded-xl shadow-xl font-semibold py-3 px-4 rounded-lg transition-all"
           style={{
             backgroundColor: colours.button.primary.background,
+            border: `2px solid ${colours.button.primary.border}`,
             color: colours.button.primary.text
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = colours.button.primary.hover.background;
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = colours.button.primary.background;
           }}
         >
           {mode === 'signup' ? 'Sign Up' : 'Log In'}
