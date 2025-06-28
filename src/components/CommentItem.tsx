@@ -1,12 +1,12 @@
 "use client";
 
-import { Reply, Clock, ExternalLink } from 'lucide-react';
-import Image from 'next/image';
+import { Reply, Clock } from 'lucide-react';
 import { Comment } from '@/types/post';
 import { formatDate } from '@/utils/dateUtils';
 import { colours } from '@/styles/colours';
 import LikeButton from './LikeButton';
 import DislikeButton from './DislikeButton';
+import LinkedProductCard from './LinkedProductCard';
 
 interface CommentItemProps {
   comment: Comment;
@@ -88,31 +88,7 @@ export default function CommentItem({
 
         {/* Linked Product */}
         {comment.linkedProduct && (
-          <div className="mb-3">
-            <div className="flex items-center gap-2 p-2 rounded" style={{ backgroundColor: colours.tag.default.background, border: `1px solid ${colours.tag.default.border}` }}>
-              <Image
-                src={comment.linkedProduct.imageUrl}
-                alt={comment.linkedProduct.name}
-                width={32}
-                height={32}
-                className="object-cover rounded"
-              />
-              <div className="flex-1">
-                <p className="text-xs font-medium" style={{ color: colours.tag.default.text }}>
-                  {comment.linkedProduct.name}
-                </p>
-              </div>
-              <a
-                href={`/product/${comment.linkedProduct.id}`}
-                className="hover:opacity-70"
-                style={{ color: colours.text.link }}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <ExternalLink size={12} />
-              </a>
-            </div>
-          </div>
+          <LinkedProductCard product={comment.linkedProduct} />
         )}
 
         {/* Actions */}

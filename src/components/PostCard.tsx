@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from 'react';
-import { MessageCircle, Tag, ExternalLink, Clock } from 'lucide-react';
+import { MessageCircle, Tag, Clock } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Post } from '@/types/post';
 import { formatDate } from '@/utils/dateUtils';
 import { colours } from '@/styles/colours';
 import LikeButton from './LikeButton';
 import DislikeButton from './DislikeButton';
+import LinkedProductCard from './LinkedProductCard';
 
 interface PostCardProps {
   post: Post;
@@ -93,28 +93,12 @@ export default function PostCard({
 
       {/* Linked Product */}
       {post.linkedProduct && (
-        <div className="mb-3 sm:mb-4">
-          <div className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: colours.tag.default.background, border: `1px solid ${colours.tag.default.border}` }}>
-            <Image
-              src={post.linkedProduct.imageUrl}
-              alt={post.linkedProduct.name}
-              width={48}
-              height={48}
-              className="object-cover rounded"
-            />
-            <div className="flex-1">
-              <p className="font-medium text-sm" style={{ color: colours.tag.default.text }}>{post.linkedProduct.name}</p>
-              <p className="text-xs" style={{ color: colours.text.secondary }}>Referenced Product</p>
-            </div>
-            <Link
-              href={`/product/${post.linkedProduct.id}`}
-              className="hover:opacity-70"
-              style={{ color: colours.text.link }}
-            >
-              <ExternalLink size={16} />
-            </Link>
-          </div>
-        </div>
+        <LinkedProductCard 
+          product={post.linkedProduct} 
+          size="md" 
+          showLabel={true} 
+          className="sm:mb-4"
+        />
       )}
 
       {/* Content */}
