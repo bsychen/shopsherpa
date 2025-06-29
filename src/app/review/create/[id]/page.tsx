@@ -266,10 +266,11 @@ export default function ReviewPage() {
           )}
           <button
             type="submit"
-            className="w-full font-semibold py-3 px-4 rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed opacity-0 animate-fade-in"
+            className="w-full font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed opacity-0 animate-fade-in"
             style={{
-              backgroundColor: colours.button.success.background,
+              backgroundColor: colours.button.primary.background,
               color: colours.button.primary.text,
+              border: `2px solid ${colours.button.primary.border}`,
               animationDelay: '0.6s'
             }}
             disabled={submitting || rating === 0}
