@@ -404,6 +404,7 @@ export default function PostsPage() {
                   className="px-6 py-2 rounded-lg transition-colors font-medium"
                   style={{
                     backgroundColor: colours.button.primary.background,
+                    border: `2px solid ${colours.button.primary.border}`,
                     color: colours.button.primary.text
                   }}
                   >

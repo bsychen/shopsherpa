@@ -390,7 +390,6 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
                     type="text"
                     value={customTag}
                     onChange={(e) => setCustomTag(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomTag())}
                     className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2"
                     style={{
                       backgroundColor: colours.input.background,
@@ -414,14 +413,8 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
                     className="px-4 py-2 rounded-lg"
                     style={{
                       backgroundColor: colours.button.secondary.background,
+                      border: `2px solid ${colours.button.primary.border}`,
                       color: colours.button.secondary.text
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!customTag.trim() || selectedTags.length >= 5) return;
-                      e.currentTarget.style.backgroundColor = colours.button.secondary.hover.background;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = colours.button.secondary.background;
                     }}
                     disabled={!customTag.trim() || selectedTags.length >= 5}
                   >
