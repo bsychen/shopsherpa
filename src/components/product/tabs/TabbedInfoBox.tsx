@@ -9,7 +9,7 @@ import {
   NutritionTabContent,
   SustainabilityTabContent,
   BrandTabContent
-} from "./tabs";
+} from ".";
 
 // Brand statistics interface
 interface BrandStats {

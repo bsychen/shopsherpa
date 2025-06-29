@@ -8,7 +8,7 @@ import { useRouter, useParams } from "next/navigation";
 import { getProduct, createReview as _createReview } from "@/lib/api";
 import { Product } from "@/types/product";
 import { colours } from "@/styles/colours";
-import ContentBox from "@/components/ContentBox";
+import ContentBox from "@/components/community/ContentBox";
 import LoadingAnimation from "@/components/LoadingSpinner";
 import StarIcon from "@/components/Icons";
 import { useTopBar } from "@/contexts/TopBarContext";

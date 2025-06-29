@@ -9,10 +9,10 @@ import { auth } from "@/lib/firebaseClient";
 import { searchProducts } from "@/lib/api";
 import { colours } from "@/styles/colours";
 import { ProductSearchResult } from "@/types/product";
-import RecentlyViewedProducts from "@/components/RecentlyViewedProducts";
-import ContentBox from "@/components/ContentBox";
+import RecentlyViewedProducts from "@/components/search/RecentlyViewedProducts";
+import ContentBox from "@/components/community/ContentBox";
 import LoadingAnimation from "@/components/LoadingSpinner";
-import SearchButton from "@/components/SearchButton";
+import SearchButton from "@/components/search/SearchButton";
 import { useTopBar } from "@/contexts/TopBarContext";
 
 // Debounce hook

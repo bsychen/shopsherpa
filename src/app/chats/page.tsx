@@ -6,11 +6,11 @@ import { collection, query, onSnapshot, orderBy, limit, doc, addDoc, serverTimes
 import { auth, db } from "@/lib/firebaseClient";
 import Link from "next/link";
 import { Post } from "@/types/post";
-import PostCard from "@/components/PostCard";
-import PostFilters from "@/components/PostFilters";
-import CreatePostModal from "@/components/CreatePostModal";
-import CreateButton from "@/components/CreateButton";
-import ContentBox from "@/components/ContentBox";
+import PostCard from "@/components/community/PostCard";
+import PostFilters from "@/components/community/PostFilters";
+import CreatePostModal from "@/components/community/CreatePostModal";
+import CreateButton from "@/components/buttons/CreateButton";
+import ContentBox from "@/components/community/ContentBox";
 import { colours } from "@/styles/colours";
 import { useTopBar } from "@/contexts/TopBarContext";
 

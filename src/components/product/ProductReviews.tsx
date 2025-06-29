@@ -4,10 +4,10 @@ import { Review } from "@/types/review"
 import Link from "next/link"
 import { colours } from "@/styles/colours"
 import { UserProfile } from "@/types/user"
-import StarIcon from "./Icons"
-import ContentBox from "./ContentBox"
-import CreateReviewButton from "./CreateReviewButton"
-import SortButtonGroup from "./SortButtonGroup"
+import StarIcon from "../Icons"
+import ContentBox from "../community/ContentBox"
+import CreateReviewButton from "../buttons/CreateReviewButton"
+import SortButtonGroup from "../buttons/sort/SortButtonGroup"
 
 interface ProductReviewsProps {
   reviews: Review[]

@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/types/product";
 import { ReviewSummary } from "@/types/reviewSummary";
-import PriceSpectrum from "../PriceSpectrum";
+import PriceSpectrum from "./PriceSpectrum";
 import { colours } from "@/styles/colours";
 
 interface PriceTabContentProps {

@@ -1,7 +1,7 @@
 "use client";
 
 import { colours } from "@/styles/colours";
-import { Warn } from "./Icons";
+import { Warn } from "../../Icons";
 
 interface AllergenWarningIconProps {
   hasAllergens: boolean;

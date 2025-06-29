@@ -4,9 +4,9 @@ import { Reply, Clock } from 'lucide-react';
 import { Comment } from '@/types/post';
 import { formatDate } from '@/utils/dateUtils';
 import { colours } from '@/styles/colours';
-import LikeButton from './LikeButton';
-import DislikeButton from './DislikeButton';
-import LinkedProductCard from './LinkedProductCard';
+import LikeButton from '../buttons/LikeButton';
+import DislikeButton from '../buttons/DislikeButton';
+import LinkedProductCard from '../cards/LinkedProductCard';
 
 interface CommentItemProps {
   comment: Comment;

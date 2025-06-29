@@ -11,12 +11,12 @@ import { Product } from "@/types/product";
 import { getReview, getProduct, getUserById, updateReview as _updateReview } from "@/lib/api";
 import { colours } from "@/styles/colours";
 import LoadingAnimation from "@/components/LoadingSpinner";
-import ContentBox from "@/components/ContentBox";
+import ContentBox from "@/components/community/ContentBox";
 import StarIcon from "@/components/Icons";
 import { useTopBar } from "@/contexts/TopBarContext";
 import Image from "next/image";
-import EditButton from "@/components/EditButton";
-import DeleteButton from "@/components/DeleteButton";
+import EditButton from "@/components/buttons/EditButton";
+import DeleteButton from "@/components/buttons/DeleteButton";
 
 export default function ReviewPage() {
   const params = useParams();

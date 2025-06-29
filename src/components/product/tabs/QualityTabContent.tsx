@@ -1,7 +1,7 @@
 import React from "react";
 import { ReviewSummary } from "@/types/reviewSummary";
 import { colours } from "@/styles/colours";
-import StarIcon from "../Icons";
+import StarIcon from "../../Icons";
 
 interface QualityTabContentProps {
   reviewSummary: ReviewSummary;

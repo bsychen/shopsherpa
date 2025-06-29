@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '@/lib/firebaseClient';
 import { createUserInFirestore } from '@/lib/api';
-import ContentBox from '@/components/ContentBox';
+import ContentBox from '@/components/community/ContentBox';
 import { colours } from '@/styles/colours';
 
 export default function AuthForm({

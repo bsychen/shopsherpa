@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { X, Search, Tag, Package } from 'lucide-react';
 import { Product } from '@/types/product';
-import ContentBox from '@/components/ContentBox';
+import ContentBox from '@/components/community/ContentBox';
 import { colours } from '@/styles/colours';
 
 interface CreatePostModalProps {

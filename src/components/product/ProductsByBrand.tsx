@@ -2,15 +2,16 @@
 
 import { Product } from "@/types/product"
 import { colours } from "@/styles/colours"
-import ProductCard from "./ProductCard"
-import ContentBox from "./ContentBox"
+import ProductCard from "../cards/ProductCard"
+import ContentBox from "../community/ContentBox"
 
-interface SimilarProductsProps {
+interface ProductsByBrandProps {
   products: Product[]
+  brandName: string
   currentProductId: string
 }
 
-export default function SimilarProducts({ products }: SimilarProductsProps) {
+export default function ProductsByBrand({ products, brandName }: ProductsByBrandProps) {
   return (
     <div className="w-full max-w-xl flex flex-col items-start mb-2">
       <ContentBox variant="secondary" noPadding noMargin className="border mb-2">
@@ -19,7 +20,7 @@ export default function SimilarProducts({ products }: SimilarProductsProps) {
             className="text-lg font-semibold mb-3 px-1"
             style={{ color: colours.text.primary }}
           >
-            Similar Products
+            More by {brandName}
           </h2>
           <div className="w-full overflow-x-auto pb-4 hide-scrollbar scroll-smooth">
             <div 
@@ -38,7 +39,7 @@ export default function SimilarProducts({ products }: SimilarProductsProps) {
                   className="w-full text-center text-sm py-4"
                   style={{ color: colours.text.secondary }}
                 >
-                  No similar products found
+                  No other products from this brand
                 </div>
               )}
             </div>

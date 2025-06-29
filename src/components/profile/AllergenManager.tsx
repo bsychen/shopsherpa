@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { UserProfile } from '@/types/user';
-import EditButton from './EditButton';
+import EditButton from '../buttons/EditButton';
 import { 
   getAllergenInfo, 
   formatAllergenDisplay,

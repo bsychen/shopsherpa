@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { colours } from "@/styles/colours";
-import { Warn } from "./Icons";
+import { Warn } from "../../Icons";
 import { getAllergenInfo, getAllergenTagClasses, getAllergenTagStyles, formatAllergenDisplay } from "@/utils/allergens";
 
 interface AllergenWarningProps {

@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { colours } from '@/styles/colours';
+import Link from 'next/link';
 
 interface LinkedProduct {
   id: string;
@@ -30,7 +31,7 @@ export default function LinkedProductCard({
   
   return (
     <div className={`mb-3 ${className}`}>
-      <a
+      <Link
         href={`/product/${product.id}`}
         className={`flex items-center gap-${size === 'sm' ? '2' : '3'} ${padding} rounded hover:opacity-80 transition-opacity cursor-pointer`}
         style={{ backgroundColor: colours.tag.default.background, border: `1px solid ${colours.tag.default.border}` }}
@@ -52,7 +53,7 @@ export default function LinkedProductCard({
             </p>
           )}
         </div>
-      </a>
+      </Link>
     </div>
   );
 }

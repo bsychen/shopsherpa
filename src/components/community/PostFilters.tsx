@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { Search, X, Tag } from 'lucide-react';
 import { Tag as TagType } from '@/types/post';
 import { colours } from '@/styles/colours';
-import TagSortButtonGroup from './TagSortButtonGroup';
-import FilterToggleButton from './FilterToggleButton';
+import TagSortButtonGroup from '../buttons/sort/TagSortButtonGroup';
+import FilterToggleButton from '../buttons/sort/FilterToggleButton';
 
 interface PostFiltersProps {
   selectedTags: string[];

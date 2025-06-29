@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import AuthForm from '@/components/authForm';
+import AuthForm from '@/components/profile/authForm';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebaseClient';
 import { colours } from '@/styles/colours';

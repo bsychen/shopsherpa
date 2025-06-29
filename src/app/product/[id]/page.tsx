@@ -10,14 +10,14 @@ import { auth, db } from "@/lib/firebaseClient"
 import { collection, query, where, onSnapshot, orderBy as _orderBy } from "firebase/firestore"
 import { useRouter } from "next/navigation"
 import { useTopBar } from "@/contexts/TopBarContext"
-import TabbedInfoBox from "@/components/TabbedInfoBox"
+import TabbedInfoBox from "@/components/product/tabs/TabbedInfoBox"
 import LoadingAnimation from "@/components/LoadingSpinner";
-import SimilarProducts from "@/components/SimilarProducts";
-import ProductsByBrand from "@/components/ProductsByBrand";
-import ProductReviews from "@/components/ProductReviews";
-import AllergenWarning from "@/components/AllergenWarning";
-import AllergenWarningIcon from "@/components/AllergenWarningIcon";
-import ContentBox from "@/components/ContentBox";
+import SimilarProducts from "@/components/product/SimilarProducts";
+import ProductsByBrand from "@/components/product/ProductsByBrand";
+import ProductReviews from "@/components/product/ProductReviews";
+import AllergenWarning from "@/components/product/allergens/AllergenWarning";
+import AllergenWarningIcon from "@/components/product/allergens/AllergenWarningIcon";
+import ContentBox from "@/components/community/ContentBox";
 import { UserProfile } from "@/types/user";
 import { colours } from "@/styles/colours";
 import { 
@@ -34,7 +34,7 @@ import {
 } from "@/utils/countries";
 
 // Lazy load heavy components
-const ProductRadarChart = lazy(() => import("@/components/ProductRadarChart"));
+const ProductRadarChart = lazy(() => import("@/components/product/ProductRadarChart"));
 
 // Brand statistics interface
 interface BrandStats {
