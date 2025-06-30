@@ -22,12 +22,12 @@ export default function PostsPage() {
   const [creatingPost, setCreatingPost] = useState(false);
   const { setNavigating } = useTopBar();
   
-  // Filter states
+  /* Filter states */
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Real-time states
+  /* Real-time states */
   const [_isRealTimeActive, setIsRealTimeActive] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [newlyAddedPosts, setNewlyAddedPosts] = useState<Set<string>>(new Set());
@@ -39,7 +39,7 @@ export default function PostsPage() {
     return () => unsubscribe();
   }, []);
 
-  // Monitor online/offline status
+  /* Monitor online/offline status */
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -74,14 +74,14 @@ export default function PostsPage() {
       console.error('Error fetching posts:', error);
     } finally {
       setLoading(false);
-      setNavigating(false); // Clear navigation loading state
+      setNavigating(false); /* Clear navigation loading state */
     }
   }, [selectedTags, sortBy, searchTerm, setNavigating]);
 
-  // Set up real-time listener for posts
+  /* Set up real-time listener for posts */
   useEffect(() => {
     if (!isOnline) {
-      // If offline, fallback to API call
+      /* If offline, fallback to API call */
       fetchPosts();
       return;
     }
@@ -93,21 +93,21 @@ export default function PostsPage() {
         const postsRef = collection(db, 'posts');
         let postsQuery;
 
-        // Build query based on filters
+        /* Build query based on filters */
         if (selectedTags.length > 0) {
-          // If we have tag filters, we need to handle them specially
-          // For now, fallback to API for complex filters
+          /* If we have tag filters, we need to handle them specially */
+          /* For now, fallback to API for complex filters */
           fetchPosts();
           return;
         }
 
         if (searchTerm) {
-          // If we have search term, fallback to API
+          /* If we have search term, fallback to API */
           fetchPosts();
           return;
         }
 
-        // Simple query for real-time updates (no complex filters)
+        /* Simple query for real-time updates (no complex filters) */
         if (sortBy === 'recent') {
           postsQuery = query(
             postsRef,
@@ -115,7 +115,7 @@ export default function PostsPage() {
             limit(20)
           );
         } else {
-          // For 'popular' sort, fallback to API as it requires complex logic
+          /* For 'popular' sort, fallback to API as it requires complex logic */
           fetchPosts();
           return;
         }
@@ -127,7 +127,7 @@ export default function PostsPage() {
               const data = docSnapshot.data();
               let linkedProduct = null;
 
-              // Fetch linked product details if exists
+              /* Fetch linked product details if exists */
               if (data.linkedProductId) {
                 try {
                   const response = await fetch(`/api/products/${data.linkedProductId}`);
@@ -162,12 +162,12 @@ export default function PostsPage() {
             })
           );
 
-          // Filter out optimistic updates and merge with real data
+          /* Filter out optimistic updates and merge with real data */
           setPosts(prevPosts => {
             const tempPosts = prevPosts.filter(p => p.id.startsWith('temp-'));
             const realPosts = postsData;
             
-            // Detect new posts for animation
+            /* Detect new posts for animation */
             const prevPostIds = new Set(prevPosts.map(p => p.id));
             const newPostIds = realPosts
               .filter(p => !prevPostIds.has(p.id) && !p.id.startsWith('temp-'))
@@ -175,14 +175,14 @@ export default function PostsPage() {
             
             if (newPostIds.length > 0) {
               setNewlyAddedPosts(prev => new Set([...prev, ...newPostIds]));
-              // Remove animation class after animation duration
+              /* Remove animation class after animation duration */
               setTimeout(() => {
                 setNewlyAddedPosts(prev => {
                   const updated = new Set(prev);
                   newPostIds.forEach(id => updated.delete(id));
                   return updated;
                 });
-              }, 1000); // Remove animation after 1 second
+              }, 1000); /* Remove animation after 1 second */
             }
             
             return [...realPosts, ...tempPosts];
@@ -192,7 +192,7 @@ export default function PostsPage() {
         }, (error) => {
           console.error('Error in posts listener:', error);
           setIsRealTimeActive(false);
-          // Fallback to API call if real-time fails
+          /* Fallback to API call if real-time fails */
           fetchPosts();
         });
 
@@ -222,7 +222,7 @@ export default function PostsPage() {
 
     setCreatingPost(true);
     
-    // Create optimistic post
+    /* Create optimistic post */
     const optimisticPost: Post = {
       id: `temp-${Date.now()}`,
       title: postData.title,
@@ -231,7 +231,7 @@ export default function PostsPage() {
       authorName: user.displayName || user.email || 'Anonymous',
       tags: postData.tags,
       linkedProductId: postData.linkedProductId,
-      linkedProduct: undefined, // Will be fetched if needed
+      linkedProduct: undefined, /* Will be fetched if needed */
       likes: [],
       dislikes: [],
       commentCount: 0,
@@ -239,12 +239,12 @@ export default function PostsPage() {
       updatedAt: new Date().toISOString(),
     };
 
-    // Add optimistic post to UI
+    /* Add optimistic post to UI */
     setPosts(prev => [optimisticPost, ...prev]);
     setShowCreateModal(false);
 
     try {
-      // Add post to Firestore
+      /* Add post to Firestore */
       const postDoc = {
         title: postData.title,
         content: postData.content,
@@ -263,9 +263,9 @@ export default function PostsPage() {
 
     } catch (error) {
       console.error('Error creating post:', error);
-      // Remove optimistic post on error
+      /* Remove optimistic post on error */
       setPosts(prev => prev.filter(p => p.id !== optimisticPost.id));
-      setShowCreateModal(true); // Reopen modal on error
+      setShowCreateModal(true); /* Reopen modal on error */
     } finally {
       setCreatingPost(false);
     }

@@ -11,7 +11,7 @@ import {
   BrandTabContent
 } from ".";
 
-// Brand statistics interface
+/* Brand statistics interface */
 interface BrandStats {
   price: number;
   quality: number;
@@ -69,10 +69,10 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   const [showMinProduct, setShowMinProduct] = useState(false);
   const [showMaxProduct, setShowMaxProduct] = useState(false);
   
-  // Derived state: collapsed when activeTab is empty
+  /* Derived state: collapsed when activeTab is empty */
   const isCollapsed = activeTab === "";
 
-  // Convert nutrition grade to score (A=5, B=4, C=3, D=2, E=1, unknown=2)
+  /* Convert nutrition grade to score (A=5, B=4, C=3, D=2, E=1, unknown=2) */
   function getNutritionScore(grade: string): number {
     const scores: Record<string, number> = {
       'a': 5,
@@ -84,7 +84,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
     return scores[grade.toLowerCase()] || 2;
   }
 
-  // Animation trigger function
+  /* Animation trigger function */
   const triggerAnimation = (tab: string) => {
     if (tab === "Quality") {
       setAnimatedQuality(0);
@@ -94,7 +94,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
       setTimeout(() => setAnimatedBrand(brandStats?.overallScore || 3), 50);
     } else if (tab === "Sustainability") {
       setAnimatedSustainability(0);
-      // Use the same logic as in the main page
+      /* Use the same logic as in the main page */
       let sustainabilityScore = 3;
       if (product?.ecoInformation?.ecoscoreScore !== undefined) {
         sustainabilityScore = Math.max(1, Math.min(5, Math.round((product.ecoInformation.ecoscoreScore / 100) * 5)));
@@ -113,7 +113,7 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
     }
   };
 
-  // Update sliding bar position/width on tab change or window resize
+  /* Update sliding bar position/width on tab change or window resize */
   useEffect(() => {
     const updateBar = () => {
       if (activeTab === "") {
@@ -137,18 +137,18 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
     return () => window.removeEventListener("resize", updateBar);
   }, [activeTab, tabs]);
 
-  // Update box height on content change
+  /* Update box height on content change */
   useEffect(() => {
     if (isCollapsed) {
-      // When collapsed, only show the tabs height (no margin below)
-      setBoxHeight(28); // Just the tab height without bottom margin
+      /* When collapsed, only show the tabs height (no margin below) */
+      setBoxHeight(28); /* Just the tab height without bottom margin */
     } else if (contentRef.current) {
-      // When expanded, calculate content height
+      /* When expanded, calculate content height */
       const newHeight = contentRef.current.scrollHeight;
       
-      // Use requestAnimationFrame to ensure smooth height transition
+      /* Use requestAnimationFrame to ensure smooth height transition */
       requestAnimationFrame(() => {
-        setBoxHeight(newHeight + 40); // Add tab height
+        setBoxHeight(newHeight + 40); /* Add tab height */
       });
     }
   }, [activeTab, product, reviewSummary, showMinProduct, showMaxProduct, isCollapsed, brandStats]);
@@ -157,29 +157,29 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
     if (!isCollapsed && activeTab !== "") {
       triggerAnimation(activeTab);
     }
-    // eslint-disable-next-line
+    /* eslint-disable-next-line */
   }, [activeTab, reviewSummary]);
 
-  // Trigger animation when activeTab changes externally (e.g., from radar chart)
+  /* Trigger animation when activeTab changes externally (e.g., from radar chart) */
   useEffect(() => {
     if (activeTab !== "") {
       triggerAnimation(activeTab);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [activeTab]);
 
-  // Get category background color based on active tab
+  /* Get category background color based on active tab */
   const getCategoryBackground = () => {
     if (isCollapsed || !activeTab) {
       return colours.content.surfaceSecondary;
     }
     
     const categoryMap: Record<string, string> = {
-      'Price': '#fef3c7', // yellow-100
-      'Quality': '#fee2e2', // red-100  
-      'Nutrition': '#dbeafe', // blue-100
-      'Sustainability': '#ecfccb', // lime-100
-      'Brand': '#f3e8ff', // purple-100
+      'Price': '#fef3c7', /* yellow-100 */
+      'Quality': '#fee2e2', /* red-100   */
+      'Nutrition': '#dbeafe', /* blue-100 */
+      'Sustainability': '#ecfccb', /* lime-100 */
+      'Brand': '#f3e8ff', /* purple-100 */
     };
     
     return categoryMap[activeTab] || colours.content.surfaceSecondary;
@@ -225,10 +225,10 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
             }}
             onClick={() => {
               if (activeTab === tab && !isCollapsed) {
-                // If clicking the active tab while expanded, collapse by clearing activeTab
+                /* If clicking the active tab while expanded, collapse by clearing activeTab */
                 setActiveTab("");
               } else {
-                // If clicking a different tab or expanding from collapsed state
+                /* If clicking a different tab or expanding from collapsed state */
                 setActiveTab(tab);
                 triggerAnimation(tab);
               }

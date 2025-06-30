@@ -18,14 +18,14 @@ export async function GET(
     const data = docSnap.data();
     let linkedProduct = null;
 
-    // Fetch linked product details if exists
+    /* Fetch linked product details if exists */
     if (data?.linkedProductId) {
       try {
         const productDoc = await db.collection('products').doc(data.linkedProductId).get();
         if (productDoc.exists) {
           const productData = productDoc.data();
           linkedProduct = {
-            id: data.linkedProductId, // Use the document ID instead of productData.id
+            id: data.linkedProductId, /* Use the document ID instead of productData.id */
             name: productData?.productName,
             imageUrl: productData?.imageUrl,
           };
@@ -67,13 +67,13 @@ export async function PATCH(
       case 'like':
         await postRef.update({
           likes: FieldValue.arrayUnion(userId),
-          dislikes: FieldValue.arrayRemove(userId), // Remove from dislikes if present
+          dislikes: FieldValue.arrayRemove(userId), /* Remove from dislikes if present */
         });
         break;
       case 'dislike':
         await postRef.update({
           dislikes: FieldValue.arrayUnion(userId),
-          likes: FieldValue.arrayRemove(userId), // Remove from likes if present
+          likes: FieldValue.arrayRemove(userId), /* Remove from likes if present */
         });
         break;
       case 'unlike':

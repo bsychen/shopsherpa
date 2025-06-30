@@ -27,7 +27,7 @@ const RecentlyViewedProducts = ({ userId }: { userId: string }) => {
         fetchRecentlyViewedProducts();
     }, [userId]);
 
-    // Remove loading spinner and always render the list, but apply blur/opacity when loading
+    /* Remove loading spinner and always render the list, but apply blur/opacity when loading */
     if (!products.length && !loading) return <div style={{ color: colours.text.muted }}>No recently viewed products.</div>;
 
     const sortedProducts = [...products];

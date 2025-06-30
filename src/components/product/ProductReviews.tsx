@@ -92,7 +92,7 @@ export default function ProductReviews({
           <>
             <ul className="space-y-4">
               {refreshing ? (
-                // Show skeleton loading cards
+                /* Show skeleton loading cards */
                 Array.from({ length: Math.min(3, visibleReviews) }).map((_, idx) => (
                   <li key={`skeleton-${idx}`}>
                     <div 
@@ -179,15 +179,15 @@ export default function ProductReviews({
                   onClick={() => { setVisibleReviews(sortedReviews.length); setSeeMoreClicked(true) }}
                   className="px-4 py-2 rounded-xl shadow border-2 border-black transition-all duration-200 font-medium"
                   style={{ 
-                    backgroundColor: '#f1f5f9', // slate-100
+                    backgroundColor: '#f1f5f9', /* slate-100 */
                     boxShadow: "0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06)",
                     color: '#1f2937'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#e2e8f0' // slate-200
+                    e.currentTarget.style.backgroundColor = '#e2e8f0' /* slate-200 */
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#f1f5f9' // slate-100
+                    e.currentTarget.style.backgroundColor = '#f1f5f9' /* slate-100 */
                   }}
                 >
                   See more

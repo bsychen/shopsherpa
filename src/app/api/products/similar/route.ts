@@ -12,14 +12,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Categories tags parameter is required" }, { status: 400 });
     }
 
-    // Parse the categories tags from comma-separated string
+    /* Parse the categories tags from comma-separated string */
     const tagsArray = categoriesTags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
     
     if (tagsArray.length === 0) {
       return NextResponse.json([]);
     }
 
-    // Get all products that have at least one matching category tag
+    /* Get all products that have at least one matching category tag */
     const productsSnapshot = await db
       .collection("products")
       .where("categoriesTags", "array-contains-any", tagsArray)
@@ -30,16 +30,16 @@ export async function GET(req: NextRequest) {
     productsSnapshot.forEach(doc => {
       const productData = doc.data() as Product;
       
-      // Skip the current product
+      /* Skip the current product */
       if (doc.id === currentProductId) {
         return;
       }
       
-      // Calculate how many tags match
+      /* Calculate how many tags match */
       const productTags = productData.categoriesTags || [];
       const matchCount = tagsArray.filter(tag => productTags.includes(tag)).length;
       
-      // Only include products with at least one matching tag
+      /* Only include products with at least one matching tag */
       if (matchCount > 0) {
         products.push({
           id: doc.id,
@@ -49,11 +49,11 @@ export async function GET(req: NextRequest) {
       }
     });
 
-    // Sort by match count (descending) and limit to 10
+    /* Sort by match count (descending) and limit to 10 */
     const sortedProducts = products
       .sort((a, b) => b.matchCount - a.matchCount)
       .slice(0, 10)
-      .map(({ matchCount, ...product }) => product); // Remove matchCount from final result
+      .map(({ matchCount, ...product }) => product); /* Remove matchCount from final result */
 
     return NextResponse.json(sortedProducts);
   } catch (error) {

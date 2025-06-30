@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Product } from '@/types/product';
 import { colours } from '@/styles/colours';
 
-// Helper function to get color based on position
+/* Helper function to get color based on position */
 const getPositionColor = (price: number, q1: number, q3: number) => {
   if (price <= q1) {
     return {
-      bg: `${colours.status.success.border}80`, // Green with transparency
+      bg: `${colours.status.success.border}80`, /* Green with transparency */
       border: colours.status.success.border,
       text: colours.button.success.text
     };
@@ -55,7 +55,7 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
     }, 100); 
 
     return () => clearTimeout(timer);
-  }, [product.id]); // Re-animate when product changes
+  }, [product.id]); /* Re-animate when product changes */
 
   /* Calculate the statistics for the boxplot */
   const getPrice = (p: Product) => p.price || p.expectedPrice || 0;
@@ -87,16 +87,16 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
   }
 
   /* Ensure we have valid price range for scaling */
-  const minPrice = Math.max(priceStats.min, 0.01); // Avoid division by zero
+  const minPrice = Math.max(priceStats.min, 0.01); /* Avoid division by zero */
   const maxPrice = Math.max(priceStats.max, productPrice, 0.01);
 
   const scale = (price: number) => {
-    if (price === minPrice) return 5; // Align with left edge of spectrum
-    if (price === maxPrice) return 95; // Align with right edge of spectrum
+    if (price === minPrice) return 5; /* Align with left edge of spectrum */
+    if (price === maxPrice) return 95; /* Align with right edge of spectrum */
 
     /* Scale between 5% and 95% for other values */
     const range = maxPrice - minPrice;
-    if (range === 0) return 50; // If all prices are the same, center it
+    if (range === 0) return 50; /* If all prices are the same, center it */
     return 5 + ((price - minPrice) / range) * 90;
   };
 

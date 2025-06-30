@@ -36,7 +36,7 @@ export default function ReviewPage() {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
-      // No redirect for unauthenticated users
+      /* No redirect for unauthenticated users */
     });
     return () => unsub();
   }, []);
@@ -56,7 +56,7 @@ export default function ReviewPage() {
           isAnonymous: data.isAnonymous || false,
         };
         setReview(reviewData);
-        // Initialize local state with current values
+        /* Initialize local state with current values */
         setLocalRating(reviewData.rating);
         setLocalReviewText(reviewData.reviewText || "");
       } else {
@@ -71,7 +71,7 @@ export default function ReviewPage() {
     getProduct(review.productId).then((productData) => {
       setProduct(productData);
     });
-    // Fetch username from userId (unless anonymous)
+    /* Fetch username from userId (unless anonymous) */
     if (review.userId && !review.isAnonymous) {
       getUserById(review.userId).then((user) => {
         if (user && typeof user.username === "string") setUsername(user.username);
@@ -82,7 +82,7 @@ export default function ReviewPage() {
     }
   }, [review, id]);
 
-  // Set up back button in top bar
+  /* Set up back button in top bar */
   useEffect(() => {
     if (review) {
       setTopBarState({
@@ -91,19 +91,19 @@ export default function ReviewPage() {
       });
     }
 
-    // Cleanup when component unmounts
+    /* Cleanup when component unmounts */
     return () => {
       resetTopBar();
     };
   }, [setTopBarState, resetTopBar, router, review]);
 
-  // Editing functions
+  /* Editing functions */
   const handleSaveChanges = async () => {
     if (!review) return;
     
     setIsUpdating(true);
     try {
-      // Update review directly in Firestore for real-time updates
+      /* Update review directly in Firestore for real-time updates */
       const reviewRef = doc(db, 'reviews', review.id);
       const updateData: { [key: string]: number | Date | string } = {
         rating: localRating,
@@ -116,7 +116,7 @@ export default function ReviewPage() {
 
       await updateDoc(reviewRef, updateData);
       
-      // Update the local review state with new values
+      /* Update the local review state with new values */
       setReview(prev => prev ? {
         ...prev,
         rating: localRating,
@@ -127,7 +127,7 @@ export default function ReviewPage() {
     } catch (error) {
       console.error('Error updating review:', error);
       alert("Failed to update review");
-      // Reset local state on failure
+      /* Reset local state on failure */
       setLocalRating(review.rating);
       setLocalReviewText(review.reviewText || "");
     } finally {
@@ -138,7 +138,7 @@ export default function ReviewPage() {
   const handleCancelEdit = () => {
     if (!review) return;
     
-    // Reset local state to original values
+    /* Reset local state to original values */
     setLocalRating(review.rating);
     setLocalReviewText(review.reviewText || "");
     setIsEditMode(false);
@@ -286,7 +286,7 @@ export default function ReviewPage() {
                   onClick={async () => {
                     if (confirm("Are you sure you want to delete this review?")) {
                       try {
-                        // Delete review directly from Firestore for real-time updates
+                        /* Delete review directly from Firestore for real-time updates */
                         const reviewRef = doc(db, 'reviews', review.id);
                         await deleteDoc(reviewRef);
                         router.push(`/product/${review.productId}`);

@@ -44,19 +44,19 @@ export default function PostPage() {
     return () => unsubscribe();
   }, []);
 
-  // Set up back button in top bar
+  /* Set up back button in top bar */
   useEffect(() => {
     setTopBarState({
       showBackButton: true,
     });
 
-    // Cleanup when component unmounts
+    /* Cleanup when component unmounts */
     return () => {
       resetTopBar();
     };
   }, [setTopBarState, resetTopBar]);
 
-  // Monitor online/offline status
+  /* Monitor online/offline status */
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -110,12 +110,12 @@ export default function PostPage() {
     }
   }, [postId]);
 
-  // Set up real-time listener for comments
+  /* Set up real-time listener for comments */
   useEffect(() => {
     if (!postId) return;
 
     const commentsRef = collection(db, 'comments');
-    // Note: We'll sort in JavaScript to avoid composite index requirements
+    /* Note: We'll sort in JavaScript to avoid composite index requirements */
     const commentsQuery = query(
       commentsRef,
       where('postId', '==', postId)
@@ -128,7 +128,7 @@ export default function PostPage() {
           const data = docSnapshot.data();
           let linkedProduct = null;
 
-          // Fetch linked product details if exists
+          /* Fetch linked product details if exists */
           if (data.linkedProductId) {
             try {
               const response = await fetch(`/api/products/${data.linkedProductId}`);
@@ -162,26 +162,26 @@ export default function PostPage() {
         })
       );
 
-      // Sort comments by createdAt in JavaScript (newest first)
+      /* Sort comments by createdAt in JavaScript (newest first) */
       commentsData.sort((a, b) => {
         const aTime = new Date(a.createdAt).getTime();
         const bTime = new Date(b.createdAt).getTime();
-        return bTime - aTime; // Changed from aTime - bTime to bTime - aTime for newest first
+        return bTime - aTime; /* Changed from aTime - bTime to bTime - aTime for newest first */
       });
 
-      // Filter out optimistic updates and merge with real data
+      /* Filter out optimistic updates and merge with real data */
       setComments(prevComments => {
         const realComments = commentsData;
         
-        // Get all real comment contents to match against optimistic ones
+        /* Get all real comment contents to match against optimistic ones */
         const realCommentContents = new Set(realComments.map(c => c.content.trim()));
         
-        // Keep only temp comments that don't have a matching real comment yet
+        /* Keep only temp comments that don't have a matching real comment yet */
         const tempComments = prevComments.filter(c => 
           c.id.startsWith('temp-') && !realCommentContents.has(c.content.trim())
         );
         
-        // Detect new comments for animation (only real comments that weren't in previous state)
+        /* Detect new comments for animation (only real comments that weren't in previous state) */
         const prevRealCommentIds = new Set(prevComments.filter(c => !c.id.startsWith('temp-')).map(c => c.id));
         const newCommentIds = realComments
           .filter(c => !prevRealCommentIds.has(c.id))
@@ -189,14 +189,14 @@ export default function PostPage() {
         
         if (newCommentIds.length > 0) {
           setNewlyAddedComments(prev => new Set([...prev, ...newCommentIds]));
-          // Remove animation class after animation duration
+          /* Remove animation class after animation duration */
           setTimeout(() => {
             setNewlyAddedComments(prev => {
               const updated = new Set(prev);
               newCommentIds.forEach(id => updated.delete(id));
               return updated;
             });
-          }, 1000); // Remove animation after 1 second
+          }, 1000); /* Remove animation after 1 second */
         }
         
         return [...realComments, ...tempComments];
@@ -206,7 +206,7 @@ export default function PostPage() {
       console.error('Error in comments listener:', error);
       setIsRealTimeActive(false);
       setLoadingComments(false);
-      // Fallback to API call if real-time fails
+      /* Fallback to API call if real-time fails */
       fetchComments();
     });
 
@@ -236,9 +236,9 @@ export default function PostPage() {
 
     setSubmittingComment(true);
     
-    // Optimistic update - add comment immediately to UI
+    /* Optimistic update - add comment immediately to UI */
     const optimisticComment: Comment = {
-      id: `temp-${Date.now()}`, // Temporary ID
+      id: `temp-${Date.now()}`, /* Temporary ID */
       postId: postId,
       content: newComment.trim(),
       authorId: user.uid,
@@ -256,10 +256,10 @@ export default function PostPage() {
       updatedAt: new Date().toISOString(),
     };
 
-    // Add optimistic comment to UI
+    /* Add optimistic comment to UI */
     setComments(prev => [...prev, optimisticComment]);
 
-    // Clear form immediately
+    /* Clear form immediately */
     const commentText = newComment.trim();
     const linkedProduct = selectedCommentProduct;
     setNewComment("");
@@ -268,7 +268,7 @@ export default function PostPage() {
     setShowCommentProductSearch(false);
 
     try {
-      // Add comment to Firestore
+      /* Add comment to Firestore */
       const commentData = {
         postId: postId,
         content: commentText,
@@ -284,13 +284,13 @@ export default function PostPage() {
 
       await addDoc(collection(db, 'comments'), commentData);
 
-      // Update post comment count
+      /* Update post comment count */
       const postRef = doc(db, 'posts', postId);
       await updateDoc(postRef, {
         commentCount: increment(1),
       });
 
-      // Update post state locally
+      /* Update post state locally */
       if (post) {
         setPost({
           ...post,
@@ -299,9 +299,9 @@ export default function PostPage() {
       }
     } catch (error) {
       console.error('Error creating comment:', error);
-      // Remove optimistic comment on error
+      /* Remove optimistic comment on error */
       setComments(prev => prev.filter(c => c.id !== optimisticComment.id));
-      // Restore form values on error
+      /* Restore form values on error */
       setNewComment(commentText);
       setSelectedCommentProduct(linkedProduct);
     } finally {
@@ -368,7 +368,7 @@ export default function PostPage() {
       });
 
       if (response.ok) {
-        // Refresh post to get updated like/dislike counts
+        /* Refresh post to get updated like/dislike counts */
         fetchPost();
       }
     } catch (error) {

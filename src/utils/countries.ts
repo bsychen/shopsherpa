@@ -5,7 +5,7 @@ export interface CountryInfo {
   emoji: string;
 }
 
-// Country mapping: maps Open Food Facts country codes to display name and flag emoji
+/* Country mapping: maps Open Food Facts country codes to display name and flag emoji */
 export const COUNTRY_MAP: Record<string, CountryInfo> = {
   'en:france': { title: 'France', emoji: '🇫🇷' },
   'en:united-states': { title: 'United States', emoji: '🇺🇸' },
@@ -94,7 +94,6 @@ export const COUNTRY_MAP: Record<string, CountryInfo> = {
   'en:taiwan': { title: 'Taiwan', emoji: '🇹🇼' },
   'en:hong-kong': { title: 'Hong Kong', emoji: '🇭🇰' },
   'en:macau': { title: 'Macau', emoji: '🇲🇴' },
-  // Add more countries as needed
 };
 
 /**

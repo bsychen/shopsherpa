@@ -42,24 +42,24 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
   const [isAnimated, setIsAnimated] = useState(false);
   const containerRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // Trigger animation on mount
+  /* Trigger animation on mount */
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setIsAnimated(true);
-    }, 100); // Small delay to ensure component is mounted
+    }, 100); /* Small delay to ensure component is mounted */
     return () => clearTimeout(timer);
   }, []);
 
-  // Handle both mouse and touch events for cross-platform compatibility
+  /* Handle both mouse and touch events for cross-platform compatibility */
   const handlePointerDown = useCallback((prefKey: string) => (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     setIsDragging(prefKey);
     
-    // Handle immediate position update for click/touch
+    /* Handle immediate position update for click/touch */
     const container = containerRefs.current[prefKey];
     if (container) {
       const rect = container.getBoundingClientRect();
-      // Support both mouse and touch events
+      /* Support both mouse and touch events */
       const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
       const x = clientX - rect.left;
       const percentage = Math.max(0, Math.min(1, x / rect.width));
@@ -76,7 +76,7 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
     }
   }, [userProfile]);
 
-  // Handle pointer movement for both mouse and touch
+  /* Handle pointer movement for both mouse and touch */
   const handlePointerMove = useCallback((e: MouseEvent | TouchEvent) => {
     if (!isDragging) return;
 
@@ -84,16 +84,16 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
     if (!container) return;
 
     const rect = container.getBoundingClientRect();
-    // Support both mouse and touch events
+    /* Support both mouse and touch events */
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const x = clientX - rect.left;
     const percentage = Math.max(0, Math.min(1, x / rect.width));
-    const value = Math.round((percentage * 4 + 1) * 10) / 10; // 1.0 to 5.0 with 0.1 precision
+    const value = Math.round((percentage * 4 + 1) * 10) / 10; /* 1.0 to 5.0 with 0.1 precision */
     
     setLocalPreferences(prev => {
       const newPrefs = { ...prev, [isDragging]: value };
       
-      // Check if there are changes from original values
+      /* Check if there are changes from original values */
       const hasChanges = preferences.some(pref => 
         newPrefs[pref.key] !== (userProfile[pref.key] || 1)
       );
@@ -107,16 +107,16 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
     setIsDragging(null);
   }, []);
 
-  // Set up event listeners for mouse and touch events
+  /* Set up event listeners for mouse and touch events */
   React.useEffect(() => {
     if (isDragging) {
       const handleMove = (e: MouseEvent | TouchEvent) => {
-        // Prevent default to avoid scrolling on mobile during drag
+        /* Prevent default to avoid scrolling on mobile during drag */
         e.preventDefault();
         handlePointerMove(e);
       };
       
-      // Add both mouse and touch event listeners
+      /* Add both mouse and touch event listeners */
       document.addEventListener('mousemove', handleMove);
       document.addEventListener('mouseup', handlePointerEnd);
       document.addEventListener('touchmove', handleMove, { passive: false });
@@ -143,7 +143,7 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
       setHasChanges(false);
     } catch (error) {
       console.error('Failed to save preferences:', error);
-      // Reset to original values on error
+      /* Reset to original values on error */
       setLocalPreferences(() => {
         const prefs: Record<string, number> = {};
         preferences.forEach(pref => {
@@ -170,7 +170,7 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
       <div className="space-y-4">
         {preferences.map((pref, index) => {
           const value = localPreferences[pref.key];
-          const percentage = ((value - 1) / 4) * 100; // Convert 1-5 to 0-100%
+          const percentage = ((value - 1) / 4) * 100; /* Convert 1-5 to 0-100% */
           
           return (
             <div key={pref.key} className="space-y-2">
@@ -194,7 +194,7 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
                 className={`relative h-8 rounded-lg cursor-pointer transition-all touch-manipulation`}
                 style={{
                   backgroundColor: colours.background.secondary,
-                  minHeight: '44px', // iOS minimum touch target
+                  minHeight: '44px', /* iOS minimum touch target */
                   ...(isDragging === pref.key && {
                     boxShadow: `0 0 0 2px ${colours.interactive.selected.background}`,
                   })
@@ -209,7 +209,7 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
                   style={{ 
                     width: isAnimated ? `${percentage}%` : '0%',
                     backgroundColor: pref.color,
-                    transitionDelay: `${index * 150}ms` // Stagger the animations
+                    transitionDelay: `${index * 150}ms` /* Stagger the animations */
                   }}
                 >
                   <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full shadow-sm border-2 transition-all duration-300 ${
@@ -218,7 +218,7 @@ export default function PreferencesBarGraph({ userProfile, onPreferencesUpdate, 
                   style={{ 
                     backgroundColor: colours.card.background,
                     borderColor: pref.circleColor,
-                    transitionDelay: `${index * 150 + 800}ms` // Circle appears after bar fills
+                    transitionDelay: `${index * 150 + 800}ms` /* Circle appears after bar fills */
                   }} />
                 </div>
               </div>

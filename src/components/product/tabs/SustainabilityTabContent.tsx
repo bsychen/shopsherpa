@@ -22,7 +22,7 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
       <div 
         className="w-full p-3 sm:p-4 rounded-xl border-2 mb-4"
         style={{ 
-          backgroundColor: '#f1f5fb', // baby blue
+          backgroundColor: '#f1f5fb', /* baby blue */
           borderColor: colours.content.border
         }}
       >
@@ -47,17 +47,17 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
               style={{
                 borderColor: (() => {
                   const ecoscore = product.ecoInformation?.ecoscore;
-                  if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') return colours.text.muted; // Grey for missing/not-applicable/unknown
+                  if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') return colours.text.muted; /* Grey for missing/not-applicable/unknown */
                   if (ecoscore === 'e' || ecoscore === 'd') return colours.score.low;
                   if (ecoscore === 'c') return colours.score.medium;
-                  return colours.score.high; // a, b grades
+                  return colours.score.high; /* a, b grades */
                 })(),
                 backgroundColor: (() => {
                   const ecoscore = product.ecoInformation?.ecoscore;
-                  if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') return colours.text.muted + '20'; // Grey for missing/not-applicable/unknown
+                  if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') return colours.text.muted + '20'; /* Grey for missing/not-applicable/unknown */
                   if (ecoscore === 'e' || ecoscore === 'd') return colours.score.low + '20';
                   if (ecoscore === 'c') return colours.score.medium + '20';
-                  return colours.score.high + '20'; // a, b grades
+                  return colours.score.high + '20'; /* a, b grades */
                 })(),
               }}
             >
@@ -68,16 +68,16 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
                     fill="none"
                     stroke={(() => {
                       const ecoscore = product.ecoInformation?.ecoscore;
-                      if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') return colours.text.muted; // Grey for missing/not-applicable/unknown
+                      if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') return colours.text.muted; /* Grey for missing/not-applicable/unknown */
                       if (ecoscore === 'e' || ecoscore === 'd') return colours.score.low;
                       if (ecoscore === 'c') return colours.score.medium;
-                      return colours.score.high; // a, b grades
+                      return colours.score.high; /* a, b grades */
                     })()}
                     strokeWidth="3"
                     strokeDasharray={Math.PI * 2 * 18}
                     strokeDashoffset={Math.PI * 2 * 18 * (1 - (() => {
                       const ecoscore = product.ecoInformation?.ecoscore;
-                      if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') return 0; // No fill for missing/not-applicable/unknown
+                      if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') return 0; /* No fill for missing/not-applicable/unknown */
                       const gradeToScore = { 'a': 5, 'b': 4, 'c': 3, 'd': 2, 'e': 1 };
                       return (gradeToScore[ecoscore.toLowerCase()] || 0) / 5;
                     })())}
@@ -95,10 +95,10 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
                     style={{
                       color: (() => {
                         const ecoscore = product.ecoInformation?.ecoscore;
-                        if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') return colours.text.muted; // Grey for missing/not-applicable/unknown
+                        if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') return colours.text.muted; /* Grey for missing/not-applicable/unknown */
                         if (ecoscore === 'e' || ecoscore === 'd') return colours.score.low;
                         if (ecoscore === 'c') return colours.score.medium;
-                        return colours.score.high; // a, b grades
+                        return colours.score.high; /* a, b grades */
                       })()
                     }}
                   >
@@ -119,7 +119,7 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
       <div 
         className="w-full p-3 sm:p-4 rounded-xl border-2"
         style={{ 
-          backgroundColor: '#f1f5fb', // baby blue
+          backgroundColor: '#f1f5fb', /* baby blue */
           borderColor: colours.content.border
         }}
       >
@@ -142,7 +142,7 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
                     style={{ 
                       backgroundColor: '#ffffff',
                       color: colours.text.primary,
-                      borderColor: colours.content.border + 'CC' // 80% opacity
+                      borderColor: colours.content.border + 'CC' /* 80% opacity */
                     }}
                   >
                     {item.replace(/^en:/, '').replace(/-/g, ' ').replace(/_/g, ' ')}
@@ -154,7 +154,7 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
                     style={{ 
                       backgroundColor: '#ffffff',
                       color: colours.text.primary,
-                      borderColor: colours.content.border + 'CC' // 80% opacity
+                      borderColor: colours.content.border + 'CC' /* 80% opacity */
                     }}
                   >
                     +{product.ecoInformation.packagingInfo.length - 8} more

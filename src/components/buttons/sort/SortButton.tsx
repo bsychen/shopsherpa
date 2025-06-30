@@ -22,7 +22,7 @@ export default function SortButton({
   const fullClassName = `${baseClassName} ${activeRing} ${className}`.trim()
 
   const buttonStyle = {
-    backgroundColor: isActive ? '#e2e8f0' : '#f1f5f9', // slate-200 vs slate-100
+    backgroundColor: isActive ? '#e2e8f0' : '#f1f5f9', /* slate-200 vs slate-100 */
     boxShadow: "0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06)",
   }
 

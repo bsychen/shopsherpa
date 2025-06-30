@@ -24,7 +24,7 @@ const QualityTabContent: React.FC<QualityTabContentProps> = ({
       <div 
         className="w-full p-3 sm:p-4 rounded-xl border-2 mb-4"
         style={{ 
-          backgroundColor: '#f1f5fb', // baby blue
+          backgroundColor: '#f1f5fb', /* baby blue */
           borderColor: colours.content.border
         }}
       >
@@ -48,7 +48,7 @@ const QualityTabContent: React.FC<QualityTabContentProps> = ({
               className="relative w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center"
               style={{
                 borderColor: colours.score.medium,
-                backgroundColor: colours.score.medium + '20', // 20% opacity
+                backgroundColor: colours.score.medium + '20', /* 20% opacity */
               }}
             >
               <span className="relative inline-block w-12 h-12 align-middle">
@@ -86,7 +86,7 @@ const QualityTabContent: React.FC<QualityTabContentProps> = ({
       <div 
         className="w-full p-3 sm:p-4 rounded-xl border-2"
         style={{ 
-          backgroundColor: '#f1f5fb', // baby blue
+          backgroundColor: '#f1f5fb', /* baby blue */
           borderColor: colours.content.border
         }}
       >
@@ -128,7 +128,7 @@ const QualityTabContent: React.FC<QualityTabContentProps> = ({
                       style={{ 
                         height: `${height}px`, 
                         transition: 'height 0.7s cubic-bezier(0.4,0,0.2,1), background-color 0.3s ease',
-                        backgroundColor: colours.status.warning.background + '80', // 80% opacity like filled stars
+                        backgroundColor: colours.status.warning.background + '80', /* 80% opacity like filled stars */
                         borderColor: colours.status.warning.background,
                       }}
                     />

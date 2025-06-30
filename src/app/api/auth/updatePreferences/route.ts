@@ -22,7 +22,7 @@ export async function PUT(request: NextRequest) {
       allergens 
     } = body;
 
-    // Validate preferences are numbers between 1-5
+    /* Validate preferences are numbers between 1-5 */
     const preferences = {
       pricePreference,
       qualityPreference,
@@ -37,12 +37,12 @@ export async function PUT(request: NextRequest) {
       }
     }
 
-    // Validate allergens is an array if provided
+    /* Validate allergens is an array if provided */
     if (allergens !== undefined && !Array.isArray(allergens)) {
       return NextResponse.json({ error: "allergens must be an array" }, { status: 400 });
     }
 
-    // Build update object with only provided fields
+    /* Build update object with only provided fields */
     const updateData: Partial<{
       pricePreference: number;
       qualityPreference: number;
@@ -62,7 +62,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
     }
 
-    // Update user preferences in Firestore
+    /* Update user preferences in Firestore */
     await db.collection("users").doc(userId).update(updateData);
 
     return NextResponse.json({ 

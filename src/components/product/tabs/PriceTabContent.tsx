@@ -49,7 +49,7 @@ const PriceTabContent: React.FC<PriceTabContentProps> = ({
         className="w-full p-4 sm:p-5 rounded-xl border-2 mb-4 opacity-0 animate-slide-in-bottom" 
         style={{ 
           animationDelay: '0.15s',
-          backgroundColor: '#f1f5fb', // baby blue
+          backgroundColor: '#f1f5fb', /* baby blue */
           borderColor: colours.content.border
         }}
       >
@@ -67,7 +67,7 @@ const PriceTabContent: React.FC<PriceTabContentProps> = ({
           className="w-full mt-12 p-4 rounded-lg opacity-0 animate-slide-in-bottom" 
           style={{ 
             animationDelay: '0.25s',
-            backgroundColor: `${colours.content.surface}99` // 60% opacity
+            backgroundColor: `${colours.content.surface}99` /* 60% opacity */
           }}
         >
           <Link 

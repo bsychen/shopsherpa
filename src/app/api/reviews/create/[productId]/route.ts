@@ -28,7 +28,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pro
             isAnonymous: isAnonymous,
         };
 
-        // Create review document
+        /* Create review document */
         const docRef = await db.collection('reviews').add(review);
 
         return NextResponse.json({ success: true, id: docRef.id });

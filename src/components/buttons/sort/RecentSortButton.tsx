@@ -26,7 +26,7 @@ export default function RecentSortButton({
   const fullClassName = `${baseClassName} ${activeRing} ${className}`.trim()
 
   const buttonStyle = {
-    backgroundColor: isActive ? '#e2e8f0' : '#f1f5f9', // slate-200 vs slate-100
+    backgroundColor: isActive ? '#e2e8f0' : '#f1f5f9', /* slate-200 vs slate-100 */
     boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
   }
 

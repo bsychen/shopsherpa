@@ -9,10 +9,10 @@ export async function GET(
   try {
     const { id } = await params;
     
-    // Remove orderBy to avoid composite index requirement
+    /* Remove orderBy to avoid composite index requirement */
     const commentsRef = db.collection('comments')
       .where('postId', '==', id)
-      .orderBy('createdAt', 'asc'); // Sorting by createdAt
+      .orderBy('createdAt', 'asc'); /* Sorting by createdAt */
 
     const snapshot = await commentsRef.get();
     const comments = await Promise.all(
@@ -20,14 +20,14 @@ export async function GET(
         const data = docSnapshot.data();
         let linkedProduct = null;
 
-        // Fetch linked product details if exists
+        /* Fetch linked product details if exists */
         if (data.linkedProductId) {
           try {
             const productDoc = await db.collection('products').doc(data.linkedProductId).get();
             if (productDoc.exists) {
               const productData = productDoc.data();
               linkedProduct = {
-                id: data.linkedProductId, // Use the document ID instead of productData.id
+                id: data.linkedProductId, /* Use the document ID instead of productData.id */
                 name: productData?.productName,
                 imageUrl: productData?.imageUrl,
               };
@@ -47,11 +47,11 @@ export async function GET(
       })
     );
 
-    // Sort comments by createdAt in JavaScript to avoid index requirement
+    /* Sort comments by createdAt in JavaScript to avoid index requirement */
     comments.sort((a, b) => {
       const aTime = a.createdAt.getTime();
       const bTime = b.createdAt.getTime();
-      return bTime - aTime; // Changed from aTime - bTime to bTime - aTime for newest first
+      return bTime - aTime; /* Changed from aTime - bTime to bTime - aTime for newest first */
     });
 
     return NextResponse.json(comments);
@@ -89,7 +89,7 @@ export async function POST(
 
     const docRef = await db.collection('comments').add(commentData);
 
-    // Update post comment count
+    /* Update post comment count */
     const postRef = db.collection('posts').doc(id);
     await postRef.update({
       commentCount: FieldValue.increment(1),

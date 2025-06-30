@@ -5,7 +5,7 @@ export interface AllergenInfo {
   emoji: string;
 }
 
-// Mapping of Open Food Facts allergen codes to display information
+/* Mapping of Open Food Facts allergen codes to display information */
 export const ALLERGEN_MAP: Record<string, AllergenInfo> = {
   'en:gluten': { title: 'Gluten', emoji: '🌾' },
   'en:peanuts': { title: 'Peanuts', emoji: '🥜' },
@@ -23,8 +23,10 @@ export const ALLERGEN_MAP: Record<string, AllergenInfo> = {
   'en:sulphur-dioxide-and-sulphites': { title: 'Sulphites', emoji: '🧪' },
 };
 
-// Mapping of user allergen database keys (lowercase with dashes) to display information
-// This maps the database format to display information for the profile page
+/** 
+ * Mapping of user allergen database keys (lowercase with dashes) to display information.
+ * This maps the database format to display information for the profile page 
+ */
 export const USER_ALLERGEN_MAP: Record<string, AllergenInfo> = {
   'milk': { title: 'Milk', emoji: '🥛' },
   'eggs': { title: 'Eggs', emoji: '🥚' },
@@ -42,7 +44,7 @@ export const USER_ALLERGEN_MAP: Record<string, AllergenInfo> = {
   'sulphites': { title: 'Sulphites', emoji: '🧪' },
 };
 
-// Available allergens for the dropdown - maps display names to database keys
+/* Available allergens for the dropdown - maps display names to database keys */
 export const AVAILABLE_ALLERGENS = [
   { displayName: 'Milk', dbKey: 'milk' },
   { displayName: 'Eggs', dbKey: 'eggs' },
@@ -88,11 +90,11 @@ export function getAllergenTagClasses(): string {
  */
 export function getAllergenTagStyles() {
   return {
-    backgroundColor: `${colours.status.error.background}20`, // 20% opacity for lighter background
+    backgroundColor: `${colours.status.error.background}20`, /* 20% opacity for lighter background */
     borderColor: colours.status.error.border,
     borderWidth: '2px',
     borderStyle: 'solid',
-    color: colours.status.error.border, // Use border color for text for better contrast
+    color: colours.status.error.border, /* Use border color for text for better contrast */
   };
 }
 
@@ -101,7 +103,7 @@ export function getAllergenTagStyles() {
  */
 export function getAllergenTagHoverStyles() {
   return {
-    backgroundColor: `${colours.status.error.background}30`, // 30% opacity for hover
+    backgroundColor: `${colours.status.error.background}30`, /* 30% opacity for hover */
     color: colours.status.error.background,
   };
 }
@@ -119,11 +121,11 @@ export function getRemovableAllergenTagClasses(): string {
  */
 export function getRemovableAllergenTagStyles() {
   return {
-    backgroundColor: `${colours.status.error.background}20`, // 20% opacity for lighter background
+    backgroundColor: `${colours.status.error.background}20`, /* 20% opacity for lighter background */
     borderColor: colours.status.error.border,
     borderWidth: '2px',
     borderStyle: 'solid',
-    color: colours.status.error.border, // Use border color for text for better contrast
+    color: colours.status.error.border, /* Use border color for text for better contrast */
   };
 }
 

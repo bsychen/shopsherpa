@@ -37,10 +37,10 @@ export default function UserReviewsList({ userId }: UserReviewsListProps) {
     if (reviews.length) fetchProductNames();
   }, [reviews]);
 
-  // Remove loading spinner and always render the list, but apply blur/opacity when loading
+  /* Remove loading spinner and always render the list, but apply blur/opacity when loading */
   if (!reviews.length && !loading) return <div style={{ color: colours.text.muted }}>No reviews yet.</div>;
 
-  // Sort reviews by createdAt descending
+  /* Sort reviews by createdAt descending */
   const sortedReviews = [...reviews].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
   const visibleReviews = showAll ? sortedReviews : sortedReviews.slice(0, 3);
   const fadeOpacities = [1, 0.7, 0.4];

@@ -88,13 +88,26 @@ export function useRealTimeReviews(productId: string) {
         
         if (newReviewIds.length > 0) {
           setNewlyAddedReviews(prev => new Set([...prev, ...newReviewIds]));
-          setTimeout(() => {
+          
+          /* Use requestIdleCallback for better performance, fallback to setTimeout */
+          const cleanup = () => {
             setNewlyAddedReviews(prev => {
+              if (prev.size === 0) return prev;
               const updated = new Set(prev);
-              newReviewIds.forEach(id => updated.delete(id));
+              for (const id of newReviewIds) {
+                updated.delete(id);
+              }
               return updated;
             });
-          }, 1000);
+          };
+          
+          if (typeof requestIdleCallback !== 'undefined') {
+            setTimeout(() => {
+              requestIdleCallback(cleanup, { timeout: 1100 });
+            }, 1000);
+          } else {
+            setTimeout(cleanup, 1000);
+          }
         }
         
         return [...realReviews, ...tempReviews];

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebaseAdmin';
 import { FieldValue } from 'firebase-admin/firestore';
 
-// Fetch 3 most recently viewed products
+/* Fetch 3 most recently viewed products */
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId');
@@ -14,13 +14,13 @@ export async function GET(req: Request) {
     const userDocRef = db.collection('users').doc(userId);
 
     try {
-        // Ensure the user document exists
+        /* Ensure the user document exists */
         const userDoc = await userDocRef.get();
         if (!userDoc.exists) {
             await userDocRef.set({ createdAt: FieldValue.serverTimestamp() }); 
         }
 
-        // Ensure the parent document exists before accessing the subcollection
+        /* Ensure the parent document exists before accessing the subcollection */
         const recentsCollectionRef = userDocRef.collection('recentlyViewed');
         const recentsSnapshot = await recentsCollectionRef
             .orderBy('timestamp', 'desc')
@@ -50,7 +50,7 @@ export async function GET(req: Request) {
     }
 }
 
-// Add a product to recently viewed
+/* Add a product to recently viewed */
 export async function POST(req: Request) {
     const { userId, productId } = await req.json();
 
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     const userDocRef = db.collection('users').doc(userId);
 
     try {
-        // Ensure the user document exists
+        /* Ensure the user document exists */
         const userDoc = await userDocRef.get();
         if (!userDoc.exists) {
             await userDocRef.set({});

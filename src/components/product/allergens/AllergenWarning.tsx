@@ -201,7 +201,7 @@ export default function AllergenWarning({ allergenWarnings, isVisible, onClose, 
                         }
                         style={{
                           ...getAllergenTagStyles(),
-                          transitionDelay: contentAnimating ? `${300 + index * 50}ms` : `${40 - index * 5}ms`, // Reverse stagger on exit
+                          transitionDelay: contentAnimating ? `${300 + index * 50}ms` : `${40 - index * 5}ms`,
                         }}
                       >
                         {formatAllergenDisplay(allergenInfo)}
@@ -214,7 +214,7 @@ export default function AllergenWarning({ allergenWarnings, isVisible, onClose, 
                         }
                         style={{
                           ...getAllergenTagStyles(),
-                          transitionDelay: contentAnimating ? `${300 + index * 50}ms` : `${40 - index * 5}ms`, // Reverse stagger on exit
+                          transitionDelay: contentAnimating ? `${300 + index * 50}ms` : `${40 - index * 5}ms`,
                         }}
                       >
                         {allergen.replace(/-/g, ' ')}

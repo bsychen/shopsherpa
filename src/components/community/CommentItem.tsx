@@ -46,7 +46,7 @@ export default function CommentItem({
     onReply(comment.id);
   };
 
-  // Limit nesting depth to avoid infinite nesting
+  /* Limit nesting depth to avoid infinite nesting */
   const maxDepth = 3;
   const marginLeft = Math.min(depth, maxDepth) * 24;
 

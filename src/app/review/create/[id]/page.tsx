@@ -34,7 +34,7 @@ export default function ReviewPage() {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       if (!firebaseUser) {
-        // Save intended path for post-auth redirect
+        /* Save intended path for post-auth redirect */
         localStorage.setItem("postAuthRedirect", `/review/create/${id}`);
         router.push("/auth");
       }
@@ -51,14 +51,14 @@ export default function ReviewPage() {
     });
   }, [id]);
 
-  // Set up back button in top bar
+  /* Set up back button in top bar */
   useEffect(() => {
     setTopBarState({
       showBackButton: true,
       onBackClick: () => router.push(`/product/${id}`)
     });
 
-    // Cleanup when component unmounts
+    /* Cleanup when component unmounts */
     return () => {
       resetTopBar();
     };
@@ -74,7 +74,7 @@ export default function ReviewPage() {
       if (!user?.uid) throw new Error("User not authenticated");
       if (!rating) throw new Error("Please select a rating");
 
-      // Create review directly in Firestore for real-time updates
+      /* Create review directly in Firestore for real-time updates */
       const reviewData = {
         productId: id,
         userId: user.uid,
@@ -91,7 +91,7 @@ export default function ReviewPage() {
       setRating(0);
       setIsAnonymous(false);
       
-      // Redirect back to product page after a short delay
+      /* Redirect back to product page after a short delay */
       setTimeout(() => {
         router.push(`/product/${id}`);
       }, 2000);

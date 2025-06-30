@@ -46,7 +46,7 @@ export default function CreateButton({
   const fullClassName = `${baseClassName} ${className}`.trim()
 
   const buttonStyle = {
-    backgroundColor: '#f1f5f9', // slate-100
+    backgroundColor: '#f1f5f9', /* slate-100 */
     boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
   }
 

@@ -52,7 +52,7 @@ function AnimatedMatchPercent({ percent, hasAllergens = false }: { percent: numb
     };
   }, [percent]);
 
-  // Color logic - red if allergens are flagged, otherwise based on percentage
+  /* Color logic - red if allergens are flagged, otherwise based on percentage */
   const color = hasAllergens 
     ? { text: colours.status.error.background }
     : displayed >= 70
@@ -148,7 +148,7 @@ export default function ProductRadarChart({
   allergenWarnings?: string[];
   onAllergenWarningClick?: () => void;
 }) {
-  // Initialize allergen expanded state based on whether allergens exist
+  /* Initialize allergen expanded state based on whether allergens exist */
   const radarData = [
     priceScore,
     qualityScore,
@@ -157,7 +157,7 @@ export default function ProductRadarChart({
     brandScore,
   ];
 
-  // Chart.js config
+  /* Chart.js config */
   const chartData = {
     labels: ["Price", "Quality", "Nutrition", "Sustainability", "Brand"].map(() => ""),
     datasets: [
@@ -186,7 +186,7 @@ export default function ProductRadarChart({
     },
   };
 
-  // Layout constants
+  /* Layout constants */
   const containerSize = 260;
   const btnBase = 40;
   const margin = 8;
@@ -198,7 +198,7 @@ export default function ProductRadarChart({
   const LABELS = ["Price", "Quality", "Nutrition", "Sustainability", "Brand"];
   const angleStep = (2 * Math.PI) / LABELS.length;
   const offset = 1.3; 
-  const verticalShift = 14.5; // Moved back to 14 to restore original position
+  const verticalShift = 14.5; /* Moved back to 14 to restore original position */
   const [showButtons, setShowButtons] = useState(false);
 
   useEffect(() => { 
@@ -230,17 +230,17 @@ export default function ProductRadarChart({
         const x = center + buttonRadius * Math.cos(angle) * offset - btnBase / 2;
         let y = center + buttonRadius * Math.sin(angle) * offset - btnBase / 2 + verticalShift;
         
-        // Move Price button slightly higher to get it out of the way
+        /* Move Price button slightly higher to get it out of the way */
         if (label === "Price") {
-          y -= 8; // Move 8px higher
+          y -= 8; /* Move 8px higher */
         }
         
         const config = BUTTON_CONFIG[label] || { color: DEFAULT_BTN_COLOR, border: DEFAULT_BTN_BORDER, svg: DEFAULT_BTN_SVG };
         const delay = `${i * 80}ms`;
         
-        // Calculate label position (below the button, better centered)
+        /* Calculate label position (below the button, better centered) */
         const labelX = center + buttonRadius * Math.cos(angle) * offset;
-        const labelY = y + btnBase + 4; // 4px below the button (closer than before)
+        const labelY = y + btnBase + 4; /* 4px below the button (closer than before) */
         
         return (
           <div key={label}>
@@ -265,10 +265,10 @@ export default function ProductRadarChart({
               aria-label={label}
               onClick={() => {
                 if (activeTab === label) {
-                  // If clicking the already active tab, clear the selection
+                  /* If clicking the already active tab, clear the selection */
                   setActiveTab("");
                 } else {
-                  // If clicking a different tab, set it as active
+                  /* If clicking a different tab, set it as active */
                   setActiveTab(label);
                 }
               }}
@@ -291,11 +291,11 @@ export default function ProductRadarChart({
                 top: labelY,
                 color: colours.text.secondary,
                 opacity: showButtons ? 1 : 0,
-                transform: `translateX(-50%) ${showButtons ? "scale(1)" : "scale(0.5)"}`, // Center horizontally with translateX(-50%)
+                transform: `translateX(-50%) ${showButtons ? "scale(1)" : "scale(0.5)"}`, /* Center horizontally with translateX(-50%) */
                 transition: "transform 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.45s cubic-bezier(0.4,0,0.2,1)",
                 transitionDelay: delay,
                 zIndex: 1,
-                whiteSpace: 'nowrap', // Prevent text wrapping
+                whiteSpace: 'nowrap', /* Prevent text wrapping */
               }}
             >
               {label}

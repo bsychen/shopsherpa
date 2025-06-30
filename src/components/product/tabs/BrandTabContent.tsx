@@ -34,7 +34,7 @@ const BrandTabContent: React.FC<BrandTabContentProps> = ({
       <div 
         className="w-full p-3 sm:p-4 rounded-xl border-2 mb-4"
         style={{ 
-          backgroundColor: '#f1f5fb', // baby blue
+          backgroundColor: '#f1f5fb', /* baby blue */
           borderColor: colours.content.border
         }}
       >
@@ -138,25 +138,25 @@ const BrandTabContent: React.FC<BrandTabContentProps> = ({
                   { 
                     label: 'Price', 
                     value: calculateBrandStats.price, 
-                    color: '#fef3c7', // yellow-100
+                    color: '#fef3c7', /* yellow-100 */
                     svg: '/pound-svgrepo-com.svg' 
                   },
                   { 
                     label: 'Quality', 
                     value: calculateBrandStats.quality, 
-                    color: '#fee2e2', // red-100
+                    color: '#fee2e2', /* red-100 */
                     svg: '/quality-supervision-svgrepo-com.svg' 
                   },
                   { 
                     label: 'Nutrition', 
                     value: calculateBrandStats.nutrition, 
-                    color: '#dbeafe', // blue-100
+                    color: '#dbeafe', /* blue-100 */
                     svg: '/meal-svgrepo-com.svg' 
                   },
                   { 
                     label: 'Sustainability', 
                     value: calculateBrandStats.sustainability, 
-                    color: '#ecfccb', // lime-100
+                    color: '#ecfccb', /* lime-100 */
                     svg: '/leaf-svgrepo-com.svg' 
                   }
                 ].map((stat, index) => {

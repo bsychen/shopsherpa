@@ -21,7 +21,7 @@ export default function LoginPage() {
           localStorage.removeItem('postAuthRedirect');
           router.push(redirect);
         } else {
-          router.push('/profile'); // Redirect to profile page after successful login/signup
+          router.push('/profile'); /* Redirect to profile page after successful login/signup */
         }
       }
     });

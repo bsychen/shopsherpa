@@ -23,13 +23,13 @@ export default function AuthForm({
     try {
       if (mode === 'signup') {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        // Set displayName to the entered username
+        /* Set displayName to the entered username */
         await updateProfile(userCredential.user, { displayName: username });
         await createUserInFirestore(userCredential.user.uid, email, username);
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
-      // router.push('/') has been moved to the auth state change listener
+      /* router.push('/') has been moved to the auth state change listener */
     } catch (err) {
       console.error(err);
       alert('Error: ' + (err as Error).message);

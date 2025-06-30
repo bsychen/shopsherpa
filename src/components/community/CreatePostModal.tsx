@@ -68,7 +68,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
       linkedProductId: selectedProduct?.id,
     });
 
-    // Reset form
+    /* Reset form */
     setTitle('');
     setContent('');
     setSelectedTags([]);

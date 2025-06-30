@@ -30,14 +30,14 @@ export default function AllergenManager({
   const [isEditMode, setIsEditMode] = useState(false);
   const [localAllergens, setLocalAllergens] = useState<string[]>(userProfile.allergens || []);
 
-  // Get available allergens (not already selected)
+  /* Get available allergens (not already selected) */
   const availableAllergens = AVAILABLE_ALLERGENS.filter(allergen => !localAllergens.includes(allergen.dbKey));
 
   const handleAddAllergen = async (allergenDbKey: string) => {
     const newAllergens = [...localAllergens, allergenDbKey];
     setLocalAllergens(newAllergens);
     
-    // Auto-save when adding allergen
+    /* Auto-save when adding allergen */
     try {
       await onAllergensUpdate(newAllergens);
     } catch (error) {
@@ -50,7 +50,7 @@ export default function AllergenManager({
     const newAllergens = localAllergens.filter(a => a !== allergenDbKey);
     setLocalAllergens(newAllergens);
     
-    // Auto-save when removing allergen
+    /* Auto-save when removing allergen */
     try {
       await onAllergensUpdate(newAllergens);
     } catch (error) {

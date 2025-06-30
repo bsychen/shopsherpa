@@ -36,7 +36,7 @@ async function fetchProductData(id: string){
     "main_category_fr",
     "labels",
     "labels_tags",
-    // Nutrition macros per 100g
+    /* Nutrition macros per 100g */
     "nutriments",
     "energy-kcal_100g",
     "proteins_100g", 
@@ -46,7 +46,7 @@ async function fetchProductData(id: string){
     "saturated-fat_100g",
     "fiber_100g",
     "sodium_100g",
-    // Sustainability/eco information
+    /* Sustainability/eco information */
     "ecoscore_grade",
     "ecoscore_score",
     "ecoscore_data",
@@ -59,14 +59,14 @@ async function fetchProductData(id: string){
   const data = await res.json();
   if (!data.product || (!data.product.product_name_en && !data.product.product_name)) return null;    
   
-  // Use product_name_en if available, otherwise fall back to product_name
+  /* Use product_name_en if available, otherwise fall back to product_name */
   const productName = data.product.product_name_en || data.product.product_name;
   
-  // Get or create brandId for this product
+  /* Get or create brandId for this product */
     const brandName = data.product.brands || 
       (data.product.brands_tags && data.product.brands_tags.length > 0 ? data.product.brands_tags[0] : '') || '';
     
-    // Only fetch brandId if we have a brand name
+    /* Only fetch brandId if we have a brand name */
     let brandId = '';
     if (brandName) {
       try {
@@ -102,9 +102,9 @@ async function fetchProductData(id: string){
     alergenInformation: [...new Set([
       ...(data.product.allergens ? [data.product.allergens] : []),
       ...(data.product.allergens_tags || []),
-      //...(data.product.allergens_from_ingredients ? [data.product.allergens_from_ingredients] : []),
-      //...(data.product.allergens_from_user ? [data.product.allergens_from_user] : []),
-      //...(data.product.allergens_hierarchy || [])
+      /* ...(data.product.allergens_from_ingredients ? [data.product.allergens_from_ingredients] : []), */
+      /* ...(data.product.allergens_from_user ? [data.product.allergens_from_user] : []), */
+      /* ...(data.product.allergens_hierarchy || []) */
     ])],
     tracesInformation: [...new Set([
       ...(data.product.traces ? [data.product.traces] : []),
@@ -115,7 +115,7 @@ async function fetchProductData(id: string){
     pricePerUnit: data.product.price_per_unit || 0,
     unitOfMeasure: data.product.unit_of_measure || '',
     sustainabilityCertificationCode: Array.isArray(data.product.sustainability_labels_tags) ? data.product.sustainability_labels_tags[0] : '',
-    sustainbilityScore: 3, // Default value, adjust as needed
+    sustainbilityScore: 3, /* Default value, adjust as needed */
     imageUrl: data.product.image_url || '',
     combinedNutritionGrade: data.product.nutrition_grade_en || 
       data.product.nutrition_grade_fr || 
@@ -126,7 +126,7 @@ async function fetchProductData(id: string){
       ...(data.product.labels ? [data.product.labels] : []),
       ...(data.product.labels_tags || [])
     ])],
-    // Nutrition macros per 100g (filter out undefined values)
+    /* Nutrition macros per 100g (filter out undefined values) */
     nutritionMacros: Object.fromEntries(
       Object.entries({
         energy: data.product.nutriments?.['energy-kcal_100g'] ? parseFloat(data.product.nutriments['energy-kcal_100g']) : undefined,
@@ -139,7 +139,7 @@ async function fetchProductData(id: string){
         sodium: data.product.nutriments?.sodium_100g ? parseFloat(data.product.nutriments.sodium_100g) : undefined,
       }).filter(([_, value]) => value !== undefined)
     ),
-    // Sustainability/eco information (filter out undefined values)
+    /* Sustainability/eco information (filter out undefined values) */
     ecoInformation: Object.fromEntries(
       Object.entries({
         ecoscore: data.product.ecoscore_grade || undefined,
@@ -168,7 +168,7 @@ export async function GET(
         ...data,
       }) as NextResponse<Product>;
       
-      // Add cache headers for existing products
+      /* Add cache headers for existing products */
       response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
       return response;
     }
@@ -178,12 +178,12 @@ export async function GET(
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    // Add to Firestore
+    /* Add to Firestore */
     console.log("Adding product to Firestore:", productData);
     await db.collection("products").doc(id).set(productData);
     
     const response = NextResponse.json(productData) as NextResponse<Product>;
-    // Cache new products for shorter time initially
+    /* Cache new products for shorter time initially */
     response.headers.set('Cache-Control', 'public, s-maxage=1800, stale-while-revalidate=3600');
     return response;
   } catch {

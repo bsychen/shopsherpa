@@ -71,10 +71,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const brandStats = useBrandStats(brandProducts, product, brandReviewSummaries);
   const { reviews, isRealTimeActive, isOnline, newlyAddedReviews } = useRealTimeReviews(id);
 
-  // Calculate scores using utility functions
+  /* Calculate scores using utility functions */
   const scores = calculateProductScores(product, priceStats, reviewSummary, brandStats, brandRating);
   
-  // Calculate match percentage based on user preferences
+  /* Calculate match percentage based on user preferences */
   const matchPercentage = userPreferences && userPreferences.pricePreference !== undefined ? 
     calculateMatchPercentage(
       scores,
@@ -87,13 +87,13 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       }
     ) : null;
 
-  // Auth state management
+  /* Auth state management */
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, setUser);
     return () => unsubscribe();
   }, []);
 
-  // Set up back button in top bar
+  /* Set up back button in top bar */
   useEffect(() => {
     setTopBarState({
       showBackButton: true,
@@ -105,14 +105,14 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     };
   }, [setTopBarState, resetTopBar, router]);
 
-  // Show allergen warning when conditions are met
+  /* Show allergen warning when conditions are met */
   useEffect(() => {
     if (product && userPreferences && allergenWarnings && allergenWarnings.length > 0 && !allergenWarningDismissed) {
       setShowAllergenWarning(true);
     }
   }, [product, userPreferences, allergenWarnings, allergenWarningDismissed]);
 
-  // Fetch usernames for reviews
+  /* Fetch usernames for reviews */
   useEffect(() => {
     async function fetchUsernames() {
       const ids = Array.from(new Set(reviews.map(r => r.userId)));
@@ -129,7 +129,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     if (reviews.length) fetchUsernames();
   }, [reviews]);
 
-  // Record visit for analytics
+  /* Record visit for analytics */
   useEffect(() => {
     async function recordVisit() {
       if (!user) return;
@@ -146,7 +146,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     recordVisit();
   }, [id, user]);
 
-  // Fetch review summaries for brand products
+  /* Fetch review summaries for brand products */
   useEffect(() => {
     if (!brandProducts.length || !product) return;
 
@@ -172,7 +172,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     fetchBrandReviewSummaries();
   }, [brandProducts, product, setBrandReviewSummaries]);
 
-  // Handler functions for allergen warning
+  /* Handler functions for allergen warning */
   const handleAllergenWarningClose = () => {
     setShowAllergenWarning(false);
   };
@@ -182,7 +182,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     setShowAllergenWarning(false);
   };
 
-  // Clear navigation loading state when product data is loaded
+  /* Clear navigation loading state when product data is loaded */
   useEffect(() => {
     if (!loading) {
       setNavigating(false);

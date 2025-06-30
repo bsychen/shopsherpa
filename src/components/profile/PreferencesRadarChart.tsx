@@ -88,7 +88,7 @@ const PreferencesRadarChart = forwardRef<PreferencesRadarChartHandle, Preference
   onSaveChanges,
   onCancelEdit
 }, ref) => {
-  const [isClosing, setIsClosing] = useState(false); // New state for animation
+  const [isClosing, setIsClosing] = useState(false); /* New state for animation */
   const [localPreferences, setLocalPreferences] = useState(() => {
     const prefs: Record<string, number> = {};
     preferences.forEach(pref => {
@@ -106,7 +106,7 @@ const PreferencesRadarChart = forwardRef<PreferencesRadarChartHandle, Preference
     setShowButtons(true);
   }, []);
 
-  // Update local preferences when userProfile changes
+  /* Update local preferences when userProfile changes */
   useEffect(() => {
     setLocalPreferences(() => {
       const prefs: Record<string, number> = {};
@@ -119,9 +119,9 @@ const PreferencesRadarChart = forwardRef<PreferencesRadarChartHandle, Preference
   }, [userProfile]);
 
   const handlePointerDown = useCallback((prefKey: string) => (e: React.MouseEvent | React.TouchEvent) => {
-    // Only prevent default for mouse events, not touch events
+    /* Only prevent default for mouse events, not touch events */
     if ('touches' in e) {
-      // For touch events, we'll handle preventDefault in the document listeners
+      /* For touch events, we'll handle preventDefault in the document listeners */
     } else {
       e.preventDefault();
     }
@@ -177,7 +177,7 @@ const PreferencesRadarChart = forwardRef<PreferencesRadarChartHandle, Preference
   useEffect(() => {
     if (isDragging) {
       const handleMove = (e: MouseEvent | TouchEvent) => {
-        // Prevent default to avoid scrolling on mobile
+        /* Prevent default to avoid scrolling on mobile */
         if (e.cancelable) {
           e.preventDefault();
         }
@@ -205,10 +205,10 @@ const PreferencesRadarChart = forwardRef<PreferencesRadarChartHandle, Preference
   }, [isDragging, handlePointerMove, handlePointerEnd]);
 
   const handleSaveChanges = async () => {
-    // Start closing animation immediately
+    /* Start closing animation immediately */
     setIsClosing(true);
     
-    // Wait for animation to start, then continue with background save
+    /* Wait for animation to start, then continue with background save */
     setTimeout(async () => {
       try {
         const updates: Partial<UserProfile> = {};
@@ -221,15 +221,15 @@ const PreferencesRadarChart = forwardRef<PreferencesRadarChartHandle, Preference
         await onPreferencesUpdate(updates);
         setHasChanges(false);
         
-        // Complete the closing animation
+        /* Complete the closing animation */
         setTimeout(() => {
           onSaveChanges?.();
           setIsClosing(false);
-        }, 300); // Wait for the animation to complete
+        }, 300); /* Wait for the animation to complete */
         
       } catch (error) {
         console.error('Failed to save preferences:', error);
-        // Revert changes on error
+        /* Revert changes on error */
         setLocalPreferences(() => {
           const prefs: Record<string, number> = {};
           preferences.forEach(pref => {
@@ -239,11 +239,11 @@ const PreferencesRadarChart = forwardRef<PreferencesRadarChartHandle, Preference
         });
         setHasChanges(false);
         
-        // Reset states
+        /* Reset states */
         setIsClosing(false);
         onCancelEdit?.();
       }
-    }, 100); // Small delay to ensure animation starts
+    }, 100); /* Small delay to ensure animation starts */
   };
 
   const handleResetChanges = () => {
@@ -261,20 +261,20 @@ const PreferencesRadarChart = forwardRef<PreferencesRadarChartHandle, Preference
     handleResetChanges();
     setIsClosing(true);
     
-    // Complete the closing animation
+    /* Complete the closing animation */
     setTimeout(() => {
       onCancelEdit?.();
       setIsClosing(false);
     }, 300);
   };
 
-  // Expose functions to parent component via ref
+  /* Expose functions to parent component via ref */
   useImperativeHandle(ref, () => ({
     saveChanges: handleSaveChanges,
     hasChanges
   }));
 
-  // Prepare radar chart data
+  /* Prepare radar chart data */
   const radarData = [
     localPreferences.pricePreference || 1,
     localPreferences.qualityPreference || 1,
@@ -311,18 +311,18 @@ const PreferencesRadarChart = forwardRef<PreferencesRadarChartHandle, Preference
     },
   };
 
-  // Layout constants for radar chart
+  /* Layout constants for radar chart */
   const containerSize = 260;
   const btnBase = 40;
   const margin = 8;
   const radarPadding = 38;
   const maxRadius = (containerSize / 2) - (btnBase / 2) - margin;
   const minRadius = (containerSize / 2) - radarPadding;
-  const buttonRadius = Math.max(minRadius, Math.min(maxRadius, 120)); // Reduced to align with pentagon vertices
+  const buttonRadius = Math.max(minRadius, Math.min(maxRadius, 120)); /* Reduced to align with pentagon vertices */
   const center = containerSize / 2;
   const LABELS = ["Price", "Quality", "Nutrition", "Sustainability", "Brand"];
   const angleStep = (2 * Math.PI) / LABELS.length;
-  const offset = 1.3; // Reduced from 1.4 to 1.0 to align with pentagon vertices
+  const offset = 1.3; /* Reduced from 1.4 to 1.0 to align with pentagon vertices */
   const verticalShift = 14.5;
 
   return (
@@ -338,20 +338,20 @@ const PreferencesRadarChart = forwardRef<PreferencesRadarChartHandle, Preference
           {/* Radar Buttons */}
           {LABELS.map((label, i) => {
             const angle = -Math.PI / 2 + i * angleStep;
-            const x = center + buttonRadius * Math.cos(angle) * offset - btnBase / 2 + 6; // Added +6 to move all buttons right
+            const x = center + buttonRadius * Math.cos(angle) * offset - btnBase / 2 + 6; /* Added +6 to move all buttons right */
             let y = center + buttonRadius * Math.sin(angle) * offset - btnBase / 2 + verticalShift;
             
-            // Move Price button slightly higher to get it out of the way
+            /* Move Price button slightly higher to get it out of the way */
             if (label === "Price") {
-              y -= 8; // Move 8px higher
+              y -= 8; /* Move 8px higher */
             }
             
             const config = BUTTON_CONFIG[label] || { color: DEFAULT_BTN_COLOR, border: DEFAULT_BTN_BORDER, svg: preferences[i].svg };
             const delay = `${i * 80}ms`;
             
-            // Calculate label position (below the button, better centered)
-            const labelX = center + buttonRadius * Math.cos(angle) * offset + 6; // Added +6 to move labels right too
-            const labelY = y + btnBase + 4; // 4px below the button (closer than before)
+            /* Calculate label position (below the button, better centered) */
+            const labelX = center + buttonRadius * Math.cos(angle) * offset + 6; /* Added +6 to move labels right too */
+            const labelY = y + btnBase + 4; /* 4px below the button (closer than before) */
             
             return (
               <div key={label}>
@@ -389,11 +389,11 @@ const PreferencesRadarChart = forwardRef<PreferencesRadarChartHandle, Preference
                     top: labelY,
                     color: colours.text.secondary,
                     opacity: showButtons ? 1 : 0,
-                    transform: `translateX(-50%) ${showButtons ? "scale(1)" : "scale(0.5)"}`, // Center horizontally with translateX(-50%)
+                    transform: `translateX(-50%) ${showButtons ? "scale(1)" : "scale(0.5)"}`, /* Center horizontally with translateX(-50%) */
                     transition: "transform 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.45s cubic-bezier(0.4,0,0.2,1)",
                     transitionDelay: delay,
                     zIndex: 1,
-                    whiteSpace: 'nowrap', // Prevent text wrapping
+                    whiteSpace: 'nowrap', /* Prevent text wrapping */
                   }}
                 >
                   {label}
@@ -462,7 +462,7 @@ const PreferencesRadarChart = forwardRef<PreferencesRadarChartHandle, Preference
                   style={{
                     backgroundColor: colours.bargraph.background,
                     border: `2px dotted ${colours.card.border}30`,
-                    height: '44px', // Exact height
+                    height: '44px', /* Exact height */
                   }}
                   onMouseDown={handlePointerDown(pref.key)}
                   onTouchStart={handlePointerDown(pref.key)}

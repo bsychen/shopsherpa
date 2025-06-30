@@ -16,7 +16,7 @@ export default function ClearFiltersButton({
   }
 
   const buttonStyle = {
-    backgroundColor: '#fef2f2', // red-50
+    backgroundColor: '#fef2f2', /* red-50 */
     boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
   }
 
