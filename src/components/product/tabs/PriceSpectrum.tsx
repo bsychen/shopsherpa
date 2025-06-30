@@ -90,13 +90,13 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
   const minPrice = Math.max(priceStats.min, 0.01); /* Avoid division by zero */
   const maxPrice = Math.max(priceStats.max, productPrice, 0.01);
 
+  /* Scale between 5% and 95% (to be pretty) */
   const scale = (price: number) => {
-    if (price === minPrice) return 5; /* Align with left edge of spectrum */
-    if (price === maxPrice) return 95; /* Align with right edge of spectrum */
-
-    /* Scale between 5% and 95% for other values */
+    if (price === minPrice) return 5;
+    if (price === maxPrice) return 95;
     const range = maxPrice - minPrice;
     if (range === 0) return 50; /* If all prices are the same, center it */
+    
     return 5 + ((price - minPrice) / range) * 90;
   };
 

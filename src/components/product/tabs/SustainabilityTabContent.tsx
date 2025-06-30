@@ -41,7 +41,7 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
   const ecoscore = product.ecoInformation?.ecoscore;
   const strokeColor = getEcoscoreColor(ecoscore);
   const backgroundColor = getEcoscoreBackgroundColor(ecoscore);
-  const scorePercentage = animatedSustainability / 5; // Use animated value for ring animation
+  const scorePercentage = animatedSustainability / 5;
   const displayScore = formatEcoscoreDisplay(ecoscore);
 
   return (

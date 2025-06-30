@@ -10,10 +10,49 @@ interface BrandTabContentProps {
   calculateBrandStats: BrandStats | null;
 }
 
+// Helper function to get color based on score
+const getScoreColor = (score: number): string => {
+  if (score <= 2) return colours.score.low;
+  if (score <= 3) return colours.score.medium;
+  return colours.score.high;
+};
+
+// Helper function to get background color with opacity
+const getScoreBackgroundColor = (score: number): string => {
+  return getScoreColor(score) + '20'; // 20% opacity
+};
+
+// Performance metrics configuration
+const PERFORMANCE_METRICS = [
+  { 
+    label: 'Price', 
+    color: '#fef3c7', /* yellow-100 */
+    svg: '/pound-svgrepo-com.svg' 
+  },
+  { 
+    label: 'Quality', 
+    color: '#fee2e2', /* red-100 */
+    svg: '/quality-supervision-svgrepo-com.svg' 
+  },
+  { 
+    label: 'Nutrition', 
+    color: '#dbeafe', /* blue-100 */
+    svg: '/meal-svgrepo-com.svg' 
+  },
+  { 
+    label: 'Sustainability', 
+    color: '#ecfccb', /* lime-100 */
+    svg: '/leaf-svgrepo-com.svg' 
+  }
+];
+
 const BrandTabContent: React.FC<BrandTabContentProps> = ({
   animatedBrand,
   calculateBrandStats,
 }) => {
+  const strokeColor = getScoreColor(animatedBrand);
+  const backgroundColor = getScoreBackgroundColor(animatedBrand);
+
   return (
     <div className="w-full flex flex-col items-center opacity-0 animate-fade-in px-1" style={{ animationDelay: '0.05s' }}>
       <h2 
@@ -49,18 +88,8 @@ const BrandTabContent: React.FC<BrandTabContentProps> = ({
             <div 
               className="relative w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center"
               style={{
-                borderColor: (() => {
-                  const score = animatedBrand;
-                  if (score <= 2) return colours.score.low;
-                  if (score <= 3) return colours.score.medium;
-                  return colours.score.high;
-                })(),
-                backgroundColor: (() => {
-                  const score = animatedBrand;
-                  if (score <= 2) return colours.score.low + '20';
-                  if (score <= 3) return colours.score.medium + '20';
-                  return colours.score.high + '20';
-                })(),
+                borderColor: strokeColor,
+                backgroundColor: backgroundColor,
               }}
             >
               <span className="relative inline-block w-12 h-12 align-middle">
@@ -68,12 +97,7 @@ const BrandTabContent: React.FC<BrandTabContentProps> = ({
                   <circle
                     cx="24" cy="24" r="18"
                     fill="none"
-                    stroke={(() => {
-                      const score = animatedBrand;
-                      if (score <= 2) return colours.score.low;
-                      if (score <= 3) return colours.score.medium;
-                      return colours.score.high;
-                    })()}
+                    stroke={strokeColor}
                     strokeWidth="3"
                     strokeDasharray={Math.PI * 2 * 18}
                     strokeDashoffset={Math.PI * 2 * 18 * (1 - (animatedBrand / 5))}
@@ -88,14 +112,7 @@ const BrandTabContent: React.FC<BrandTabContentProps> = ({
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span 
                     className="text-xl font-bold"
-                    style={{
-                      color: (() => {
-                        const score = animatedBrand;
-                        if (score <= 2) return colours.score.low;
-                        if (score <= 3) return colours.score.medium;
-                        return colours.score.high;
-                      })()
-                    }}
+                    style={{ color: strokeColor }}
                   >
                     {animatedBrand}
                   </span>
@@ -126,38 +143,15 @@ const BrandTabContent: React.FC<BrandTabContentProps> = ({
           {calculateBrandStats ? (
             <div className="w-full">
               <div className="space-y-3">
-                {[
-                  { 
-                    label: 'Price', 
-                    value: calculateBrandStats.price, 
-                    color: '#fef3c7', /* yellow-100 */
-                    svg: '/pound-svgrepo-com.svg' 
-                  },
-                  { 
-                    label: 'Quality', 
-                    value: calculateBrandStats.quality, 
-                    color: '#fee2e2', /* red-100 */
-                    svg: '/quality-supervision-svgrepo-com.svg' 
-                  },
-                  { 
-                    label: 'Nutrition', 
-                    value: calculateBrandStats.nutrition, 
-                    color: '#dbeafe', /* blue-100 */
-                    svg: '/meal-svgrepo-com.svg' 
-                  },
-                  { 
-                    label: 'Sustainability', 
-                    value: calculateBrandStats.sustainability, 
-                    color: '#ecfccb', /* lime-100 */
-                    svg: '/leaf-svgrepo-com.svg' 
-                  }
-                ].map((stat, index) => {
-                  const percentage = ((stat.value - 1) / 4) * 100;
+                {PERFORMANCE_METRICS.map((metric, index) => {
+                  const value = calculateBrandStats[metric.label.toLowerCase() as keyof BrandStats] as number;
+                  const percentage = ((value - 1) / 4) * 100;
+                  
                   return (
-                    <div key={stat.label} className="flex items-center gap-3">
+                    <div key={metric.label} className="flex items-center gap-3">
                       <Image 
-                        src={stat.svg} 
-                        alt={stat.label} 
+                        src={metric.svg} 
+                        alt={metric.label} 
                         width={16} 
                         height={16} 
                         className="flex-shrink-0"
@@ -176,7 +170,7 @@ const BrandTabContent: React.FC<BrandTabContentProps> = ({
                             className="transition-all duration-1000 ease-out absolute inset-0 rounded-lg opacity-0 animate-fade-in"
                             style={{ 
                               width: `${percentage}%`,
-                              backgroundColor: stat.color,
+                              backgroundColor: metric.color,
                               border: `2px solid ${colours.card.border}`,
                               animationDelay: `${0.3 + index * 0.1}s`
                             }}
@@ -187,7 +181,7 @@ const BrandTabContent: React.FC<BrandTabContentProps> = ({
                         className="text-xs font-medium w-8 text-right flex-shrink-0"
                         style={{ color: colours.text.primary }}
                       >
-                        {stat.value.toFixed(1)}
+                        {value.toFixed(1)}
                       </span>
                     </div>
                   );
