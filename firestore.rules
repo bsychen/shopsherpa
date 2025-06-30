@@ -1,0 +1,207 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user is the owner of the document
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Helper function to validate user data
+    function isValidUserData() {
+      return request.resource.data.keys().hasAll(['email', 'username']) &&
+             request.resource.data.email is string &&
+             request.resource.data.username is string &&
+             request.resource.data.pricePreference is number &&
+             request.resource.data.qualityPreference is number &&
+             request.resource.data.nutritionPreference is number &&
+             request.resource.data.sustainabilityPreference is number &&
+             request.resource.data.brandPreference is number &&
+             request.resource.data.allergens is list;
+    }
+    
+    // Helper function to validate review data
+    function isValidReviewData() {
+      return request.resource.data.keys().hasAll(['productId', 'rating', 'userId', 'createdAt']) &&
+             request.resource.data.productId is string &&
+             request.resource.data.rating is number &&
+             request.resource.data.rating >= 1 &&
+             request.resource.data.rating <= 5 &&
+             request.resource.data.userId is string &&
+             request.resource.data.createdAt is timestamp &&
+             (!('reviewText' in request.resource.data) || request.resource.data.reviewText is string) &&
+             (!('isAnonymous' in request.resource.data) || request.resource.data.isAnonymous is bool);
+    }
+    
+    // Helper function to validate post data
+    function isValidPostData() {
+      return request.resource.data.keys().hasAll(['title', 'content', 'authorId', 'authorName', 'createdAt', 'tags']) &&
+             request.resource.data.title is string &&
+             request.resource.data.content is string &&
+             request.resource.data.authorId is string &&
+             request.resource.data.authorName is string &&
+             request.resource.data.createdAt is timestamp &&
+             request.resource.data.tags is list &&
+             (!('linkedProductId' in request.resource.data) || request.resource.data.linkedProductId is string) &&
+             (!('likes' in request.resource.data) || request.resource.data.likes is list) &&
+             (!('dislikes' in request.resource.data) || request.resource.data.dislikes is list) &&
+             (!('commentCount' in request.resource.data) || request.resource.data.commentCount is number);
+    }
+    
+    // Helper function to validate comment data
+    function isValidCommentData() {
+      return request.resource.data.keys().hasAll(['postId', 'content', 'authorId', 'authorName', 'createdAt']) &&
+             request.resource.data.postId is string &&
+             request.resource.data.content is string &&
+             request.resource.data.authorId is string &&
+             request.resource.data.authorName is string &&
+             request.resource.data.createdAt is timestamp &&
+             (!('linkedProductId' in request.resource.data) || request.resource.data.linkedProductId is string);
+    }
+    
+    // Users collection rules
+    match /users/{userId} {
+      // Users can read their own profile, others can read basic public info
+      allow read: if isAuthenticated() && (
+        isOwner(userId) || 
+        // Allow reading public fields only (for displaying usernames, etc.)
+        request.auth.uid != userId
+      );
+      
+      // Users can only create/update their own profile
+      allow create: if isAuthenticated() && 
+                   isOwner(userId) && 
+                   isValidUserData();
+      
+      allow update: if isAuthenticated() && 
+                   isOwner(userId) && 
+                   isValidUserData() &&
+                   // Prevent changing email and username after creation
+                   request.resource.data.email == resource.data.email &&
+                   request.resource.data.username == resource.data.username;
+      
+      // Users cannot delete their own profile (handled by admin)
+      allow delete: if false;
+    }
+    
+    // Reviews collection rules
+    match /reviews/{reviewId} {
+      // Anyone can read reviews (they're public)
+      allow read: if true;
+      
+      // Only authenticated users can create reviews
+      allow create: if isAuthenticated() && 
+                   isValidReviewData() &&
+                   isOwner(request.resource.data.userId);
+      
+      // Users can only update their own reviews
+      allow update: if isAuthenticated() && 
+                   isOwner(resource.data.userId) &&
+                   isValidReviewData() &&
+                   // Prevent changing immutable fields
+                   request.resource.data.productId == resource.data.productId &&
+                   request.resource.data.userId == resource.data.userId &&
+                   request.resource.data.createdAt == resource.data.createdAt;
+      
+      // Users can delete their own reviews
+      allow delete: if isAuthenticated() && 
+                   isOwner(resource.data.userId);
+    }
+    
+    // Posts collection rules
+    match /posts/{postId} {
+      // Anyone can read posts (they're public)
+      allow read: if true;
+      
+      // Only authenticated users can create posts
+      allow create: if isAuthenticated() && 
+                   isValidPostData() &&
+                   isOwner(request.resource.data.authorId);
+      
+      // Users can update their own posts (content, tags, etc.)
+      allow update: if isAuthenticated() && 
+                   isOwner(resource.data.authorId) &&
+                   isValidPostData() &&
+                   // Prevent changing immutable fields
+                   request.resource.data.authorId == resource.data.authorId &&
+                   request.resource.data.createdAt == resource.data.createdAt;
+      
+      // Special rule for likes/dislikes - any authenticated user can update these
+      allow update: if isAuthenticated() && 
+                   // Only allow updating likes/dislikes arrays
+                   request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'dislikes']) &&
+                   // Ensure the user is adding/removing themselves from the arrays
+                   (
+                     (request.resource.data.likes.toSet().difference(resource.data.likes.toSet()).hasOnly([request.auth.uid]) ||
+                      resource.data.likes.toSet().difference(request.resource.data.likes.toSet()).hasOnly([request.auth.uid])) ||
+                     (request.resource.data.dislikes.toSet().difference(resource.data.dislikes.toSet()).hasOnly([request.auth.uid]) ||
+                      resource.data.dislikes.toSet().difference(request.resource.data.dislikes.toSet()).hasOnly([request.auth.uid]))
+                   );
+      
+      // Users can delete their own posts
+      allow delete: if isAuthenticated() && 
+                   isOwner(resource.data.authorId);
+    }
+    
+    // Comments collection rules
+    match /comments/{commentId} {
+      // Anyone can read comments (they're public)
+      allow read: if true;
+      
+      // Only authenticated users can create comments
+      allow create: if isAuthenticated() && 
+                   isValidCommentData() &&
+                   isOwner(request.resource.data.authorId);
+      
+      // Users can update their own comments
+      allow update: if isAuthenticated() && 
+                   isOwner(resource.data.authorId) &&
+                   isValidCommentData() &&
+                   // Prevent changing immutable fields
+                   request.resource.data.postId == resource.data.postId &&
+                   request.resource.data.authorId == resource.data.authorId &&
+                   request.resource.data.createdAt == resource.data.createdAt;
+      
+      // Users can delete their own comments
+      allow delete: if isAuthenticated() && 
+                   isOwner(resource.data.authorId);
+    }
+    
+    // Products collection rules (read-only for users)
+    match /products/{productId} {
+      // Anyone can read products (they're public)
+      allow read: if true;
+      
+      // Only admin can write products (handled server-side)
+      allow write: if false;
+    }
+    
+    // Brands collection rules (read-only for users)
+    match /brands/{brandId} {
+      // Anyone can read brands (they're public)
+      allow read: if true;
+      
+      // Only admin can write brands (handled server-side)
+      allow write: if false;
+    }
+    
+    // Tags collection rules (read-only for users)
+    match /tags/{tagId} {
+      // Anyone can read tags (they're public)
+      allow read: if true;
+      
+      // Only admin can write tags (handled server-side)
+      allow write: if false;
+    }
+    
+    // Default deny rule for any other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
