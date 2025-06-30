@@ -13,6 +13,7 @@ import CreateButton from "@/components/buttons/CreateButton";
 import ContentBox from "@/components/community/ContentBox";
 import { colours } from "@/styles/colours";
 import { useTopBar } from "@/contexts/TopBarContext";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function PostsPage() {
   const [user, setUser] = useState(null);
@@ -358,14 +359,7 @@ export default function PostsPage() {
         <div className="space-y-2 opacity-0 animate-slide-in-bottom" style={{ animationDelay: '200ms' }}>
           {loading ? (
             <ContentBox className="text-center py-12 animate-scale-in">
-              <div 
-                className="animate-spin rounded-full h-12 w-12 mx-auto"
-                style={{ 
-                  borderTopColor: 'transparent',
-                  border: `2px solid ${colours.chart.primary}`,
-                  borderTopWidth: '2px'
-                }}
-              ></div>
+              <LoadingSpinner size = 'small' className="mx-auto h-12 w-12" />
               <p 
                 className="mt-4 animate-fade-in"
                 style={{ color: colours.text.secondary, animationDelay: '300ms' }}
