@@ -23,7 +23,7 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
       <div 
         className="w-full p-3 sm:p-4 rounded-xl border-2 mb-4"
         style={{ 
-          backgroundColor: '#f1f5fb', // baby blue
+          backgroundColor: colours.categories.nutrition.background,
           borderColor: colours.content.border
         }}
       >
@@ -49,7 +49,7 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                 borderColor: (() => {
                   const score = animatedNutrition;
                   const grade = product.combinedNutritionGrade;
-                  if (!grade || grade === 'unknown') return colours.text.muted; // Grey for missing/unknown nutriscore
+                  if (!grade || grade === 'unknown') return colours.text.muted;
                   if (score <= 2) return colours.score.low;
                   if (score <= 3) return colours.score.medium;
                   return colours.score.high;
@@ -57,8 +57,8 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                 backgroundColor: (() => {
                   const score = animatedNutrition;
                   const grade = product.combinedNutritionGrade;
-                  if (!grade || grade === 'unknown') return colours.text.muted + '20'; // Grey for missing/unknown nutriscore
-                  if (score <= 2) return colours.score.low + '20'; // 20% opacity
+                  if (!grade || grade === 'unknown') return colours.text.muted + '20';
+                  if (score <= 2) return colours.score.low + '20';
                   if (score <= 3) return colours.score.medium + '20';
                   return colours.score.high + '20';
                 })(),
@@ -72,7 +72,7 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                     stroke={(() => {
                       const score = animatedNutrition;
                       const grade = product.combinedNutritionGrade;
-                      if (!grade || grade === 'unknown') return colours.text.muted; // Grey for missing/unknown nutriscore
+                      if (!grade || grade === 'unknown') return colours.text.muted;
                       if (score <= 2) return colours.score.low;
                       if (score <= 3) return colours.score.medium;
                       return colours.score.high;
@@ -81,7 +81,7 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                     strokeDasharray={Math.PI * 2 * 18}
                     strokeDashoffset={Math.PI * 2 * 18 * (1 - (() => {
                       const grade = product.combinedNutritionGrade;
-                      if (!grade || grade === 'unknown') return 0; // No fill for missing/unknown nutriscore
+                      if (!grade || grade === 'unknown') return 0;
                       return animatedNutrition / 5;
                     })())}
                     strokeLinecap="round"
@@ -99,7 +99,7 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                       color: (() => {
                         const score = animatedNutrition;
                         const grade = product.combinedNutritionGrade;
-                        if (!grade || grade === 'unknown') return colours.text.muted; // Grey for missing/unknown nutriscore
+                        if (!grade || grade === 'unknown') return colours.text.muted;
                         if (score <= 2) return colours.score.low;
                         if (score <= 3) return colours.score.medium;
                         return colours.score.high;
@@ -123,7 +123,7 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
       <div 
         className="w-full p-3 sm:p-4 rounded-xl border-2"
         style={{ 
-          backgroundColor: '#f1f5fb', // baby blue
+          backgroundColor: '#f1f5fb',
           borderColor: colours.content.border
         }}
       >
@@ -149,9 +149,9 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                 <span 
                   className="text-xs px-2 py-1 rounded-full border-2 shadow-lg"
                   style={{ 
-                    backgroundColor: '#ffffff',
+                    backgroundColor: colours.card.background,
                     color: colours.text.primary,
-                    borderColor: colours.content.border + 'CC' // 80% opacity
+                    borderColor: colours.content.border + 'CC'
                   }}
                 >
                   Energy: {product.nutritionMacros.energy} kcal
@@ -161,9 +161,9 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                 <span 
                   className="text-xs px-2 py-1 rounded-full border-2 shadow-lg"
                   style={{ 
-                    backgroundColor: '#ffffff',
+                    backgroundColor: colours.card.background,
                     color: colours.text.primary,
-                    borderColor: colours.content.border + 'CC' // 80% opacity
+                    borderColor: colours.content.border + 'CC'
                   }}
                 >
                   Protein: {product.nutritionMacros.proteins}g
@@ -175,7 +175,7 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                   style={{ 
                     backgroundColor: '#ffffff',
                     color: colours.text.primary,
-                    borderColor: colours.content.border + 'CC' // 80% opacity
+                    borderColor: colours.content.border + 'CC'
                   }}
                 >
                   Carbs: {product.nutritionMacros.carbohydrates}g
@@ -187,7 +187,7 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                   style={{ 
                     backgroundColor: '#ffffff',
                     color: colours.text.primary,
-                    borderColor: colours.content.border + 'CC' // 80% opacity
+                    borderColor: colours.content.border + 'CC'
                   }}
                 >
                   Sugars: {product.nutritionMacros.sugars}g
@@ -199,7 +199,7 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                   style={{ 
                     backgroundColor: '#ffffff',
                     color: colours.text.primary,
-                    borderColor: colours.content.border + 'CC' // 80% opacity
+                    borderColor: colours.content.border + 'CC'
                   }}
                 >
                   Fat: {product.nutritionMacros.fat}g
@@ -211,7 +211,7 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                   style={{ 
                     backgroundColor: '#ffffff',
                     color: colours.text.primary,
-                    borderColor: colours.content.border + 'CC' // 80% opacity
+                    borderColor: colours.content.border + 'CC'
                   }}
                 >
                   Sat. Fat: {product.nutritionMacros.saturatedFat}g
@@ -223,7 +223,7 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                   style={{ 
                     backgroundColor: '#ffffff',
                     color: colours.text.primary,
-                    borderColor: colours.content.border + 'CC' // 80% opacity
+                    borderColor: colours.content.border + 'CC'
                   }}
                 >
                   Fiber: {product.nutritionMacros.fiber}g
@@ -235,7 +235,7 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
                   style={{ 
                     backgroundColor: '#ffffff',
                     color: colours.text.primary,
-                    borderColor: colours.content.border + 'CC' // 80% opacity
+                    borderColor: colours.content.border + 'CC'
                   }}
                 >
                   Sodium: {(product.nutritionMacros.sodium * 1000).toFixed(0)}mg

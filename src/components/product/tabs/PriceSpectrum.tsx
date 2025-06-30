@@ -48,21 +48,20 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
 }) => {
   const [animatePointer, setAnimatePointer] = useState(false);
 
-  // Trigger animation when component mounts or product changes
   useEffect(() => {
     setAnimatePointer(false);
     const timer = setTimeout(() => {
       setAnimatePointer(true);
-    }, 100); // Small delay to ensure clean animation start
+    }, 100); 
 
     return () => clearTimeout(timer);
   }, [product.id]); // Re-animate when product changes
 
-  // Calculate the statistics for the boxplot
+  /* Calculate the statistics for the boxplot */
   const getPrice = (p: Product) => p.price || p.expectedPrice || 0;
   const productPrice = getPrice(product);
 
-  // If no real prices available, show simple message
+  /* If no real prices available, show simple message */
   if (productPrice === 0 && priceStats.min === 0 && priceStats.max === 0) {
     return (
       <div className="w-full h-24 flex items-center justify-center text-sm" style={{ 
@@ -73,7 +72,7 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
     );
   }
 
-  // If current product has no price but we have price statistics, show different message
+  /* If current product has no price but we have price statistics, show different message */
   if (productPrice === 0 && (priceStats.min > 0 || priceStats.max > 0)) {
     return (
       <div className="w-full h-24 flex flex-col items-center justify-center text-sm" style={{ 
@@ -87,21 +86,20 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
     );
   }
 
-  // Ensure we have valid price range for scaling
+  /* Ensure we have valid price range for scaling */
   const minPrice = Math.max(priceStats.min, 0.01); // Avoid division by zero
   const maxPrice = Math.max(priceStats.max, productPrice, 0.01);
 
-  // Convert prices to position percentages for visualization, accounting for 5% padding on each side
   const scale = (price: number) => {
     if (price === minPrice) return 5; // Align with left edge of spectrum
     if (price === maxPrice) return 95; // Align with right edge of spectrum
-    // Scale between 5% and 95% for other values
+
+    /* Scale between 5% and 95% for other values */
     const range = maxPrice - minPrice;
     if (range === 0) return 50; // If all prices are the same, center it
     return 5 + ((price - minPrice) / range) * 90;
   };
 
-  // Calculate the position of the current product's price
   const currentPosition = scale(productPrice);
   const colors = getPositionColor(productPrice, priceStats.q1, priceStats.q3);
 
@@ -121,14 +119,14 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
             className="h-full"
             style={{ 
               width: `${scale(priceStats.q3) - scale(priceStats.q1)}%`,
-              backgroundColor: colours.score.medium // Yellow for median quartile
+              backgroundColor: colours.score.medium 
             }}
           />
           <div 
             className="h-full rounded-r-full"
             style={{ 
               width: `${100 - scale(priceStats.q3)}%`,
-              backgroundColor: colours.score.low // Red for upper quartile
+              backgroundColor: colours.score.low
             }}
           />
         </div>
@@ -140,7 +138,7 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
             top: '60%',
             left: `${scale(priceStats.median)}%`,
             transform: 'translate(-50%, -50%)',
-            backgroundColor: colours.score.medium // Yellow for median line
+            backgroundColor: colours.score.medium
           }}
         />
         
@@ -174,7 +172,7 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
           <button 
             className="rounded-full shadow-lg px-2 py-1 text-xs font-medium transition-colors border-2 border-dotted"
             style={{
-              backgroundColor: `${colours.status.success.border}50`, // 30% opacity for transparency
+              backgroundColor: `${colours.status.success.border}50`,
               borderColor: colours.status.success.border,
               color: colours.button.success.text
             }}
@@ -187,7 +185,7 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
           <button 
             className="rounded-full shadow-lg px-2 py-1 text-xs font-medium transition-colors border-2 border-dotted"
             style={{
-              backgroundColor: `${colours.status.error.background}50`, // 30% opacity for transparency
+              backgroundColor: `${colours.status.error.background}50`,
               borderColor: colours.status.error.border,
               color: colours.status.error.text
             }}

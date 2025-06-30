@@ -22,7 +22,7 @@ export default function AllergenWarningIcon({ hasAllergens, onClick }: AllergenW
         height: '32px',
         color: colours.status.error.icon,
         backgroundColor: 'transparent',
-        marginRight: '8px', // Pull the icon to align with the content box padding
+        marginRight: '8px',
       }}
       aria-label="Allergen warning - click to view details"
     >

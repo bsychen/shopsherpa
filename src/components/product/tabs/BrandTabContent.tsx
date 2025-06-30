@@ -65,7 +65,7 @@ const BrandTabContent: React.FC<BrandTabContentProps> = ({
                 })(),
                 backgroundColor: (() => {
                   const score = animatedBrand;
-                  if (score <= 2) return colours.score.low + '20'; // 20% opacity
+                  if (score <= 2) return colours.score.low + '20';
                   if (score <= 3) return colours.score.medium + '20';
                   return colours.score.high + '20';
                 })(),
@@ -118,7 +118,7 @@ const BrandTabContent: React.FC<BrandTabContentProps> = ({
       <div 
         className="w-full p-3 sm:p-4 rounded-xl border-2"
         style={{ 
-          backgroundColor: '#f1f5fb', // baby blue
+          backgroundColor: '#f1f5fb',
           borderColor: colours.content.border
         }}
       >
