@@ -209,7 +209,7 @@ const PreferencesRadarChart = forwardRef<PreferencesRadarChartHandle, Preference
     setIsClosing(true);
     
     /* Wait for animation to start, then continue with background save */
-    setTimeout(async () => {
+    const savePreferences = async () => {
       try {
         const updates: Partial<UserProfile> = {};
         preferences.forEach(pref => {
@@ -222,10 +222,12 @@ const PreferencesRadarChart = forwardRef<PreferencesRadarChartHandle, Preference
         setHasChanges(false);
         
         /* Complete the closing animation */
-        setTimeout(() => {
-          onSaveChanges?.();
-          setIsClosing(false);
-        }, 300); /* Wait for the animation to complete */
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            onSaveChanges?.();
+            setIsClosing(false);
+          }, 300); /* Wait for the animation to complete */
+        });
         
       } catch (error) {
         console.error('Failed to save preferences:', error);
@@ -243,7 +245,9 @@ const PreferencesRadarChart = forwardRef<PreferencesRadarChartHandle, Preference
         setIsClosing(false);
         onCancelEdit?.();
       }
-    }, 100); /* Small delay to ensure animation starts */
+    };
+    
+    setTimeout(savePreferences, 100); /* Small delay to ensure animation starts */
   };
 
   const handleResetChanges = () => {
