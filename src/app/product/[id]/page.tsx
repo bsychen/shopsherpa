@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useEffect, use, Suspense, lazy, useMemo } from "react"
+import { useState, useEffect, use, Suspense, lazy } from "react"
 import { onAuthStateChanged, User } from "firebase/auth"
 import { auth } from "@/lib/firebaseClient"
 import { getUserById, getReviewSummary } from "@/lib/api"
+import { ReviewSummary } from "@/types/reviewSummary"
 import { useRouter } from "next/navigation"
 import { useTopBar } from "@/contexts/TopBarContext"
 import TabbedInfoBox from "@/components/product/tabs/TabbedInfoBox"
@@ -68,7 +69,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const { userPreferences } = useUserPreferences(user);
   const allergenWarnings = useAllergenWarnings(userPreferences, product);
   const brandStats = useBrandStats(brandProducts, product, brandReviewSummaries);
-  const { reviews, setReviews, isRealTimeActive, isOnline, newlyAddedReviews } = useRealTimeReviews(id);
+  const { reviews, isRealTimeActive, isOnline, newlyAddedReviews } = useRealTimeReviews(id);
 
   // Calculate scores using utility functions
   const scores = calculateProductScores(product, priceStats, reviewSummary, brandStats, brandRating);
@@ -150,7 +151,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     if (!brandProducts.length || !product) return;
 
     const fetchBrandReviewSummaries = async () => {
-      const summaries: Record<string, any> = {};
+      const summaries: Record<string, ReviewSummary> = {};
       const allBrandProducts = [...brandProducts, product];
       
       try {
