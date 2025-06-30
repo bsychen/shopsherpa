@@ -61,19 +61,16 @@ export function getNutritionScore(grade: string): number {
 }
 
 /* Convert eco score to sustainability score (use ecoscore if available, fallback to sustainbilityScore) */
-export function getSustainabilityScore(product: Product): number {
-  if (product.ecoInformation?.ecoscoreScore !== undefined) {
-    /* Convert 0-100 ecoscore to 1-5 scale */
-    return Math.max(1, Math.min(5, Math.round((product.ecoInformation.ecoscoreScore / 100) * 5)));
-  }
-  
+export function getSustainabilityScore(product: Product): number {  
   if (product.ecoInformation?.ecoscore && product.ecoInformation.ecoscore !== 'not-applicable') {
     const gradeScores: Record<string, number> = {
+      'a-plus': 5,
       'a': 5,
       'b': 4, 
       'c': 3,
       'd': 2,
-      'e': 1
+      'e': 1,
+      'f': 1,
     };
     return gradeScores[product.ecoInformation.ecoscore.toLowerCase()] || DEFAULT_RATING;
   }

@@ -7,9 +7,43 @@ interface SustainabilityTabContentProps {
   animatedSustainability: number;
 }
 
+/* Helper function to get color based on ecoscore */
+const getEcoscoreColor = (ecoscore: string | undefined): string => {
+  if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') {
+    return colours.text.muted;
+  }
+  if (ecoscore === 'f' || ecoscore === 'e' || ecoscore === 'd') {
+    return colours.score.low;
+  }
+  if (ecoscore === 'c') {
+    return colours.score.medium;
+  }
+  return colours.score.high; // a, b grades
+};
+
+/* Helper function to get background color with opacity */
+const getEcoscoreBackgroundColor = (ecoscore: string | undefined): string => {
+  return getEcoscoreColor(ecoscore) + '20'; // 20% opacity
+};
+
+// Helper function to format ecoscore display
+const formatEcoscoreDisplay = (ecoscore: string | undefined): string => {
+  if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') {
+    return '--';
+  }
+  return ecoscore.replace('-plus', '+').toUpperCase();
+};
+
 const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
   product,
+  animatedSustainability,
 }) => {
+  const ecoscore = product.ecoInformation?.ecoscore;
+  const strokeColor = getEcoscoreColor(ecoscore);
+  const backgroundColor = getEcoscoreBackgroundColor(ecoscore);
+  const scorePercentage = animatedSustainability / 5; // Use animated value for ring animation
+  const displayScore = formatEcoscoreDisplay(ecoscore);
+
   return (
     <div className="w-full flex flex-col items-center opacity-0 animate-fade-in px-1" style={{ animationDelay: '0.05s' }}>
       <h2 
@@ -45,20 +79,8 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
             <div 
               className="relative w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center"
               style={{
-                borderColor: (() => {
-                  const ecoscore = product.ecoInformation?.ecoscore;
-                  if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') return colours.text.muted; /* Grey for missing/not-applicable/unknown */
-                  if (ecoscore === 'f' || ecoscore === 'e' || ecoscore === 'd') return colours.score.low;
-                  if (ecoscore === 'c') return colours.score.medium;
-                  return colours.score.high; /* a, b grades */
-                })(),
-                backgroundColor: (() => {
-                  const ecoscore = product.ecoInformation?.ecoscore;
-                  if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') return colours.text.muted + '20'; /* Grey for missing/not-applicable/unknown */
-                  if (ecoscore === 'f' || ecoscore === 'e' || ecoscore === 'd') return colours.score.low + '20';
-                  if (ecoscore === 'c') return colours.score.medium + '20';
-                  return colours.score.high + '20'; /* a, b grades */
-                })(),
+                borderColor: strokeColor,
+                backgroundColor: backgroundColor,
               }}
             >
               <span className="relative inline-block w-12 h-12 align-middle">
@@ -66,21 +88,10 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
                   <circle
                     cx="24" cy="24" r="18"
                     fill="none"
-                    stroke={(() => {
-                      const ecoscore = product.ecoInformation?.ecoscore;
-                      if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') return colours.text.muted; /* Grey for missing/not-applicable/unknown */
-                      if (ecoscore === 'f' || ecoscore === 'e' || ecoscore === 'd') return colours.score.low;
-                      if (ecoscore === 'c') return colours.score.medium;
-                      return colours.score.high; /* a, b grades */
-                    })()}
+                    stroke={strokeColor}
                     strokeWidth="3"
                     strokeDasharray={Math.PI * 2 * 18}
-                    strokeDashoffset={Math.PI * 2 * 18 * (1 - (() => {
-                      const ecoscore = product.ecoInformation?.ecoscore;
-                      if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') return 0; /* No fill for missing/not-applicable/unknown */
-                      const gradeToScore = { 'a-plus': 5, 'a': 5, 'b': 4, 'c': 3, 'd': 2, 'e': 1, 'f': 0};
-                      return (gradeToScore[ecoscore.toLowerCase()] || 0) / 5;
-                    })())}
+                    strokeDashoffset={Math.PI * 2 * 18 * (1 - scorePercentage)}
                     strokeLinecap="round"
                     style={{
                       transition: 'stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1), stroke 0.7s cubic-bezier(0.4,0,0.2,1)',
@@ -92,21 +103,9 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span 
                     className="text-xl font-bold"
-                    style={{
-                      color: (() => {
-                        const ecoscore = product.ecoInformation?.ecoscore;
-                        if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') return colours.text.muted; /* Grey for missing/not-applicable/unknown */
-                        if (ecoscore === 'f' || ecoscore === 'e' || ecoscore === 'd') return colours.score.low;
-                        if (ecoscore === 'c') return colours.score.medium;
-                        return colours.score.high; /* a, b grades */
-                      })()
-                    }}
+                    style={{ color: strokeColor }}
                   >
-                    {(() => {
-                      const ecoscore = product.ecoInformation?.ecoscore;
-                      if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') return '--';
-                      return ecoscore.replace('-plus', '+').toUpperCase();
-                    })()}
+                    {displayScore}
                   </span>
                 </div>
               </span>
@@ -132,7 +131,7 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
               Packaging Info
             </span>
           </div>
-          {product.ecoInformation && product.ecoInformation.packagingInfo && product.ecoInformation.packagingInfo.length > 0 ? (
+          {product.ecoInformation?.packagingInfo?.length ? (
             <div className="w-full">
               <div className="flex flex-wrap gap-1.5 pb-2 break-words">
                 {product.ecoInformation.packagingInfo.slice(0, 8).map((item, index) => (
