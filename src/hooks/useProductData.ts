@@ -77,7 +77,7 @@ export function useProductData(id: string) {
     if (sameProducts.length > 1) {
       return calculatePriceStats(sameProducts);
     } else {
-      const currentPrice = product.price || product.expectedPrice || 0;
+      const currentPrice = product.price || 0;
       if (currentPrice > 0) {
         return {
           min: currentPrice,

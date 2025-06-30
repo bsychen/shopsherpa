@@ -58,7 +58,7 @@ const PriceSpectrum: React.FC<PriceSpectrumProps> = ({
   }, [product.id]); /* Re-animate when product changes */
 
   /* Calculate the statistics for the boxplot */
-  const getPrice = (p: Product) => p.price || p.expectedPrice || 0;
+  const getPrice = (p: Product) => p.price || 0;
   const productPrice = getPrice(product);
 
   /* If no real prices available, show simple message */

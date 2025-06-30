@@ -13,11 +13,8 @@ export interface Product{
   price: number;
   pricePerUnit: number;
   unitOfMeasure: string;
-  sustainabilityCertificationCode: string;
-  sustainbilityScore: number;
   imageUrl: string;
   combinedNutritionGrade: string;
-  expectedPrice: number;
   labels: string[];
   // Nutrition macros per 100g
   nutritionMacros: {

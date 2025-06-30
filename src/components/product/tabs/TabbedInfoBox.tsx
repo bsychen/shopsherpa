@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import Image from "next/image";
 import { Product } from "@/types/product";
 import { ReviewSummary } from "@/types/reviewSummary";
 import { colours } from "@/styles/colours";
+import { BrandStats } from "@/types/brand";
 import {
   PriceTabContent,
   QualityTabContent,
@@ -10,16 +11,7 @@ import {
   SustainabilityTabContent,
   BrandTabContent
 } from ".";
-
-/* Brand statistics interface */
-interface BrandStats {
-  price: number;
-  quality: number;
-  nutrition: number;
-  sustainability: number;
-  overallScore: number;
-  productCount: number;
-}
+import { getNutritionScore, DEFAULT_RATING, getSustainabilityScore } from "@/utils/productScoring";
 
 const TAB_ICONS: Record<string, React.ReactNode> = {
   Price: <Image src="/pound-svgrepo-com.svg" alt="Price" width={24} height={24} className="w-6 h-6" />,
@@ -72,46 +64,22 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   /* Derived state: collapsed when activeTab is empty */
   const isCollapsed = activeTab === "";
 
-  /* Convert nutrition grade to score (A=5, B=4, C=3, D=2, E=1, unknown=2) */
-  function getNutritionScore(grade: string): number {
-    const scores: Record<string, number> = {
-      'a': 5,
-      'b': 4,
-      'c': 3,
-      'd': 2,
-      'e': 1
-    };
-    return scores[grade.toLowerCase()] || 2;
-  }
-
   /* Animation trigger function */
-  const triggerAnimation = (tab: string) => {
+  const triggerAnimation = useCallback((tab: string) => {
     if (tab === "Quality") {
       setAnimatedQuality(0);
       setTimeout(() => setAnimatedQuality(reviewSummary?.averageRating || 0), 50);
     } else if (tab === "Brand") {
       setAnimatedBrand(0);
-      setTimeout(() => setAnimatedBrand(brandStats?.overallScore || 3), 50);
+      setTimeout(() => setAnimatedBrand(brandStats?.overallScore || DEFAULT_RATING), 50);
     } else if (tab === "Sustainability") {
       setAnimatedSustainability(0);
-      /* Use the same logic as in the main page */
-      let sustainabilityScore = 3;
-      if (product?.ecoInformation?.ecoscoreScore !== undefined) {
-        sustainabilityScore = Math.max(1, Math.min(5, Math.round((product.ecoInformation.ecoscoreScore / 100) * 5)));
-      } else if (product?.ecoInformation?.ecoscore && product.ecoInformation.ecoscore !== 'not-applicable') {
-        const gradeScores: Record<string, number> = {
-          'a': 5, 'b': 4, 'c': 3, 'd': 2, 'e': 1
-        };
-        sustainabilityScore = gradeScores[product.ecoInformation.ecoscore.toLowerCase()] || 3;
-      } else {
-        sustainabilityScore = product?.sustainbilityScore || 3;
-      }
-      setTimeout(() => setAnimatedSustainability(sustainabilityScore), 50);
+      setTimeout(() => setAnimatedSustainability(getSustainabilityScore(product)), 50);
     } else if (tab === "Nutrition") {
       setAnimatedNutrition(0);
       setTimeout(() => setAnimatedNutrition(getNutritionScore(product?.combinedNutritionGrade || '')), 50);
     }
-  };
+  }, [reviewSummary?.averageRating, brandStats?.overallScore, product]);
 
   /* Update sliding bar position/width on tab change or window resize */
   useEffect(() => {
@@ -141,14 +109,11 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
   useEffect(() => {
     if (isCollapsed) {
       /* When collapsed, only show the tabs height (no margin below) */
-      setBoxHeight(28); /* Just the tab height without bottom margin */
+      setBoxHeight(28);
     } else if (contentRef.current) {
-      /* When expanded, calculate content height */
       const newHeight = contentRef.current.scrollHeight;
-      
-      /* Use requestAnimationFrame to ensure smooth height transition */
       requestAnimationFrame(() => {
-        setBoxHeight(newHeight + 40); /* Add tab height */
+        setBoxHeight(newHeight + 40);
       });
     }
   }, [activeTab, product, reviewSummary, showMinProduct, showMaxProduct, isCollapsed, brandStats]);
@@ -157,16 +122,14 @@ const TabbedInfoBox: React.FC<TabbedInfoBoxProps> = ({
     if (!isCollapsed && activeTab !== "") {
       triggerAnimation(activeTab);
     }
-    /* eslint-disable-next-line */
-  }, [activeTab, reviewSummary]);
+  }, [activeTab, reviewSummary, isCollapsed, triggerAnimation]);
 
   /* Trigger animation when activeTab changes externally (e.g., from radar chart) */
   useEffect(() => {
     if (activeTab !== "") {
       triggerAnimation(activeTab);
     }
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [activeTab]);
+  }, [activeTab, triggerAnimation]);
 
   /* Get category background color based on active tab */
   const getCategoryBackground = () => {

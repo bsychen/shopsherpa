@@ -23,7 +23,7 @@ const NutritionTabContent: React.FC<NutritionTabContentProps> = ({
       <div 
         className="w-full p-3 sm:p-4 rounded-xl border-2 mb-4"
         style={{ 
-          backgroundColor: colours.categories.nutrition.background,
+          backgroundColor: colours.button.primary.background,
           borderColor: colours.content.border
         }}
       >

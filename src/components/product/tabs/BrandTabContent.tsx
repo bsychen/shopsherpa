@@ -2,15 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { Product } from "@/types/product";
 import { colours } from "@/styles/colours";
-
-interface BrandStats {
-  price: number;
-  quality: number;
-  nutrition: number;
-  sustainability: number;
-  overallScore: number;
-  productCount: number;
-}
+import { BrandStats } from "@/types/brand";
 
 interface BrandTabContentProps {
   product: Product;

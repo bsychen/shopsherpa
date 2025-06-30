@@ -1,6 +1,8 @@
 import { Product } from "@/types/product";
 import { ReviewSummary } from "@/types/reviewSummary";
 
+export const DEFAULT_RATING = 3; // Default brand rating if not available
+
 export interface ProductScores {
   price: number;
   quality: number;
@@ -44,7 +46,7 @@ export function getQuartileScore(price: number, q1: number, q3: number): number 
   if (!price || q1 === q3) return 3;
   if (price <= q1) return 5;
   if (price >= q3) return 1;
-  return 3;
+  return DEFAULT_RATING;
 }
 
 export function getNutritionScore(grade: string): number {
@@ -73,10 +75,10 @@ export function getSustainabilityScore(product: Product): number {
       'd': 2,
       'e': 1
     };
-    return gradeScores[product.ecoInformation.ecoscore.toLowerCase()] || 3;
+    return gradeScores[product.ecoInformation.ecoscore.toLowerCase()] || DEFAULT_RATING;
   }
   
-  return product.sustainbilityScore || 3;
+  return DEFAULT_RATING; // Default score if no ecoscore available
 }
 
 /* Calculate weighted match percentage based on user preferences and product scores */
@@ -114,12 +116,12 @@ export function calculateProductScores(
   priceStats: PriceStats,
   reviewSummary: ReviewSummary | null,
   brandStats: BrandStats | null,
-  brandRating: number = 3
+  brandRating: number = DEFAULT_RATING
 ): ProductScores {
-  const priceScore = product ? getQuartileScore(product.price || 0, priceStats.q1, priceStats.q3) : 3;
-  const qualityScore = reviewSummary?.averageRating || 3;
-  const nutritionScore = product ? getNutritionScore(product.combinedNutritionGrade || '') : 2;
-  const sustainabilityScore = product ? getSustainabilityScore(product) : 3;
+  const priceScore = product ? getQuartileScore(product.price || 0, priceStats.q1, priceStats.q3) : DEFAULT_RATING;
+  const qualityScore = reviewSummary?.averageRating || DEFAULT_RATING;
+  const nutritionScore = product ? getNutritionScore(product.combinedNutritionGrade || '') : DEFAULT_RATING;
+  const sustainabilityScore = product ? getSustainabilityScore(product) : DEFAULT_RATING;
   const brandScore = brandStats?.overallScore || brandRating;
 
   return {
@@ -132,7 +134,7 @@ export function calculateProductScores(
 }
 
 export function calculatePriceStats(products: Product[]): PriceStats {
-  const getPrice = (p: Product) => p.price || p.expectedPrice || 0;
+  const getPrice = (p: Product) => p.price || 0;
   const prices = products.map(getPrice).filter(p => p > 0);
   
   if (prices.length === 0) {

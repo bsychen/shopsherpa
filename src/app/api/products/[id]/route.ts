@@ -83,73 +83,77 @@ async function fetchProductData(id: string){
     }
 
     return {
-    productName: productName,
-    productNameLower: productName.toLowerCase(),
-    brandName: brandName,
-    brandId: brandId,
-    combinedCategory: [...new Set([
-      ...(data.product.categories_fr ? [data.product.categories_fr] : []),
-      ...(data.product.categories_properties_tags || []),
-      ...(data.product.categories_properties ? Object.keys(data.product.categories_properties) : []),
-      ...(data.product.main_category ? [data.product.main_category] : []),
-      ...(data.product.main_category_fr ? [data.product.main_category_fr] : [])
-    ])],
-    categoriesTags: data.product.categories_tags || [],
-    genericNameLower: (data.product.generic_name || data.product.generic_name_en)
-      ? (data.product.generic_name || data.product.generic_name_en).toLowerCase()
-      : '',
-    countryOfOriginCode: Array.isArray(data.product.countries_tags) ? data.product.countries_tags[0] : '',
-    alergenInformation: [...new Set([
-      ...(data.product.allergens ? [data.product.allergens] : []),
-      ...(data.product.allergens_tags || []),
-      /* ...(data.product.allergens_from_ingredients ? [data.product.allergens_from_ingredients] : []), */
-      /* ...(data.product.allergens_from_user ? [data.product.allergens_from_user] : []), */
-      /* ...(data.product.allergens_hierarchy || []) */
-    ])],
-    tracesInformation: [...new Set([
-      ...(data.product.traces ? [data.product.traces] : []),
-      ...(data.product.traces_tags || []),
-      ...(data.product.traces_hierarchy || [])
-    ])],
-    price: data.product.price || 0,
-    pricePerUnit: data.product.price_per_unit || 0,
-    unitOfMeasure: data.product.unit_of_measure || '',
-    sustainabilityCertificationCode: Array.isArray(data.product.sustainability_labels_tags) ? data.product.sustainability_labels_tags[0] : '',
-    sustainbilityScore: 3, /* Default value, adjust as needed */
-    imageUrl: data.product.image_url || '',
-    combinedNutritionGrade: data.product.nutrition_grade_en || 
-      data.product.nutrition_grade_fr || 
-      data.product.nutrition_grades || 
-      (data.product.nutrition_grades_tags && data.product.nutrition_grades_tags.length > 0 ? data.product.nutrition_grades_tags[0] : '') || '',
-    expectedPrice: 0,
-    labels: [...new Set([
-      ...(data.product.labels ? [data.product.labels] : []),
-      ...(data.product.labels_tags || [])
-    ])],
-    /* Nutrition macros per 100g (filter out undefined values) */
-    nutritionMacros: Object.fromEntries(
-      Object.entries({
-        energy: data.product.nutriments?.['energy-kcal_100g'] ? parseFloat(data.product.nutriments['energy-kcal_100g']) : undefined,
-        proteins: data.product.nutriments?.proteins_100g ? parseFloat(data.product.nutriments.proteins_100g) : undefined,
-        carbohydrates: data.product.nutriments?.carbohydrates_100g ? parseFloat(data.product.nutriments.carbohydrates_100g) : undefined,
-        sugars: data.product.nutriments?.sugars_100g ? parseFloat(data.product.nutriments.sugars_100g) : undefined,
-        fat: data.product.nutriments?.fat_100g ? parseFloat(data.product.nutriments.fat_100g) : undefined,
-        saturatedFat: data.product.nutriments?.['saturated-fat_100g'] ? parseFloat(data.product.nutriments['saturated-fat_100g']) : undefined,
-        fiber: data.product.nutriments?.fiber_100g ? parseFloat(data.product.nutriments.fiber_100g) : undefined,
-        sodium: data.product.nutriments?.sodium_100g ? parseFloat(data.product.nutriments.sodium_100g) : undefined,
-      }).filter(([_, value]) => value !== undefined)
-    ),
-    /* Sustainability/eco information (filter out undefined values) */
-    ecoInformation: Object.fromEntries(
-      Object.entries({
-        ecoscore: data.product.ecoscore_grade || undefined,
-        ecoscoreScore: data.product.ecoscore_data?.score ? parseFloat(data.product.ecoscore_data.score) : undefined,
-        packagingInfo: [...new Set([
-          ...(data.product.packaging_tags || []),
-          ...(data.product.packaging_materials_tags || [])
-        ])],
-      }).filter(([_, value]) => value !== undefined)
-    ),
+      /* Name and Brand Information */
+      productName: productName,
+      productNameLower: productName.toLowerCase(),
+      imageUrl: data.product.image_url || '',
+      brandName: brandName,
+      brandId: brandId,
+
+      /* Category Information */
+      combinedCategory: [...new Set([
+        ...(data.product.categories_fr ? [data.product.categories_fr] : []),
+        ...(data.product.categories_properties_tags || []),
+        ...(data.product.categories_properties ? Object.keys(data.product.categories_properties) : []),
+        ...(data.product.main_category ? [data.product.main_category] : []),
+        ...(data.product.main_category_fr ? [data.product.main_category_fr] : [])
+      ])],
+      categoriesTags: data.product.categories_tags || [],
+      genericNameLower: (data.product.generic_name || data.product.generic_name_en)
+        ? (data.product.generic_name || data.product.generic_name_en).toLowerCase()
+        : '',
+
+      countryOfOriginCode: Array.isArray(data.product.countries_tags) ? data.product.countries_tags[0] : '',
+
+      price: data.product.price || 0,
+      pricePerUnit: data.product.price_per_unit || 0,
+      unitOfMeasure: data.product.unit_of_measure || '',
+
+      /* Nutrition information  */
+      combinedNutritionGrade: data.product.nutrition_grade_en || 
+        data.product.nutrition_grade_fr || 
+        data.product.nutrition_grades || 
+        (data.product.nutrition_grades_tags && data.product.nutrition_grades_tags.length > 0 ? data.product.nutrition_grades_tags[0] : '') || '',
+
+      labels: [...new Set([
+        ...(data.product.labels ? [data.product.labels] : []),
+        ...(data.product.labels_tags || [])
+      ])],
+      alergenInformation: [...new Set([
+        ...(data.product.allergens ? [data.product.allergens] : []),
+        ...(data.product.allergens_tags || []),
+      ])],
+      tracesInformation: [...new Set([
+        ...(data.product.traces ? [data.product.traces] : []),
+        ...(data.product.traces_tags || []),
+        ...(data.product.traces_hierarchy || [])
+      ])],
+
+      /* Nutrition macros per 100g (filter out undefined values) */
+      nutritionMacros: Object.fromEntries(
+        Object.entries({
+          energy: data.product.nutriments?.['energy-kcal_100g'] ? parseFloat(data.product.nutriments['energy-kcal_100g']) : undefined,
+          proteins: data.product.nutriments?.proteins_100g ? parseFloat(data.product.nutriments.proteins_100g) : undefined,
+          carbohydrates: data.product.nutriments?.carbohydrates_100g ? parseFloat(data.product.nutriments.carbohydrates_100g) : undefined,
+          sugars: data.product.nutriments?.sugars_100g ? parseFloat(data.product.nutriments.sugars_100g) : undefined,
+          fat: data.product.nutriments?.fat_100g ? parseFloat(data.product.nutriments.fat_100g) : undefined,
+          saturatedFat: data.product.nutriments?.['saturated-fat_100g'] ? parseFloat(data.product.nutriments['saturated-fat_100g']) : undefined,
+          fiber: data.product.nutriments?.fiber_100g ? parseFloat(data.product.nutriments.fiber_100g) : undefined,
+          sodium: data.product.nutriments?.sodium_100g ? parseFloat(data.product.nutriments.sodium_100g) : undefined,
+        }).filter(([_, value]) => value !== undefined)
+      ),
+
+      /* Sustainability/eco information (filter out undefined values) */
+      ecoInformation: Object.fromEntries(
+        Object.entries({
+          ecoscore: data.product.ecoscore_grade || undefined,
+          ecoscoreScore: data.product.ecoscore_data?.score ? parseFloat(data.product.ecoscore_data.score) : undefined,
+          packagingInfo: [...new Set([
+            ...(data.product.packaging_tags || []),
+            ...(data.product.packaging_materials_tags || [])
+          ])],
+        }).filter(([_, value]) => value !== undefined)
+      )
   };
 }
 
