@@ -167,15 +167,15 @@ export default function ReviewPage() {
           <div 
             className="p-4 rounded-lg text-lg font-medium"
             style={{ 
-              backgroundColor: colours.status.success.background,
+              backgroundColor: colours.card.background,
               color: colours.status.success.text,
-              border: `1px solid ${colours.status.success.border}`
+              border: `2px dotted ${colours.status.success.border}`
             }}
           >
             ✓ Review submitted successfully!
           </div>
           <div className="flex flex-col items-center space-y-3">
-            <LoadingAnimation size="small"/>
+            <LoadingAnimation size="small"/>  
             <p 
               className="text-sm"
               style={{ color: colours.text.secondary }}
