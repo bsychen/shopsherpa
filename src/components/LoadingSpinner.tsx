@@ -38,7 +38,7 @@ export default function LoadingAnimation({ size = 'large', className }: LoadingA
             className={`absolute inset-0 ${classes.container} rounded-full`}
             style={{ 
               backgroundColor: colours.background.primary,
-              boxShadow: 'inset 0 8px 20px rgba(0, 0, 0, 0.3), inset 0 4px 12px rgba(0, 0, 0, 0.2)'
+              boxShadow: size === 'small' ? 'none' : 'inset 0 8px 20px rgba(0, 0, 0, 0.3), inset 0 4px 12px rgba(0, 0, 0, 0.2)'
             }}
           />
           <div className={`relative ${classes.spinner} flex items-center justify-center z-10 mb-4`}>

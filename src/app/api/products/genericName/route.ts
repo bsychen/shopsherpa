@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Generic name parameter is required" }, { status: 400 });
     }
 
-    // Convert to lowercase for case-insensitive comparison
+    /* Convert to lowercase for case-insensitive comparison */
     const lowerGenericName = genericName.toLowerCase();
 
     const productsSnapshot = await db

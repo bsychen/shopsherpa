@@ -4,10 +4,10 @@ import { ProductSearchResult } from "@/types/product";
 import Fuse from "fuse.js";
 
 const FUZZY_THRESHOLD = 0.3;
-const CACHE_DURATION = 300; // 5 minutes
-const SEARCH_LIMIT = 500; // Increased for better search quality
+const CACHE_DURATION = 300; /* 5 minutes */
+const SEARCH_LIMIT = 500; /* Increased for better search quality */
 
-// In-memory cache for products
+/* In-memory cache for products */
 let productsCache: {
   data: ProductSearchResult[];
   timestamp: number;
@@ -16,15 +16,15 @@ let productsCache: {
 async function getCachedProducts(): Promise<ProductSearchResult[]> {
   const now = Date.now();
   
-  // Return cached data if still valid
+  /* Return cached data if still valid */
   if (productsCache && (now - productsCache.timestamp) < CACHE_DURATION * 1000) {
     return productsCache.data;
   }
   
-  // Fetch fresh data
+  /* Fetch fresh data */
   const productsSnapshot = await db
     .collection("products")
-    .select("productName", "brandName", "imageUrl") // Only fetch needed fields
+    .select("productName", "brandName", "imageUrl") /* Only fetch needed fields */
     .limit(SEARCH_LIMIT)
     .get();
 
@@ -39,7 +39,7 @@ async function getCachedProducts(): Promise<ProductSearchResult[]> {
     });
   });
 
-  // Update cache
+  /* Update cache */
   productsCache = {
     data: products,
     timestamp: now,
@@ -58,10 +58,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json([]);
     }
 
-    // Get cached products
+    /* Get cached products */
     const products = await getCachedProducts();
 
-    // Use Fuse.js for fuzzy search
+    /* Use Fuse.js for fuzzy search */
     const fuse = new Fuse(products, {
       keys: ['productName', 'brandName'],
       threshold: FUZZY_THRESHOLD,
@@ -71,10 +71,10 @@ export async function GET(req: NextRequest) {
     const searchResults = fuse.search(query);
     const results = searchResults.map(result => result.item);
     
-    // Apply limit
+    /* Apply limit */
     const limitedResults = results.slice(0, limit);
     
-    // Add cache headers
+    /* Add cache headers */
     const response = NextResponse.json(limitedResults);
     response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
     

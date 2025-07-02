@@ -13,13 +13,13 @@ export async function GET(request: NextRequest) {
 
     let postsQuery: Query<DocumentData> | CollectionReference<DocumentData> = db.collection('posts');
 
-    // Only apply one filter at a time to avoid composite index requirements
+    /* Only apply one filter at a time to avoid composite index requirements */
     if (tags.length > 0) {
       postsQuery = postsQuery.where('tags', 'array-contains-any', tags);
     } else if (searchTerm) {
       postsQuery = postsQuery.where('title', '>=', searchTerm).where('title', '<=', searchTerm + '\uf8ff');
     } else {
-      // If no filters, we can safely order by createdAt
+      /* If no filters, we can safely order by createdAt */
       postsQuery = postsQuery.orderBy('createdAt', 'desc');
     }
 
@@ -31,14 +31,14 @@ export async function GET(request: NextRequest) {
         const data = docSnapshot.data();
         let linkedProduct = null;
 
-        // Fetch linked product details if exists
+        /* Fetch linked product details if exists */
         if (data.linkedProductId) {
           try {
             const productDoc = await db.collection('products').doc(data.linkedProductId).get();
             if (productDoc.exists) {
               const productData = productDoc.data();
               linkedProduct = {
-                id: data.linkedProductId, // Use the document ID instead of productData.id
+                id: data.linkedProductId, /* Use the document ID instead of productData.id */
                 name: productData?.productName,
                 imageUrl: productData?.imageUrl,
               };
@@ -58,16 +58,16 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    // Sort in JavaScript if we have filters applied or need specific sorting
+    /* Sort in JavaScript if we have filters applied or need specific sorting */
     if (tags.length > 0 || searchTerm) {
       posts.sort((a, b) => {
         const aTime = a.createdAt.getTime();
         const bTime = b.createdAt.getTime();
-        return bTime - aTime; // desc order
+        return bTime - aTime; /* desc order */
       });
     }
 
-    // Sort by popularity if requested (after fetching likes/dislikes)
+    /* Sort by popularity if requested (after fetching likes/dislikes) */
     if (sortBy === 'popular') {
       posts.sort((a, b) => {
         const postA = a as Post;

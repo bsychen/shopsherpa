@@ -8,7 +8,7 @@ import { useRouter, useParams } from "next/navigation";
 import { getProduct, createReview as _createReview } from "@/lib/api";
 import { Product } from "@/types/product";
 import { colours } from "@/styles/colours";
-import ContentBox from "@/components/ContentBox";
+import ContentBox from "@/components/community/ContentBox";
 import LoadingAnimation from "@/components/LoadingSpinner";
 import StarIcon from "@/components/Icons";
 import { useTopBar } from "@/contexts/TopBarContext";
@@ -34,7 +34,7 @@ export default function ReviewPage() {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       if (!firebaseUser) {
-        // Save intended path for post-auth redirect
+        /* Save intended path for post-auth redirect */
         localStorage.setItem("postAuthRedirect", `/review/create/${id}`);
         router.push("/auth");
       }
@@ -51,14 +51,14 @@ export default function ReviewPage() {
     });
   }, [id]);
 
-  // Set up back button in top bar
+  /* Set up back button in top bar */
   useEffect(() => {
     setTopBarState({
       showBackButton: true,
       onBackClick: () => router.push(`/product/${id}`)
     });
 
-    // Cleanup when component unmounts
+    /* Cleanup when component unmounts */
     return () => {
       resetTopBar();
     };
@@ -74,7 +74,7 @@ export default function ReviewPage() {
       if (!user?.uid) throw new Error("User not authenticated");
       if (!rating) throw new Error("Please select a rating");
 
-      // Create review directly in Firestore for real-time updates
+      /* Create review directly in Firestore for real-time updates */
       const reviewData = {
         productId: id,
         userId: user.uid,
@@ -91,7 +91,7 @@ export default function ReviewPage() {
       setRating(0);
       setIsAnonymous(false);
       
-      // Redirect back to product page after a short delay
+      /* Redirect back to product page after a short delay */
       setTimeout(() => {
         router.push(`/product/${id}`);
       }, 2000);
@@ -167,15 +167,15 @@ export default function ReviewPage() {
           <div 
             className="p-4 rounded-lg text-lg font-medium"
             style={{ 
-              backgroundColor: colours.status.success.background,
+              backgroundColor: colours.card.background,
               color: colours.status.success.text,
-              border: `1px solid ${colours.status.success.border}`
+              border: `2px dotted ${colours.status.success.border}`
             }}
           >
             ✓ Review submitted successfully!
           </div>
           <div className="flex flex-col items-center space-y-3">
-            <LoadingAnimation size="small"/>
+            <LoadingAnimation size="small"/>  
             <p 
               className="text-sm"
               style={{ color: colours.text.secondary }}
@@ -266,10 +266,11 @@ export default function ReviewPage() {
           )}
           <button
             type="submit"
-            className="w-full font-semibold py-3 px-4 rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed opacity-0 animate-fade-in"
+            className="w-full font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed opacity-0 animate-fade-in"
             style={{
-              backgroundColor: colours.button.success.background,
+              backgroundColor: colours.button.primary.background,
               color: colours.button.primary.text,
+              border: `2px solid ${colours.button.primary.border}`,
               animationDelay: '0.6s'
             }}
             disabled={submitting || rating === 0}

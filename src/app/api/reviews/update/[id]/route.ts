@@ -10,7 +10,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const reviewText = searchParams.get('reviewText') || undefined;
     const rating = parseInt(searchParams.get('rating'));
 
-    // Defensive: Only update provided fields
+    /* Defensive: Only update provided fields */
     const updateData: Partial<Review> & { updatedAt: Date } = {
       updatedAt: new Date(),
     };

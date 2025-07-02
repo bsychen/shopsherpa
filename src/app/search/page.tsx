@@ -9,13 +9,13 @@ import { auth } from "@/lib/firebaseClient";
 import { searchProducts } from "@/lib/api";
 import { colours } from "@/styles/colours";
 import { ProductSearchResult } from "@/types/product";
-import RecentlyViewedProducts from "@/components/RecentlyViewedProducts";
-import ContentBox from "@/components/ContentBox";
+import RecentlyViewedProducts from "@/components/search/RecentlyViewedProducts";
+import ContentBox from "@/components/community/ContentBox";
 import LoadingAnimation from "@/components/LoadingSpinner";
-import SearchButton from "@/components/SearchButton";
+import SearchButton from "@/components/search/SearchButton";
 import { useTopBar } from "@/contexts/TopBarContext";
 
-// Debounce hook
+/* Debounce hook */
 function useDebounce(value: string, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -32,7 +32,7 @@ function useDebounce(value: string, delay: number) {
   return debouncedValue;
 }
 
-// Memoized SearchResult component for better performance
+/* Memoized SearchResult component for better performance */
 const SearchResult = memo(({ product, onSelect }: { product: ProductSearchResult; onSelect: () => void }) => {
   return (
     <Link
@@ -78,36 +78,36 @@ export default function ProductSearch() {
   const router = useRouter();
   const { setNavigating } = useTopBar();
   
-  const debouncedQuery = useDebounce(query, 500); // Increased debounce delay
+  const debouncedQuery = useDebounce(query, 500); /* Increased debounce delay */
 
-  // Filter cameras to select only back camera (prefer ultrawide if available)
+  /* Filter cameras to select only back camera (prefer ultrawide if available) */
   const filterCameras = async (devices: MediaDeviceInfo[]): Promise<MediaDeviceInfo[]> => {
     const backCameras: MediaDeviceInfo[] = [];
     const frontCameras: MediaDeviceInfo[] = [];
     const ultrawideCameras: MediaDeviceInfo[] = [];
     
-    // First, try to get proper camera permissions to ensure device labels are available
+    /* First, try to get proper camera permissions to ensure device labels are available */
     let permissionGranted = false;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       stream.getTracks().forEach(track => track.stop());
       permissionGranted = true;
       
-      // Re-enumerate devices after permission is granted to get proper labels
+      /* Re-enumerate devices after permission is granted to get proper labels */
       const devicesWithLabels = await navigator.mediaDevices.enumerateDevices();
       const videoDevices = devicesWithLabels.filter(device => device.kind === 'videoinput');
       
-      // Use the devices with proper labels if available
+      /* Use the devices with proper labels if available */
       if (videoDevices.length > 0) {
         devices = videoDevices;
       }
     } catch {
-      // Permission denied or not available, continue with existing devices
+      /* Permission denied or not available, continue with existing devices */
     }
     
     for (const device of devices) {
       try {
-        // Get camera capabilities to determine facing mode (only if permission granted)
+        /* Get camera capabilities to determine facing mode (only if permission granted) */
         if (permissionGranted) {
           const stream = await navigator.mediaDevices.getUserMedia({
             video: { deviceId: device.deviceId }
@@ -117,14 +117,14 @@ export default function ProductSearch() {
           const capabilities = track.getCapabilities();
           const settings = track.getSettings();
           
-          // Stop the stream immediately
+          /* Stop the stream immediately */
           stream.getTracks().forEach(track => track.stop());
           
-          // Check for facing mode or camera type in label
+          /* Check for facing mode or camera type in label */
           const label = device.label.toLowerCase();
           const facingMode = settings.facingMode || capabilities.facingMode;
           
-          // Categorize cameras with more specific filtering
+          /* Categorize cameras with more specific filtering */
           if (facingMode === 'user' || 
               label.includes('front') || 
               label.includes('selfie')) {
@@ -142,7 +142,7 @@ export default function ProductSearch() {
             backCameras.push(device);
           }
         } else {
-          // Fallback: use label-based filtering without stream access
+          /* Fallback: use label-based filtering without stream access */
           const label = device.label.toLowerCase();
           if (label.includes('front') || 
               label.includes('selfie')) {
@@ -160,7 +160,7 @@ export default function ProductSearch() {
           }
         }
       } catch {
-        // If we can't get capabilities, use label-based filtering
+        /* If we can't get capabilities, use label-based filtering */
         const label = device.label.toLowerCase();
         if (label.includes('front') || 
             label.includes('selfie')) {
@@ -177,13 +177,13 @@ export default function ProductSearch() {
       }
     }
     
-    // Build final camera selection: only one back camera
+    /* Build final camera selection: only one back camera */
     const filtered: MediaDeviceInfo[] = [];
     
-    // Select the best back camera (prefer ultrawide if available, otherwise first back camera)
+    /* Select the best back camera (prefer ultrawide if available, otherwise first back camera) */
     let selectedBackCamera: MediaDeviceInfo | null = null;
     if (ultrawideCameras.length > 0) {
-      // Check if ultrawide is actually a back camera
+      /* Check if ultrawide is actually a back camera */
       const ultrawideBackCamera = ultrawideCameras.find(camera => {
         const label = camera.label.toLowerCase();
         return !label.includes('front') && !label.includes('selfie');
@@ -193,31 +193,31 @@ export default function ProductSearch() {
       }
     }
     
-    // If no ultrawide back camera, use regular back camera
+    /* If no ultrawide back camera, use regular back camera */
     if (!selectedBackCamera && backCameras.length > 0) {
       selectedBackCamera = backCameras[0];
     }
     
-    // If no back camera available, fallback to front camera
+    /* If no back camera available, fallback to front camera */
     if (!selectedBackCamera && frontCameras.length > 0) {
       selectedBackCamera = frontCameras[0];
     }
     
-    // Add selected camera to filtered array
+    /* Add selected camera to filtered array */
     if (selectedBackCamera) {
       filtered.push(selectedBackCamera);
     }
     
-    // Mobile device fallback: if no cameras were categorized properly
+    /* Mobile device fallback: if no cameras were categorized properly */
     if (filtered.length === 0 && devices.length > 0) {
-      // Use the first camera available (usually back camera on mobile)
+      /* Use the first camera available (usually back camera on mobile) */
       filtered.push(devices[0]);
     }
     
     return filtered;
   };
 
-  // Auth state listener
+  /* Auth state listener */
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       setFirebaseUser(user);
@@ -225,12 +225,12 @@ export default function ProductSearch() {
     return () => unsub();
   }, []);
 
-  // Simulate initial page load
+  /* Simulate initial page load */
   useEffect(() => {
     const timer = setTimeout(() => {
       setPageLoading(false);
-      setNavigating(false); // Clear navigation loading state
-    }, 500); // Small delay to ensure smooth navigation experience
+      setNavigating(false); /* Clear navigation loading state */
+    }, 500); /* Small delay to ensure smooth navigation experience */
     
     return () => clearTimeout(timer);
   }, [setNavigating]);
@@ -256,14 +256,14 @@ export default function ProductSearch() {
     }
   }, []);
 
-  // Auto-search when debounced query changes
+  /* Auto-search when debounced query changes */
   useEffect(() => {
     handleSearch(debouncedQuery);
   }, [debouncedQuery, handleSearch]);
 
-  // Barcode scanner setup - only after page has loaded
+  /* Barcode scanner setup - only after page has loaded */
   useEffect(() => {
-    if (pageLoading) return; // Don't start camera until page is loaded
+    if (pageLoading) return; /* Don't start camera until page is loaded */
     
     let active = true;
 
@@ -271,7 +271,7 @@ export default function ProductSearch() {
       try {
         const devices = await BrowserMultiFormatReader.listVideoInputDevices();
         
-        // Filter cameras to only include desired types
+        /* Filter cameras to only include desired types */
         const filtered = await filterCameras(devices);
         setFilteredCameras(filtered);
         
@@ -297,7 +297,7 @@ export default function ProductSearch() {
       }
     };
 
-    // Add a small delay to ensure video element is fully rendered
+    /* Add a small delay to ensure video element is fully rendered */
     const timer = setTimeout(startCamera, 100);
 
     return () => {
@@ -310,14 +310,14 @@ export default function ProductSearch() {
     };
   }, [router, pageLoading, currentCameraIndex]);
 
-  // Separate effect to initialize camera index when cameras are first detected
+  /* Separate effect to initialize camera index when cameras are first detected */
   useEffect(() => {
     if (filteredCameras.length > 0 && currentCameraIndex !== 0) {
-      setCurrentCameraIndex(0); // Always start with back camera (index 0)
+      setCurrentCameraIndex(0); /* Always start with back camera (index 0) */
     }
   }, [filteredCameras, currentCameraIndex]);
 
-  // Cleanup camera when component unmounts
+  /* Cleanup camera when component unmounts */
   useEffect(() => {
     return () => {
       if (cameraControlsRef.current) {

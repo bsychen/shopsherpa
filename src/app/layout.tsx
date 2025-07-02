@@ -33,7 +33,7 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/icon.png" />
       </head>
-      <body >
+      <body>
         <TopBarProvider>
           <NavigationLoader />
           <div style={{ backgroundColor: colours.card.background }}>

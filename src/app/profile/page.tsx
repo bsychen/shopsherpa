@@ -6,11 +6,11 @@ import { auth } from "@/lib/firebaseClient";
 import { useRouter } from "next/navigation";
 import { getUserById } from "@/lib/api";
 import type { UserProfile } from "@/types/user";
-import UserReviewsList from "@/components/UserReviewsList";
-import PreferencesRadarChart from "@/components/PreferencesRadarChart";
-import AllergenManager from "@/components/AllergenManager";
-import EditButton from "@/components/EditButton";
-import ContentBox from "@/components/ContentBox";
+import UserReviewsList from "@/components/profile/UserReviewsList";
+import PreferencesRadarChart from "@/components/profile/PreferencesRadarChart";
+import AllergenManager from "@/components/profile/AllergenManager";
+import EditButton from "@/components/buttons/EditButton";
+import ContentBox from "@/components/community/ContentBox";
 import Image from "next/image";
 import { colours } from "@/styles/colours";
 import LoadingAnimation from "@/components/LoadingSpinner";
@@ -42,13 +42,13 @@ export default function ProfilePage() {
     setLoading(true);
     getUserById(firebaseUser.uid)
       .then((userData) => {
-        // Defensive: ensure all required fields are present
+        /* Defensive: ensure all required fields are present */
         setUser({
           userId: typeof userData?.userId === "string" ? userData.userId : firebaseUser.uid,
           username: typeof userData?.username === "string" ? userData.username : '',
           email: typeof userData?.email === "string" ? userData.email : firebaseUser.email || '',
           pfp: typeof userData?.pfp === "string" ? userData.pfp : '',
-          // Include preference fields with defaults
+          /* Include preference fields with defaults */
           pricePreference: typeof userData?.pricePreference === "number" ? userData.pricePreference : 1,
           qualityPreference: typeof userData?.qualityPreference === "number" ? userData.qualityPreference : 1,
           nutritionPreference: typeof userData?.nutritionPreference === "number" ? userData.nutritionPreference : 1,
@@ -59,7 +59,7 @@ export default function ProfilePage() {
       })
       .finally(() => {
         setLoading(false);
-        setNavigating(false); // Clear navigation loading state
+        setNavigating(false); /* Clear navigation loading state */
       });
   }, [firebaseUser, setNavigating]);
 
@@ -88,11 +88,11 @@ export default function ProfilePage() {
         throw new Error(error.error || 'Failed to update preferences');
       }
 
-      // Update local user state with new preferences
+      /* Update local user state with new preferences */
       setUser(prevUser => prevUser ? { ...prevUser, ...preferences } : null);
     } catch (error) {
       console.error('Error updating preferences:', error);
-      throw error; // Re-throw to let the component handle the error
+      throw error; /* Re-throw to let the component handle the error */
     } finally {
       setIsUpdatingPreferences(false);
     }
@@ -101,7 +101,7 @@ export default function ProfilePage() {
   const handleAllergensUpdate = async (allergens: string[]) => {
     if (!firebaseUser) return;
 
-    setIsUpdatingPreferences(true); // Reuse the same loading state
+    setIsUpdatingPreferences(true); /* Reuse the same loading state */
     try {
       const idToken = await firebaseUser.getIdToken();
       const response = await fetch('/api/auth/updatePreferences', {
@@ -118,11 +118,11 @@ export default function ProfilePage() {
         throw new Error(error.error || 'Failed to update allergens');
       }
 
-      // Update local user state with new allergens
+      /* Update local user state with new allergens */
       setUser(prevUser => prevUser ? { ...prevUser, allergens } : null);
     } catch (error) {
       console.error('Error updating allergens:', error);
-      throw error; // Re-throw to let the component handle the error
+      throw error; /* Re-throw to let the component handle the error */
     } finally {
       setIsUpdatingPreferences(false);
     }
@@ -178,7 +178,7 @@ export default function ProfilePage() {
                 isEditMode={isPreferencesEditMode}
                 onToggle={async () => {
                   if (isPreferencesEditMode) {
-                    // If in edit mode and there are changes, save them
+                    /* If in edit mode and there are changes, save them */
                     if (preferencesRadarRef.current?.hasChanges) {
                       await preferencesRadarRef.current.saveChanges();
                     }

@@ -166,4 +166,6 @@
 
 html, body {
   font-family: 'Onest', system-ui, sans-serif;
+  background-color: #63a088; /* lightGreen from colours.ts */
+  min-height: 100vh;
 }

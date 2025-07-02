@@ -21,13 +21,13 @@ export async function PATCH(
       case 'like':
         await commentRef.update({
           likes: FieldValue.arrayUnion(userId),
-          dislikes: FieldValue.arrayRemove(userId), // Remove from dislikes if present
+          dislikes: FieldValue.arrayRemove(userId), /* Remove from dislikes if present */
         });
         break;
       case 'dislike':
         await commentRef.update({
           dislikes: FieldValue.arrayUnion(userId),
-          likes: FieldValue.arrayRemove(userId), // Remove from likes if present
+          likes: FieldValue.arrayRemove(userId), /* Remove from likes if present */
         });
         break;
       case 'unlike':

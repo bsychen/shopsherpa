@@ -3,3 +3,13 @@ export interface Brand {
   brandName: string;
   brandRating: number; // default rating, can be updated later
 }
+
+/* Brand statistics interface */
+export interface BrandStats {
+  price: number;
+  quality: number;
+  nutrition: number;
+  sustainability: number;
+  overallScore: number;
+  productCount: number;
+}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import AuthForm from '@/components/authForm';
+import AuthForm from '@/components/profile/authForm';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebaseClient';
 import { colours } from '@/styles/colours';
@@ -21,7 +21,7 @@ export default function LoginPage() {
           localStorage.removeItem('postAuthRedirect');
           router.push(redirect);
         } else {
-          router.push('/profile'); // Redirect to profile page after successful login/signup
+          router.push('/profile'); /* Redirect to profile page after successful login/signup */
         }
       }
     });

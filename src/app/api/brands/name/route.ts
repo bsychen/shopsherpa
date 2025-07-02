@@ -3,7 +3,7 @@ import { getBrand } from "@/lib/brandUtils";
 
 export async function GET(request: Request) {
   try {
-    // Get the brand name from query parameters
+    /* Get the brand name from query parameters */
     const { searchParams } = new URL(request.url);
     const brandName = searchParams.get("name");
 
