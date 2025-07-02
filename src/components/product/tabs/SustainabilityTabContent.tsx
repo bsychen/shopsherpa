@@ -7,9 +7,13 @@ interface SustainabilityTabContentProps {
   animatedSustainability: number;
 }
 
+function invalidEcoscore(ecoscore: string | undefined): boolean {
+  return !ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown';
+}
+
 /* Helper function to get color based on ecoscore */
 const getEcoscoreColor = (ecoscore: string | undefined): string => {
-  if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') {
+  if (invalidEcoscore(ecoscore)) {
     return colours.text.muted;
   }
   if (ecoscore === 'f' || ecoscore === 'e' || ecoscore === 'd') {
@@ -28,7 +32,7 @@ const getEcoscoreBackgroundColor = (ecoscore: string | undefined): string => {
 
 // Helper function to format ecoscore display
 const formatEcoscoreDisplay = (ecoscore: string | undefined): string => {
-  if (!ecoscore || ecoscore === 'not-applicable' || ecoscore === 'unknown') {
+  if (invalidEcoscore(ecoscore)) {
     return '--';
   }
   return ecoscore.replace('-plus', '+').toUpperCase();
@@ -41,7 +45,7 @@ const SustainabilityTabContent: React.FC<SustainabilityTabContentProps> = ({
   const ecoscore = product.ecoInformation?.ecoscore;
   const strokeColor = getEcoscoreColor(ecoscore);
   const backgroundColor = getEcoscoreBackgroundColor(ecoscore);
-  const scorePercentage = animatedSustainability / 5;
+  const scorePercentage = invalidEcoscore(ecoscore) ?  0 : animatedSustainability / 5 ;
   const displayScore = formatEcoscoreDisplay(ecoscore);
 
   return (
