@@ -22,11 +22,7 @@
    
    ![Allergen Warning System](public/readme/allergen-warning.png)
 
-5. **Read Reviews**: Browse community feedback and ratings
-   
-   ![Personal Match Score](public/readme/personal-vmatch.png)
-
-6. **Join Discussions**: Participate in community forums about products
+5. **Join Discussions**: Participate in community forums about products
 
     ![Community Discussions](public/readme/community.png)
 
