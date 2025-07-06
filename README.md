@@ -1,4 +1,4 @@
-# ShopSherpa 🛒
+# ShopSherpa 
 
 **ShopSherpa** is a comprehensive mobile-first web application designed to empower international students and immigrants in the UK to make informed grocery purchasing decisions. By combining real-time product data, community-driven reviews, and personalized recommendations, ShopSherpa transforms the shopping experience into an intelligent, confidence-building journey.
 
